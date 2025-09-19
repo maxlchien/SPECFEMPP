@@ -12,6 +12,7 @@ except ImportError:
     import _gmsh2meshfem  # noqa: F401
 
 
+BOUNDARY_TYPES = ["neumann", "acoustic_free_surface", "absorbing"]
 def get_parser():
     parser = ArgumentParser(
         prog="gmshLayerBuilder",
@@ -36,6 +37,35 @@ def get_parser():
         help="Shows a plot of the mesh using matplotlib.",
         dest="should_plot",
     )
+
+    parser.add_argument(
+        "--top",
+        choices=BOUNDARY_TYPES,
+        help="Boundary type on the top (defaults to neumann)",
+        dest="bdry_top",
+        default=BOUNDARY_TYPES[0]
+    )
+    parser.add_argument(
+        "--bottom",
+        choices=BOUNDARY_TYPES,
+        help="Boundary type on the bottom (defaults to neumann)",
+        dest="bdry_bottom",
+        default=BOUNDARY_TYPES[0]
+    )
+    parser.add_argument(
+        "--left",
+        choices=BOUNDARY_TYPES,
+        help="Boundary type on the left (defaults to neumann)",
+        dest="bdry_left",
+        default=BOUNDARY_TYPES[0]
+    )
+    parser.add_argument(
+        "--right",
+        choices=BOUNDARY_TYPES,
+        help="Boundary type on the right (defaults to neumann)",
+        dest="bdry_right",
+        default=BOUNDARY_TYPES[0]
+    )
     return parser
 
 
@@ -44,6 +74,8 @@ def run2D():
     import _gmsh2meshfem.topo_import
 
     args = get_parser().parse_args()
+
+
     builder = _gmsh2meshfem.topo_import.builder_from_topo_file(
         args.topo_file
     )

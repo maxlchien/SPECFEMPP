@@ -1,4 +1,5 @@
 import itertools
+from typing import Literal
 
 from _gmsh2meshfem.gmsh_dep import GmshContext
 from _gmsh2meshfem.dim2.model import Model
@@ -17,6 +18,13 @@ class LayeredBuilder:
     boundaries: list[LayerBoundary]
     layers: list[Layer]
 
+    domain_boundary_type_top: Literal["neumann", "acoustic_free_surface", "absorbing"]
+    domain_boundary_type_bottom: Literal[
+        "neumann", "acoustic_free_surface", "absorbing"
+    ]
+    domain_boundary_type_left: Literal["neumann", "acoustic_free_surface", "absorbing"]
+    domain_boundary_type_right: Literal["neumann", "acoustic_free_surface", "absorbing"]
+
     @property
     def width(self):
         return self.xhigh - self.xlow
@@ -26,6 +34,10 @@ class LayeredBuilder:
         self.xhigh = xhigh
         self.layers = []
         self.boundaries = []
+        self.domain_boundary_type_top = "neumann"
+        self.domain_boundary_type_bottom = "neumann"
+        self.domain_boundary_type_left = "neumann"
+        self.domain_boundary_type_right = "neumann"
 
     def create_model(self) -> Model:
         with GmshContext() as gmsh:
@@ -42,9 +54,49 @@ class LayeredBuilder:
 
             # store tags
             surfaces = []
+            left_walls = []
+            right_walls = []
             for i, (l0, l1) in enumerate(itertools.pairwise(built_layerbds)):
                 layer_result = self.layers[i].generate_layer(l0, l1, gmsh)
                 surfaces.append(layer_result.surface_index)
+
+            left_tag = gmsh.model.add_physical_group(
+                1, left_walls, name="left_boundary"
+            )
+            right_tag = gmsh.model.add_physical_group(
+                1, right_walls, name="right_boundary"
+            )
+            bottom_tag = gmsh.model.add_physical_group(
+                1, [built_layerbds[0].curve], name="bottom_boundary"
+            )
+            top_tag = gmsh.model.add_physical_group(
+                1, [built_layerbds[-1].curve_copy], name="top_boundary"
+            )
+
+            bdry_neumann = []
+            bdry_afs = []
+            bdry_abs = []
+
+            bdry_by_name = {
+                "neumann": bdry_neumann,
+                "acoustic_free_surface": bdry_afs,
+                "absorbing": bdry_abs,
+            }
+            bdry_by_name[self.domain_boundary_type_bottom].append(
+                gmsh.model.get_entities_for_physical_group(1, bottom_tag)
+            )
+            bdry_by_name[self.domain_boundary_type_top].append(
+                gmsh.model.get_entities_for_physical_group(1, top_tag)
+            )
+            bdry_by_name[self.domain_boundary_type_left].append(
+                gmsh.model.get_entities_for_physical_group(1, left_tag)
+            )
+            bdry_by_name[self.domain_boundary_type_right].append(
+                gmsh.model.get_entities_for_physical_group(1, right_tag)
+            )
+            for name, bdry in bdry_by_name.items():
+                if bdry:
+                    gmsh.model.add_physical_group(1, bdry, name=name)
 
             # required for ngnod = 9
             gmsh.option.setNumber("Mesh.ElementOrder", 2)
@@ -57,4 +109,4 @@ class LayeredBuilder:
             # =====================================================================
             #                      extract mesh model
             # =====================================================================
-            return Model.from_meshed_surface(surface=surfaces,gmsh=gmsh)
+            return Model.from_meshed_surface(surface=surfaces, gmsh=gmsh)
