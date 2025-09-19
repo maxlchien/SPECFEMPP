@@ -34,7 +34,7 @@ template <specfem::dimension::type Dimension> struct Materials {
   };
 
   int n_materials;
-  specfem::kokkos::HostView1d<material_specification> material_index_mapping;
+  std::vector<material_specification> material_index_mapping;
 
   FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM3), MEDIUM_TAG(ACOUSTIC, ELASTIC),
                        PROPERTY_TAG(ISOTROPIC, ANISOTROPIC)),
@@ -54,7 +54,7 @@ public:
             specfem::element::property_tag PropertyTag>
   specfem::medium::material<MediumTag, PropertyTag>
   get_material(const int index) const {
-    const auto &material_specification = this->material_index_mapping(index);
+    const auto &material_specification = this->material_index_mapping[index];
 
     FOR_EACH_IN_PRODUCT(
         (DIMENSION_TAG(DIM3), MEDIUM_TAG(ACOUSTIC, ELASTIC),
@@ -86,6 +86,23 @@ public:
                         })
 
     Kokkos::abort("Invalid material type detected in material specification");
+  }
+
+  template <specfem::element::medium_tag MediumTag,
+            specfem::element::property_tag PropertyTag>
+  void add_material(
+      const specfem::medium::material<MediumTag, PropertyTag> &new_material,
+      const int database_index) {
+    auto &material_container = this->get_container<MediumTag, PropertyTag>();
+    material_container.element_materials.push_back(new_material);
+    material_container.n_materials += 1;
+
+    const int current_index = this->n_materials;
+    this->n_materials += 1;
+    this->material_index_mapping.push_back(
+        { MediumTag, PropertyTag, current_index, database_index });
+
+    return;
   }
 };
 } // namespace spectral::mesh::meshfem3d

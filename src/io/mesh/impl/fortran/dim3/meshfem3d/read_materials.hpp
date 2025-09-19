@@ -38,13 +38,13 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           specfem::material::material<specfem::element::medium_tag::acoustic,
                                       specfem::element::property_tag::isotropic>
               material(rho, vp, Qkappa);
-          materials.add_material(material);
+          materials.add_material(material, imat);
         } else if (vs > 0.0) {
           // Isotropic elastic material
           specfem::material::material<specfem::element::medium_tag::elastic,
                                       specfem::element::property_tag::isotropic>
               material(rho, vp, vs, Qkappa, Qmu);
-          materials.add_material(material);
+          materials.add_material(material, imat);
         } else {
           throw std::runtime_error(
               "Shear wave velocity (Vs) cannot be negative for elastic "
