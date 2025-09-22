@@ -179,10 +179,15 @@ public:
    * @brief Returns the assembled index given element index.
    *
    */
-  template <bool on_device>
-  KOKKOS_INLINE_FUNCTION constexpr int get_iglob(
-      const specfem::point::index<specfem::dimension::type::dim2, false> &index,
-      const specfem::element::medium_tag MediumTag) const {
+  template <bool on_device, typename IndexType,
+            typename std::enable_if_t<
+                specfem::data_access::is_index_type<IndexType>::value &&
+                    IndexType::using_simd == false &&
+                    IndexType::dimension_tag == specfem::dimension::type::dim2,
+                int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr int
+  get_iglob(const IndexType &index,
+            const specfem::element::medium_tag MediumTag) const {
     return get_iglob<on_device>(index.ispec, index.iz, index.ix, MediumTag);
   }
 
@@ -190,10 +195,15 @@ public:
    * @brief Returns the assembled index given element index.
    *
    */
-  template <bool on_device>
-  KOKKOS_INLINE_FUNCTION constexpr int get_iglob(
-      const specfem::point::index<specfem::dimension::type::dim2, true> &index,
-      const int &lane, const specfem::element::medium_tag MediumTag) const {
+  template <bool on_device, typename IndexType,
+            typename std::enable_if_t<
+                specfem::data_access::is_index_type<IndexType>::value &&
+                    IndexType::using_simd == true &&
+                    IndexType::dimension_tag == specfem::dimension::type::dim2,
+                int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr int
+  get_iglob(const IndexType &index, const int &lane,
+            const specfem::element::medium_tag MediumTag) const {
     return get_iglob<on_device>(index.ispec + lane, index.iz, index.ix,
                                 MediumTag);
   }

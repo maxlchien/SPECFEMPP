@@ -94,6 +94,8 @@ public:
    * @param number_elements The number of elements in the chunk.
    * @param iz The z-coordinate of the GLL point.
    * @param ix The x-coordinate of the GLL point.
+   * @param ielement The index of the element relative to the first in the
+   * chunk.
    * @param kokkos_index The Kokkos index type.
    */
   template <bool U = UseSIMD, specfem::dimension::type D = DimensionTag,
@@ -132,6 +134,8 @@ public:
    * @param iz The z-coordinate of the GLL point.
    * @param iy The y-coordinate of the GLL point.
    * @param ix The x-coordinate of the GLL point.
+   * @param ielement The index of the element relative to the first in the
+   * chunk.
    * @param kokkos_index The Kokkos index type.
    */
   template <bool U = UseSIMD, specfem::dimension::type D = DimensionTag,
@@ -139,8 +143,11 @@ public:
                                     int>::type = 0>
   KOKKOS_INLINE_FUNCTION
   PointIndex(const int &ispec, const int &number_elements, const int &iz,
-             const int &iy, const int &ix, const KokkosIndexType &kokkos_index)
-      : index(ispec, number_elements, iz, iy, ix), kokkos_index(kokkos_index) {}
+             const int &iy, const int &ix, const int &ielement,
+             const KokkosIndexType &kokkos_index)
+      : index(ispec, number_elements, iz, iy, ix),
+        local_index(ielement, number_elements, iz, iy, ix),
+        kokkos_index(kokkos_index) {}
 
   /**
    * @brief Constructor for 3D PointIndex when SIMD is not used.
@@ -149,15 +156,18 @@ public:
    * @param iz The z-coordinate of the GLL point.
    * @param iy The y-coordinate of the GLL point.
    * @param ix The x-coordinate of the GLL point.
+   * @param ielement The index of the element relative to the first in the
+   * chunk.
    * @param kokkos_index The Kokkos index type.
    */
   template <bool U = UseSIMD, specfem::dimension::type D = DimensionTag,
             typename std::enable_if<!U && D == specfem::dimension::type::dim3,
                                     int>::type = 0>
-  KOKKOS_INLINE_FUNCTION PointIndex(const int &ispec, const int &iz,
-                                    const int &iy, const int &ix,
-                                    const KokkosIndexType &kokkos_index)
-      : index(ispec, iz, iy, ix), kokkos_index(kokkos_index) {}
+  KOKKOS_INLINE_FUNCTION
+  PointIndex(const int &ispec, const int &iz, const int &iy, const int &ix,
+             const int &ielement, const KokkosIndexType &kokkos_index)
+      : index(ispec, iz, iy, ix), local_index(ielement, iz, iy, ix),
+        kokkos_index(kokkos_index) {}
 
   KOKKOS_INLINE_FUNCTION
   constexpr bool is_end() const {
@@ -301,7 +311,7 @@ public:
                             : simd_size;
     int ispec = indices(ielement);
 #endif
-    return index_type(ispec, simd_elements, iz, iy, ix, ielement);
+    return index_type(ispec, simd_elements, iz, iy, ix, ielement, i);
   }
 
   template <bool U = using_simd, specfem::dimension::type D = dimension_tag>
@@ -325,7 +335,7 @@ public:
         i / (element_grid.ngllz * element_grid.nglly * element_grid.ngllx);
     int ispec = indices(ielement);
 #endif
-    return index_type(ispec, iz, iy, ix, ielement);
+    return index_type(ispec, iz, iy, ix, ielement, i);
   }
 
   /**
