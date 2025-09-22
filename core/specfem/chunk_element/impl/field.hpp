@@ -289,16 +289,22 @@ public:
     return m_data(indices...);
   }
 
-  template <typename IndexType, typename std::enable_if_t<specfem::data_access::is_index_type<IndexType>::value && specfem::data_access::is_point_type<IndexType>::value, int= 0>>
-  KOKKOS_FORCEINLINE_FUNCTION auto &
-  operator()(const IndexType &index) {
+  template <typename IndexType,
+            typename std::enable_if_t<
+                specfem::data_access::is_index_type<IndexType>::value &&
+                    specfem::data_access::is_point<IndexType>::value,
+                int> = 0>
+  KOKKOS_FORCEINLINE_FUNCTION auto &operator()(const IndexType &index) {
     return m_data(index);
   }
 
-  template <typename IndexType, typename std::enable_if_t<specfem::data_access::is_index_type<IndexType>::value && specfem::data_access::is_point_type<IndexType>::value, int= 0>>
+  template <typename IndexType,
+            typename std::enable_if_t<
+                specfem::data_access::is_index_type<IndexType>::value &&
+                    specfem::data_access::is_point<IndexType>::value,
+                int> = 0>
   KOKKOS_FORCEINLINE_FUNCTION typename value_type::value_type &
-  operator()(const IndexType &index,
-             const int &icomp) {
+  operator()(const IndexType &index, const int &icomp) {
     return m_data(index, icomp);
   }
 
