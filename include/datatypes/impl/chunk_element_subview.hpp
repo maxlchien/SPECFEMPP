@@ -32,6 +32,7 @@ template <typename ViewType> struct VectorChunkSubview {
    * @param view Reference to the parent view
    * @param index Reference to the index within the parent view
    */
+  KOKKOS_FUNCTION
   VectorChunkSubview(ViewType &view, const index_type &index)
       : view(view), index(index) {}
 
@@ -170,6 +171,7 @@ template <typename ViewType> struct TensorChunkSubview {
    * @param view Reference to the parent view
    * @param index Reference to the index within the parent view
    */
+  KOKKOS_FUNCTION
   TensorChunkSubview(ViewType &view, const index_type &index)
       : view(view), index(index) {}
 
