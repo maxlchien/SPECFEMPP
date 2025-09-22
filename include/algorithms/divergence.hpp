@@ -49,6 +49,53 @@ element_divergence(const TensorFieldType &f,
   }
   return result;
 }
+
+template <typename TensorFieldType, typename WeightsType,
+          typename QuadratureType,
+          typename std::enable_if_t<TensorFieldType::dimension_tag ==
+                                        specfem::dimension::type::dim3,
+                                    int> = 0>
+KOKKOS_FORCEINLINE_FUNCTION auto
+element_divergence(const TensorFieldType &f,
+                   const typename TensorFieldType::index_type &index,
+                   const int &ielement, const WeightsType &weights,
+                   const QuadratureType &hprimewgll) {
+  using datatype = typename TensorFieldType::simd::datatype;
+
+  using VectorPointViewType =
+      specfem::datatype::VectorPointViewType<type_real,
+                                             TensorFieldType::components,
+                                             TensorFieldType::simd::using_simd>;
+  const int iz = index.iz;
+  const int iy = index.iy;
+  const int ix = index.ix;
+  constexpr int components = TensorFieldType::components;
+  constexpr int ngll = TensorFieldType::ngll;
+
+  datatype temp1l[components] = { 0.0 };
+  datatype temp2l[components] = { 0.0 };
+  datatype temp3l[components] = { 0.0 };
+
+  /// We omit the divergence here since we multiplied it when computing F.
+  for (int l = 0; l < ngll; ++l) {
+    for (int icomp = 0; icomp < components; ++icomp) {
+      temp1l[icomp] += f(ielement, iz, iy, l, icomp, 0) * hprimewgll(ix, l);
+    }
+    for (int icomp = 0; icomp < components; ++icomp) {
+      temp2l[icomp] += f(ielement, iz, l, ix, icomp, 1) * hprimewgll(iy, l);
+    }
+    for (int icomp = 0; icomp < components; ++icomp) {
+      temp2l[icomp] += f(ielement, l, iy, ix, icomp, 1) * hprimewgll(iz, l);
+    }
+  }
+  VectorPointViewType result;
+  for (int icomp = 0; icomp < components; ++icomp) {
+    result(icomp) = weights(iz) * weights(iy) * temp1l[icomp] +
+                    weights(iz) * weights(ix) * temp2l[icomp] +
+                    +weights(iy) * weights(ix) * temp3l[icomp];
+  }
+  return result;
+}
 } // namespace impl
 
 /**
