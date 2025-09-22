@@ -19,9 +19,7 @@ template <typename ViewType> struct VectorChunkSubview {
   /// Index type from the parent view
   using index_type = typename ViewType::index_type;
   /// Point view type for component access
-  using point_view_type =
-      VectorPointViewType<typename ViewType::base_type, ViewType::components,
-                          ViewType::using_simd>;
+  using point_view_type = typename ViewType::point_view_type;
 
   /// Reference to the parent view
   ViewType &view;
@@ -34,6 +32,7 @@ template <typename ViewType> struct VectorChunkSubview {
    * @param view Reference to the parent view
    * @param index Reference to the index within the parent view
    */
+  KOKKOS_FUNCTION
   VectorChunkSubview(ViewType &view, const index_type &index)
       : view(view), index(index) {}
 
@@ -42,7 +41,6 @@ template <typename ViewType> struct VectorChunkSubview {
    *
    * Specialized for 2D case, providing element access with proper indexing.
    *
-   * @tparam D Dimension tag, defaulted to the index type's dimension tag
    * @param icomp Component index to access
    * @return Reference to the component value
    */
@@ -51,6 +49,21 @@ template <typename ViewType> struct VectorChunkSubview {
       typename std::enable_if_t<D == specfem::dimension::type::dim2, int> = 0>
   KOKKOS_INLINE_FUNCTION constexpr auto &operator()(const int &icomp) {
     return view(index.ispec, index.iz, index.ix, icomp);
+  }
+
+  /**
+   * @brief Access a specific component of the vector (non-const)
+   *
+   * Specialized for 3D case, providing element access with proper indexing.
+   *
+   * @param icomp Component index to access
+   * @return Reference to the component value
+   */
+  template <
+      specfem::dimension::type D = index_type::dimension_tag,
+      typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr auto &operator()(const int &icomp) {
+    return view(index.ispec, index.iz, index.iy, index.ix, icomp);
   }
 
   /**
@@ -67,6 +80,22 @@ template <typename ViewType> struct VectorChunkSubview {
       typename std::enable_if_t<D == specfem::dimension::type::dim2, int> = 0>
   KOKKOS_INLINE_FUNCTION constexpr auto operator()(const int &icomp) const {
     return view(index.ispec, index.iz, index.ix, icomp);
+  }
+
+  /**
+   * @brief Access a specific component of the vector (const)
+   *
+   * Specialized for 3D case, providing const element access with proper
+   * indexing.
+   *
+   * @param icomp Component index to access
+   * @return Value of the component
+   */
+  template <
+      specfem::dimension::type D = index_type::dimension_tag,
+      typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr auto operator()(const int &icomp) const {
+    return view(index.ispec, index.iz, index.iy, index.ix, icomp);
   }
 
   /**
@@ -99,9 +128,7 @@ template <typename ViewType> struct TensorChunkSubview {
   /// Index type from the parent view
   using index_type = typename ViewType::index_type;
   /// Point view type for tensor component access
-  using point_view_type =
-      TensorPointViewType<typename ViewType::base_type, ViewType::components,
-                          ViewType::dimensions, ViewType::using_simd>;
+  using point_view_type = typename ViewType::point_view_type;
 
   /// Reference to the parent view
   ViewType &view;
@@ -144,6 +171,7 @@ template <typename ViewType> struct TensorChunkSubview {
    * @param view Reference to the parent view
    * @param index Reference to the index within the parent view
    */
+  KOKKOS_FUNCTION
   TensorChunkSubview(ViewType &view, const index_type &index)
       : view(view), index(index) {}
 
@@ -165,12 +193,28 @@ template <typename ViewType> struct TensorChunkSubview {
   }
 
   /**
+   * @brief Access a specific tensor component (non-const)
+   *
+   * Specialized for 3D case, providing element access with proper indexing.
+   *
+   * @param icomp Component index
+   * @param idim Dimension index
+   * @return Reference to the tensor component
+   */
+  template <
+      specfem::dimension::type D = index_type::dimension_tag,
+      typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr auto &operator()(const int &icomp,
+                                                    const int &idim) {
+    return view(index.ispec, index.iz, index.iy, index.ix, icomp, idim);
+  }
+
+  /**
    * @brief Access a specific tensor component (const)
    *
    * Specialized for 2D case, providing const element access with proper
    * indexing.
    *
-   * @tparam D Dimension tag, defaulted to the index type's dimension tag
    * @param icomp Component index
    * @param idim Dimension index
    * @return Value of the tensor component
@@ -181,6 +225,24 @@ template <typename ViewType> struct TensorChunkSubview {
   KOKKOS_INLINE_FUNCTION constexpr auto operator()(const int &icomp,
                                                    const int &idim) const {
     return view(index.ispec, index.iz, index.ix, icomp, idim);
+  }
+
+  /**
+   * @brief Access a specific tensor component (const)
+   *
+   * Specialized for 3D case, providing const element access with proper
+   * indexing.
+   *
+   * @param icomp Component index
+   * @param idim Dimension index
+   * @return Value of the tensor component
+   */
+  template <
+      specfem::dimension::type D = index_type::dimension_tag,
+      typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr auto operator()(const int &icomp,
+                                                   const int &idim) const {
+    return view(index.ispec, index.iz, index.iy, index.ix, icomp, idim);
   }
 
   /**
