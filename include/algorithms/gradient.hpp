@@ -36,8 +36,7 @@ namespace algorithms {
 template <
     typename ChunkIndexType, typename ViewType, typename QuadratureType,
     typename CallbackFunctor,
-    std::enable_if_t<ViewType::accessor_type ==
-                         specfem::data_access::AccessorType::chunk_element,
+    std::enable_if_t<specfem::data_access::is_chunk_element<ViewType>::value
                      int> = 0>
 KOKKOS_FORCEINLINE_FUNCTION void gradient(
     const ChunkIndexType &chunk_index,
