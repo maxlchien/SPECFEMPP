@@ -3,6 +3,7 @@
 #include "execution/for_each_level.hpp"
 #include "kokkos_abstractions.h"
 #include "specfem/assembly.hpp"
+#include "specfem/data_access.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
@@ -33,11 +34,10 @@ namespace algorithms {
  * specfem::datatype::TensorPointViewType<type_real, 2, ViewType::components>)
  * @endcode
  */
-template <
-    typename ChunkIndexType, typename ViewType, typename QuadratureType,
-    typename CallbackFunctor,
-    std::enable_if_t<specfem::data_access::is_chunk_element<ViewType>::value
-                     int> = 0>
+template <typename ChunkIndexType, typename ViewType, typename QuadratureType,
+          typename CallbackFunctor,
+          std::enable_if_t<
+              specfem::data_access::is_chunk_element<ViewType>::value, int> = 0>
 KOKKOS_FORCEINLINE_FUNCTION void gradient(
     const ChunkIndexType &chunk_index,
     const specfem::assembly::jacobian_matrix<specfem::dimension::type::dim2>
@@ -132,11 +132,10 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
  * ViewType::components>)
  * @endcode
  */
-template <
-    typename ChunkIndexType, typename ViewType, typename QuadratureType,
-    typename CallbackFunctor,
-    std::enable_if_t<specfem::data_access::is_chunk_element<ViewType>::value
-                     int> = 0>
+template <typename ChunkIndexType, typename ViewType, typename QuadratureType,
+          typename CallbackFunctor,
+          std::enable_if_t<
+              specfem::data_access::is_chunk_element<ViewType>::value, int> = 0>
 KOKKOS_FORCEINLINE_FUNCTION void gradient(
     const ChunkIndexType &chunk_index,
     const specfem::assembly::jacobian_matrix<specfem::dimension::type::dim2>

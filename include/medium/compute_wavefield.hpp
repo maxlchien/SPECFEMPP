@@ -76,13 +76,11 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
                     specfem::dimension::type::dim2,
                 "AccelerationFieldType dimension tag must be dim2");
 
-  static_assert(DisplacementFieldType::accessor_type ==
-                        specfem::data_access::AccessorType::chunk_element &&
-                    VelocityFieldType::accessor_type ==
-                        specfem::data_access::AccessorType::chunk_element &&
-                    AccelerationFieldType::accessor_type ==
-                        specfem::data_access::AccessorType::chunk_element,
-                "All field types must be chunk view types");
+  static_assert(
+      specfem::data_access::is_chunk_element<DisplacementFieldType>::value &&
+          specfem::data_access::is_chunk_element<VelocityFieldType>::value &&
+          specfem::data_access::is_chunk_element<AccelerationFieldType>::value,
+      "All field types must be chunk view types");
 
   using dimension_dispatch =
       std::integral_constant<specfem::dimension::type,
@@ -97,7 +95,7 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
                          displacement, velocity, acceleration,
                          wavefield_component, wavefield_on_entire_grid);
   return;
-} // compute_wavefield
+} // git pull
 
 } // namespace medium
 } // namespace specfem
