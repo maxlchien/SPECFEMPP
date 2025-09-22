@@ -13,7 +13,7 @@ is yaml.
 
 In addition to these basic read functions, there are also the two
 reader and writer classes, :cpp:class:`specfem::io::wavefield_reader` and
-:cpp:class:`specfem::io::wavefield_writer`, which support both HDF5 and ASCII I/O.
+:cpp:class:`specfem::io::wavefield_writer`, which support Numpy Binary and Zip (NPY and NPZ, respectively), HDF5, ADIOS and ASCII I/O.
 And, to write seismograms, we can use :cpp:class:`specfem::io::seismogram_writer`.
 Seismogram I/O is only supported in ASCII format thus far.
 
@@ -47,7 +47,7 @@ Read 2D Sources
 Read 2D Receivers
 -----------------
 
-.. doxygenfunction:: specfem::io::read_receivers(const std::string &stations_file, const type_real angle)
+.. doxygenfunction:: specfem::io::read_2d_receivers(const std::string &stations_file, const type_real angle)
 
 
 
@@ -70,9 +70,7 @@ Read 3D Sources
 Read 3D Receivers
 -----------------
 
-.. note::
-
-    3D Receiver I/O is not yet implemented.
+.. doxygenfunction:: specfem::io::read_3d_receivers(const std::string &stations_file)
 
 
 

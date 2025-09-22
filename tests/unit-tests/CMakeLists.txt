@@ -98,6 +98,7 @@ target_link_libraries(io_framework_tests PRIVATE
   gtest_main
   Kokkos::kokkos
   kokkos_environment
+  $<$<BOOL:${SPECFEM_ENABLE_NPZ}>:zlib>
   $<$<BOOL:${SPECFEM_ENABLE_HDF5}>:hdf5>
   $<$<BOOL:${SPECFEM_ENABLE_ADIOS2}>:adios2>
 )
@@ -105,6 +106,7 @@ target_link_libraries(io_framework_tests PRIVATE
 target_compile_definitions(
     io_framework_tests
     PUBLIC
+    $<$<NOT:$<BOOL:${SPECFEM_ENABLE_NPZ}>>:-DNO_NPZ>
     $<$<NOT:$<BOOL:${SPECFEM_ENABLE_HDF5}>>:-DNO_HDF5>
     $<$<NOT:$<BOOL:${SPECFEM_ENABLE_ADIOS2}>>:-DNO_ADIOS2>
 )
@@ -273,6 +275,26 @@ target_link_libraries(
 )
 
 add_executable(
+  nonconforming_tests
+  nonconforming/reparameterizations/compute_intersection_test.cpp
+  nonconforming/runner.cpp
+)
+
+target_link_libraries(
+  nonconforming_tests
+  mesh
+  assembly
+  quadrature
+  mpi_environment
+  kokkos_environment
+  yaml-cpp
+  utilities
+  boost
+  -lpthread -lm
+  gtest_main
+)
+
+add_executable(
   compute_jacobian_matrix_tests
   assembly_mesh/jacobian_matrix/compute_jacobian_matrix_tests.cpp
 )
@@ -412,7 +434,12 @@ target_link_libraries(
 
 add_executable(
   io_tests
-  io/sources/test_read_sources.cpp
+  io/sources/test_read_sources_file.cpp
+  io/sources/test_read_sources_yaml.cpp
+  io/sources/test_source_solutions.cpp
+  io/receivers/test_receiver_solutions.cpp
+  io/receivers/test_read_stations_file.cpp
+  io/receivers/test_read_yaml.cpp
 )
 
 target_link_libraries(
@@ -446,6 +473,8 @@ target_link_libraries(
 add_executable(
   locate_point_fixture_2d
   algorithms/dim2/locate_point_fixture.cpp
+  algorithms/dim2/locate_point_test.cpp
+  algorithms/dim2/locate_point_on_edge_test.cpp
 )
 
 target_link_libraries(
@@ -496,6 +525,22 @@ target_link_libraries(
 )
 
 add_executable(
+  chunked_edge_tests
+  policies/chunked_edge.cpp
+)
+
+target_link_libraries(
+  chunked_edge_tests
+  kokkos_environment
+  gtest_main
+  Kokkos::kokkos
+  mpi_environment
+  kokkos_environment
+  ${BOOST_LIBS}
+  -lpthread -lm
+)
+
+add_executable(
   mass_matrix_tests
   medium/mass_matrix/main.cpp
   # 2D mass matrix tests
@@ -530,6 +575,19 @@ target_link_libraries(
   stress_tests
   point
   gtest_main
+)
+
+add_executable(
+  compute_coupling_tests
+  compute_coupling/acoustic_elastic.cpp
+  compute_coupling/elastic_acoustic.cpp
+)
+
+target_link_libraries(
+  compute_coupling_tests
+  point
+  gtest_main
+  Kokkos::kokkos
 )
 
 add_executable(
@@ -611,7 +669,6 @@ target_link_libraries(
   point
   edge
   algorithms
-  coupled_interface
   kokkos_kernels
   solver
   periodic_tasks
@@ -709,9 +766,12 @@ if(NOT MPI_PARALLEL)
     locate_point_fixture_2d
     locate_point_fixture_3d
     mass_matrix_tests
+    compute_coupling_tests
     mesh_tests
+    nonconforming_tests
     point_tests
     policies_tests
+    chunked_edge_tests
     receivers_tests
     simd_tests
     source_class_tests
