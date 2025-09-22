@@ -9,6 +9,48 @@
 namespace specfem {
 namespace algorithms {
 
+namespace impl {
+template <typename TensorFieldType, typename WeightsType,
+          typename QuadratureType,
+          typename std::enable_if_t<TensorFieldType::dimension_tag ==
+                                        specfem::dimension::type::dim2,
+                                    int> = 0>
+KOKKOS_FORCEINLINE_FUNCTION auto
+element_divergence(const TensorFieldType &f,
+                   const typename TensorFieldType::index_type &index,
+                   const int &ielement, const WeightsType &weights,
+                   const QuadratureType &hprimewgll) {
+  using datatype = typename TensorFieldType::simd::datatype;
+
+  using VectorPointViewType =
+      specfem::datatype::VectorPointViewType<type_real,
+                                             TensorFieldType::components,
+                                             TensorFieldType::simd::using_simd>;
+  const int iz = index.iz;
+  const int ix = index.ix;
+  constexpr int components = TensorFieldType::components;
+  constexpr int ngll = TensorFieldType::ngll;
+
+  datatype temp1l[components] = { 0.0 };
+  datatype temp2l[components] = { 0.0 };
+
+  /// We omit the divergence here since we multiplied it when computing F.
+  for (int l = 0; l < ngll; ++l) {
+    for (int icomp = 0; icomp < components; ++icomp) {
+      temp1l[icomp] += f(ielement, iz, l, icomp, 0) * hprimewgll(ix, l);
+    }
+    for (int icomp = 0; icomp < components; ++icomp) {
+      temp2l[icomp] += f(ielement, l, ix, icomp, 1) * hprimewgll(iz, l);
+    }
+  }
+  VectorPointViewType result;
+  for (int icomp = 0; icomp < components; ++icomp) {
+    result(icomp) = weights(iz) * temp1l[icomp] + weights(ix) * temp2l[icomp];
+  }
+  return result;
+}
+} // namespace impl
+
 /**
  * @defgroup AlgorithmsDivergence
  *
@@ -24,7 +66,7 @@ namespace algorithms {
  * @tparam ChunkIndexType Chunk index type
  * @tparam MemberType Kokkos team member type
  * @tparam IteratorType Iterator type (Chunk iterator)
- * @tparam VectorFieldType Vector field view type (Chunk view)
+ * @tparam TensorFieldType Vector field view type (Chunk view)
  * @tparam QuadratureType Quadrature view type
  * @tparam CallableType Callback functor type
  * @param chunk_index Chunk index specifying the elements within this chunk
@@ -37,27 +79,22 @@ namespace algorithms {
  * specfem::datatype::VectorPointViewType<type_real, ViewType::components>)
  * @endcode
  */
-template <
-    typename ChunkIndexType, typename VectorFieldType, typename WeightsType,
-    typename QuadratureType, typename CallableType,
-    std::enable_if_t<
-        VectorFieldType::accessor_type ==
-                specfem::data_access::AccessorType::chunk_element &&
-            VectorFieldType::dimension_tag == specfem::dimension::type::dim2,
-        int> = 0>
+template <typename ChunkIndexType, typename TensorFieldType,
+          typename WeightsType, typename QuadratureType, typename CallableType,
+          std::enable_if_t<
+              specfem::data_access::is_chunk_element<TensorFieldType>::value,
+              int> = 0>
 KOKKOS_FUNCTION void divergence(
     const ChunkIndexType &chunk_index,
     const specfem::assembly::jacobian_matrix<specfem::dimension::type::dim2>
         &jacobian_matrix,
     const WeightsType &weights, const QuadratureType &hprimewgll,
-    const VectorFieldType &f, const CallableType &callback) {
-
-  constexpr int components = VectorFieldType::components;
-  constexpr int NGLL = VectorFieldType::ngll;
-  constexpr static bool using_simd = VectorFieldType::simd::using_simd;
+    const TensorFieldType &f, const CallableType &callback) {
 
   using VectorPointViewType =
-      specfem::datatype::VectorPointViewType<type_real, components, using_simd>;
+      specfem::datatype::VectorPointViewType<type_real,
+                                             TensorFieldType::components,
+                                             TensorFieldType::simd::using_simd>;
 
   static_assert(
       std::is_invocable_v<CallableType,
@@ -67,38 +104,14 @@ KOKKOS_FUNCTION void divergence(
       "specfem::point::index, "
       "specfem::datatype::VectorPointViewType<type_real, components>)");
 
-  using simd = typename VectorFieldType::simd;
-  using datatype = typename VectorFieldType::simd::datatype;
-  using PointJacobianMatrixType =
-      specfem::point::jacobian_matrix<specfem::dimension::type::dim2, true,
-                                      using_simd>;
-
   specfem::execution::for_each_level(
       chunk_index.get_iterator(),
       [&](const typename ChunkIndexType::iterator_type::index_type
               &iterator_index) {
         const auto ielement = iterator_index.get_local_index().ispec;
         const auto index = iterator_index.get_index();
-        const int iz = index.iz;
-        const int ix = index.ix;
-
-        datatype temp1l[components] = { 0.0 };
-        datatype temp2l[components] = { 0.0 };
-
-        /// We omit the divergence here since we multiplied it when computing F.
-        for (int l = 0; l < NGLL; ++l) {
-          for (int icomp = 0; icomp < components; ++icomp) {
-            temp1l[icomp] += f(ielement, iz, l, icomp, 0) * hprimewgll(ix, l);
-          }
-          for (int icomp = 0; icomp < components; ++icomp) {
-            temp2l[icomp] += f(ielement, l, ix, icomp, 1) * hprimewgll(iz, l);
-          }
-        }
-        VectorPointViewType result;
-        for (int icomp = 0; icomp < components; ++icomp) {
-          result(icomp) =
-              weights(iz) * temp1l[icomp] + weights(ix) * temp2l[icomp];
-        }
+        const auto result =
+            impl::element_divergence(f, index, ielement, weights, hprimewgll);
         callback(iterator_index, result);
       });
 
