@@ -7,7 +7,7 @@ from _gmsh2meshfem.gmsh_dep import GmshContext
 
 from .boundary import BoundarySpec
 from .edges import ConformingInterfaces
-from .index_mapping import IndexMapping, JoinedIndexMapping
+from .index_mapping import ComposedIndexMapping, IndexMapping, JoinedIndexMapping
 from .nonconforming_interfaces import (
     NonconformingInterfaces,
 )
@@ -72,8 +72,11 @@ class Model:
         )
         num_elems1 = elem1_remapped.shape[0]
         num_elems2 = elem2_remapped.shape[0]
-        elem_left_map = IndexMapping(np.arange(num_elems1))
-        elem_right_map = IndexMapping(num_elems1 + np.arange(num_elems2))
+
+        # we may want to consider updating JoinedIndexMapping to allow the
+        # passing of index equivalencies. For now, hack it.
+        elem_left_map = IndexMapping(elemu_inv[:num_elems1])
+        elem_right_map = IndexMapping(elemu_inv[num_elems1:])
         elem_ind_remap = JoinedIndexMapping(elem_left_map, elem_right_map)
 
         # remap element ids in bdspec
@@ -102,16 +105,20 @@ class Model:
         # remap element ids in conforming interfaces
         nci1 = dataclass_replace(
             model1.nonconforming_interfaces,
-            elements_a=elem_ind_remap.apply(model1.nonconforming_interfaces.elements_a),
-            elements_b=elem_ind_remap.apply(model1.nonconforming_interfaces.elements_b),
+            elements_a=elem_ind_remap.left_to_joined.apply(
+                model1.nonconforming_interfaces.elements_a
+            ),
+            elements_b=elem_ind_remap.left_to_joined.apply(
+                model1.nonconforming_interfaces.elements_b
+            ),
         )
         nci2 = dataclass_replace(
             model2.nonconforming_interfaces,
-            elements_a=elem_ind_remap.apply(
-                model2.nonconforming_interfaces.elements_a + num_elems1
+            elements_a=elem_ind_remap.right_to_joined.apply(
+                model2.nonconforming_interfaces.elements_a
             ),
-            elements_b=elem_ind_remap.apply(
-                model2.nonconforming_interfaces.elements_b + num_elems1
+            elements_b=elem_ind_remap.right_to_joined.apply(
+                model2.nonconforming_interfaces.elements_b
             ),
         )
         # match nonconforming interfaces

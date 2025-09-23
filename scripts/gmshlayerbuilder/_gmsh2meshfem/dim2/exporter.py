@@ -222,7 +222,7 @@ class Exporter:
                         elem, EdgeType.QUA_9_node_indices_on_type(edgetype)[::2]
                     ]
                     f.write(
-                        f"{elem} 2 {node_indices[0]} {node_indices[1]} {edgetype}\n"
+                        f"{elem} 2 {node_indices[0]} {node_indices[1]} {edgetype + 1}\n"
                     )
 
         # =========================
@@ -261,7 +261,7 @@ class Exporter:
                 "w"
             ) as f:
                 num_pairs = self.model.nonconforming_interfaces.edges_a.shape[0]
-                f.write(str(num_pairs * 2))
+                f.write(str(num_pairs * 2) + "\n")
 
                 for ispec_a, ispec_b, edge_a, edge_b in zip(
                     self.model.nonconforming_interfaces.elements_a,
@@ -270,12 +270,12 @@ class Exporter:
                     self.model.nonconforming_interfaces.edges_b,
                 ):
                     f.write(
-                        f"\n{ispec_a + 1:d} {ispec_b + 1:d} "
+                        f"{ispec_a + 1:d} {ispec_b + 1:d} "
                         f"{NONCONFORMING_CONNECTION_TYPE:d} "
-                        f"{model_edge_to_meshfem_edge(edge_a):d}"
+                        f"{model_edge_to_meshfem_edge(edge_a):d}\n"
                     )
                     f.write(
-                        f"\n{ispec_b + 1:d} {ispec_a + 1:d} "
+                        f"{ispec_b + 1:d} {ispec_a + 1:d} "
                         f"{NONCONFORMING_CONNECTION_TYPE:d} "
-                        f"{model_edge_to_meshfem_edge(edge_b):d}"
+                        f"{model_edge_to_meshfem_edge(edge_b):d}\n"
                     )

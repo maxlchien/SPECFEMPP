@@ -9,6 +9,7 @@ from _gmsh2meshfem.dim2.binary_detect_N3 import maxfind_coefs_a, maxfind_coefs_b
 
 
 class EdgeType(IntEnum):
+    # this indexing is 1 less than the meshfem indexing. Keep that in mind.
     BOTTOM = 0
     RIGHT = 1
     TOP = 2
