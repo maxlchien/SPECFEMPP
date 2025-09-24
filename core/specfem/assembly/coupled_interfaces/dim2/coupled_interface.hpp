@@ -3,9 +3,11 @@
 #include "enumerations/interface.hpp"
 #include "enumerations/material_definitions.hpp"
 #include "impl/interface_container.hpp"
+#include "specfem/assembly/coupled_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
+#include "specfem/assembly/nonconforming_interfaces/dim2/impl/nonconforming_interface.hpp"
 #include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
@@ -54,12 +56,24 @@ private:
   using InterfaceContainerType =
       specfem::assembly::coupled_interfaces_impl::interface_container<
           dimension_tag, InterfaceTag, BoundaryTag>;
+  template <specfem::interface::interface_tag InterfaceTag,
+            specfem::element::boundary_tag BoundaryTag>
+  using NonconformingInterfaceContainerType =
+      specfem::assembly::nonconforming_interfaces_impl::interface_container<
+          dimension_tag, InterfaceTag, BoundaryTag>;
 
   FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
                        INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
                        BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
                                     COMPOSITE_STACEY_DIRICHLET)),
                       DECLARE(((InterfaceContainerType,
+                                (_INTERFACE_TAG_, _BOUNDARY_TAG_)),
+                               interface_container)))
+  FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(NONCONFORMING),
+                       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
+                       BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
+                                    COMPOSITE_STACEY_DIRICHLET)),
+                      DECLARE(((NonconformingInterfaceContainerType,
                                 (_INTERFACE_TAG_, _BOUNDARY_TAG_)),
                                interface_container)))
 
@@ -141,6 +155,55 @@ public:
     KOKKOS_ABORT_WITH_LOCATION(
         "specfem::assembly::coupled_interfaces::get_interface_container(): No "
         "matching specialization found.");
+#endif
+
+    // Unreachable code - satisfy compiler return requirements
+    return {};
+  }
+
+  /**
+   * @brief Get nonconforming interface container for specific coupling and
+   * boundary types
+   *
+   * Uses compile-time dispatch to return the appropriate interface container
+   * without runtime overhead. Supports elastic_acoustic/acoustic_elastic
+   * interfaces with
+   * none/acoustic_free_surface/stacey/composite_stacey_dirichlet boundary
+   * conditions.
+   *
+   * @tparam InterfaceTag Interface coupling type
+   * @tparam BoundaryTag Boundary condition type
+   * @return const reference to the requested interface container
+   *
+   * @example
+   * ```cpp
+   * const auto& container = interfaces.get_nonconforming_interface_container<
+   *     specfem::interface::interface_tag::elastic_acoustic,
+   *     specfem::element::boundary_tag::stacey>();
+   * ```
+   */
+  template <specfem::interface::interface_tag InterfaceTag,
+            specfem::element::boundary_tag BoundaryTag>
+  KOKKOS_INLINE_FUNCTION const
+      NonconformingInterfaceContainerType<InterfaceTag, BoundaryTag> &
+      get_nonconforming_interface_container() const {
+    // Compile-time dispatch using FOR_EACH_IN_PRODUCT macro
+    FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(NONCONFORMING),
+                         INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
+                         BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
+                                      COMPOSITE_STACEY_DIRICHLET)),
+                        CAPTURE((interface_container, interface_container)) {
+                          if constexpr (InterfaceTag == _interface_tag_ &&
+                                        BoundaryTag == _boundary_tag_) {
+                            return _interface_container_;
+                          }
+                        })
+
+#ifndef NDEBUG
+    // Debug check: abort if no matching specialization found
+    KOKKOS_ABORT_WITH_LOCATION("specfem::assembly::coupled_interfaces::get_"
+                               "nonconforming_interface_container(): No "
+                               "matching specialization found.");
 #endif
 
     // Unreachable code - satisfy compiler return requirements

@@ -7,6 +7,8 @@
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
 
+#include "specfem/assembly/nonconforming_interfaces/dim2/impl/nonconforming_interface.tpp"
+
 specfem::assembly::coupled_interfaces<specfem::dimension::type::dim2>::
     coupled_interfaces(
         const int ngllz, const int ngllx,
@@ -26,6 +28,17 @@ specfem::assembly::coupled_interfaces<specfem::dimension::type::dim2>::
             InterfaceContainerType<_interface_tag_, _boundary_tag_>(
                 ngllz, ngllx, edge_types, jacobian_matrix, mesh);
       })
+  FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(NONCONFORMING),
+                       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
+                       BOUNDARY_TAG(NONE, STACEY, ACOUSTIC_FREE_SURFACE,
+                                    COMPOSITE_STACEY_DIRICHLET)),
+                      CAPTURE(interface_container) {
+                        _interface_container_ =
+                            NonconformingInterfaceContainerType<_interface_tag_,
+                                                                _boundary_tag_>(
+                                ngllz, ngllx, edge_types, jacobian_matrix,
+                                mesh);
+                      })
 
   return;
 }
