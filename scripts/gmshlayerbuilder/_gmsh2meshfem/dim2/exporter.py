@@ -161,14 +161,10 @@ class Exporter:
             nnodes = nodes_arr.shape[0]
             f.write(str(nnodes) + "\n")
 
-            # always write in 3 values. Technically,
-            # nodes_arr should be 3 as well, but we do this
-            # just for sanity
-            nodes_dim = nodes_arr.shape[1]
-            pts = np.zeros((3,))
+            assert nodes_arr.shape[1] == 2, "2d exporter received 3d points!"
+
             for inod in range(nnodes):
-                pts[:nodes_dim] = nodes_arr[inod, :]
-                f.write(f"{pts[0]:.10f} {pts[1]:.10f} {pts[2]:.10f}\n")
+                f.write(f"{nodes_arr[inod, 0]:.10f} {nodes_arr[inod, 1]:.10f}\n")
 
         nelem = self.model.elements.shape[0]
 
