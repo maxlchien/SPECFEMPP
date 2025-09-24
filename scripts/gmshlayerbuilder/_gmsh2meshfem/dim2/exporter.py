@@ -126,7 +126,6 @@ class Exporter:
         )
 
     def export_mesh(self):
-
         if not self.destination_folder.exists():
             self.destination_folder.mkdir()
 
@@ -140,14 +139,12 @@ class Exporter:
             nnodes = nodes_arr.shape[0]
             f.write(str(nnodes))
 
-            # always write in 3 values. Technically,
-            # nodes_arr should be 3 as well, but we do this
-            # just for sanity
-            nodes_dim = nodes_arr.shape[1]
-            pts = np.zeros((3,))
+            assert nodes_arr.shape[1] == 2, "2d exporter received 3d points!"
+            pts = np.zeros((2,))
+
             for inod in range(nnodes):
-                pts[:nodes_dim] = nodes_arr[inod, :]
-                f.write(f"\n {pts[0]:.10f} {pts[1]:.10f} {pts[2]:.10f}")
+                pts[:] = nodes_arr[inod, :]
+                f.write(f"\n {pts[0]:.10f} {pts[1]:.10f}")
 
         nelem = self.model.elements.shape[0]
 
