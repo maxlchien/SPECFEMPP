@@ -47,7 +47,6 @@ public:
 
 private:
   /** @brief Compile-time dimension value extracted from template parameter */
-  constexpr static auto ndim = specfem::dimension::dimension<Dimension>::dim;
 
   /**
    * @brief Kokkos view type for storing node coordinates.
