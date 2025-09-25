@@ -1,6 +1,8 @@
 #pragma once
 
 #include "mesh/mesh.hpp"
+#include "specfem_mpi/interface.hpp"
+#include <fstream>
 
 namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
 
