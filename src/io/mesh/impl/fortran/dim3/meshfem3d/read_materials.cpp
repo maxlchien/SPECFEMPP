@@ -46,7 +46,7 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           specfem::material::material<specfem::element::medium_tag::acoustic,
                                       specfem::element::property_tag::isotropic>
               material(rho, vp, Qkappa);
-          const int index = materials.add_material(material, imat);
+          const int index = materials.add_material(material);
           mapping.push_back({ specfem::element::medium_tag::acoustic,
                               specfem::element::property_tag::isotropic, index,
                               imat });
@@ -55,7 +55,7 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           specfem::material::material<specfem::element::medium_tag::elastic,
                                       specfem::element::property_tag::isotropic>
               material(rho, vp, vs, Qkappa, Qmu);
-          const int index = materials.add_material(material, imat);
+          const int index = materials.add_material(material);
           mapping.push_back({ specfem::element::medium_tag::elastic,
                               specfem::element::property_tag::isotropic, index,
                               imat });

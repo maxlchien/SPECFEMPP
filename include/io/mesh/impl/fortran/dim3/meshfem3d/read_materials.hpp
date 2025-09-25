@@ -1,12 +1,34 @@
 #pragma once
 
+#include "enumerations/interface.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem_mpi/interface.hpp"
+#include <Kokkos_Core.hpp>
 #include <fstream>
+#include <tuple>
 
 namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
 
-specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3>
+/**
+ * @brief Read material properties and control node indices from MESHFEM3D
+ * database file
+ *
+ * Reads material property data and control node index mapping from a binary
+ * MESHFEM3D database file for 3D spectral element simulations.
+ *
+ * @param stream Input file stream positioned at the materials section
+ * @param mpi MPI interface for parallel communication and error handling
+ *
+ * @return std::tuple containing:
+ *         - Control node indices array mapping spectral elements to materials
+ *         - Materials object containing material specifications and
+ * classifications
+ *
+ * @throws std::runtime_error If file reading fails or invalid material data is
+ * encountered
+ */
+std::tuple<Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
+           specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
 read_materials(std::ifstream &stream, const specfem::MPI::MPI *mpi);
 
 } // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d
