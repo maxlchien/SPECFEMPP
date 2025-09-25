@@ -1,7 +1,7 @@
 
+#include "compute_intersection_in_assembly.hpp"
 #include "compute_intersection.hpp"
 #include "enumerations/mesh_entities.hpp"
-#include "compute_intersection_in_assembly.hpp"
 #include "specfem_setup.hpp"
 #include <sstream>
 #include <stdexcept>
@@ -19,13 +19,14 @@ specfem::assembly::nonconforming_interfaces_impl::compute_intersection(
   const int ispec = boost::source(edge, graph);
   const int jspec = boost::target(edge, graph);
 
-  const specfem::mesh_entity::type iorientation = graph[edge].orientation;
+  const specfem::mesh_entity::dim2::type iorientation = graph[edge].orientation;
   const auto [edge_inv, exists] = boost::edge(jspec, ispec, graph);
   if (!exists) {
     throw std::runtime_error(
         "Non-symmetric adjacency graph detected in `compute_intersection`.");
   }
-  const specfem::mesh_entity::type jorientation = graph[edge_inv].orientation;
+  const specfem::mesh_entity::dim2::type jorientation =
+      graph[edge_inv].orientation;
 
   const int ngnod = mesh.ngnod;
 
@@ -43,7 +44,6 @@ specfem::assembly::nonconforming_interfaces_impl::compute_intersection(
     coorg2(i).z = mesh.h_control_node_coord(1, jspec, i);
   }
 
-  return specfem::assembly::nonconforming_interfaces_impl::
-      compute_intersection(coorg1, coorg2, iorientation, jorientation,
-                           mortar_quadrature);
+  return specfem::assembly::nonconforming_interfaces_impl::compute_intersection(
+      coorg1, coorg2, iorientation, jorientation, mortar_quadrature);
 }

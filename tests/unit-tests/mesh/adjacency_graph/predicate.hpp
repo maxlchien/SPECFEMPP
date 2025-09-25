@@ -17,8 +17,8 @@ struct connects {
 public:
   int ispec;
   int jspec;
-  specfem::mesh_entity::type ispec_mesh_entity;
-  specfem::mesh_entity::type jspec_mesh_entity;
+  specfem::mesh_entity::dim2::type ispec_mesh_entity;
+  specfem::mesh_entity::dim2::type jspec_mesh_entity;
   specfem::connections::type connection_type;
   bool check_ispec_mesh_entity;
   bool check_jspec_mesh_entity;
@@ -45,7 +45,7 @@ public:
    * @param jspec - element 2
    */
   connects(const int &ispec,
-           const specfem::mesh_entity::type &ispec_mesh_entity,
+           const specfem::mesh_entity::dim2::type &ispec_mesh_entity,
            const int &jspec)
       : ispec(ispec), jspec(jspec), check_connection_type(false),
         check_ispec_mesh_entity(true), ispec_mesh_entity(ispec_mesh_entity),
@@ -60,7 +60,7 @@ public:
    * @param jspec_mesh_entity - orientation on jspec
    */
   connects(const int &ispec, const int &jspec,
-           const specfem::mesh_entity::type &jspec_mesh_entity)
+           const specfem::mesh_entity::dim2::type &jspec_mesh_entity)
       : ispec(ispec), jspec(jspec), check_connection_type(false),
         check_ispec_mesh_entity(false), check_jspec_mesh_entity(true),
         jspec_mesh_entity(jspec_mesh_entity) {};
@@ -74,9 +74,9 @@ public:
    * @param jspec_mesh_entity - orientation on jspec
    */
   connects(const int &ispec,
-           const specfem::mesh_entity::type &ispec_mesh_entity,
+           const specfem::mesh_entity::dim2::type &ispec_mesh_entity,
            const int &jspec,
-           const specfem::mesh_entity::type &jspec_mesh_entity)
+           const specfem::mesh_entity::dim2::type &jspec_mesh_entity)
       : ispec(ispec), jspec(jspec), check_connection_type(false),
         check_ispec_mesh_entity(true), ispec_mesh_entity(ispec_mesh_entity),
         check_jspec_mesh_entity(false), jspec_mesh_entity(jspec_mesh_entity) {};
@@ -87,7 +87,7 @@ public:
    * @param ispec_mesh_entity - orientation to set
    * @return connects& - *this to be used in a builder pattern
    */
-  connects &i(const specfem::mesh_entity::type &ispec_mesh_entity) {
+  connects &i(const specfem::mesh_entity::dim2::type &ispec_mesh_entity) {
     this->ispec_mesh_entity = ispec_mesh_entity;
     check_ispec_mesh_entity = true;
     return *this;
@@ -99,7 +99,7 @@ public:
    * @param ispec_mesh_entity - orientation to set
    * @return connects& - *this to be used in a builder pattern
    */
-  connects &j(const specfem::mesh_entity::type &jspec_mesh_entity) {
+  connects &j(const specfem::mesh_entity::dim2::type &jspec_mesh_entity) {
     this->jspec_mesh_entity = jspec_mesh_entity;
     check_jspec_mesh_entity = true;
     return *this;
