@@ -174,3 +174,66 @@ specfem::mesh_entity::dim3::corners_of_face(
     throw std::runtime_error("Invalid face type");
   }
 }
+
+const std::string specfem::mesh_entity::dim3::to_string(
+    const specfem::mesh_entity::dim3::type &entity) {
+  switch (entity) {
+  case specfem::mesh_entity::dim3::type::bottom:
+    return "bottom";
+  case specfem::mesh_entity::dim3::type::right:
+    return "right";
+  case specfem::mesh_entity::dim3::type::top:
+    return "top";
+  case specfem::mesh_entity::dim3::type::left:
+    return "left";
+  case specfem::mesh_entity::dim3::type::front:
+    return "front";
+  case specfem::mesh_entity::dim3::type::back:
+    return "back";
+  case specfem::mesh_entity::dim3::type::bottom_left:
+    return "bottom_left";
+  case specfem::mesh_entity::dim3::type::bottom_right:
+    return "bottom_right";
+  case specfem::mesh_entity::dim3::type::top_right:
+    return "top_right";
+  case specfem::mesh_entity::dim3::type::top_left:
+    return "top_left";
+  case specfem::mesh_entity::dim3::type::front_bottom:
+    return "front_bottom";
+  case specfem::mesh_entity::dim3::type::front_top:
+    return "front_top";
+  case specfem::mesh_entity::dim3::type::front_left:
+    return "front_left";
+  case specfem::mesh_entity::dim3::type::front_right:
+    return "front_right";
+  case specfem::mesh_entity::dim3::type::back_bottom:
+    return "back_bottom";
+  case specfem::mesh_entity::dim3::type::back_top:
+    return "back_top";
+  case specfem::mesh_entity::dim3::type::back_left:
+    return "back_left";
+  case specfem::mesh_entity::dim3::type::back_right:
+    return "back_right";
+  case specfem::mesh_entity::dim3::type::bottom_front_left:
+    return "bottom_front_left";
+  case specfem::mesh_entity::dim3::type::bottom_front_right:
+    return "bottom_front_right";
+  case specfem::mesh_entity::dim3::type::bottom_back_left:
+    return "bottom_back_left";
+  case specfem::mesh_entity::dim3::type::bottom_back_right:
+    return "bottom_back_right";
+  case specfem::mesh_entity::dim3::type::top_front_left:
+    return "top_front_left";
+  case specfem::mesh_entity::dim3::type::top_front_right:
+    return "top_front_right";
+  case specfem::mesh_entity::dim3::type::top_back_left:
+    return "top_back_left";
+  case specfem::mesh_entity::dim3::type::top_back_right:
+    return "top_back_right";
+  default:
+    throw std::runtime_error(
+        std::string("specfem::mesh_entity::dim3::to_string does not handle ") +
+        std::to_string(static_cast<int>(entity)));
+    return "!ERR";
+  }
+}
