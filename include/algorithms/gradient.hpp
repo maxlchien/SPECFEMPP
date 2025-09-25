@@ -56,6 +56,64 @@ KOKKOS_FORCEINLINE_FUNCTION auto element_gradient(
   }
   return df;
 }
+template <typename VectorFieldType, typename QuadratureType,
+          typename std::enable_if_t<VectorFieldType::dimension_tag ==
+                                        specfem::dimension::type::dim3,
+                                    int> = 0>
+KOKKOS_FORCEINLINE_FUNCTION auto element_gradient(
+    const VectorFieldType &f,
+    const specfem::point::index<specfem::dimension::type::dim3,
+                                VectorFieldType::using_simd> &local_index,
+    const specfem::point::jacobian_matrix<specfem::dimension::type::dim3, false,
+                                          VectorFieldType::using_simd>
+        &point_jacobian_matrix,
+    const QuadratureType &quadrature,
+    typename VectorFieldType::simd::datatype (
+        &df_dxi)[VectorFieldType::components],
+    typename VectorFieldType::simd::datatype (
+        &df_deta)[VectorFieldType::components],
+    typename VectorFieldType::simd::datatype (
+        &df_dgamma)[VectorFieldType::components]) {
+
+  constexpr int dimension = 3;
+  constexpr int components = VectorFieldType::components;
+  constexpr int ngll = VectorFieldType::ngll;
+  using TensorPointViewType = specfem::datatype::TensorPointViewType<
+      type_real, VectorFieldType::components, dimension,
+      VectorFieldType::simd::using_simd>;
+  const int ielement = local_index.ispec;
+  const int iz = local_index.iz;
+  const int iy = local_index.iy;
+  const int ix = local_index.ix;
+
+  for (int l = 0; l < ngll; ++l) {
+    for (int icomponent = 0; icomponent < components; ++icomponent) {
+      df_dxi[icomponent] +=
+          quadrature(ix, l) * f(ielement, iz, iy, l, icomponent);
+      df_deta[icomponent] +=
+          quadrature(iy, l) * f(ielement, iz, l, iy, icomponent);
+      df_dgamma[icomponent] +=
+          quadrature(iz, l) * f(ielement, l, iy, ix, icomponent);
+    }
+  }
+
+  TensorPointViewType df;
+
+  for (int icomponent = 0; icomponent < components; ++icomponent) {
+    df(icomponent, 0) = point_jacobian_matrix.xix * df_dxi[icomponent] +
+                        point_jacobian_matrix.etax * df_deta[icomponent] +
+                        point_jacobian_matrix.gammax * df_dgamma[icomponent];
+
+    df(icomponent, 1) = point_jacobian_matrix.xiy * df_dxi[icomponent] +
+                        point_jacobian_matrix.etay * df_deta[icomponent] +
+                        point_jacobian_matrix.gammay * df_dgamma[icomponent];
+
+    df(icomponent, 2) = point_jacobian_matrix.xiz * df_dxi[icomponent] +
+                        point_jacobian_matrix.etaz * df_deta[icomponent] +
+                        point_jacobian_matrix.gammaz * df_dgamma[icomponent];
+  }
+  return df;
+}
 } // namespace impl
 
 /**
