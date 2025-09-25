@@ -89,7 +89,7 @@ element_divergence(const TensorFieldType &f,
   for (int icomp = 0; icomp < components; ++icomp) {
     result(icomp) = weights(iz) * weights(iy) * temp1l[icomp] +
                     weights(iz) * weights(ix) * temp2l[icomp] +
-                    +weights(iy) * weights(ix) * temp3l[icomp];
+                    weights(iy) * weights(ix) * temp3l[icomp];
   }
   return result;
 }
