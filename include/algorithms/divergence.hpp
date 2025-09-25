@@ -82,7 +82,7 @@ element_divergence(const TensorFieldType &f,
       temp2l[icomp] += f(ielement, iz, l, ix, icomp, 1) * hprimewgll(iy, l);
     }
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp2l[icomp] += f(ielement, l, iy, ix, icomp, 1) * hprimewgll(iz, l);
+      temp3l[icomp] += f(ielement, l, iy, ix, icomp, 2) * hprimewgll(iz, l);
     }
   }
   VectorPointViewType result;
