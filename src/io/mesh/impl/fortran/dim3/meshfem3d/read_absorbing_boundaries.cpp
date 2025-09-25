@@ -9,6 +9,26 @@
 #include <unordered_map>
 #include <vector>
 
+/**
+ * @brief Calculates the characteristic length of an element in 3D space.
+ *
+ * This function computes the characteristic length of a 3D element by finding
+ * the bounding box of all its control nodes and returning the maximum dimension
+ * (length, width, or height) of that bounding box.
+ *
+ * @param control_nodes Reference to the control nodes structure containing
+ *                      node coordinates and indexing information for 3D mesh
+ * elements
+ * @param element_index Index of the element for which to calculate the
+ * characteristic length
+ *
+ * @return type_real The characteristic length of the element, defined as the
+ * maximum of the three bounding box dimensions (max_x-min_x, max_y-min_y,
+ * max_z-min_z)
+ *
+ * @note The characteristic length is commonly used in finite element methods
+ *       for mesh quality assessment and numerical stability calculations.
+ */
 type_real characteristic_length(
     const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
         &control_nodes,
@@ -38,6 +58,26 @@ type_real characteristic_length(
   return std::max({ max_x - min_x, max_y - min_y, max_z - min_z });
 }
 
+/**
+ * @brief Identifies which face of a 3D element corresponds to a given set of
+ * nodes
+ *
+ * This function determines which face (bottom, top, front, back, left, or
+ * right) of a hexahedral element matches the provided face nodes by comparing
+ * midpoint coordinates. The function validates that the identified face is
+ * geometrically consistent with the input nodes within a reasonable tolerance.
+ *
+ * @param control_nodes The control nodes structure containing element
+ * connectivity and coordinate information for the mesh
+ * @param element_index The index of the element being analyzed
+ * @param face_nodes Vector of node indices that define the face to identify
+ *
+ * @return The face type (bottom, top, front, back, left, or right) that
+ *         corresponds to the given nodes
+ *
+ * @throws std::runtime_error If no face can be matched within acceptable
+ * tolerance or if an invalid face type is encountered
+ */
 specfem::mesh_entity::dim3::type find_face_from_nodes(
     const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
         &control_nodes,

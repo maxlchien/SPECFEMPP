@@ -186,6 +186,28 @@ faces_of_edge(const specfem::mesh_entity::dim3::type &edge);
 const std::list<specfem::mesh_entity::dim3::type>
 edges_of_corner(const specfem::mesh_entity::dim3::type &corner);
 
+/**
+ * @brief Returns the corners that define a given face
+ *
+ * @param face The face mesh entity type
+ * @return std::list<specfem::mesh_entity::dim2::type> List of corner types
+ * that define the face
+ *
+ * For each face of a hexahedral element, this function returns the four
+ * corners (vertices) that outline that face. The corners are returned in a
+ * consistent order (e.g., counter-clockwise when viewed from outside the
+ * element).
+ *
+ * @throws std::runtime_error if the input is not a valid face type
+ *
+ * @code
+ * auto corners = corners_of_face(type::bottom);
+ * // Returns the four corners defining the bottom face
+ * @endcode
+ */
+const std::list<specfem::mesh_entity::dim3::type>
+corners_of_face(const specfem::mesh_entity::dim3::type &face);
+
 } // namespace dim3
 
 /**
