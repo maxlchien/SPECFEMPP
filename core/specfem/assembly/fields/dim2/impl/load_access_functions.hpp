@@ -241,7 +241,7 @@ load_after_simd_dispatch(const std::false_type, const IndexType &index,
       index.get_iterator(),
       [&](const typename IndexType::iterator_type::index_type &iterator_index) {
         const auto point_index = iterator_index.get_index();
-        const auto iedge = point_index.get_policy_index();
+        const auto iedge = point_index.local_index().ispec;
         const int iglob = field.template get_iglob<on_device>(
             point_index.ispec, point_index.iz, point_index.ix, MediumTag);
         for (int icomp = 0; icomp < ncomponents; ++icomp) {
