@@ -17,17 +17,16 @@ template <typename TensorFieldType, typename WeightsType,
                                     int> = 0>
 KOKKOS_FORCEINLINE_FUNCTION auto
 element_divergence(const TensorFieldType &f,
-                   const typename TensorFieldType::index_type &index,
-                   const int &ielement, const WeightsType &weights,
+                   const typename TensorFieldType::index_type &local_index,
+                   const WeightsType &weights,
                    const QuadratureType &hprimewgll) {
   using datatype = typename TensorFieldType::simd::datatype;
 
-  using VectorPointViewType =
-      specfem::datatype::VectorPointViewType<type_real,
-                                             TensorFieldType::components,
-                                             TensorFieldType::simd::using_simd>;
-  const int iz = index.iz;
-  const int ix = index.ix;
+  using VectorPointViewType = specfem::datatype::VectorPointViewType<
+      type_real, TensorFieldType::components, TensorFieldType::using_simd>;
+  const int iz = local_index.iz;
+  const int ix = local_index.ix;
+  const int ielement = local_index.ispec;
   constexpr int components = TensorFieldType::components;
   constexpr int ngll = TensorFieldType::ngll;
 
@@ -62,10 +61,8 @@ element_divergence(const TensorFieldType &f,
                    const QuadratureType &hprimewgll) {
   using datatype = typename TensorFieldType::simd::datatype;
 
-  using VectorPointViewType =
-      specfem::datatype::VectorPointViewType<type_real,
-                                             TensorFieldType::components,
-                                             TensorFieldType::simd::using_simd>;
+  using VectorPointViewType = specfem::datatype::VectorPointViewType<
+      type_real, TensorFieldType::components, TensorFieldType::using_simd>;
   const int iz = index.iz;
   const int iy = index.iy;
   const int ix = index.ix;
@@ -138,10 +135,8 @@ KOKKOS_FUNCTION void divergence(
     const WeightsType &weights, const QuadratureType &hprimewgll,
     const TensorFieldType &f, const CallableType &callback) {
 
-  using VectorPointViewType =
-      specfem::datatype::VectorPointViewType<type_real,
-                                             TensorFieldType::components,
-                                             TensorFieldType::simd::using_simd>;
+  using VectorPointViewType = specfem::datatype::VectorPointViewType<
+      type_real, TensorFieldType::components, TensorFieldType::using_simd>;
 
   static_assert(
       std::is_invocable_v<CallableType,
@@ -155,10 +150,9 @@ KOKKOS_FUNCTION void divergence(
       chunk_index.get_iterator(),
       [&](const typename ChunkIndexType::iterator_type::index_type
               &iterator_index) {
-        const auto ielement = iterator_index.get_local_index().ispec;
-        const auto index = iterator_index.get_index();
+        const auto local_index = iterator_index.get_local_index();
         const auto result =
-            impl::element_divergence(f, index, ielement, weights, hprimewgll);
+            impl::element_divergence(f, local_index, weights, hprimewgll);
         callback(iterator_index, result);
       });
 
