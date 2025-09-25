@@ -206,7 +206,7 @@ specfem::io::mesh_impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
 
   const int nnodes_on_face = (control_nodes.nodes_per_element == 8) ? 4 : 9;
 
-  const int index = 0;
+  int index = 0;
   for (auto num_faces : nfaces_per_direction) {
     if (num_faces > 0) {
       for (int iface = 0; iface < num_faces; ++iface) {
