@@ -304,6 +304,7 @@ public:
    * @tparam PropertyTag Property type (isotropic, anisotropic)
    * @param new_material Material object to add
    * @param database_index Original MESHFEM3D database index
+   * @return Local index of the added material within its container
    *
    * @code
    * // Add elastic isotropic material from MESHFEM3D database
@@ -314,12 +315,13 @@ public:
    */
   template <specfem::element::medium_tag MediumTag,
             specfem::element::property_tag PropertyTag>
-  void add_material(
+  int add_material(
       const specfem::medium::material<MediumTag, PropertyTag> &new_material) {
     auto &material_container = this->get_container<MediumTag, PropertyTag>();
     material_container.element_materials.push_back(new_material);
     material_container.n_materials += 1;
-    return;
+
+    return material_container.n_materials - 1;
   }
 
   /** @} */ // End Material Access Interface

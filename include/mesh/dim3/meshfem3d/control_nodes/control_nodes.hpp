@@ -55,8 +55,17 @@ private:
    * Two-dimensional view with layout [nnodes][3] storing xyz coordinates.
    * Uses LayoutLeft for column-major ordering and HostSpace for CPU memory.
    */
-  using ViewType =
+  using CoordinatesViewType =
       Kokkos::View<type_real *[3], Kokkos::LayoutLeft, Kokkos::HostSpace>;
+
+  /**
+   * @brief Kokkos view type for storing control node indices for elements.
+   *
+   * Two-dimensional view with layout [nspec][ngnod] storing control node
+   * indices for each spectral element.
+   */
+  using ControlNodeIndexViewType =
+      Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>;
 
 public:
   /**
@@ -141,7 +150,27 @@ public:
    * nodes.coordinates(node_id, 2) = 0.5;  // z
    * @endcode
    */
-  ViewType coordinates;
+  CoordinatesViewType coordinates;
+
+  /**
+   * @brief Control node indices for each spectral element.
+   *
+   * Two-dimensional Kokkos view storing control node indices for each spectral
+   * element with layout:
+   * - control_node_index(i, j): index of the j-th control node for element i
+   *
+   * The view uses column-major ordering (LayoutLeft) for optimal memory
+   * access patterns during mesh generation algorithms.
+   *
+   * @code
+   * // Access control node index for element and local node
+   * int node_index = nodes.control_node_index(element_id, local_node_id);
+   *
+   * // Set control node index
+   * nodes.control_node_index(element_id, local_node_id) = new_node_index;
+   * @endcode
+   */
+  ControlNodeIndexViewType control_node_index;
 };
 
 } // namespace specfem::mesh::meshfem3d

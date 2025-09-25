@@ -1,9 +1,10 @@
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_materials.hpp"
 #include "mesh/mesh.hpp"
 
-specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3>
+std::tuple<Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
+           specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
 specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
-    std::ifstream &stream, const specfem::MPI::MPI *mpi) {
+    std::ifstream &stream, int ngnod, const specfem::MPI::MPI *mpi) {
 
   using MaterialsType =
       specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3>;
@@ -17,6 +18,8 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
 
   specfem::io::read_fortran_line(stream, &num_materials,
                                  &num_undefined_materials);
+
+  std::vector<typename MaterialsType::material_specification> mapping;
 
   for (int imat = 0; imat < num_materials; ++imat) {
     std::vector<type_real> material_properties(17, 0.0);
@@ -38,13 +41,20 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           specfem::material::material<specfem::element::medium_tag::acoustic,
                                       specfem::element::property_tag::isotropic>
               material(rho, vp, Qkappa);
-          materials.add_material(material, imat);
+          const int index = materials.add_material(material, imat);
+          mapping.push_back({ specfem::element::medium_tag::acoustic,
+                              specfem::element::property_tag::isotropic, index,
+                              imat });
         } else if (vs > 0.0) {
           // Isotropic elastic material
           specfem::material::material<specfem::element::medium_tag::elastic,
                                       specfem::element::property_tag::isotropic>
               material(rho, vp, vs, Qkappa, Qmu);
-          materials.add_material(material, imat);
+          const int index = materials.add_material(material, imat);
+          mapping.push_back({ specfem::element::medium_tag::elastic,
+                              specfem::element::property_tag::isotropic, index,
+                              imat });
+
         } else {
           throw std::runtime_error(
               "Shear wave velocity (Vs) cannot be negative for elastic "
@@ -80,5 +90,41 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
     specfem::io::read_fortran_line(stream, &dummy);
   }
 
-  return materials;
+  int nspec;
+  specfem::io::read_fortran_line(stream, &nspec);
+  Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>
+      control_node_index("specfem::mesh::control_node_index", nspec, ngnod);
+
+  materials.material_index_mapping.resize(nspec);
+  for (int ispec = 0; ispec < nspec; ++ispec) {
+    int index;
+    int database_index;
+    int tomographic_model;
+    std::vector<int> control_nodes(ngnod, 0);
+    specfem::io::read_fortran_line(stream, &index, &database_index,
+                                   &tomographic_model, &control_nodes);
+    if (index < 1 || index > nspec) {
+      throw std::runtime_error("Error reading material indices");
+    }
+    if (database_index < 1 || database_index > num_materials) {
+      throw std::runtime_error("Error reading material indices");
+    }
+    if (tomographic_model == 1) {
+      // Deprecated funcitionality within MESHFEM3D
+      throw std::runtime_error(
+          "Interfaces are deprecated within 3D simulations.");
+    }
+    if (tomographic_model == 2) {
+      // TODO (Rohit: TOMOGRAPHIC_MATERIALS): Add support for reading
+      // tomographic materials
+      throw std::runtime_error(
+          "Tomographic materials are not supported yet for 3D simulations.");
+    }
+    materials.material_index_mapping[index - 1] = mapping[database_index - 1];
+    for (int inode = 0; inode < ngnod; ++inode) {
+      control_node_index(index - 1, inode) = control_nodes[inode];
+    }
+  }
+
+  return std::make_tuple(control_node_index, materials);
 }
