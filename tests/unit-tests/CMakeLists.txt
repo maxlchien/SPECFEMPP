@@ -374,7 +374,7 @@ target_link_libraries(
 add_executable(
   nonconforming_assembly_tests
   assembly/runner.cpp
-  assembly/nonconforming_interfaces/test_container_init.cpp
+  assembly/nonconforming_interfaces/container_init_test.cpp
 )
 target_link_libraries(
   nonconforming_assembly_tests

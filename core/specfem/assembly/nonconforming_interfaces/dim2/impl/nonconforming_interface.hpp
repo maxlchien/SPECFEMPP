@@ -67,6 +67,8 @@ public:
   EdgeNormalView edge_normal;
   /** @brief Device view for transfer function on self */
   TransferFunctionView transfer_function;
+  /** @brief Device view for transfer function on coupled side */
+  TransferFunctionView transfer_function_other;
 
   /** @brief Host mirror for edge scaling factors */
   EdgeFactorView::HostMirror h_edge_factor;
@@ -74,6 +76,8 @@ public:
   EdgeNormalView::HostMirror h_edge_normal;
   /** @brief Device view for transfer function on self */
   TransferFunctionView::HostMirror h_transfer_function;
+  /** @brief Device view for transfer function on coupled side */
+  TransferFunctionView::HostMirror h_transfer_function_other;
 
 public:
   /**
