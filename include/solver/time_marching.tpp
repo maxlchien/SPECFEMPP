@@ -68,11 +68,31 @@ void specfem::solver::time_marching<specfem::simulation::type::forward,
                 this->time_scheme->apply_predictor_phase_forward(_medium_tag_);
           }
         })
+    FOR_EACH_IN_PRODUCT(
+        (DIMENSION_TAG(DIM3),
+         MEDIUM_TAG(ELASTIC)),
+        {
+          if constexpr (dimension_tag == _dimension_tag_) {
+            dofs_updated +=
+                this->time_scheme->apply_predictor_phase_forward(_medium_tag_);
+          }
+        })
     // Update wavefield and apply corrector phase forward
     FOR_EACH_IN_PRODUCT(
         (DIMENSION_TAG(DIM2),
          MEDIUM_TAG(ACOUSTIC, ELASTIC_PSV, ELASTIC_SH, POROELASTIC,
                     ELASTIC_PSV_T)),
+        {
+          if constexpr (dimension_tag == _dimension_tag_) {
+            elements_updated +=
+                this->kernels.template update_wavefields<_medium_tag_>(istep);
+            dofs_updated +=
+                this->time_scheme->apply_corrector_phase_forward(_medium_tag_);
+          }
+        })
+    FOR_EACH_IN_PRODUCT(
+        (DIMENSION_TAG(DIM3),
+         MEDIUM_TAG(ELASTIC)),
         {
           if constexpr (dimension_tag == _dimension_tag_) {
             elements_updated +=
@@ -157,10 +177,30 @@ void specfem::solver::time_marching<specfem::simulation::type::combined,
                 time_scheme->apply_predictor_phase_forward(_medium_tag_);
           }
         })
+    FOR_EACH_IN_PRODUCT(
+        (DIMENSION_TAG(DIM3),
+         MEDIUM_TAG(ELASTIC)),
+        {
+          if constexpr (dimension_tag == _dimension_tag_) {
+            dofs_updated +=
+                time_scheme->apply_predictor_phase_forward(_medium_tag_);
+          }
+        })
 
     FOR_EACH_IN_PRODUCT(
         (DIMENSION_TAG(DIM2),
          MEDIUM_TAG(ACOUSTIC, ELASTIC_PSV, ELASTIC_SH, POROELASTIC)),
+        {
+          if constexpr (dimension_tag == _dimension_tag_) {
+            elements_updated +=
+                adjoint_kernels.template update_wavefields<_medium_tag_>(istep);
+            dofs_updated +=
+                time_scheme->apply_corrector_phase_forward(_medium_tag_);
+          }
+        })
+    FOR_EACH_IN_PRODUCT(
+        (DIMENSION_TAG(DIM3),
+         MEDIUM_TAG(ELASTIC)),
         {
           if constexpr (dimension_tag == _dimension_tag_) {
             elements_updated +=
@@ -180,10 +220,30 @@ void specfem::solver::time_marching<specfem::simulation::type::combined,
                 time_scheme->apply_predictor_phase_backward(_medium_tag_);
           }
         })
+    FOR_EACH_IN_PRODUCT(
+        (DIMENSION_TAG(DIM3),
+         MEDIUM_TAG(ELASTIC)),
+        {
+          if constexpr (dimension_tag == _dimension_tag_) {
+            dofs_updated +=
+                time_scheme->apply_predictor_phase_backward(_medium_tag_);
+          }
+        })
 
     FOR_EACH_IN_PRODUCT(
         (DIMENSION_TAG(DIM2),
          MEDIUM_TAG(ACOUSTIC, ELASTIC_PSV, ELASTIC_SH, POROELASTIC)),
+        {
+          if constexpr (dimension_tag == _dimension_tag_) {
+            elements_updated +=
+                backward_kernels.template update_wavefields<_medium_tag_>(istep);
+            dofs_updated +=
+                time_scheme->apply_corrector_phase_backward(_medium_tag_);
+          }
+        })
+    FOR_EACH_IN_PRODUCT(
+        (DIMENSION_TAG(DIM3),
+         MEDIUM_TAG(ELASTIC)),
         {
           if constexpr (dimension_tag == _dimension_tag_) {
             elements_updated +=
