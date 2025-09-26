@@ -187,7 +187,7 @@ void specfem::solver::time_marching<specfem::simulation::type::combined,
         {
           if constexpr (dimension_tag == _dimension_tag_) {
             elements_updated +=
-                adjoint_kernels.template update_wavefields<_medium_tag_>(istep);
+                backward_kernels.template update_wavefields<_medium_tag_>(istep);
             dofs_updated +=
                 time_scheme->apply_corrector_phase_backward(_medium_tag_);
           }
