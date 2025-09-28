@@ -115,6 +115,7 @@ TEST_P(Newmark, 3D) {
   const auto database_filename = setup.get_databases();
   const auto mesh_parameters_filename = setup.get_mesh_parameters();
   const auto source_node = setup.get_sources();
+  const auto stations_node = setup.get_stations();
 
   // Set up GLL quadrature points
   const auto quadratures = setup.instantiate_quadrature();
@@ -141,19 +142,12 @@ TEST_P(Newmark, 3D) {
   // Instantiate the solver and timescheme
   auto it = setup.instantiate_timescheme();
 
-  const auto stations_node = setup.get_stations();
-
   // --------------------------------------------------------------
   //                   Get receivers
   // --------------------------------------------------------------
-  // create single receiver receivers vector for now
-  std::vector<std::shared_ptr<
-      specfem::receivers::receiver<specfem::dimension::type::dim3> > >
-      receivers;
-  receivers.emplace_back(
-      std::make_shared<
-          specfem::receivers::receiver<specfem::dimension::type::dim3> >(
-          "NET", "STA", 50000.0, 40000.0, 0.0));
+
+  // Read receivers from stations file
+  auto receivers = specfem::io::read_3d_receivers(stations_node);
 
   mpi->cout("Receiver Information:");
   mpi->cout("-------------------------------");
