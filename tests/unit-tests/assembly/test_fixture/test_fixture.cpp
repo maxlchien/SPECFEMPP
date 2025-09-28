@@ -104,15 +104,8 @@ template <> Assembly<specfem::dimension::type::dim3>::Assembly() {
     // --------------------------------------------------------------
     //                   Get receivers
     // --------------------------------------------------------------
-    // create single receiver receivers vector for now
-    std::vector<std::shared_ptr<
-        specfem::receivers::receiver<specfem::dimension::type::dim3> > >
-        receivers;
 
-    receivers.emplace_back(
-        std::make_shared<
-            specfem::receivers::receiver<specfem::dimension::type::dim3> >(
-            "NET", "STA", 50000.0, 40000.0, 0.0));
+    auto receivers = specfem::io::read_3d_receivers(Test.database.stations);
 
     this->Stations.push_back(receivers);
 
