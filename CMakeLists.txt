@@ -432,19 +432,6 @@ target_link_libraries(
 )
 
 add_library(
-        timescheme
-        src/timescheme/timescheme.cpp
-        src/timescheme/newmark.cpp
-)
-
-target_link_libraries(
-        timescheme
-        Kokkos::kokkos
-        yaml-cpp
-        assembly
-)
-
-add_library(
         solver
         src/solver/time_marching.cpp
 )

@@ -2,8 +2,8 @@
 
 #include "enumerations/simulation.hpp"
 #include "enumerations/wavefield.hpp"
+#include "specfem/timescheme.hpp"
 #include "specfem_setup.hpp"
-#include "timescheme.hpp"
 
 namespace specfem {
 namespace time_scheme {

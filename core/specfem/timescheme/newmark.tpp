@@ -3,7 +3,7 @@
 #include "execution/for_all.hpp"
 #include "execution/range_iterator.hpp"
 #include "parallel_configuration/range_config.hpp"
-#include "timescheme/newmark.hpp"
+#include "specfem/timescheme/newmark.hpp"
 
 namespace {
 template <specfem::element::medium_tag MediumTag,

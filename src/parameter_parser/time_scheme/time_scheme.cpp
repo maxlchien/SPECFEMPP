@@ -1,5 +1,5 @@
 #include "parameter_parser/time_scheme/time_scheme.hpp"
-#include "timescheme/newmark.hpp"
+#include "specfem/timescheme/newmark.hpp"
 #include "utilities/strings.hpp"
 #include "yaml-cpp/yaml.h"
 #include <memory>
