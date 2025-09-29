@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <limits>
+#include <numeric>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -33,7 +34,7 @@ type_real characteristic_length(
     const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
         &control_nodes,
     const int element_index) {
-  const int nodes_per_element = control_nodes.nodes_per_element;
+  const int nodes_per_element = control_nodes.ngnod;
   const auto &coordinates = control_nodes.coordinates;
   const auto &control_node_index = control_nodes.control_node_index;
   type_real min_x = std::numeric_limits<type_real>::max();
@@ -83,7 +84,7 @@ specfem::mesh_entity::dim3::type find_face_from_nodes(
         &control_nodes,
     const int element_index, const std::vector<int> &face_nodes) {
 
-  const int nodes_per_element = control_nodes.nodes_per_element;
+  const int nodes_per_element = control_nodes.ngnod;
   const auto &coordinates = control_nodes.coordinates;
   const auto &control_node_index = control_nodes.control_node_index;
 
@@ -155,13 +156,12 @@ specfem::mesh_entity::dim3::type find_face_from_nodes(
   const auto closest_face = closest_face_iter->first;
 
   // Find characteristic length of the element
-  const auto characteristic_length =
-      characteristic_length(control_nodes, element_index);
+  const auto lc = characteristic_length(control_nodes, element_index);
 
   // Check if the closest face is indeed close enough
   const auto min_distance =
       specfem::point::distance(closest_face_iter->second, face_nodes_midpoint);
-  if (min_distance > 1e-3 * characteristic_length) {
+  if (min_distance > 1e-3 * lc) {
     throw std::runtime_error(
         "Could not find matching face for absorbing boundary. Closest face "
         "is too far away.");
@@ -171,7 +171,7 @@ specfem::mesh_entity::dim3::type find_face_from_nodes(
 }
 
 specfem::mesh::meshfem3d::AbsorbingBoundaries<specfem::dimension::type::dim3>
-specfem::io::mesh_impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
+specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
     std::ifstream &stream,
     const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
         &control_nodes,
@@ -190,49 +190,49 @@ specfem::io::mesh_impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
     Z_MAX = 6
   };
 
-  specfem::io::read_fortran_line(
+  specfem::io::fortran_read_line(
       stream, &boundary_number,
-      &nfaces_per_direction[static_cast<int>(face_direction::X_MIN - 1)]);
+      &nfaces_per_direction[static_cast<int>(face_direction::X_MIN) - 1]);
   if (boundary_number != static_cast<int>(face_direction::X_MIN)) {
     throw std::runtime_error(
         "Invalid database format: expected boundary number 1");
   }
 
-  specfem::io::read_fortran_line(
+  specfem::io::fortran_read_line(
       stream, &boundary_number,
-      &nfaces_per_direction[static_cast<int>(face_direction::X_MAX - 1)]);
+      &nfaces_per_direction[static_cast<int>(face_direction::X_MAX) - 1]);
   if (boundary_number != static_cast<int>(face_direction::X_MAX)) {
     throw std::runtime_error(
         "Invalid database format: expected boundary number 2");
   }
 
-  specfem::io::read_fortran_line(
+  specfem::io::fortran_read_line(
       stream, &boundary_number,
-      &nfaces_per_direction[static_cast<int>(face_direction::Y_MIN - 1)]);
+      &nfaces_per_direction[static_cast<int>(face_direction::Y_MIN) - 1]);
   if (boundary_number != static_cast<int>(face_direction::Y_MIN)) {
     throw std::runtime_error(
         "Invalid database format: expected boundary number 3");
   }
 
-  specfem::io::read_fortran_line(
+  specfem::io::fortran_read_line(
       stream, &boundary_number,
-      &nfaces_per_direction[static_cast<int>(face_direction::Y_MAX - 1)]);
+      &nfaces_per_direction[static_cast<int>(face_direction::Y_MAX) - 1]);
   if (boundary_number != static_cast<int>(face_direction::Y_MAX)) {
     throw std::runtime_error(
         "Invalid database format: expected boundary number 4");
   }
 
-  specfem::io::read_fortran_line(
+  specfem::io::fortran_read_line(
       stream, &boundary_number,
-      &nfaces_per_direction[static_cast<int>(face_direction::Z_MIN - 1)]);
+      &nfaces_per_direction[static_cast<int>(face_direction::Z_MIN) - 1]);
   if (boundary_number != static_cast<int>(face_direction::Z_MIN)) {
     throw std::runtime_error(
         "Invalid database format: expected boundary number 5");
   }
 
-  specfem::io::read_fortran_line(
+  specfem::io::fortran_read_line(
       stream, &boundary_number,
-      &nfaces_per_direction[static_cast<int>(face_direction::Z_MAX - 1)]);
+      &nfaces_per_direction[static_cast<int>(face_direction::Z_MAX) - 1]);
   if (boundary_number != static_cast<int>(face_direction::Z_MAX)) {
     throw std::runtime_error(
         "Invalid database format: expected boundary number 6");
@@ -244,7 +244,7 @@ specfem::io::mesh_impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
   specfem::mesh::meshfem3d::AbsorbingBoundaries<specfem::dimension::type::dim3>
       absorbing_boundaries(total_nfaces);
 
-  const int nnodes_on_face = (control_nodes.nodes_per_element == 8) ? 4 : 9;
+  const int nnodes_on_face = (control_nodes.ngnod == 8) ? 4 : 9;
 
   int index = 0;
   for (auto num_faces : nfaces_per_direction) {
@@ -252,7 +252,7 @@ specfem::io::mesh_impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
       for (int iface = 0; iface < num_faces; ++iface) {
         int element_index;
         std::vector<int> face_nodes(nnodes_on_face);
-        specfem::io::read_fortran_line(stream, &element_index, &face_nodes);
+        specfem::io::fortran_read_line(stream, &element_index, &face_nodes);
         const auto face =
             find_face_from_nodes(control_nodes, element_index - 1, face_nodes);
         absorbing_boundaries.index_mapping(index) = element_index - 1;

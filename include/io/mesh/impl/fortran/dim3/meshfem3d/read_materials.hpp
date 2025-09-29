@@ -17,6 +17,8 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  * MESHFEM3D database file for 3D spectral element simulations.
  *
  * @param stream Input file stream positioned at the materials section
+ * @param ngnod Number of control nodes per spectral element (e.g., 8 for
+ * hexahedral elements)
  * @param mpi MPI interface for parallel communication and error handling
  *
  * @return std::tuple containing:
@@ -29,6 +31,7 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  */
 std::tuple<Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
            specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
-read_materials(std::ifstream &stream, const specfem::MPI::MPI *mpi);
+read_materials(std::ifstream &stream, const int ngnod,
+               const specfem::MPI::MPI *mpi);
 
 } // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d

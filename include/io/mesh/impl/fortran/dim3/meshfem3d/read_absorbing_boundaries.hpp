@@ -4,7 +4,7 @@
 #include "specfem_mpi/interface.hpp"
 #include <fstream>
 
-namespace specfem::io::mesh_impl::fortran::dim3::meshfem3d {
+namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
 /**
  * @brief Read absorbing boundary face information from MESHFEM3D database files
  *
@@ -31,4 +31,4 @@ read_absorbing_boundaries(
         &control_nodes,
     const specfem::MPI::MPI *mpi);
 
-} // namespace specfem::io::mesh_impl::fortran::dim3::meshfem3d
+} // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d

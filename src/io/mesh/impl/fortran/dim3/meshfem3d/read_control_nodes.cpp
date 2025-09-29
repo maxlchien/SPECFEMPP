@@ -11,15 +11,18 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_control_nodes(
   using ControlNodesType =
       specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>;
 
+  int ngnod;
+  specfem::io::fortran_read_line(stream, &ngnod);
+
   int nnodes;
-  specfem::io::read_fortran_line(stream, &nnodes);
-  ControlNodesType control_nodes(nnodes);
+  specfem::io::fortran_read_line(stream, &nnodes);
+  ControlNodesType control_nodes(ngnod, nnodes);
 
   // Read control nodes coordinates one by one
   for (int inode = 0; inode < nnodes; ++inode) {
     int index;
     type_real x, y, z;
-    specfem::io::read_fortran_line(stream, &index, &x, &y, &z);
+    specfem::io::fortran_read_line(stream, &index, &x, &y, &z);
     control_nodes.coordinates(inode, 0) = x;
     control_nodes.coordinates(inode, 1) = y;
     control_nodes.coordinates(inode, 2) = z;

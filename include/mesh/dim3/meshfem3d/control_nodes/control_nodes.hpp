@@ -114,8 +114,8 @@ public:
    * }
    * @endcode
    */
-  ControlNodes(int nnodes_)
-      : nnodes(nnodes_),
+  ControlNodes(int ngnod_, int nnodes_)
+      : ngnod(ngnod_), nnodes(nnodes_),
         coordinates("specfem::mesh::meshfem3d::ControlNodes", nnodes_) {}
 
   /**
@@ -125,6 +125,15 @@ public:
    * This value determines the first dimension of the coordinates view.
    */
   int nnodes;
+
+  /**
+   * @brief Number of control nodes per spectral element.
+   *
+   * Indicates how many control nodes define each spectral element in the mesh.
+   * Typical values are 8 for hexahedral elements and 27 for trilinear elements.
+   * This value determines the second dimension of the control_node_index view.
+   */
+  int ngnod;
 
   /**
    * @brief 3D coordinates of all control nodes.
