@@ -62,7 +62,7 @@ public:
       type_real, Kokkos::DefaultExecutionSpace::memory_space>;
 
   /** @brief Device view for edge scaling factors */
-  EdgeFactorView edge_factor;
+  EdgeFactorView intersection_factor;
   /** @brief Device view for edge normal vectors */
   EdgeNormalView edge_normal;
   /** @brief Device view for transfer function on self */
@@ -71,7 +71,7 @@ public:
   TransferFunctionView transfer_function_other;
 
   /** @brief Host mirror for edge scaling factors */
-  EdgeFactorView::HostMirror h_edge_factor;
+  EdgeFactorView::HostMirror h_intersection_factor;
   /** @brief Host mirror for edge normal vectors */
   EdgeNormalView::HostMirror h_edge_normal;
   /** @brief Device view for transfer function on self */
@@ -107,7 +107,8 @@ public:
    *
    * @tparam on_device If true, loads from device memory; if false, from host
    * @tparam IndexType Type of index (must have iedge and ipoint members)
-   * @tparam PointType Type of point (must have edge_factor and edge_normal)
+   * @tparam PointType Type of point (must have intersection_factor and
+   * edge_normal)
    * @param index Edge and point indices for data location
    * @param point Output point object to store loaded data
    */
@@ -115,11 +116,11 @@ public:
   KOKKOS_FORCEINLINE_FUNCTION void impl_load(const IndexType &index,
                                              PointType &point) const {
     if constexpr (on_device) {
-      point.edge_factor = edge_factor(index.iedge, index.ipoint);
+      point.edge_factor = intersection_factor(index.iedge, index.ipoint);
       point.edge_normal(0) = edge_normal(index.iedge, index.ipoint, 0);
       point.edge_normal(1) = edge_normal(index.iedge, index.ipoint, 1);
     } else {
-      point.edge_factor = h_edge_factor(index.iedge, index.ipoint);
+      point.edge_factor = h_intersection_factor(index.iedge, index.ipoint);
       point.edge_normal(0) = h_edge_normal(index.iedge, index.ipoint, 0);
       point.edge_normal(1) = h_edge_normal(index.iedge, index.ipoint, 1);
     }
