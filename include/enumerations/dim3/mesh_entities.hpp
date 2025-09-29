@@ -39,14 +39,7 @@ namespace dim3 {
  *  1 -------- 2
  * @endcode
  *
- * Face numbering (1-6):
- * - bottom (1): z-negative face
- * - right (2): x-positive face
- * - top (3): z-positive face
- * - left (4): x-negative face
- * - front (5): y-positive face
- * - back (6): y-negative face
- *
+ * Face numbering (1-6): Element boundary surfaces
  * Edge numbering (7-18): Connects adjacent faces
  * Corner numbering (19-26): Element vertices
  */
