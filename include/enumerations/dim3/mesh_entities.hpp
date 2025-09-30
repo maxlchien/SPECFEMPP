@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 
+namespace specfem::mesh_entity {
 /**
  * @namespace specfem::mesh_entity::dim3
  * @brief Defines mesh entity types and utilities for 3D spectral element method
@@ -15,7 +16,6 @@
  * mesh entities in 3D spectral element grids, including faces, edges, and
  * corners of hexahedral elements.
  */
-namespace specfem::mesh_entity {
 
 namespace dim3 {
 

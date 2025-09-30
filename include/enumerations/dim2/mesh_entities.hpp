@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <string>
 
+namespace specfem::mesh_entity {
+
 /**
  * @namespace specfem::mesh_entity::dim2
  * @brief Defines mesh entity types and utilities for spectral element method
@@ -15,7 +17,6 @@
  * mesh entities in 2D spectral element grids, including edges and corners
  * of quadrilateral elements.
  */
-namespace specfem::mesh_entity {
 
 namespace dim2 {
 
@@ -138,8 +139,6 @@ template <typename T> bool contains(const T &list, const dim2::type &value) {
   return std::find(list.begin(), list.end(), value) != list.end();
 }
 
-template <specfem::dimension::type Dimension> struct edge;
-
 template <> struct edge<specfem::dimension::type::dim2> {
   specfem::mesh_entity::dim2::type edge_type;
   int ispec;
@@ -154,12 +153,6 @@ template <> struct edge<specfem::dimension::type::dim2> {
   KOKKOS_INLINE_FUNCTION
   edge() = default;
 };
-/**
- * @brief Mesh element structure for a specific dimension
- *
- * @tparam Dimension The dimension type (e.g., dim2, dim3)
- */
-template <specfem::dimension::type Dimension> struct element;
 
 /**
  * @brief Mesh element structure for 2D elements (Specialization)
