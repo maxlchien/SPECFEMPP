@@ -8,12 +8,11 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-template <typename TransferView>
+template <typename TransferView, typename CoordView>
 specfem::point::global_coordinates<specfem::dimension::type::dim2>
 transfer_position_to_mortar(
     const TransferView &transfer_function,
-    const Kokkos::View<type_real ****, Kokkos::LayoutRight,
-                       Kokkos::DefaultExecutionSpace> &coord_view,
+    const CoordView &coord_view,
     const int &ispec, const specfem::mesh_entity::type &edge_type,
     const int &iedge, const int &imortar) {
   specfem::point::global_coordinates<specfem::dimension::type::dim2> coords(0,
@@ -263,17 +262,17 @@ void test_nonconforming_container_transfers(
     for (int imortar = 0; imortar < nquad_mortar; imortar++) {
 
       // interpolated positions on acoustic-elastic interface
-      const auto acel_self = transfer_position_to_mortar(
+      const specfem::point::global_coordinates<specfem::dimension::type::dim2> acel_self = transfer_position_to_mortar(
           nc_interface_acoustic_elastic.h_transfer_function,
           assembly.mesh.h_coord, ac_spec, ac_edgetype, iedge, imortar);
-      const auto acel_other = transfer_position_to_mortar(
+      const specfem::point::global_coordinates<specfem::dimension::type::dim2> acel_other = transfer_position_to_mortar(
           nc_interface_acoustic_elastic.h_transfer_function_other,
           assembly.mesh.h_coord, el_spec, el_edgetype, iedge, imortar);
       // interpolated positions on elastic-acoustic interface
-      const auto elac_self = transfer_position_to_mortar(
+      const specfem::point::global_coordinates<specfem::dimension::type::dim2> elac_self = transfer_position_to_mortar(
           nc_interface_elastic_acoustic.h_transfer_function,
           assembly.mesh.h_coord, el_spec, el_edgetype, iedge, imortar);
-      const auto elac_other = transfer_position_to_mortar(
+      const specfem::point::global_coordinates<specfem::dimension::type::dim2> elac_other = transfer_position_to_mortar(
           nc_interface_elastic_acoustic.h_transfer_function_other,
           assembly.mesh.h_coord, ac_spec, ac_edgetype, iedge, imortar);
       EXPECT_TRUE(specfem::point::distance(acel_self, acel_other) < 1e-3)
