@@ -19,6 +19,7 @@ void test_check_jacobian(
   specfem::assembly::store_on_host(index, jacobian_matrix,
                                    assembly.jacobian_matrix);
 
+  std::cout << "Calling check_jacobian_matrix" << std::endl;
   assembly.check_jacobian_matrix();
 }
 
@@ -33,7 +34,9 @@ TEST_F(Assembly3D, CheckJacobian) {
 
     bool exception_thrown = false;
     try {
+      std::cout << "Running test_check_jacobian" << std::endl;
       test_check_jacobian(assembly);
+      std::cout << "Finished test_check_jacobian" << std::endl;
     } catch (const std::exception &e) {
       exception_thrown = true;
     }
