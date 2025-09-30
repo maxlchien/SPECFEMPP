@@ -136,11 +136,9 @@ TEST_P(Newmark, Test) {
 
   setup.update_t0(t0);
 
-  // Instantiate the solver and timescheme
-  auto it = setup.instantiate_timescheme();
-
   const auto stations_node = setup.get_stations();
   const auto angle = setup.get_receiver_angle();
+  const auto nstep_between_samples = setup.get_nstep_between_samples();
   auto receivers = specfem::io::read_2d_receivers(stations_node, angle);
 
   std::cout << "  Receiver information\n";
@@ -163,21 +161,22 @@ TEST_P(Newmark, Test) {
            << std::endl;
   }
 
-  const int max_sig_step = it->get_max_seismogram_step();
+  const int max_sig_step = setup.get_max_seismogram_step();
 
   specfem::assembly::assembly<specfem::dimension::type::dim2> assembly(
       mesh, quadratures, sources, receivers, seismogram_types, t0,
-      setup.get_dt(), nsteps, max_sig_step, it->get_nstep_between_samples(),
+      setup.get_dt(), nsteps, max_sig_step, nstep_between_samples,
       setup.get_simulation_type(), false, nullptr);
 
-  it->link_assembly(assembly);
+  // Instantiate the solver and timescheme
+  auto time_scheme = setup.instantiate_timescheme(assembly.fields);
 
   // User output
   if (mpi->main_proc())
-    std::cout << *it << std::endl;
+    std::cout << *time_scheme << std::endl;
 
   std::shared_ptr<specfem::solver::solver> solver =
-      setup.instantiate_solver<5>(setup.get_dt(), assembly, it, {});
+      setup.instantiate_solver<5>(setup.get_dt(), assembly, time_scheme, {});
 
   solver->run();
 

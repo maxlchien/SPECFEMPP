@@ -11,20 +11,24 @@ namespace time_scheme {
 /**
  * @brief Newmark Time Scheme
  *
- * @tparam Simulation Simulation type on which this time scheme is applied
  */
-template <specfem::simulation::type Simulation> class newmark;
+template <typename AssemblyFields, specfem::simulation::type SimulationType>
+class newmark;
 
 /**
  * @brief Template specialization for the forward simulation
  *
  */
-template <>
-class newmark<specfem::simulation::type::forward> : public time_scheme {
+template <typename AssemblyFields>
+class newmark<AssemblyFields, specfem::simulation::type::forward>
+    : public time_scheme {
 
 public:
+  constexpr static auto dimension_tag =
+      AssemblyFields::dimension_tag; ///< Dimension tag
+
   constexpr static auto simulation_type =
-      specfem::wavefield::simulation_field::forward; ///< Wavefield tag
+      specfem::simulation::type::forward; ///< Wavefield tag
 
   /**
    * @name Constructors
@@ -40,10 +44,11 @@ public:
    * @param dt Time increment
    * @param t0 Initial time
    */
-  newmark(const int nstep, const int nstep_between_samples, const type_real dt,
-          const type_real t0)
+  newmark(AssemblyFields &fields, int nstep, const int nstep_between_samples,
+          const type_real dt, const type_real t0)
       : time_scheme(nstep, nstep_between_samples, dt), deltat(dt),
-        deltatover2(dt / 2.0), deltasquareover2(dt * dt / 2.0), t0(t0) {}
+        deltatover2(dt / 2.0), deltasquareover2(dt * dt / 2.0), t0(t0),
+        field(fields.forward) {}
 
   ///@}
 
@@ -100,12 +105,7 @@ public:
     return 0;
   };
 
-  void link_assembly(
-      const specfem::assembly::assembly<specfem::dimension::type::dim2>
-          &assembly) override {
-    field = assembly.fields.forward;
-  }
-
+public:
   /**
    * @brief Get the timescheme type
    *
@@ -116,19 +116,19 @@ public:
   }
 
   /**
-   * @brief Get the time increament
+   * @brief Get the time increment
    *
    * @return type_real Time increment
    */
   type_real get_timestep() const override { return this->deltat; }
 
-private:
-  type_real t0;     ///< Initial time
-  type_real deltat; ///< Time increment
-  type_real deltatover2;
-  type_real deltasquareover2;
+protected:
+  type_real t0;               ///< Initial time
+  type_real deltat;           ///< Time increment
+  type_real deltatover2;      ///< Half time increment
+  type_real deltasquareover2; ///< Half of squared time increment
   specfem::assembly::simulation_field<
-      specfem::dimension::type::dim2,
+      dimension_tag,
       specfem::wavefield::simulation_field::forward>
       field; ///< forward wavefield
 };
@@ -137,10 +137,14 @@ private:
  * @brief Template specialization for the adjoint simulation
  *
  */
-template <>
-class newmark<specfem::simulation::type::combined> : public time_scheme {
+template <typename AssemblyFields>
+class newmark<AssemblyFields, specfem::simulation::type::combined>
+    : public time_scheme {
 
 public:
+  constexpr static auto dimension_tag =
+      AssemblyFields::dimension_tag; ///< Dimension tag
+
   constexpr static auto simulation_type =
       specfem::simulation::type::combined; ///< Wavefield tag
   /**
@@ -157,10 +161,12 @@ public:
    * @param dt Time increment
    * @param t0 Initial time
    */
-  newmark(const int nstep, const int nstep_between_samples, const type_real dt,
+  newmark(AssemblyFields &fields, const int nstep,
+          const int nstep_between_samples, const type_real dt,
           const type_real t0)
       : time_scheme(nstep, nstep_between_samples, dt), deltat(dt),
-        deltatover2(dt / 2.0), deltasquareover2(dt * dt / 2.0), t0(t0) {}
+        deltatover2(dt / 2.0), deltasquareover2(dt * dt / 2.0), t0(t0),
+        adjoint_field(fields.adjoint), backward_field(fields.backward) {}
 
   ///@}
 
@@ -213,13 +219,7 @@ public:
   int apply_corrector_phase_backward(
       const specfem::element::medium_tag tag) override;
 
-  void link_assembly(
-      const specfem::assembly::assembly<specfem::dimension::type::dim2>
-          &assembly) override {
-    adjoint_field = assembly.fields.adjoint;
-    backward_field = assembly.fields.backward;
-  }
-
+public:
   /**
    * @brief Get the timescheme type
    *
@@ -236,17 +236,17 @@ public:
    */
   type_real get_timestep() const override { return this->deltat; }
 
-private:
+protected:
   type_real t0;     ///< Initial time
   type_real deltat; ///< Time increment
   type_real deltatover2;
   type_real deltasquareover2;
   specfem::assembly::simulation_field<
-      specfem::dimension::type::dim2,
+      dimension_tag,
       specfem::wavefield::simulation_field::adjoint>
       adjoint_field; ///< adjoint wavefield
   specfem::assembly::simulation_field<
-      specfem::dimension::type::dim2,
+      dimension_tag,
       specfem::wavefield::simulation_field::backward>
       backward_field; ///< backward wavefield
 };
