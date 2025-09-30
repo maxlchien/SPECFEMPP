@@ -48,7 +48,7 @@ public:
           const type_real dt, const type_real t0)
       : time_scheme(nstep, nstep_between_samples, dt), deltat(dt),
         deltatover2(dt / 2.0), deltasquareover2(dt * dt / 2.0), t0(t0),
-        field(fields.forward) {}
+        fields(fields) {}
 
   ///@}
 
@@ -127,10 +127,7 @@ protected:
   type_real deltat;           ///< Time increment
   type_real deltatover2;      ///< Half time increment
   type_real deltasquareover2; ///< Half of squared time increment
-  specfem::assembly::simulation_field<
-      dimension_tag,
-      specfem::wavefield::simulation_field::forward>
-      field; ///< forward wavefield
+  AssemblyFields fields;      ///< Assembly fields
 };
 
 /**
@@ -166,7 +163,7 @@ public:
           const type_real t0)
       : time_scheme(nstep, nstep_between_samples, dt), deltat(dt),
         deltatover2(dt / 2.0), deltasquareover2(dt * dt / 2.0), t0(t0),
-        adjoint_field(fields.adjoint), backward_field(fields.backward) {}
+        fields(fields) {}
 
   ///@}
 
@@ -241,14 +238,7 @@ protected:
   type_real deltat; ///< Time increment
   type_real deltatover2;
   type_real deltasquareover2;
-  specfem::assembly::simulation_field<
-      dimension_tag,
-      specfem::wavefield::simulation_field::adjoint>
-      adjoint_field; ///< adjoint wavefield
-  specfem::assembly::simulation_field<
-      dimension_tag,
-      specfem::wavefield::simulation_field::backward>
-      backward_field; ///< backward wavefield
+  AssemblyFields fields; ///< Assembly fields
 };
 
 } // namespace time_scheme

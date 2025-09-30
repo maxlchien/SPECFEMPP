@@ -1,6 +1,4 @@
 #include "specfem/timescheme/newmark.tpp"
-#include "specfem/timescheme/dim2/newmark.tpp"
-#include "specfem/timescheme/dim3/newmark.tpp"
 #include "specfem_setup.hpp"
 #include <ostream>
 
