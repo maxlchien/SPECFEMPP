@@ -100,6 +100,8 @@ template <> struct mesh<specfem::dimension::type::dim3> {
   specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
       adjacency_graph;
 
+  void setup_coupled_interfaces();
+
   /**
    * @brief Default constructor
    *

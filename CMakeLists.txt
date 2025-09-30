@@ -337,6 +337,7 @@ add_library(
         src/mesh/dim3/generate_database/tags/tags.cpp
 
         src/mesh/dim3/meshfem3d/adjacency_graph/assert_symmetry.cpp
+        src/mesh/dim3/meshfem3d/mesh.cpp
 )
 
 target_link_libraries(
