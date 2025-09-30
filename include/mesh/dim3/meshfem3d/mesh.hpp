@@ -62,8 +62,8 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    * @brief Number of spectral elements in the mesh
    *
    */
-
   int nspec;
+
   /**
    * @brief Control node geometric data container
    *
