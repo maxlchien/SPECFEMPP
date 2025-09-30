@@ -20,20 +20,20 @@ contains
          stop "Adjacency graph computation error"
       end if
 
-      allocate(elmnts_bis(0:NCORNERS*nspec-1),stat=ier)
-      allocate(adjacency_matrix(0:nspec-1, 0:nspec-1),stat=ier)
+      allocate(elmnts_bis(NCORNERS*nspec),stat=ier)
+      allocate(adjacency_matrix(nspec, nspec),stat=ier)
 
       adjacency_matrix(:,:) = 0
 
-      do ispec = 0, nspec-1
-         elmnts_bis(ispec * NCORNERS + 0) = ibool(1,1,1,ispec)
-         elmnts_bis(ispec * NCORNERS + 1) = ibool(NGLLX_M,1,1,ispec)
-         elmnts_bis(ispec * NCORNERS + 2) = ibool(NGLLX_M,NGLLY_M,1,ispec)
-         elmnts_bis(ispec * NCORNERS + 3) = ibool(1,NGLLY_M,1,ispec)
-         elmnts_bis(ispec * NCORNERS + 4) = ibool(1,1,NGLLZ_M,ispec)
-         elmnts_bis(ispec * NCORNERS + 5) = ibool(NGLLX_M,1,NGLLZ_M,ispec)
-         elmnts_bis(ispec * NCORNERS + 6) = ibool(NGLLX_M,NGLLY_M,NGLLZ_M,ispec)
-         elmnts_bis(ispec * NCORNERS + 7) = ibool(1,NGLLY_M,NGLLZ_M,ispec)
+      do ispec = 1, nspec
+         elmnts_bis((ispec - 1) * NCORNERS + 0) = ibool(1,1,1,ispec)
+         elmnts_bis((ispec - 1) * NCORNERS + 1) = ibool(NGLLX_M,1,1,ispec)
+         elmnts_bis((ispec - 1) * NCORNERS + 2) = ibool(NGLLX_M,NGLLY_M,1,ispec)
+         elmnts_bis((ispec - 1) * NCORNERS + 3) = ibool(1,NGLLY_M,1,ispec)
+         elmnts_bis((ispec - 1) * NCORNERS + 4) = ibool(1,1,NGLLZ_M,ispec)
+         elmnts_bis((ispec - 1) * NCORNERS + 5) = ibool(NGLLX_M,1,NGLLZ_M,ispec)
+         elmnts_bis((ispec - 1) * NCORNERS + 6) = ibool(NGLLX_M,NGLLY_M,NGLLZ_M,ispec)
+         elmnts_bis((ispec - 1) * NCORNERS + 7) = ibool(1,NGLLY_M,NGLLZ_M,ispec)
       end do
 
       call build_adjacency_graph(elmnts_bis, nglob)
@@ -52,27 +52,27 @@ contains
       integer :: corner_id1, corner_id2
       integer :: edge_id1, edge_id2
       integer :: face_id1, face_id2
-      integer :: shared_nodes(0:NCORNERS-1)
+      integer :: shared_nodes(NCORNERS)
 
 
       integer, intent(in) :: nglob
-      integer, intent(in) :: elmnts_bis(0:NCORNERS*nspec-1)
+      integer, intent(in) :: elmnts_bis(NCORNERS*nspec)
       integer, allocatable :: nelements_for_each_node(:)
       integer, allocatable :: elements_for_each_node(:,:)
 
-      if (.not. allocated(nelements_for_each_node)) allocate(nelements_for_each_node(0:nglob-1))
-      if (.not. allocated(elements_for_each_node)) allocate(elements_for_each_node(0:nglob-1, 0:MAX_NEIGHBORS-1))
+      if (.not. allocated(nelements_for_each_node)) allocate(nelements_for_each_node(nglob))
+      if (.not. allocated(elements_for_each_node)) allocate(elements_for_each_node(nglob, 0:MAX_NEIGHBORS-1))
 
       nelements_for_each_node(:) = 0
       elements_for_each_node(:,:) = -1
 
-      do i = 0, NCORNERS*nspec-1
+      do i = 1, NCORNERS*nspec
          element = i / NCORNERS
          elements_for_each_node(elmnts_bis(i), nelements_for_each_node(elmnts_bis(i))) = element
          nelements_for_each_node(elmnts_bis(i)) = nelements_for_each_node(elmnts_bis(i)) + 1
       end do
 
-      do current_node = 0, nglob - 1
+      do current_node = 1, nglob
          do i = 0, nelements_for_each_node(current_node) - 1
             element1 = elements_for_each_node(current_node, i)
             do j = i + 1, nelements_for_each_node(current_node) - 1
@@ -84,16 +84,16 @@ contains
 
                if (num_shared == 1) then
                   ! Only a corner node is shared
-                  call get_corner_id(element1, shared_nodes(0), corner_id1)
-                  call get_corner_id(element2, shared_nodes(0), corner_id2)
+                  call get_corner_id(element1, shared_nodes(1), corner_id1)
+                  call get_corner_id(element2, shared_nodes(1), corner_id2)
                   adjacency_matrix(element1, element2) = corner_id1
                   adjacency_matrix(element2, element1) = corner_id2
 
 
                else if (num_shared == 2) then
                   ! An edge is shared
-                  call get_edge_id(element1, shared_nodes(0), shared_nodes(1), edge_id1)
-                  call get_edge_id(element2, shared_nodes(0), shared_nodes(1), edge_id2)
+                  call get_edge_id(element1, shared_nodes(1), shared_nodes(2), edge_id1)
+                  call get_edge_id(element2, shared_nodes(1), shared_nodes(2), edge_id2)
                   if (adjacency_matrix(element1, element2) == 0) then
                      adjacency_matrix(element1, element2) = edge_id1
                      adjacency_matrix(element2, element1) = edge_id2
@@ -102,8 +102,8 @@ contains
                   end if
                else if (num_shared == 4) then
                   ! A face is shared
-                  call get_face_id(element1, shared_nodes(0), shared_nodes(1), shared_nodes(2), shared_nodes(3), face_id1)
-                  call get_face_id(element2, shared_nodes(0), shared_nodes(1), shared_nodes(2), shared_nodes(3), face_id2)
+                  call get_face_id(element1, shared_nodes(1), shared_nodes(2), shared_nodes(3), shared_nodes(4), face_id1)
+                  call get_face_id(element2, shared_nodes(1), shared_nodes(2), shared_nodes(3), shared_nodes(4), face_id2)
                   if (adjacency_matrix(element1, element2) == 0) then
                      adjacency_matrix(element1, element2) = face_id1
                      adjacency_matrix(element2, element1) = face_id2
@@ -125,7 +125,7 @@ contains
         use constants_meshfem, only: NCORNERS
         use meshfem_par, only: nspec
       implicit none
-      integer, intent(in) :: elmnts_bis(0:NCORNERS*nspec-1)
+      integer, intent(in) :: elmnts_bis(NCORNERS*nspec)
       integer, intent(in) :: element1, element2
       integer, intent(out) :: shared_nodes(0:NCORNERS-1)
       integer, intent(out) :: num_shared
@@ -133,10 +133,10 @@ contains
       integer :: i, j
       num_shared = 0
       shared_nodes(:) = -1
-      do i = 0, NCORNERS-1
-         do j = 0, NCORNERS-1
-            if (elmnts_bis(element1 * NCORNERS + i) == elmnts_bis(element2 * NCORNERS + j)) then
-               shared_nodes(num_shared) = elmnts_bis(element1 * NCORNERS + i)
+      do i = 1, NCORNERS
+         do j = 1, NCORNERS
+            if (elmnts_bis((element1-1) * NCORNERS + i) == elmnts_bis((element2-1) * NCORNERS + j)) then
+               shared_nodes(num_shared) = elmnts_bis((element1-1) * NCORNERS + i)
                num_shared = num_shared + 1
             end if
          end do

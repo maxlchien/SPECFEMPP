@@ -22,6 +22,7 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  * @param mpi MPI interface for parallel communication and error handling
  *
  * @return std::tuple containing:
+ *         - Number of spectral elements in the mesh
  *         - Control node indices array mapping spectral elements to materials
  *         - Materials object containing material specifications and
  * classifications
@@ -29,7 +30,7 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  * @throws std::runtime_error If file reading fails or invalid material data is
  * encountered
  */
-std::tuple<Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
+std::tuple<int, Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
            specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
 read_materials(std::ifstream &stream, const int ngnod,
                const specfem::MPI::MPI *mpi);

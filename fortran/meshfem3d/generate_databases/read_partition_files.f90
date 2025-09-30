@@ -40,7 +40,7 @@
   integer :: num_moho
   integer :: i,j,inode,imat,ispec,ie,dummy_node,dummy_elmnt,ier
   integer :: ngnod_mesh
-  integer :: total_adjacencies
+  integer :: total_adjacencies, iadj
   integer :: dummy_elmnt1,dummy_elmnt2,dummy_type,dummy_value
 
   ! read databases about external mesh simulation

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "absorbing_boundaries/absorbing_boundaries.hpp"
+#include "adjacency_graph/adjacency_graph.hpp"
 #include "control_nodes/control_nodes.hpp"
 #include "enumerations/interface.hpp"
 #include "materials/materials.hpp"
@@ -56,6 +57,8 @@ template <specfem::dimension::type DimensionTag> struct mesh;
  * @endcode
  */
 template <> struct mesh<specfem::dimension::type::dim3> {
+
+  int nspec;
   /**
    * @brief Control node geometric data container
    *
@@ -93,6 +96,9 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    */
   specfem::mesh::meshfem3d::AbsorbingBoundaries<specfem::dimension::type::dim3>
       absorbing_boundaries;
+
+  specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
+      adjacency_graph;
 
   /**
    * @brief Default constructor

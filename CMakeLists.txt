@@ -230,6 +230,7 @@ add_library(
         src/io/mesh/impl/fortran/dim3/meshfem3d/read_materials.cpp
         src/io/mesh/impl/fortran/dim3/meshfem3d/read_mpi_interfaces.cpp
         src/io/mesh/impl/fortran/dim3/meshfem3d/read_pml_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_adjacency_graph.cpp
 )
 
 target_link_libraries(
@@ -334,6 +335,8 @@ add_library(
         src/mesh/dim3/generate_database/jacobian_matrix/jacobian_matrix.cpp
         src/mesh/dim3/generate_database/control_nodes/control_nodes.cpp
         src/mesh/dim3/generate_database/tags/tags.cpp
+
+        src/mesh/dim3/meshfem3d/adjacency_graph/assert_symmetry.cpp
 )
 
 target_link_libraries(
