@@ -6,7 +6,8 @@
 #include <Kokkos_Core.hpp>
 
 using EdgeViewType =
-    Kokkos::View<specfem::mesh_entity::edge *, Kokkos::DefaultExecutionSpace>;
+    Kokkos::View<specfem::mesh_entity::edge<specfem::dimension::type::dim2> *,
+                 Kokkos::DefaultExecutionSpace>;
 
 specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
     const int ngllx, const int ngllz,
@@ -89,9 +90,13 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
               const auto flip =
                   connection_mapping.flip_orientation(edge1, edge2);
               _h_self_edges_(index) =
-                  specfem::mesh_entity::edge{ ispec1, edge1, false };
+                  specfem::mesh_entity::edge<specfem::dimension::type::dim2>{
+                    ispec1, edge1, false
+                  };
               _h_coupled_edges_(index) =
-                  specfem::mesh_entity::edge{ ispec2, edge2, flip };
+                  specfem::mesh_entity::edge<specfem::dimension::type::dim2>{
+                    ispec2, edge2, flip
+                  };
               index++;
             }
           }

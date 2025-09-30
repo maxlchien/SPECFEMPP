@@ -39,12 +39,12 @@ const static std::unordered_map<
       { "3 Element Nonconforming",
         {
             specfem::testing::predicate::connects(
-                0, specfem::mesh_entity::type::top, 1,
-                specfem::mesh_entity::type::bottom)
+                0, specfem::mesh_entity::dim2::type::top, 1,
+                specfem::mesh_entity::dim2::type::bottom)
                 .with(specfem::connections::type::nonconforming),
             specfem::testing::predicate::connects(
-                0, specfem::mesh_entity::type::top, 2,
-                specfem::mesh_entity::type::bottom)
+                0, specfem::mesh_entity::dim2::type::top, 2,
+                specfem::mesh_entity::dim2::type::bottom)
                 .with(specfem::connections::type::nonconforming),
             specfem::testing::predicate::connects(1, 2).with(
                 specfem::connections::type::strongly_conforming),

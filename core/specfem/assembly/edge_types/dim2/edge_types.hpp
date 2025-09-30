@@ -12,7 +12,8 @@ template <> class edge_types<specfem::dimension::type::dim2> {
 
 private:
   using EdgeViewType =
-      Kokkos::View<specfem::mesh_entity::edge *, Kokkos::DefaultExecutionSpace>;
+      Kokkos::View<specfem::mesh_entity::edge<specfem::dimension::type::dim2> *,
+                   Kokkos::DefaultExecutionSpace>;
 
 public:
   constexpr static auto dimension = specfem::dimension::type::dim2;
