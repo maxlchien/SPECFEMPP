@@ -1,5 +1,5 @@
 import itertools
-from typing import Literal, get_args as recover_vals
+from typing import Literal
 
 from _gmsh2meshfem.gmsh_dep import GmshContext
 from _gmsh2meshfem.dim2.model import Model
@@ -7,7 +7,7 @@ from _gmsh2meshfem.dim2.model import Model
 from .layer import Layer, LayerBoundary
 
 BoundaryConditionType = Literal["neumann", "acoustic_free_surface", "absorbing"]
-BOUNDARY_TYPES = recover_vals(BoundaryConditionType)
+BOUNDARY_TYPES = ["neumann", "acoustic_free_surface", "absorbing"]
 
 
 class LayeredBuilder:
@@ -34,10 +34,10 @@ class LayeredBuilder:
         self,
         xlow: float,
         xhigh: float,
-        set_left_boundary: BoundaryConditionType = BOUNDARY_TYPES[0],
-        set_right_boundary: BoundaryConditionType = BOUNDARY_TYPES[0],
-        set_top_boundary: BoundaryConditionType = BOUNDARY_TYPES[0],
-        set_bottom_boundary: BoundaryConditionType = BOUNDARY_TYPES[0],
+        set_left_boundary: BoundaryConditionType = "neumann",
+        set_right_boundary: BoundaryConditionType = "neumann",
+        set_top_boundary: BoundaryConditionType = "neumann",
+        set_bottom_boundary: BoundaryConditionType = "neumann",
     ):
         self.xlow = xlow
         self.xhigh = xhigh

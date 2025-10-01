@@ -43,30 +43,30 @@ def get_parser():
     parser.add_argument(
         "--top",
         choices=BOUNDARY_TYPES,
-        help=f"Boundary type on the top (defaults to {BOUNDARY_TYPES[0]})",
+        help="Boundary type on the top (defaults to neumann)",
         dest="bdry_top",
-        default=BOUNDARY_TYPES[0],
+        default="neumann",
     )
     parser.add_argument(
         "--bottom",
         choices=BOUNDARY_TYPES,
-        help=f"Boundary type on the bottom (defaults to {BOUNDARY_TYPES[0]})",
+        help="Boundary type on the bottom (defaults to neumann)",
         dest="bdry_bottom",
-        default=BOUNDARY_TYPES[0],
+        default="neumann",
     )
     parser.add_argument(
         "--left",
         choices=BOUNDARY_TYPES,
-        help=f"Boundary type on the left (defaults to {BOUNDARY_TYPES[0]})",
+        help="Boundary type on the left (defaults to neumann)",
         dest="bdry_left",
-        default=BOUNDARY_TYPES[0],
+        default="neumann",
     )
     parser.add_argument(
         "--right",
         choices=BOUNDARY_TYPES,
-        help=f"Boundary type on the right (defaults to {BOUNDARY_TYPES[0]})",
+        help="Boundary type on the right (defaults to neumann)",
         dest="bdry_right",
-        default=BOUNDARY_TYPES[0],
+        default="neumann",
     )
     return parser
 
