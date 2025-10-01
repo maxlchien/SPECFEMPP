@@ -5,6 +5,7 @@
 #include "dim2/elastic/isotropic/wavefield.hpp"
 #include "dim2/elastic/isotropic_cosserat/wavefield.hpp"
 #include "dim2/poroelastic/isotropic/wavefield.hpp"
+#include "dim3/elastic/isotropic/wavefield.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
@@ -95,7 +96,7 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
                          displacement, velocity, acceleration,
                          wavefield_component, wavefield_on_entire_grid);
   return;
-} // compute_wavefield
+} // git pull
 
 } // namespace medium
 } // namespace specfem
