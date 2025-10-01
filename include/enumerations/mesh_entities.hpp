@@ -1,3 +1,22 @@
 #pragma once
 
+namespace specfem::mesh_entity {
+
+/**
+ * @brief Template structure for edge mesh entities in various dimensions
+ *
+ * @tparam DimensionTag The dimension type (e.g., dim2, dim3)
+ */
+template <specfem::dimension::type DimensionTag> struct edge;
+
+/**
+ * @brief Mesh element structure for a specific dimension
+ *
+ * @tparam Dimension The dimension type (e.g., dim2, dim3)
+ */
+template <specfem::dimension::type DimensionTag> struct element;
+
+} // namespace specfem::mesh_entity
+
 #include "dim2/mesh_entities.hpp"
+#include "dim3/mesh_entities.hpp"

@@ -1,5 +1,10 @@
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_materials.hpp"
+#include "io/fortranio/interface.hpp"
 #include "mesh/mesh.hpp"
+#include <Kokkos_Core.hpp>
+#include <fstream>
+#include <tuple>
+#include <vector>
 
 std::tuple<Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
            specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >

@@ -1,6 +1,8 @@
 
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.hpp"
+#include "io/fortranio/interface.hpp"
 #include "mesh/mesh.hpp"
+#include <fstream>
 
 specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
 specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_control_nodes(
