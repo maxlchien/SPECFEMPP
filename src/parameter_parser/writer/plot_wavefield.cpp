@@ -1,8 +1,7 @@
 #include "parameter_parser/writer/plot_wavefield.hpp"
 #include "enumerations/display.hpp"
 #include "enumerations/wavefield.hpp"
-#include "periodic_tasks/plot_wavefield.hpp"
-#include "periodic_tasks/plotter.hpp"
+#include "specfem/periodic_tasks.hpp"
 #include "specfem_mpi/interface.hpp"
 #include "utilities/strings.hpp"
 #include <boost/filesystem.hpp>
