@@ -96,9 +96,8 @@ public:
    * @return Mutable reference to the Boost adjacency_list graph
    */
   Graph &graph() {
-    if (!p_graph_) {
+    if (p_graph_ == nullptr) {
       p_graph_ = std::make_shared<Graph>();
-      throw std::runtime_error("Graph wasn't initialized during mesh reader");
     }
     return *p_graph_;
   }
@@ -112,8 +111,8 @@ public:
    * @return Const reference to the Boost adjacency_list graph
    */
   const Graph &graph() const {
-    if (!p_graph_) {
-      throw std::runtime_error("Graph wasn't initialized during mesh reader");
+    if (p_graph_ == nullptr) {
+      p_graph_ = std::make_shared<Graph>();
     }
     return *p_graph_;
   }
