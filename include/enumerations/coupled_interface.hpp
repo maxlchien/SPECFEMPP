@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "enumerations/interface.hpp
+#include "enumerations/interface.hpp"
 
 /**
  * @brief Forward declarations for point field types
