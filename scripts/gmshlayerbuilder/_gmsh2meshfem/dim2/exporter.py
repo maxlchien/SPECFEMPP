@@ -3,6 +3,11 @@ import os
 
 import numpy as np
 
+from _gmsh2meshfem.dim2.model.physical_group import (
+    NullPhysicalGroup,
+    PhysicalGroupBase,
+)
+
 from .model import Model
 from .model.edges import EdgeType
 
@@ -43,6 +48,9 @@ class Exporter:
 
     model: Model
 
+    acoustic_free_surface_physical_group: PhysicalGroupBase
+    absorbing_surface_physical_group: PhysicalGroupBase
+
     def __init__(
         self,
         model: Model,
@@ -52,11 +60,13 @@ class Exporter:
         materials_file: str = "materials",
         free_surface_file: str = "free_surface",
         axial_elements_file: str | None = None,
-        absorbing_surface_file: str | None = None,
+        absorbing_surface_file: str | None = "absorbing_surface",
         acoustic_forcing_surface_file: str | None = None,
         absorbing_cpml_file: str | None = None,
         tangential_detection_curve_file: str | None = None,
         nonconforming_adjacencies_file: str | None = None,
+        acoustic_free_surface_physical_group: str | None = "acoustic_free_surface",
+        absorbing_surface_physical_group: str | None = "absorbing",
     ):
         """Initialize an Exporter2D object to write `model` to files for meshfem.
 
@@ -80,7 +90,7 @@ class Exporter:
                 for no export. Defaults to None.
             absorbing_surface_file (str | None, optional): name of the file
                 (path relative to `destination_folder`), or None
-                for no export. Defaults to None.
+                for no export. Defaults to "absorbing_surface".
             acoustic_forcing_surface_file (str | None, optional): name of
                 the file (path relative to `destination_folder`),
                 or None for no export. Defaults to None.
@@ -124,9 +134,20 @@ class Exporter:
             if nonconforming_adjacencies_file is None
             else PurePath(nonconforming_adjacencies_file)
         )
+        self.acoustic_free_surface_physical_group = (
+            NullPhysicalGroup("_NULL_AFS_")
+            if acoustic_free_surface_physical_group is None
+            or acoustic_free_surface_physical_group not in self.model.physical_groups
+            else self.model.physical_groups[acoustic_free_surface_physical_group]
+        )
+        self.absorbing_surface_physical_group = (
+            NullPhysicalGroup("_NULL_ABS_")
+            if absorbing_surface_physical_group is None
+            or absorbing_surface_physical_group not in self.model.physical_groups
+            else self.model.physical_groups[absorbing_surface_physical_group]
+        )
 
     def export_mesh(self):
-
         if not self.destination_folder.exists():
             self.destination_folder.mkdir()
 
@@ -134,20 +155,16 @@ class Exporter:
         # node coords
         # =========================
         with (self.destination_folder / self.node_coords_file).open("w") as f:
-            nodes_arr = self.model.nodes
+            nodes_arr = self.model.nodes[...,(0,2)]
 
             # header is number of lines (1 line per node)
             nnodes = nodes_arr.shape[0]
-            f.write(str(nnodes))
+            f.write(str(nnodes) + "\n")
 
-            # always write in 3 values. Technically,
-            # nodes_arr should be 3 as well, but we do this
-            # just for sanity
-            nodes_dim = nodes_arr.shape[1]
-            pts = np.zeros((3,))
+            assert nodes_arr.shape[1] == 2, "2d exporter received 3d points!"
+
             for inod in range(nnodes):
-                pts[:nodes_dim] = nodes_arr[inod, :]
-                f.write(f"\n {pts[0]:.10f} {pts[1]:.10f} {pts[2]:.10f}")
+                f.write(f"{nodes_arr[inod, 0]:.10f} {nodes_arr[inod, 1]:.10f}\n")
 
         nelem = self.model.elements.shape[0]
 
@@ -157,9 +174,9 @@ class Exporter:
         with (self.destination_folder / self.mesh_file).open("w") as f:
             elem_arr = self.model.elements
 
-            f.write(str(nelem))
+            f.write(str(nelem) + "\n")
             for ielem in range(nelem):
-                f.write("\n " + " ".join(f"{k + 1:d}" for k in elem_arr[ielem, :]))
+                f.write(" ".join(f"{k + 1:d}" for k in elem_arr[ielem, :]) + "\n")
 
         # =========================
         # materials
@@ -171,16 +188,38 @@ class Exporter:
         # free surface
         # =========================
         with (self.destination_folder / self.free_surface_file).open("w") as f:
-            # NotImplemented
-            f.write(str(0))
+            elements, edgetypes = (
+                self.acoustic_free_surface_physical_group.get_all_edges()
+            )
+
+            f.write(str(elements.shape[0]) + "\n")
+
+            # we're not handling corner cases. Make sure this is fine.
+            # (or just let it go until something breaks and you find this comment)
+
+            for elem, edgetype in zip(elements, edgetypes):
+                node_indices = self.model.elements[
+                    elem, EdgeType.QUA_9_node_indices_on_type(edgetype)[::2]
+                ]
+                f.write(f"{elem} 2 {node_indices[0]} {node_indices[1]}\n")
 
         # =========================
         # absorbing bdries (if needed)
         # =========================
         if self.absorbing_surface_file is not None:
             with (self.destination_folder / self.absorbing_surface_file).open("w") as f:
-                # NotImplemented
-                f.write(str(0))
+                elements, edgetypes = (
+                    self.absorbing_surface_physical_group.get_all_edges()
+                )
+                f.write(str(elements.shape[0]) + "\n")
+
+                for elem, edgetype in zip(elements, edgetypes):
+                    node_indices = self.model.elements[
+                        elem, EdgeType.QUA_9_node_indices_on_type(edgetype)[::2]
+                    ]
+                    f.write(
+                        f"{elem} 2 {node_indices[0]} {node_indices[1]} {edgetype + 1}\n"
+                    )
 
         # =========================
         # acoustic forcing (if needed)
@@ -218,7 +257,7 @@ class Exporter:
                 "w"
             ) as f:
                 num_pairs = self.model.nonconforming_interfaces.edges_a.shape[0]
-                f.write(str(num_pairs * 2))
+                f.write(str(num_pairs * 2) + "\n")
 
                 for ispec_a, ispec_b, edge_a, edge_b in zip(
                     self.model.nonconforming_interfaces.elements_a,
@@ -227,12 +266,12 @@ class Exporter:
                     self.model.nonconforming_interfaces.edges_b,
                 ):
                     f.write(
-                        f"\n{ispec_a + 1:d} {ispec_b + 1:d} "
+                        f"{ispec_a + 1:d} {ispec_b + 1:d} "
                         f"{NONCONFORMING_CONNECTION_TYPE:d} "
-                        f"{model_edge_to_meshfem_edge(edge_a):d}"
+                        f"{model_edge_to_meshfem_edge(edge_a):d}\n"
                     )
                     f.write(
-                        f"\n{ispec_b + 1:d} {ispec_a + 1:d} "
+                        f"{ispec_b + 1:d} {ispec_a + 1:d} "
                         f"{NONCONFORMING_CONNECTION_TYPE:d} "
-                        f"{model_edge_to_meshfem_edge(edge_b):d}"
+                        f"{model_edge_to_meshfem_edge(edge_b):d}\n"
                     )

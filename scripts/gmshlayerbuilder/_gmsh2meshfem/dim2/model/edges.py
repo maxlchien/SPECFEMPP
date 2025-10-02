@@ -3,11 +3,13 @@ from dataclasses import replace as dataclass_replace
 from enum import IntEnum
 
 import numpy as np
+from numpy.typing import NDArray
 
 from _gmsh2meshfem.dim2.binary_detect_N3 import maxfind_coefs_a, maxfind_coefs_b, L
 
 
 class EdgeType(IntEnum):
+    # this indexing is 1 less than the meshfem indexing. Keep that in mind.
     BOTTOM = 0
     RIGHT = 1
     TOP = 2
@@ -201,3 +203,24 @@ def vectorized_bbox_calc(node_coord_matrix: np.ndarray) -> np.ndarray:
     np.minimum(ret[..., :2], node_coord_matrix[..., 0, :], ret[..., :2])
     np.minimum(ret[..., :2], node_coord_matrix[..., 2, :], ret[..., :2])
     return ret
+
+
+def unique_edges(
+    elements_arr: NDArray[np.uint64], edge_type_arr: NDArray[np.uint8]
+) -> tuple[NDArray[np.uint64], NDArray[np.uint8]]:
+    """Finds the unique edges among the values passed in.
+
+    In the future, consider modeling this off of np.unique.
+
+    Args:
+        elements_arr (NDArray[np.uint64]): element indices
+        edge_type_arr (NDArray[np.uint8]): edge types
+
+    Returns:
+        tuple[NDArray[np.uint64], NDArray[np.uint8]]: the shortened and sorted unique edges.
+    """
+    uniques = np.unique(
+        np.stack([elements_arr, edge_type_arr], axis=-1, dtype=elements_arr.dtype),
+        axis=0,
+    )
+    return uniques[:, 0], np.astype(uniques[:, 1], np.uint8)
