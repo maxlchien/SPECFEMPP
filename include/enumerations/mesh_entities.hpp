@@ -1,4 +1,5 @@
 #pragma once
+#include "enumerations/dimension.hpp"
 
 namespace specfem::mesh_entity {
 

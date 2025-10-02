@@ -1,6 +1,7 @@
 # `gmshlayerbuilder`
 
 Converts a topography file (used by the internal mesher) into a set of output files to be read in by `meshfem2D`.
+A list of options is provided with the `-h` flag.
 
 > All commands are assumed to be run in the `scripts` directory.
 
@@ -29,6 +30,16 @@ The output can be viewed with the inclusion of a `--plot` flag. `matplotlib` mus
 ```sh
 python gmshlayerbuilder gmshlayerbuilder/test_topo.dat ../results/gmsh_demo/ --plot
 ```
+
+## Setting boundaries
+
+Boundary conditions can be set on the top, bottom, left, and right sides of the domain using `--top`, `--bottom`, `--left`, and `--right` respectively. The available conditions are `neumann`, `acoustic_free_surface`, and `absorbing`. Default is `neumann` for all sides.
+
+```sh
+python gmshlayerbuilder gmshlayerbuilder/test_topo.dat ../results/gmsh_demo/ --top acoustic_free_surface
+```
+
+Note that `gmshlayerbuilder` is not aware of the material, so make sure that you do not set an incompatible boundary condition to the material (`acoustic free surface` for elastic materials).
 
 ## Development Notes
 
