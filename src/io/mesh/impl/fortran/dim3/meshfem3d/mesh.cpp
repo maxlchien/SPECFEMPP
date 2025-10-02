@@ -1,4 +1,5 @@
 #include "mesh/mesh.hpp"
+#include "io/fortranio/interface.hpp"
 #include "io/interface.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_absorbing_boundaries.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.hpp"
