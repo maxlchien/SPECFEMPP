@@ -7,7 +7,7 @@
 #include <tuple>
 #include <vector>
 
-std::tuple<Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
+std::tuple<int, Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
            specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
 specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
     std::ifstream &stream, const int ngnod, const specfem::MPI::MPI *mpi) {
@@ -132,5 +132,5 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
     }
   }
 
-  return std::make_tuple(control_node_index, materials);
+  return std::make_tuple(nspec, control_node_index, materials);
 }

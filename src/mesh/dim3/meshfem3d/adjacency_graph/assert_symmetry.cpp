@@ -1,11 +1,10 @@
-#include "mesh/dim2/adjacency_graph/adjacency_graph.hpp"
+#include "mesh/dim3/meshfem3d/adjacency_graph/adjacency_graph.hpp"
 #include <boost/range/iterator_range.hpp>
 #include <sstream>
 #include <stdexcept>
 
-template <>
-void specfem::mesh::adjacency_graph<
-    specfem::dimension::type::dim2>::assert_symmetry() const {
+void specfem::mesh::meshfem3d::adjacency_graph<
+    specfem::dimension::type::dim3>::assert_symmetry() const {
   const auto &g = this->graph();
 
   for (const auto &edge : boost::make_iterator_range(boost::edges(g))) {

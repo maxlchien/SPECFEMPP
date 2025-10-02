@@ -2,6 +2,7 @@
 #include "io/fortranio/interface.hpp"
 #include "io/interface.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_absorbing_boundaries.hpp"
+#include "io/mesh/impl/fortran/dim3/meshfem3d/read_adjacency_graph.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_materials.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_mpi_interfaces.hpp"
@@ -36,9 +37,10 @@ specfem::io::meshfem3d::read_3d_mesh(const std::string &mesh_parameters_file,
   mesh.control_nodes =
       specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_control_nodes(
           param_stream, mpi);
-  const auto [control_node_index, materials] =
+  const auto [nspec, control_node_index, materials] =
       specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           param_stream, mesh.control_nodes.ngnod, mpi);
+  mesh.nspec = nspec;
   mesh.control_nodes.control_node_index = control_node_index;
   mesh.materials = materials;
   mesh.absorbing_boundaries =
@@ -54,6 +56,11 @@ specfem::io::meshfem3d::read_3d_mesh(const std::string &mesh_parameters_file,
   // TODO (Rohit: MPI_INTERFACES): Add support for MPI interfaces
   specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_mpi_interfaces(
       param_stream, mpi);
+
+  // Read adjacency information
+  mesh.adjacency_graph =
+      specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_adjacency_graph(
+          param_stream, mesh.nspec, mpi);
 
   param_stream.close();
 
