@@ -573,6 +573,29 @@
     write(IIN_database) nb_interfaces,nspec_interfaces_max
   endif
 
+  ! Write the adjacency list for the mesh
+  do ispec = 0, nspec-1
+    do jspec = 0, nspec-1
+      if (adjacency_matrix(ispec,jspec) /= 0) then
+        adj_element(ispec, nadj_element(ispec)) = jspec
+        adj_type(ispec, nadj_element(ispec)) = adjacency_matrix(ispec,jspec)
+        nadj_element(ispec) = nadj_element(ispec) + 1
+        total_nadj_element = total_nadj_element + 1
+      endif
+    enddo
+  enddo
+
+  write(IIN_database) total_nadj_element
+
+  do ispec = 0, nspec-1
+    do i = 0, nadj_element(ispec)-1
+      write(IIN_database) ispec, adj_element(ispec,i), 1, adj_type(ispec,i)
+      index = index + 1
+    enddo
+  enddo
+
+  if (index /= total_nadj_element) stop 'Error in writing adjacency list'
+
   close(IIN_database)
 
   ! CUBIT output
