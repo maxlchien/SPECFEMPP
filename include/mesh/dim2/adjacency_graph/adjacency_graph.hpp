@@ -75,7 +75,7 @@ public:
    *
    * Creates an empty adjacency graph with no vertices or edges.
    */
-  adjacency_graph() = default;
+  adjacency_graph() : p_graph_(std::make_shared<Graph>(0)) {}
 
   /**
    * @brief Constructor with specified number of spectral elements
@@ -95,12 +95,7 @@ public:
    *
    * @return Mutable reference to the Boost adjacency_list graph
    */
-  Graph &graph() {
-    if (p_graph_ == nullptr) {
-      p_graph_ = std::make_shared<Graph>();
-    }
-    return *p_graph_;
-  }
+  Graph &graph() { return *p_graph_; }
 
   /**
    * @brief Get const reference to the underlying graph
@@ -110,12 +105,7 @@ public:
    *
    * @return Const reference to the Boost adjacency_list graph
    */
-  const Graph &graph() const {
-    if (p_graph_ == nullptr) {
-      p_graph_ = std::make_shared<Graph>();
-    }
-    return *p_graph_;
-  }
+  const Graph &graph() const { return *p_graph_; }
 
   // TODO(Rohit: ADJ_GRAPH_DEFAULT)
   // Graph should never be empty after it is made as default
@@ -127,9 +117,7 @@ public:
    *
    * @return true if the graph has no vertices, false otherwise
    */
-  bool empty() const {
-    return p_graph_ == nullptr || boost::num_vertices(*p_graph_) == 0;
-  }
+  bool empty() const { return (boost::num_vertices(*p_graph_) == 0); }
 
   /**
    * @brief Assert that the adjacency graph is symmetric
