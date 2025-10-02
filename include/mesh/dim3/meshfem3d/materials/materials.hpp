@@ -179,8 +179,9 @@ template <> struct Materials<specfem::dimension::type::dim3> {
    */
   FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM3), MEDIUM_TAG(ACOUSTIC, ELASTIC),
                        PROPERTY_TAG(ISOTROPIC, ANISOTROPIC)),
-                      DECLARE(((specfem::mesh::materials, (_DIMENSION_TAG_),
-                                ::material, (_MEDIUM_TAG_, _PROPERTY_TAG_)),
+                      DECLARE(((specfem::mesh::meshfem3d::Materials,
+                                (_DIMENSION_TAG_), ::material,
+                                (_MEDIUM_TAG_, _PROPERTY_TAG_)),
                                material)))
 
   /** @} */
@@ -195,7 +196,7 @@ template <> struct Materials<specfem::dimension::type::dim3> {
    * materials. Suitable for delayed initialization or when material
    * data will be populated later through other means.
    */
-  materials() = default;
+  Materials() = default;
 
   /** @} */
 
@@ -279,7 +280,8 @@ public:
    */
   template <specfem::element::medium_tag MediumTag,
             specfem::element::property_tag PropertyTag>
-  specfem::mesh::materials<dimension_tag>::material<MediumTag, PropertyTag> &
+  specfem::mesh::meshfem3d::Materials<dimension_tag>::material<MediumTag,
+                                                               PropertyTag> &
   get_container() {
 
     FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM3), MEDIUM_TAG(ACOUSTIC, ELASTIC),
