@@ -28,3 +28,11 @@ KOKKOS_INLINE_FUNCTION void sub2ind(const int xz, const int ngllx, int &iz,
   ix = xz - iz * ngllx;
   return;
 }
+
+KOKKOS_INLINE_FUNCTION void sub2ind(const int xyz, const int ngll,
+                                    int &iz, int &iy, int &ix) {
+  iz = xyz / (ngll * ngll);
+  iy = (xyz - iz * ngll * ngll) / ngll;
+  ix = xyz - iz * ngll * ngll - iy * ngll;
+  return;
+}
