@@ -1,5 +1,4 @@
-#ifndef _SPECFEM_SOLVER_TIME_MARCHING_TPP
-#define _SPECFEM_SOLVER_TIME_MARCHING_TPP
+#pragma once
 
 #include "solver.hpp"
 #include "time_marching.hpp"
@@ -259,5 +258,3 @@ void specfem::solver::time_marching<specfem::simulation::type::combined,
 
   return;
 }
-
-#endif
