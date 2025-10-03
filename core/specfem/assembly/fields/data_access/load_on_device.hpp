@@ -10,6 +10,7 @@
 namespace specfem::assembly {
 
 namespace fields_impl {
+
 template <typename IndexType, typename ContainerType, typename... AccessorTypes,
           typename std::enable_if_t<
               ((specfem::data_access::is_assembly_index<IndexType>::value) &&

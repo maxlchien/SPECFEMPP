@@ -232,6 +232,7 @@ load_after_simd_dispatch(const std::false_type, const IndexType &index,
   specfem::assembly::fields_impl::check_accessor_compatibility<
       AccessorTypes...>();
   const auto current_field = field.template get_field<MediumTag>();
+
   constexpr static int ncomponents = specfem::element::attributes<
       std::tuple_element_t<0, std::tuple<AccessorTypes...> >::dimension_tag,
       std::tuple_element_t<0, std::tuple<AccessorTypes...> >::medium_tag>::
@@ -242,8 +243,8 @@ load_after_simd_dispatch(const std::false_type, const IndexType &index,
       [&](const typename IndexType::iterator_type::index_type &iterator_index) {
         const auto point_index = iterator_index.get_index();
         const auto iedge = point_index.local_index().ispec;
-        const int iglob = field.template get_iglob<on_device>(
-            point_index.ispec, point_index.iz, point_index.ix, MediumTag);
+        const int iglob =
+            field.template get_iglob<on_device>(point_index, MediumTag);
         for (int icomp = 0; icomp < ncomponents; ++icomp) {
           (specfem::assembly::fields_impl::base_load_accessor<
                on_device, AccessorTypes::data_class>(
