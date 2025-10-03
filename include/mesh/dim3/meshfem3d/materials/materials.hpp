@@ -326,6 +326,33 @@ public:
     return material_container.n_materials - 1;
   }
 
+  /**
+   * @brief Get the medium and property types for a given element index
+   *
+   * Returns a tuple containing the medium and property tags associated with
+   * the material specification for the specified element index.
+   *
+   * @param index Element index to query
+   * @return Tuple of (medium_tag, property_tag) for the element's material
+   *
+   * @code
+   * // Get material type for element 42
+   * auto [medium, property] = materials.get_material_type(42);
+   *
+   * // Use in conditional logic
+   * if (medium == specfem::element::medium_tag::elastic &&
+   *     property == specfem::element::property_tag::isotropic) {
+   *     // Handle elastic isotropic case
+   * }
+   * @endcode
+   */
+  std::tuple<specfem::element::medium_tag, specfem::element::property_tag>
+  get_material_type(const int index) const {
+    const auto &material_specification = this->material_index_mapping[index];
+    return std::make_tuple(material_specification.type,
+                           material_specification.property);
+  }
+
   /** @} */ // End Material Access Interface
 }; // End Materials<dim3> specialization
 } // namespace specfem::mesh::meshfem3d

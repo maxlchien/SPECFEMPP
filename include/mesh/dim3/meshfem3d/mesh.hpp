@@ -58,7 +58,12 @@ template <specfem::dimension::type DimensionTag> struct mesh;
  */
 template <> struct mesh<specfem::dimension::type::dim3> {
 
+  /**
+   * @brief Number of spectral elements in the mesh
+   *
+   */
   int nspec;
+
   /**
    * @brief Control node geometric data container
    *
@@ -97,8 +102,28 @@ template <> struct mesh<specfem::dimension::type::dim3> {
   specfem::mesh::meshfem3d::AbsorbingBoundaries<specfem::dimension::type::dim3>
       absorbing_boundaries;
 
+  /**
+   * @brief Element adjacency graph
+   *
+   * Represents the connectivity relationships between spectral elements in
+   * the mesh.
+   *
+   * @see specfem::mesh::meshfem3d::adjacency_graph
+   */
   specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
       adjacency_graph;
+
+  /**
+   * @brief Setup coupled interfaces in the mesh
+   *
+   * Coupled interfaces are essential for multi-domain simulations where
+   * different materials or physical models interact at shared boundaries.
+   *
+   * @note This function should be called after the mesh has been fully
+   * initialized and all components (control nodes, materials, boundaries)
+   * have been populated from MESHFEM3D database files.
+   */
+  void setup_coupled_interfaces();
 
   /**
    * @brief Default constructor

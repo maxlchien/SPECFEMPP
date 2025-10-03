@@ -64,5 +64,7 @@ specfem::io::meshfem3d::read_3d_mesh(const std::string &mesh_parameters_file,
 
   param_stream.close();
 
+  mesh.setup_coupled_interfaces();
+
   return mesh;
 }
