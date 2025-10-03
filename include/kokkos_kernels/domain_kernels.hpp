@@ -81,8 +81,8 @@ public:
         })
 
     FOR_EACH_IN_PRODUCT(
-        (DIMENSION_TAG(DIM2),
-         MEDIUM_TAG(ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
+        (DIMENSION_TAG(DIM2, DIM3),
+         MEDIUM_TAG(ELASTIC, ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
                     ELASTIC_PSV_T),
          PROPERTY_TAG(ISOTROPIC, ANISOTROPIC, ISOTROPIC_COSSERAT),
          BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
@@ -97,8 +97,8 @@ public:
         })
 
     FOR_EACH_IN_PRODUCT(
-        (DIMENSION_TAG(DIM2),
-         MEDIUM_TAG(ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
+        (DIMENSION_TAG(DIM2, DIM3),
+         MEDIUM_TAG(ELASTIC, ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
                     ELASTIC_PSV_T),
          PROPERTY_TAG(ISOTROPIC, ANISOTROPIC, ISOTROPIC_COSSERAT),
          BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
@@ -113,8 +113,9 @@ public:
         })
 
     FOR_EACH_IN_PRODUCT(
-        (DIMENSION_TAG(DIM2), MEDIUM_TAG(ELASTIC_PSV, ELASTIC_SH, ACOUSTIC,
-                                         POROELASTIC, ELASTIC_PSV_T)),
+        (DIMENSION_TAG(DIM2, DIM3),
+         MEDIUM_TAG(ELASTIC, ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
+                    ELASTIC_PSV_T)),
         {
           if constexpr (dimension_tag == _dimension_tag_ &&
                         medium == _medium_tag_) {
@@ -136,8 +137,8 @@ public:
    */
   void initialize(const type_real &dt) {
     FOR_EACH_IN_PRODUCT(
-        (DIMENSION_TAG(DIM2),
-         MEDIUM_TAG(ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
+        (DIMENSION_TAG(DIM2, DIM3),
+         MEDIUM_TAG(ELASTIC, ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
                     ELASTIC_PSV_T),
          PROPERTY_TAG(ISOTROPIC, ANISOTROPIC, ISOTROPIC_COSSERAT),
          BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
@@ -151,8 +152,9 @@ public:
         })
 
     FOR_EACH_IN_PRODUCT(
-        (DIMENSION_TAG(DIM2), MEDIUM_TAG(ELASTIC_PSV, ELASTIC_SH, ACOUSTIC,
-                                         POROELASTIC, ELASTIC_PSV_T)),
+        (DIMENSION_TAG(DIM2, DIM3),
+         MEDIUM_TAG(ELASTIC, ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
+                    ELASTIC_PSV_T)),
         {
           if constexpr (dimension_tag == _dimension_tag_) {
             impl::invert_mass_matrix<dimension_tag, wavefield, _medium_tag_>(
@@ -174,8 +176,8 @@ public:
   inline void compute_seismograms(const int &isig_step) {
 
     FOR_EACH_IN_PRODUCT(
-        (DIMENSION_TAG(DIM2),
-         MEDIUM_TAG(ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
+        (DIMENSION_TAG(DIM2, DIM3),
+         MEDIUM_TAG(ELASTIC, ELASTIC_PSV, ELASTIC_SH, ACOUSTIC, POROELASTIC,
                     ELASTIC_PSV_T),
          PROPERTY_TAG(ISOTROPIC, ANISOTROPIC, ISOTROPIC_COSSERAT)),
         {
