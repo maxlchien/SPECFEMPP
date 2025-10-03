@@ -181,7 +181,11 @@ class Exporter:
         # materials
         # =========================
         with (self.destination_folder / self.materials_file).open("w") as f:
-            f.write("\n".join(str(mat) for mat in self.model.materials))
+
+            # no header entry
+
+            for mat in self.model.materials:
+                f.write(f"{mat}\n")
 
         # =========================
         # free surface
