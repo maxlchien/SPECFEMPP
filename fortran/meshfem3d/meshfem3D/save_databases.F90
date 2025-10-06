@@ -580,6 +580,8 @@
     write(IIN_database) nb_interfaces,nspec_interfaces_max
   endif
 
+  total_nadj_element = 0
+  nadj_element(:) = 0
   ! Write the adjacency list for the mesh
   do ispec = 1, nspec
     do jspec = 1, nspec
@@ -593,6 +595,7 @@
   enddo
 
   write(IIN_database) total_nadj_element
+  index = 0
 
   do ispec = 1, nspec
     do i = 0, nadj_element(ispec)-1
@@ -601,7 +604,11 @@
     enddo
   enddo
 
-  if (index /= total_nadj_element) stop 'Error in writing adjacency list'
+
+  if (index /= total_nadj_element) then
+    print *,'Error: index ',index,' /= total_nadj_element ',total_nadj_element
+    stop 'Error in writing adjacency list'
+  endif
 
   close(IIN_database)
 

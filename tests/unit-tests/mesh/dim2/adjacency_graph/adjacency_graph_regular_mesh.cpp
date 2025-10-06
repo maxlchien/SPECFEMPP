@@ -1,5 +1,5 @@
 
-#include "../../MPI_environment.hpp"
+#include "MPI_environment.hpp"
 #include "io/interface.hpp"
 #include "mesh/mesh.hpp"
 #include <algorithm>

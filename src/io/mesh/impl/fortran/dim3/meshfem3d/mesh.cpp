@@ -13,7 +13,6 @@
 
 specfem::mesh::meshfem3d::mesh<specfem::dimension::type::dim3>
 specfem::io::meshfem3d::read_3d_mesh(const std::string &mesh_parameters_file,
-                                     const std::string &mesh_databases_file,
                                      const specfem::MPI::MPI *mpi) {
   // Read mesh parameters
   std::ifstream param_stream(mesh_parameters_file,
@@ -41,6 +40,7 @@ specfem::io::meshfem3d::read_3d_mesh(const std::string &mesh_parameters_file,
       specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           param_stream, mesh.control_nodes.ngnod, mpi);
   mesh.nspec = nspec;
+  mesh.control_nodes.nspec = nspec;
   mesh.control_nodes.control_node_index = control_node_index;
   mesh.materials = materials;
   mesh.absorbing_boundaries =

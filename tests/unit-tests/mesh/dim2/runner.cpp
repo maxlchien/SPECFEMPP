@@ -1,5 +1,5 @@
-#include "../Kokkos_Environment.hpp"
-#include "../MPI_environment.hpp"
+#include "../../Kokkos_Environment.hpp"
+#include "../../MPI_environment.hpp"
 #include "gtest/gtest.h"
 
 int main(int argc, char *argv[]) {
