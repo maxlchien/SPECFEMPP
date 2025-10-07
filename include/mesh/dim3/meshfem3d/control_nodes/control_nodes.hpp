@@ -143,6 +143,10 @@ public:
    */
   int nspec;
 
+  type_real xmin, xmax; ///< Minimum and maximum x-coordinates of control nodes
+  type_real ymin, ymax; ///< Minimum and maximum y-coordinates of control nodes
+  type_real zmin, zmax; ///< Minimum and maximum z-coordinates of control nodes
+
   /**
    * @brief 3D coordinates of all control nodes.
    *

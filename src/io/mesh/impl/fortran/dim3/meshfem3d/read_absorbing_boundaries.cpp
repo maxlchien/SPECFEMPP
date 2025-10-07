@@ -163,8 +163,11 @@ specfem::mesh_entity::dim3::type find_face_from_nodes(
       specfem::point::distance(closest_face_iter->second, face_nodes_midpoint);
   if (min_distance > 1e-3 * lc) {
     throw std::runtime_error(
-        "Could not find matching face for absorbing boundary. Closest face "
-        "is too far away.");
+        "Could not find matching face for absorbing boundary. Element " +
+        std::to_string(element_index) + ": closest face distance " +
+        std::to_string(min_distance) + " exceeds tolerance " +
+        std::to_string(1e-3 * lc) +
+        " (characteristic length: " + std::to_string(lc) + ")");
   }
 
   return closest_face;
@@ -253,6 +256,10 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
         int element_index;
         std::vector<int> face_nodes(nnodes_on_face);
         specfem::io::fortran_read_line(stream, &element_index, &face_nodes);
+        // Decrement to convert to zero-based indexing
+        for (auto &node : face_nodes) {
+          node -= 1;
+        }
         const auto face =
             find_face_from_nodes(control_nodes, element_index - 1, face_nodes);
         absorbing_boundaries.index_mapping(index) = element_index - 1;
