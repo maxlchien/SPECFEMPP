@@ -1,6 +1,7 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
+#include "enumerations/macros.hpp"
 #include "enumerations/material_definitions.hpp"
 #include "medium/material.hpp"
 #include <Kokkos_Core.hpp>
@@ -121,7 +122,7 @@ template <> struct Materials<specfem::dimension::type::dim3> {
     std::vector<specfem::medium::material<type, property> > element_materials;
 
     /** @brief Default constructor creating empty container */
-    material() = default;
+    material() : n_materials(0) {}
 
     /**
      * @brief Construct container from existing material vector
@@ -140,6 +141,8 @@ template <> struct Materials<specfem::dimension::type::dim3> {
   /** @brief Total number of materials across all type containers */
   int n_materials;
 
+  int nspec; ///< Total number of spectral elements in the mesh
+
   /**
    * @brief Mapping from element index to material specification
    *
@@ -150,6 +153,7 @@ template <> struct Materials<specfem::dimension::type::dim3> {
    */
   std::vector<material_specification> material_index_mapping;
 
+private:
   /** @} */
 
   /** @name Auto-Generated Material Containers */
@@ -185,7 +189,7 @@ template <> struct Materials<specfem::dimension::type::dim3> {
                                material)))
 
   /** @} */
-
+public:
   /** @name Constructors */
   /** @{ */
 
@@ -196,11 +200,10 @@ template <> struct Materials<specfem::dimension::type::dim3> {
    * materials. Suitable for delayed initialization or when material
    * data will be populated later through other means.
    */
-  Materials() = default;
+  Materials() : n_materials(0), nspec(0) {}
 
   /** @} */
 
-public:
   /** @name Material Access Interface */
   /** @{ */
 
@@ -235,7 +238,19 @@ public:
             specfem::element::property_tag PropertyTag>
   specfem::medium::material<MediumTag, PropertyTag>
   get_material(const int index) const {
+#ifndef NDEBUG
+    if (index < 0 || index >= this->nspec) {
+      KOKKOS_ABORT_WITH_LOCATION("Element index out of range in get_material");
+    }
+#endif
     const auto &material_specification = this->material_index_mapping[index];
+
+#ifndef NDEBUG
+    if (material_specification.type != MediumTag ||
+        material_specification.property != PropertyTag) {
+      KOKKOS_ABORT_WITH_LOCATION("Material type mismatch in get_material");
+    }
+#endif
 
     FOR_EACH_IN_PRODUCT(
         (DIMENSION_TAG(DIM3), MEDIUM_TAG(ACOUSTIC, ELASTIC),
@@ -312,13 +327,14 @@ public:
    * // Add elastic isotropic material from MESHFEM3D database
    * specfem::medium::material<specfem::element::medium_tag::elastic,
    *                          specfem::element::property_tag::isotropic> mat;
-   * materials.add_material(mat, original_db_index);
+   * const auto index = materials.add_material(mat);
    * @endcode
    */
   template <specfem::element::medium_tag MediumTag,
             specfem::element::property_tag PropertyTag>
   int add_material(
       const specfem::medium::material<MediumTag, PropertyTag> &new_material) {
+    this->n_materials += 1;
     auto &material_container = this->get_container<MediumTag, PropertyTag>();
     material_container.element_materials.push_back(new_material);
     material_container.n_materials += 1;
@@ -348,6 +364,12 @@ public:
    */
   std::tuple<specfem::element::medium_tag, specfem::element::property_tag>
   get_material_type(const int index) const {
+#ifndef NDEBUG
+    if (index < 0 || index >= this->nspec) {
+      KOKKOS_ABORT_WITH_LOCATION(
+          "Element index out of range in get_material_type");
+    }
+#endif
     const auto &material_specification = this->material_index_mapping[index];
     return std::make_tuple(material_specification.type,
                            material_specification.property);
