@@ -1,4 +1,4 @@
-#include "io/mesh/impl/fortran/dim3/meshfem3d/read_absorbing_boundaries.hpp"
+#include "io/mesh/impl/fortran/dim3/meshfem3d/read_boundaries.hpp"
 #include "io/fortranio/interface.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem/point.hpp"
@@ -173,9 +173,9 @@ specfem::mesh_entity::dim3::type find_face_from_nodes(
   return closest_face;
 }
 
-specfem::mesh::meshfem3d::AbsorbingBoundaries<specfem::dimension::type::dim3>
-specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
-    std::ifstream &stream,
+specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>
+specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_boundaries(
+    std::ifstream &stream, const int nspec,
     const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
         &control_nodes,
     const specfem::MPI::MPI *mpi) {
@@ -183,15 +183,10 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
   int boundary_number;
   std::array<int, 6> nfaces_per_direction;
 
-  // The face directions are hard coded in the meshfem3D database format
-  enum class face_direction : int {
-    X_MIN = 1,
-    X_MAX = 2,
-    Y_MIN = 3,
-    Y_MAX = 4,
-    Z_MIN = 5,
-    Z_MAX = 6
-  };
+  using BoundaryType =
+      specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>;
+
+  using face_direction = BoundaryType::FaceDirection;
 
   specfem::io::fortran_read_line(
       stream, &boundary_number,
@@ -244,13 +239,14 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
   const int total_nfaces = std::accumulate(nfaces_per_direction.begin(),
                                            nfaces_per_direction.end(), 0);
 
-  specfem::mesh::meshfem3d::AbsorbingBoundaries<specfem::dimension::type::dim3>
-      absorbing_boundaries(total_nfaces);
+  BoundaryType boundaries(total_nfaces, nspec);
 
   const int nnodes_on_face = (control_nodes.ngnod == 8) ? 4 : 9;
 
   int index = 0;
-  for (auto num_faces : nfaces_per_direction) {
+  for (int dir = 0; dir < 6; ++dir) {
+    const int num_faces = nfaces_per_direction[dir];
+    const face_direction face_dir = static_cast<face_direction>(dir + 1);
     if (num_faces > 0) {
       for (int iface = 0; iface < num_faces; ++iface) {
         int element_index;
@@ -262,8 +258,9 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
         }
         const auto face =
             find_face_from_nodes(control_nodes, element_index - 1, face_nodes);
-        absorbing_boundaries.index_mapping(index) = element_index - 1;
-        absorbing_boundaries.face_type(index) = face;
+        boundaries.index_mapping(index) = element_index - 1;
+        boundaries.face_type(index) = face;
+        boundaries.face_direction(index) = face_dir;
         ++index;
       }
     }
@@ -276,5 +273,5 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_absorbing_boundaries(
                              " faces.");
   }
 
-  return absorbing_boundaries;
+  return boundaries;
 }

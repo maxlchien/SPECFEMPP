@@ -225,7 +225,7 @@ add_library(
         src/io/mesh/impl/fortran/dim3/generate_database/utilities.cpp
         # Fortran 3D meshfem part
         src/io/mesh/impl/fortran/dim3/meshfem3d/mesh.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_absorbing_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_boundaries.cpp
         src/io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.cpp
         src/io/mesh/impl/fortran/dim3/meshfem3d/read_materials.cpp
         src/io/mesh/impl/fortran/dim3/meshfem3d/read_mpi_interfaces.cpp
