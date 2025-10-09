@@ -28,12 +28,13 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
   std::vector<typename MaterialsType::material_specification> mapping;
 
   for (int imat = 0; imat < num_materials; ++imat) {
-    std::vector<type_real> material_properties(17, 0.0);
+    std::vector<double> material_properties(17, 0.0);
     specfem::io::fortran_read_line(stream, &material_properties);
 
     const int material_id = static_cast<int>(material_properties[6]);
     switch (material_id) {
-    case 1: // Elastic or Acoustic material
+    case 1: // Acoustic
+    case 2: // Elastic
     {
       const type_real rho = material_properties[0];
       const type_real vp = material_properties[1];
@@ -44,6 +45,12 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
       if (is_anisotropic <= 0) {
         if (specfem::utilities::is_close(vs, static_cast<type_real>(0.0))) {
           // Acoustic material
+          if (material_id != 1) {
+            throw std::runtime_error(
+                "Shear wave velocity (Vs) cannot be zero for elastic "
+                "materials.");
+          }
+
           specfem::medium::material<specfem::element::medium_tag::acoustic,
                                     specfem::element::property_tag::isotropic>
               material(rho, vp, Qkappa, Qmu, static_cast<type_real>(0.0));
@@ -53,6 +60,12 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
                               imat });
         } else if (vs > 0.0) {
           // Isotropic elastic material
+          if (material_id != 2) {
+            throw std::runtime_error(
+                "Shear wave velocity (Vs) cannot be zero for elastic "
+                "materials.");
+          }
+
           specfem::medium::material<specfem::element::medium_tag::elastic,
                                     specfem::element::property_tag::isotropic>
               material(rho, vs, vp, Qkappa, Qmu, static_cast<type_real>(0.0));
@@ -62,9 +75,9 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
                               imat });
 
         } else {
-          throw std::runtime_error(
-              "Shear wave velocity (Vs) cannot be negative for elastic "
-              "materials.");
+          throw std::runtime_error("Shear wave velocity (Vs) cannot be "
+                                   "negative for any "
+                                   "material.");
         }
       } else {
         // Anisotropic elastic material
@@ -75,7 +88,7 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
       }
       break;
     }
-    case 2: {
+    case 3: {
       // Poroelastic material
       // TODO (Rohit: POROELASTIC_MATERIALS): Add support for poroelastic
       // materials
@@ -115,12 +128,12 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
     if (database_index < 1 || database_index > num_materials) {
       throw std::runtime_error("Error reading material indices");
     }
-    if (tomographic_model == 1) {
+    if (database_index < 0 && tomographic_model == 1) {
       // Deprecated funcitionality within MESHFEM3D
       throw std::runtime_error(
           "Interfaces are deprecated within 3D simulations.");
     }
-    if (tomographic_model == 2) {
+    if (database_index < 0 && tomographic_model == 2) {
       // TODO (Rohit: TOMOGRAPHIC_MATERIALS): Add support for reading
       // tomographic materials
       throw std::runtime_error(
@@ -128,7 +141,7 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
     }
     materials.material_index_mapping[index - 1] = mapping[database_index - 1];
     for (int inode = 0; inode < ngnod; ++inode) {
-      control_node_index(index - 1, inode) = control_nodes[inode];
+      control_node_index(index - 1, inode) = control_nodes[inode] - 1;
     }
   }
 
