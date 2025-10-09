@@ -457,7 +457,7 @@ struct VectorChunkElementViewType<T, specfem::dimension::type::dim3, NumberOfEle
    * @param index Point index
    */
   KOKKOS_INLINE_FUNCTION
-  impl::VectorChunkSubview<VectorChunkElementViewType>
+  impl::VectorChunkElementSubview<VectorChunkElementViewType>
   operator()(const index_type &index) {
     return { *this, index };
   }
@@ -726,7 +726,7 @@ struct TensorChunkElementViewType<T, specfem::dimension::type::dim3, NumberOfEle
    * @param index Point index
    */
   KOKKOS_INLINE_FUNCTION
-  impl::TensorChunkSubview<TensorChunkElementViewType>
+  impl::TensorChunkElementSubview<TensorChunkElementViewType>
   operator()(const index_type &index) {
     return { *this, index };
   }
