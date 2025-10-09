@@ -8,7 +8,7 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
 /**
  * @brief Read boundary face information from MESHFEM3D database files
  *
- * Reads binary Fortran-formatted absorbing boundary data and constructs a
+ * Reads binary Fortran-formatted boundary data and constructs a
  * boundaries object containing face indices and face types(bottom, top, front,
  * back, left, right).
  *
