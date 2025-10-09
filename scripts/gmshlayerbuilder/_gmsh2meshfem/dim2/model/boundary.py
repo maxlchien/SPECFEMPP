@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from dataclasses import replace as dataclass_replace
 
 import numpy as np
 from rtree.index import Index as RTree
@@ -47,6 +48,11 @@ class BoundarySpec:
         assert self.element_inds.size == self.num_edges
         assert self.element_edges.size == self.num_edges
         assert len(self.rtree) == self.num_edges
+
+    def remapped_elements(self, element_index_mapping: IndexMapping) -> "BoundarySpec":
+        return dataclass_replace(
+            self, element_inds=element_index_mapping.apply(self.element_inds)
+        )
 
     @staticmethod
     def from_model_entity(
@@ -117,6 +123,10 @@ class BoundarySpec:
                 # converting mesh to a discrete model, then operating on that)
                 for istart in range(0, n_edges, max_vec_size):
                     iend = min(istart + max_vec_size, n_edges)
+
+                    # candidates: vector pair
+                    # element ind     edge ind (gmsh)
+                    #    VVV               VVV
                     candidate_elem, edge_for_candidate = np.nonzero(
                         # [ielem,iedge]: iedge has all nodes in ielem?
                         np.all(
@@ -130,7 +140,9 @@ class BoundarySpec:
                             axis=-1,
                         )
                     )
+                    # correct for slice offset
                     edge_for_candidate += istart
+
                     # for candidate: which elem_node_inds are hit?
                     candidate_flags = np.any(
                         element_nodes[candidate_elem, :, None]
@@ -162,19 +174,7 @@ class BoundarySpec:
                     ]
                     elem_edges[unique_edges] = successful_edgetypes
 
-                # ensure all edges were hit at least once, and not more than twice.
-                if np.any(edge_counts == 0):
-                    rte = RuntimeError(
-                        "Error in computing BoundarySpec of model edge with tag "
-                        f"{model_edge_tag}. At least one mesh edge does not have a mesh "
-                        "element attached."
-                    )
-                    (failtags,) = np.nonzero(edge_counts == 0)
-                    rte.add_note(
-                        f"mesh tags with no found elements:\n{edge_elems[failtags]}"
-                    )
-                    raise rte
-
+                # any edge hit more than once is disqualified.
                 if np.any(edge_counts > 2):
                     rte = RuntimeError(
                         "Error in computing BoundarySpec of model edge with tag "
@@ -187,6 +187,7 @@ class BoundarySpec:
                     )
                     raise rte
 
+                # additionally, filter out any edges not hit -- probably not in loaded surfaces.
                 (edges_of_one,) = np.nonzero(edge_counts == 1)
                 collected_values[model_edge_tag].append(
                     (

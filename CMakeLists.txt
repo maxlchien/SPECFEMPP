@@ -93,6 +93,15 @@ else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     message(STATUS "macOS not detected -- setting __APPLE__ FALSE")
 endif()
 
+# Check if IntelLLVM
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
+    set(__INTEL_LLVM__ TRUE)
+    message(STATUS "IntelLLVM detected -- setting __INTEL_LLVM__ TRUE")
+else(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
+    set(__INTEL_LLVM__ FALSE)
+    message(STATUS "IntelLLVM not detected -- setting __INTEL_LLVM__ FALSE")
+endif()
+
 # Install Kokkos as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/kokkos.cmake")
 
@@ -251,6 +260,7 @@ add_library(
         src/enumerations/wavefield.cpp
         src/enumerations/connections.cpp
         src/enumerations/mesh_entities.cpp
+        src/enumerations/coupled_interface.cpp
 )
 
 target_link_libraries(

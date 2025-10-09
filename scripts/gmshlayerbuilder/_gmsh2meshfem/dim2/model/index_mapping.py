@@ -1,11 +1,25 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import override
 
 import numpy as np
-from numpy.typing import ArrayLike
+
+
+class IndexMappingBase(ABC):
+    @abstractmethod
+    def apply(self, arr) -> np.ndarray:
+        raise NotImplementedError
+
+    @abstractmethod
+    def invert(self, arr) -> np.ndarray:
+        raise NotImplementedError
+
+    def inverse_mapping(self) -> "IndexMappingBase":
+        return InverseIndexMapping(self)
 
 
 @dataclass(init=False, frozen=True)
-class IndexMapping:
+class IndexMapping(IndexMappingBase):
     """gmsh tags need not be consecutive. Someone who creates the mesh may choose indices
     such that numbers make sense from a human perspective. We do not want to skip indices
     in the model.
@@ -40,7 +54,8 @@ class IndexMapping:
         object.__setattr__(self, "_sorted_tag_inds", np.argsort(node_tags))
         object.__setattr__(self, "_sorted_tag_list", node_tags[self._sorted_tag_inds])
 
-    def apply(self, arr: ArrayLike) -> np.ndarray:
+    @override
+    def apply(self, arr) -> np.ndarray:
         """Takes an array of tags, remapping them according to the rule given by this object.
 
         Args:
@@ -51,13 +66,80 @@ class IndexMapping:
         """
         return self._sorted_tag_inds[np.searchsorted(self._sorted_tag_list, arr)]
 
+    @override
     def invert(self, arr) -> np.ndarray:
         """Inverse of apply()"""
         return self.original_tag_list[arr]
 
     @staticmethod
-    def join(a: "IndexMapping", b: "IndexMapping") -> "IndexMapping":
+    def join(a: "IndexMapping", b: "IndexMapping") -> "JoinedIndexMapping":
         """Creates an IndexMapping that includes tags from both arguments."""
-        return IndexMapping(
-            np.unique_values(np.concatenate([a.original_tag_list, b.original_tag_list]))
+        return JoinedIndexMapping(a, b)
+
+
+@dataclass(frozen=True)
+class InverseIndexMapping(IndexMappingBase):
+    """Takes an index mapping and swaps the apply and invert functions."""
+
+    original_mapping: IndexMappingBase
+
+    @override
+    def apply(self, arr) -> np.ndarray:
+        return self.original_mapping.invert(arr)
+
+    @override
+    def invert(self, arr) -> np.ndarray:
+        return self.original_mapping.apply(arr)
+
+    @override
+    def inverse_mapping(self) -> "IndexMappingBase":
+        return self.original_mapping
+
+
+@dataclass(frozen=True)
+class ComposedIndexMapping(IndexMappingBase):
+    """Couples index mappings by applying one after another."""
+
+    left_map: IndexMappingBase
+    right_map: IndexMappingBase
+
+    @override
+    def apply(self, arr) -> np.ndarray:
+        return self.left_map.apply(self.right_map.apply(arr))
+
+    @override
+    def invert(self, arr) -> np.ndarray:
+        return self.right_map.invert(self.left_map.invert(arr))
+
+    @override
+    def inverse_mapping(self) -> "IndexMappingBase":
+        return ComposedIndexMapping(
+            self.right_map.inverse_mapping(), self.left_map.inverse_mapping()
         )
+
+
+@dataclass(init=False, frozen=True)
+class JoinedIndexMapping(IndexMapping):
+    """When taking the union of two models, we want to be able to map indices from the
+    original models into the new model. This handles that.
+
+    Indices may be shared between the two. In such a case, we expect those to be mapped
+    to the same value.
+    """
+
+    original_left_remapping: IndexMapping
+    original_right_remapping: IndexMapping
+
+    left_to_joined: IndexMapping
+    right_to_joined: IndexMapping
+
+    def __init__(self, left: IndexMapping, right: IndexMapping):
+        super().__init__(
+            np.unique_values(
+                np.concatenate([left.original_tag_list, right.original_tag_list])
+            )
+        )
+        object.__setattr__(self, "original_left_remapping", left)
+        object.__setattr__(self, "original_right_remapping", right)
+        object.__setattr__(self, "left_to_joined", ComposedIndexMapping(self,left.inverse_mapping()))
+        object.__setattr__(self, "right_to_joined", ComposedIndexMapping(self,right.inverse_mapping()))
