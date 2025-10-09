@@ -115,6 +115,7 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
       control_node_index("specfem::mesh::control_node_index", nspec, ngnod);
 
   materials.material_index_mapping.resize(nspec);
+  materials.nspec = nspec;
   for (int ispec = 0; ispec < nspec; ++ispec) {
     int index;
     int database_index;

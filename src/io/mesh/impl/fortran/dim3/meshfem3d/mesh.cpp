@@ -12,14 +12,13 @@
 #include <string>
 
 specfem::mesh::meshfem3d::mesh<specfem::dimension::type::dim3>
-specfem::io::meshfem3d::read_3d_mesh(const std::string &mesh_parameters_file,
+specfem::io::meshfem3d::read_3d_mesh(const std::string &database_file,
                                      const specfem::MPI::MPI *mpi) {
   // Read mesh parameters
-  std::ifstream param_stream(mesh_parameters_file,
-                             std::ios::in | std::ios::binary);
+  std::ifstream param_stream(database_file, std::ios::in | std::ios::binary);
   if (!param_stream.is_open()) {
     throw std::runtime_error("Could not open mesh parameters file: " +
-                             mesh_parameters_file);
+                             database_file);
   }
 
   bool mesh_of_earth_chunk;
