@@ -182,16 +182,6 @@ public:
   virtual int
   apply_corrector_phase_backward(const specfem::element::medium_tag tag) = 0;
 
-  template <specfem::dimension::type DimensionTag>
-  void
-  link_assembly(const specfem::assembly::assembly<DimensionTag> &assembly) {
-    if constexpr (DimensionTag == specfem::dimension::type::dim2) {
-      link_assembly_dim2(assembly);
-    } else if constexpr (DimensionTag == specfem::dimension::type::dim3) {
-      link_assembly_dim3(assembly);
-    }
-  }
-
   virtual specfem::enums::time_scheme::type timescheme() const = 0;
 
   virtual ~time_scheme() = default;
@@ -213,18 +203,6 @@ public:
    * @return int Number of timesteps between seismogram samples
    */
   int get_nstep_between_samples() const { return nstep_between_samples; }
-
-protected:
-  virtual void link_assembly_dim2(
-      const specfem::assembly::assembly<specfem::dimension::type::dim2>
-          &assembly) {
-    throw std::runtime_error("dim2 link_assembly not implemented");
-  }
-  virtual void link_assembly_dim3(
-      const specfem::assembly::assembly<specfem::dimension::type::dim3>
-          &assembly) {
-    throw std::runtime_error("dim3 link_assembly not implemented");
-  }
 
 private:
   int nstep;                 ///< Number of timesteps
