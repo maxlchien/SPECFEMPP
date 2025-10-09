@@ -136,6 +136,18 @@ public:
   int ngnod;
 
   /**
+   * @brief Number of spectral elements in the mesh.
+   *
+   * Represents the total count of spectral elements. This value determines the
+   * first dimension of the control_node_index view.
+   */
+  int nspec;
+
+  type_real xmin, xmax; ///< Minimum and maximum x-coordinates of control nodes
+  type_real ymin, ymax; ///< Minimum and maximum y-coordinates of control nodes
+  type_real zmin, zmax; ///< Minimum and maximum z-coordinates of control nodes
+
+  /**
    * @brief 3D coordinates of all control nodes.
    *
    * Two-dimensional Kokkos view storing spatial coordinates with layout:

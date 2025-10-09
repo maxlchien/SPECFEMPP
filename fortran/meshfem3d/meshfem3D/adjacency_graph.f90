@@ -12,16 +12,19 @@ contains
 
       integer :: i, ier
       integer, allocatable :: elmnts_bis(:)
-        integer :: ispec
-        integer :: nglob
+      integer :: ispec
+      integer :: nglob
 
       if (NPROC > 1) then
          write(*,*) 'Adjacency graph computation is only implemented for NPROC = 1'
          stop "Adjacency graph computation error"
       end if
 
-      allocate(elmnts_bis(NCORNERS*nspec),stat=ier)
-      allocate(adjacency_matrix(nspec, nspec),stat=ier)
+      allocate(elmnts_bis(0:NCORNERS*nspec-1), stat=ier)
+      if (ier /= 0) stop 'Error allocating elmnts_bis array'
+
+      allocate(adjacency_matrix(nspec, nspec), stat=ier)
+      if (ier /= 0) stop 'Error allocating adjacency_matrix array'
 
       adjacency_matrix(:,:) = 0
 
@@ -38,6 +41,11 @@ contains
 
       call build_adjacency_graph(elmnts_bis, nglob)
 
+      if (allocated(elmnts_bis)) then
+         deallocate(elmnts_bis, stat=ier)
+         if (ier /= 0) write(*,*) 'Warning: Error deallocating elmnts_bis array'
+      endif
+
    end subroutine compute_adjacency_graph
 
    subroutine build_adjacency_graph(elmnts_bis, nglob)
@@ -47,7 +55,7 @@ contains
       implicit none
 
       integer :: i, j, element, element1, element2
-      integer :: current_node
+      integer :: current_node, corner
       integer :: num_shared
       integer :: corner_id1, corner_id2
       integer :: edge_id1, edge_id2
@@ -56,20 +64,26 @@ contains
 
 
       integer, intent(in) :: nglob
-      integer, intent(in) :: elmnts_bis(NCORNERS*nspec)
+      integer, intent(in) :: elmnts_bis(0:NCORNERS*nspec-1)
       integer, allocatable :: nelements_for_each_node(:)
       integer, allocatable :: elements_for_each_node(:,:)
 
-      if (.not. allocated(nelements_for_each_node)) allocate(nelements_for_each_node(nglob))
-      if (.not. allocated(elements_for_each_node)) allocate(elements_for_each_node(nglob, 0:MAX_NEIGHBORS-1))
+      allocate(nelements_for_each_node(nglob))
+      allocate(elements_for_each_node(nglob, 0:MAX_NEIGHBORS-1))
 
       nelements_for_each_node(:) = 0
       elements_for_each_node(:,:) = -1
 
-      do i = 1, NCORNERS*nspec
-         element = i / NCORNERS
-         elements_for_each_node(elmnts_bis(i), nelements_for_each_node(elmnts_bis(i))) = element
-         nelements_for_each_node(elmnts_bis(i)) = nelements_for_each_node(elmnts_bis(i)) + 1
+      do element = 1, nspec
+         do corner = 0, NCORNERS-1
+            current_node = elmnts_bis((element - 1) * NCORNERS + corner)
+            if (nelements_for_each_node(current_node) >= MAX_NEIGHBORS) then
+               write(*,*) 'Error: Node ', current_node, ' has more than ', MAX_NEIGHBORS, ' neighboring elements.'
+               stop "Adjacency graph computation error"
+            end if
+            elements_for_each_node(current_node, nelements_for_each_node(current_node)) = element
+            nelements_for_each_node(current_node) = nelements_for_each_node(current_node) + 1
+         end do
       end do
 
       do current_node = 1, nglob
@@ -122,10 +136,10 @@ contains
    end subroutine build_adjacency_graph
 
    subroutine get_shared_nodes(elmnts_bis, element1, element2, shared_nodes, num_shared)
-        use constants_meshfem, only: NCORNERS
-        use meshfem_par, only: nspec
+      use constants_meshfem, only: NCORNERS
+      use meshfem_par, only: nspec
       implicit none
-      integer, intent(in) :: elmnts_bis(NCORNERS*nspec)
+      integer, intent(in) :: elmnts_bis(0:NCORNERS*nspec-1)
       integer, intent(in) :: element1, element2
       integer, intent(out) :: shared_nodes(0:NCORNERS-1)
       integer, intent(out) :: num_shared
@@ -133,8 +147,8 @@ contains
       integer :: i, j
       num_shared = 0
       shared_nodes(:) = -1
-      do i = 1, NCORNERS
-         do j = 1, NCORNERS
+      do i = 0, NCORNERS-1
+         do j = 0, NCORNERS-1
             if (elmnts_bis((element1-1) * NCORNERS + i) == elmnts_bis((element2-1) * NCORNERS + j)) then
                shared_nodes(num_shared) = elmnts_bis((element1-1) * NCORNERS + i)
                num_shared = num_shared + 1
@@ -184,8 +198,8 @@ contains
    end subroutine get_corner_id
 
    subroutine get_edge_id(element, node1, node2, edge_id)
-    use constants_meshfem, only: NGLLX_M, NGLLY_M, NGLLZ_M
-    use meshfem_par, only: ibool
+      use constants_meshfem, only: NGLLX_M, NGLLY_M, NGLLZ_M
+      use meshfem_par, only: ibool
       implicit none
 
       integer, intent(in) :: element, node1, node2
@@ -305,7 +319,7 @@ contains
 
       integer :: bottom_face, top_face, front_face, back_face, left_face, right_face
       integer, dimension(4) :: bottom_face_nodes, right_face_nodes, top_face_nodes, left_face_nodes, &
-         front_face_nodes, back_face_nodes
+         front_face_nodes, back_face_nodes, input_nodes
 
       bottom_face = 1
       top_face = NGLLZ_M
@@ -339,22 +353,48 @@ contains
          ibool(right_face, back_face, top_face, element), &
          ibool(left_face, back_face, top_face, element)]
 
-      if (all(merge([node1, node2, node3, node4] == bottom_face_nodes(:), .true., .false.))) then
+      !! Sort nodes to ensure order does not matter
+      input_nodes = [node1, node2, node3, node4]
+      call sort(input_nodes)
+      call sort(bottom_face_nodes)
+      call sort(right_face_nodes)
+      call sort(top_face_nodes)
+      call sort(left_face_nodes)
+      call sort(front_face_nodes)
+      call sort(back_face_nodes)
+
+      if (all(input_nodes == bottom_face_nodes)) then
          face_id = 1
-      else if (all(merge([node1, node2, node3, node4] == right_face_nodes(:), .true., .false.))) then
+      else if (all(input_nodes == right_face_nodes)) then
          face_id = 2
-      else if (all(merge([node1, node2, node3, node4] == top_face_nodes(:), .true., .false.))) then
+      else if (all(input_nodes == top_face_nodes)) then
          face_id = 3
-      else if (all(merge([node1, node2, node3, node4] == left_face_nodes(:), .true., .false.))) then
+      else if (all(input_nodes == left_face_nodes)) then
          face_id = 4
-      else if (all(merge([node1, node2, node3, node4] == front_face_nodes(:), .true., .false.))) then
+      else if (all(input_nodes == front_face_nodes)) then
          face_id = 5
-      else if (all(merge([node1, node2, node3, node4] == back_face_nodes(:), .true., .false.))) then
+      else if (all(input_nodes == back_face_nodes)) then
          face_id = 6
       else
-         write(*,*) 'Error: Nodes ', node1, node2, node3, node4, ' do not form a face of element ', element
+         write(*,*) 'Error: Nodes ', node1, node2, node3, ' and ', node4, ' do not form a face of element ', element
          stop "Invalid face nodes"
       end if
 
    end subroutine get_face_id
+
+   subroutine sort(arr)
+      implicit none
+      integer, dimension(4), intent(inout) :: arr
+      integer :: i, j, temp
+
+      do i = 1, 3
+         do j = 1, 4-i
+            if (arr(j) > arr(j+1)) then
+               temp = arr(j)
+               arr(j) = arr(j+1)
+               arr(j+1) = temp
+            end if
+         end do
+      end do
+   end subroutine sort
 end module adjacency_graph
