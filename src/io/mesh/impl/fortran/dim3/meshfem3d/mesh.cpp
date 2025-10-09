@@ -1,8 +1,8 @@
 #include "mesh/mesh.hpp"
 #include "io/fortranio/interface.hpp"
 #include "io/interface.hpp"
-#include "io/mesh/impl/fortran/dim3/meshfem3d/read_absorbing_boundaries.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_adjacency_graph.hpp"
+#include "io/mesh/impl/fortran/dim3/meshfem3d/read_boundaries.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_materials.hpp"
 #include "io/mesh/impl/fortran/dim3/meshfem3d/read_mpi_interfaces.hpp"
@@ -42,9 +42,9 @@ specfem::io::meshfem3d::read_3d_mesh(const std::string &database_file,
   mesh.control_nodes.nspec = nspec;
   mesh.control_nodes.control_node_index = control_node_index;
   mesh.materials = materials;
-  mesh.absorbing_boundaries =
-      specfem::io::mesh::impl::fortran::dim3::meshfem3d::
-          read_absorbing_boundaries(param_stream, mesh.control_nodes, mpi);
+  mesh.boundaries =
+      specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_boundaries(
+          param_stream, nspec, mesh.control_nodes, mpi);
 
   // CPML boundaries are not supported yet
   // TODO (Rohit: PML_BOUNDARIES): Add support for PML boundaries

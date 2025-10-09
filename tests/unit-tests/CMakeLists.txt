@@ -278,6 +278,8 @@ add_executable(
   mesh_dim3_tests
   mesh/dim3/control_nodes.cpp
   mesh/dim3/materials.cpp
+  mesh/dim3/boundaries.cpp
+  mesh/dim3/adjacency_graph.cpp
   mesh/dim3/test.cpp
 )
 

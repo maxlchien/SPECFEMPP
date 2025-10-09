@@ -1,7 +1,7 @@
 #pragma once
 
-#include "absorbing_boundaries/absorbing_boundaries.hpp"
 #include "adjacency_graph/adjacency_graph.hpp"
+#include "boundaries/boundaries.hpp"
 #include "control_nodes/control_nodes.hpp"
 #include "enumerations/interface.hpp"
 #include "materials/materials.hpp"
@@ -97,10 +97,10 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    * prevent spurious wave reflections at domain edges by absorbing outgoing
    * seismic waves.
    *
-   * @see specfem::mesh::meshfem3d::AbsorbingBoundaries
+   * @see specfem::mesh::meshfem3d::Boundaries
    */
-  specfem::mesh::meshfem3d::AbsorbingBoundaries<specfem::dimension::type::dim3>
-      absorbing_boundaries;
+  specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>
+      boundaries;
 
   /**
    * @brief Element adjacency graph
