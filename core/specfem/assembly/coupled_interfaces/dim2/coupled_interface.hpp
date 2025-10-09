@@ -1,11 +1,14 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
+#include "enumerations/interface_definitions.hpp"
 #include "enumerations/material_definitions.hpp"
 #include "impl/interface_container.hpp"
+#include "specfem/assembly/coupled_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
+#include "specfem/assembly/nonconforming_interfaces/dim2/impl/nonconforming_interface.hpp"
 #include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
@@ -50,18 +53,20 @@ public:
 
 private:
   template <specfem::interface::interface_tag InterfaceTag,
-            specfem::element::boundary_tag BoundaryTag>
+            specfem::element::boundary_tag BoundaryTag,
+            specfem::connections::type ConnectionTag>
   using InterfaceContainerType =
       specfem::assembly::coupled_interfaces_impl::interface_container<
-          dimension_tag, InterfaceTag, BoundaryTag>;
+          dimension_tag, InterfaceTag, BoundaryTag, ConnectionTag>;
 
-  FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
-                       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
-                       BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
-                                    COMPOSITE_STACEY_DIRICHLET)),
-                      DECLARE(((InterfaceContainerType,
-                                (_INTERFACE_TAG_, _BOUNDARY_TAG_)),
-                               interface_container)))
+  FOR_EACH_IN_PRODUCT(
+      (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
+       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
+       BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
+                    COMPOSITE_STACEY_DIRICHLET)),
+      DECLARE(((InterfaceContainerType,
+                (_INTERFACE_TAG_, _BOUNDARY_TAG_, _CONNECTION_TAG_)),
+               interface_container)))
 
 public:
   /**
@@ -120,9 +125,10 @@ public:
    * ```
    */
   template <specfem::interface::interface_tag InterfaceTag,
-            specfem::element::boundary_tag BoundaryTag>
+            specfem::element::boundary_tag BoundaryTag,
+            specfem::connections::type ConnectionTag>
   KOKKOS_INLINE_FUNCTION const
-      InterfaceContainerType<InterfaceTag, BoundaryTag> &
+      InterfaceContainerType<InterfaceTag, BoundaryTag, ConnectionTag> &
       get_interface_container() const {
     // Compile-time dispatch using FOR_EACH_IN_PRODUCT macro
     FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
@@ -131,7 +137,8 @@ public:
                                       COMPOSITE_STACEY_DIRICHLET)),
                         CAPTURE((interface_container, interface_container)) {
                           if constexpr (InterfaceTag == _interface_tag_ &&
-                                        BoundaryTag == _boundary_tag_) {
+                                        BoundaryTag == _boundary_tag_ &&
+                                        ConnectionTag == _connection_tag_) {
                             return _interface_container_;
                           }
                         })
@@ -234,8 +241,13 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
       "Incompatible types in load_on_host");
 
   container
-      .template get_interface_container<PointType::interface_tag,
-                                        PointType::boundary_tag>()
+      .template get_interface_container<
+          PointType::interface_tag, PointType::boundary_tag,
+          specfem::connections::type::
+              weakly_conforming // TODO replace with
+                                // PointType::connection_tag
+                                // later
+          >()
       .template impl_load<true>(index, point);
 }
 
