@@ -167,6 +167,8 @@ private:
   Graph graph_;
 
 public:
+  int nspec; ///< Number of spectral elements in the mesh
+
   /**
    * @brief Default constructor
    *
@@ -197,7 +199,7 @@ public:
    * // Vertices 0-999 are pre-allocated and ready for edge addition
    * @endcode
    */
-  adjacency_graph(const int nspec) : graph_(nspec) {}
+  adjacency_graph(const int nspec) : nspec(nspec), graph_(nspec) {}
 
   /**
    * @brief Mutable access to the underlying Boost Graph
