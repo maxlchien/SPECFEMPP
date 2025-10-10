@@ -129,7 +129,7 @@ using namespace specfem::test_configuration;
 
 static const std::unordered_map<std::string, ExpectedMaterials3D>
     expected_materials_map = { {
-        "FourNodeElastic",
+        "EightNodeElastic",
         ExpectedMaterials3D(
             TotalMaterials(1, 8),
             { // Element 0

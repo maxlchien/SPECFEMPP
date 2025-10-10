@@ -117,7 +117,7 @@ using namespace specfem::test_configuration;
 
 static const std::unordered_map<std::string, ExpectedBoundaries3D>
     expected_absorbing_boundary_faces_map = {
-      { "FourNodeElastic",
+      { "EightNodeElastic",
         ExpectedBoundaries3D(
             TotalFaces(24, 2, 2, 2),
             {

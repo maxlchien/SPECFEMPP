@@ -95,7 +95,7 @@ using namespace specfem::test_configuration;
 
 static const std::unordered_map<std::string, ExpectedAdjacency3D>
     expected_adjacency_map = { {
-        "FourNodeElastic",
+        "EightNodeElastic",
         ExpectedAdjacency3D(
             8,
             { Connection(0, 1, specfem::connections::type::strongly_conforming,
