@@ -629,52 +629,53 @@ void initialize<specfem::display::format::vtkhdf>(
 
   // Create extensible dataset for wavefield scalars
   // Initial size: 0 (will grow as needed)
-  hsize_t initial_dims[1] = { 0 };
-  hsize_t max_dims[1] = { H5S_UNLIMITED };
-  hid_t dataspace = H5Screate_simple(1, initial_dims, max_dims);
+  hsize_t pd_initial_dims[1] = { 0 };
+  hsize_t pd_max_dims[1] = { H5S_UNLIMITED };
+  hid_t pd_dataspace = H5Screate_simple(1, pd_initial_dims, pd_max_dims);
 
   // Create dataset creation property list and set chunking
-  hid_t plist = H5Pcreate(H5P_DATASET_CREATE);
-  hsize_t chunk_dims[1] = {
+  hid_t pd_plist = H5Pcreate(H5P_DATASET_CREATE);
+  hsize_t pd_chunk_dims[1] = {
     (hsize_t)plotter.numPoints
   }; // Chunk size = one timestep worth of data
-  H5Pset_chunk(plist, 1, chunk_dims);
+  H5Pset_chunk(pd_plist, 1, pd_chunk_dims);
 
-  hid_t pd_dataset = H5Dcreate(pd_group, "Wavefield", H5T_NATIVE_FLOAT,
-                               dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+  hid_t pd_dataset =
+      H5Dcreate(pd_group, "Wavefield", H5T_NATIVE_FLOAT, pd_dataspace,
+                H5P_DEFAULT, pd_plist, H5P_DEFAULT);
   H5Dclose(pd_dataset);
-  H5Pclose(plist);
-  H5Sclose(dataspace);
+  H5Pclose(pd_plist);
+  H5Sclose(pd_dataspace);
   H5Gclose(pd_group);
 
   // Create extensible temporal metadata arrays instead of pre-allocated ones
-  hsize_t initial_dims[1] = { 0 };
-  hsize_t max_dims[1] = { H5S_UNLIMITED };
-  hsize_t chunk_dims[1] = { 1 }; // Chunk size = 1 timestep
+  hsize_t temp_initial_dims[1] = { 0 };
+  hsize_t temp_max_dims[1] = { H5S_UNLIMITED };
+  hsize_t temp_chunk_dims[1] = { 1 }; // Chunk size = 1 timestep
 
   // Create dataset creation property list for chunking
-  hid_t plist = H5Pcreate(H5P_DATASET_CREATE);
-  H5Pset_chunk(plist, 1, chunk_dims);
+  hid_t temp_plist = H5Pcreate(H5P_DATASET_CREATE);
+  H5Pset_chunk(temp_plist, 1, temp_chunk_dims);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
+  hid_t temp_dataspace = H5Screate_simple(1, temp_initial_dims, temp_max_dims);
   dataset = H5Dcreate(vtkhdf_group, "NumberOfPoints", H5T_NATIVE_LLONG,
-                      dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+                      temp_dataspace, H5P_DEFAULT, temp_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(temp_dataspace);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
+  temp_dataspace = H5Screate_simple(1, temp_initial_dims, temp_max_dims);
   dataset = H5Dcreate(vtkhdf_group, "NumberOfCells", H5T_NATIVE_LLONG,
-                      dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+                      temp_dataspace, H5P_DEFAULT, temp_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(temp_dataspace);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
+  temp_dataspace = H5Screate_simple(1, temp_initial_dims, temp_max_dims);
   dataset = H5Dcreate(vtkhdf_group, "NumberOfConnectivityIds", H5T_NATIVE_LLONG,
-                      dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+                      temp_dataspace, H5P_DEFAULT, temp_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(temp_dataspace);
 
-  H5Pclose(plist);
+  H5Pclose(temp_plist);
 
   // Create Steps group and extensible metadata
   hid_t steps_group =
@@ -691,63 +692,64 @@ void initialize<specfem::display::format::vtkhdf>(
   H5Sclose(attr_space);
 
   // Create extensible dataset for time values
-  hsize_t initial_dims[1] = { 0 };
-  hsize_t max_dims[1] = { H5S_UNLIMITED };
-  hsize_t chunk_dims[1] = { 1 };
+  hsize_t steps_initial_dims[1] = { 0 };
+  hsize_t steps_max_dims[1] = { H5S_UNLIMITED };
+  hsize_t steps_chunk_dims[1] = { 1 };
 
-  hid_t plist = H5Pcreate(H5P_DATASET_CREATE);
-  H5Pset_chunk(plist, 1, chunk_dims);
+  hid_t steps_plist = H5Pcreate(H5P_DATASET_CREATE);
+  H5Pset_chunk(steps_plist, 1, steps_chunk_dims);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
-  dataset = H5Dcreate(steps_group, "Values", H5T_NATIVE_DOUBLE, dataspace,
-                      H5P_DEFAULT, plist, H5P_DEFAULT);
+  hid_t steps_dataspace =
+      H5Screate_simple(1, steps_initial_dims, steps_max_dims);
+  dataset = H5Dcreate(steps_group, "Values", H5T_NATIVE_DOUBLE, steps_dataspace,
+                      H5P_DEFAULT, steps_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(steps_dataspace);
 
   // Create extensible datasets for NumberOfParts and offset arrays
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
-  dataset = H5Dcreate(steps_group, "NumberOfParts", H5T_NATIVE_LLONG, dataspace,
-                      H5P_DEFAULT, plist, H5P_DEFAULT);
+  steps_dataspace = H5Screate_simple(1, steps_initial_dims, steps_max_dims);
+  dataset = H5Dcreate(steps_group, "NumberOfParts", H5T_NATIVE_LLONG,
+                      steps_dataspace, H5P_DEFAULT, steps_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(steps_dataspace);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
-  dataset = H5Dcreate(steps_group, "PartOffsets", H5T_NATIVE_LLONG, dataspace,
-                      H5P_DEFAULT, plist, H5P_DEFAULT);
+  steps_dataspace = H5Screate_simple(1, steps_initial_dims, steps_max_dims);
+  dataset = H5Dcreate(steps_group, "PartOffsets", H5T_NATIVE_LLONG,
+                      steps_dataspace, H5P_DEFAULT, steps_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(steps_dataspace);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
-  dataset = H5Dcreate(steps_group, "PointOffsets", H5T_NATIVE_LLONG, dataspace,
-                      H5P_DEFAULT, plist, H5P_DEFAULT);
+  steps_dataspace = H5Screate_simple(1, steps_initial_dims, steps_max_dims);
+  dataset = H5Dcreate(steps_group, "PointOffsets", H5T_NATIVE_LLONG,
+                      steps_dataspace, H5P_DEFAULT, steps_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(steps_dataspace);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
-  dataset = H5Dcreate(steps_group, "CellOffsets", H5T_NATIVE_LLONG, dataspace,
-                      H5P_DEFAULT, plist, H5P_DEFAULT);
+  steps_dataspace = H5Screate_simple(1, steps_initial_dims, steps_max_dims);
+  dataset = H5Dcreate(steps_group, "CellOffsets", H5T_NATIVE_LLONG,
+                      steps_dataspace, H5P_DEFAULT, steps_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(steps_dataspace);
 
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
+  steps_dataspace = H5Screate_simple(1, steps_initial_dims, steps_max_dims);
   dataset = H5Dcreate(steps_group, "ConnectivityIdOffsets", H5T_NATIVE_LLONG,
-                      dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+                      steps_dataspace, H5P_DEFAULT, steps_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(steps_dataspace);
 
   // Create PointDataOffsets subgroup with extensible datasets
   hid_t pd_offsets_group = H5Gcreate(steps_group, "PointDataOffsets",
                                      H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
   // Wavefield offsets (extensible)
-  dataspace = H5Screate_simple(1, initial_dims, max_dims);
+  steps_dataspace = H5Screate_simple(1, steps_initial_dims, steps_max_dims);
   dataset = H5Dcreate(pd_offsets_group, "Wavefield", H5T_NATIVE_LLONG,
-                      dataspace, H5P_DEFAULT, plist, H5P_DEFAULT);
+                      steps_dataspace, H5P_DEFAULT, steps_plist, H5P_DEFAULT);
   H5Dclose(dataset);
-  H5Sclose(dataspace);
+  H5Sclose(steps_dataspace);
   H5Gclose(pd_offsets_group);
 
-  H5Pclose(plist);
+  H5Pclose(steps_plist);
   H5Gclose(steps_group);
 
   // Close HDF5 file - will reopen for each timestep write

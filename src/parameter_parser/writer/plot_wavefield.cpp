@@ -121,5 +121,5 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
 
   return std::make_shared<specfem::periodic_tasks::plot_wavefield>(
       assembly, output_format, component, wavefield, dt, time_interval,
-      max_timesteps, this->output_folder, mpi);
+      this->output_folder, mpi);
 }
