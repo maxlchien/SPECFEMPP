@@ -182,15 +182,13 @@ public:
   virtual int
   apply_corrector_phase_backward(const specfem::element::medium_tag tag) = 0;
 
-  virtual void link_assembly(
-      const specfem::assembly::assembly<specfem::dimension::type::dim2>
-          &assembly) = 0;
-
   virtual specfem::enums::time_scheme::type timescheme() const = 0;
 
-  ~time_scheme() = default;
+  virtual ~time_scheme() = default;
 
   virtual void print(std::ostream &out) const = 0;
+
+  virtual type_real get_timestep() const = 0;
 
   /**
    * @brief Get the maximum seismogram step
@@ -205,8 +203,6 @@ public:
    * @return int Number of timesteps between seismogram samples
    */
   int get_nstep_between_samples() const { return nstep_between_samples; }
-
-  virtual type_real get_timestep() const = 0;
 
 private:
   int nstep;                 ///< Number of timesteps

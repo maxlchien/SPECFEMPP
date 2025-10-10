@@ -3,7 +3,7 @@
 #include "solver/solver.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/periodic_tasks/periodic_task.hpp"
-#include "timescheme/newmark.hpp"
+#include "specfem/timescheme/newmark.hpp"
 #include "utilities/strings.hpp"
 #include <memory>
 #include <string>
