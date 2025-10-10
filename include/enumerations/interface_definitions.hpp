@@ -12,6 +12,10 @@
   (1, specfem::connections::type::weakly_conforming, weakly_conforming,        \
    _ENUM_ID_CONNECTION_TAG)
 
+#define CONNECTION_TAG_NONCONFORMING                                           \
+  (2, specfem::connections::type::nonconforming, nonconforming,                \
+   _ENUM_ID_CONNECTION_TAG)
+
 #define INTERFACE_TAG_ELASTIC_ACOUSTIC                                         \
   (0, specfem::interface::interface_tag::elastic_acoustic, elastic_acoustic,   \
    _ENUM_ID_INTERFACE_TAG)
@@ -57,6 +61,19 @@
       (DIMENSION_TAG_DIM2, CONNECTION_TAG_WEAKLY_CONFORMING,                   \
        INTERFACE_TAG_ACOUSTIC_ELASTIC, BOUNDARY_TAG_ACOUSTIC_FREE_SURFACE))(   \
       (DIMENSION_TAG_DIM2, CONNECTION_TAG_WEAKLY_CONFORMING,                   \
+       INTERFACE_TAG_ACOUSTIC_ELASTIC,                                         \
+       BOUNDARY_TAG_COMPOSITE_STACEY_DIRICHLET))(                              \
+      (DIMENSION_TAG_DIM2, CONNECTION_TAG_NONCONFORMING,                       \
+       INTERFACE_TAG_ELASTIC_ACOUSTIC, BOUNDARY_TAG_NONE))(                    \
+      (DIMENSION_TAG_DIM2, CONNECTION_TAG_NONCONFORMING,                       \
+       INTERFACE_TAG_ELASTIC_ACOUSTIC, BOUNDARY_TAG_STACEY))(                  \
+      (DIMENSION_TAG_DIM2, CONNECTION_TAG_NONCONFORMING,                       \
+       INTERFACE_TAG_ACOUSTIC_ELASTIC, BOUNDARY_TAG_NONE))(                    \
+      (DIMENSION_TAG_DIM2, CONNECTION_TAG_NONCONFORMING,                       \
+       INTERFACE_TAG_ACOUSTIC_ELASTIC, BOUNDARY_TAG_STACEY))(                  \
+      (DIMENSION_TAG_DIM2, CONNECTION_TAG_NONCONFORMING,                       \
+       INTERFACE_TAG_ACOUSTIC_ELASTIC, BOUNDARY_TAG_ACOUSTIC_FREE_SURFACE))(   \
+      (DIMENSION_TAG_DIM2, CONNECTION_TAG_NONCONFORMING,                       \
        INTERFACE_TAG_ACOUSTIC_ELASTIC,                                         \
        BOUNDARY_TAG_COMPOSITE_STACEY_DIRICHLET))
 
