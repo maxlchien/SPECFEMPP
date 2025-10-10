@@ -68,6 +68,7 @@ specfem::runtime_configuration::plot_wavefield::plot_wavefield(
 std::shared_ptr<specfem::periodic_tasks::periodic_task>
 specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
     const specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+    const type_real &dt, const int max_timesteps,
     specfem::MPI::MPI *mpi) const {
 
   const auto output_format = [&]() {
@@ -77,6 +78,8 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
       return specfem::display::format::JPG;
     } else if (specfem::utilities::is_onscreen_string(this->output_format)) {
       return specfem::display::format::on_screen;
+    } else if (specfem::utilities::is_vtkhdf_string(this->output_format)) {
+      return specfem::display::format::vtkhdf;
     } else {
       throw std::runtime_error("Unknown plotter format");
     }
@@ -117,6 +120,6 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
   }();
 
   return std::make_shared<specfem::periodic_tasks::plot_wavefield>(
-      assembly, output_format, component, wavefield, time_interval,
-      this->output_folder, mpi);
+      assembly, output_format, component, wavefield, dt, time_interval,
+      max_timesteps, this->output_folder, mpi);
 }

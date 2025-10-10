@@ -55,6 +55,7 @@ public:
   instantiate_wavefield_plotter(
       const specfem::assembly::assembly<specfem::dimension::type::dim2>
           &assembly,
+      const type_real &dt, const int max_timesteps,
       specfem::MPI::MPI *mpi) const;
 
 private:
@@ -62,7 +63,9 @@ private:
   std::string output_folder;  ///< Path to output folder
   std::string component;      ///< Component of the wavefield to plot
   std::string wavefield_type; ///< Type of wavefield to plot
+  type_real dt;               ///< Time step
   int time_interval;          ///< Time interval for plotting
+  int max_timesteps;          ///< Maximum number of timesteps
 };
 } // namespace runtime_configuration
 } // namespace specfem

@@ -23,7 +23,12 @@ class vtkNamedColors;
 class vtkPoints;
 class vtkCellArray;
 class vtkFloatArray;
-#endif
+
+#ifndef NO_HDF5
+#include <hdf5.h>
+#endif // NO_HDF5
+
+#endif // NO_VTK
 
 namespace specfem {
 namespace periodic_tasks {
@@ -49,8 +54,8 @@ public:
       const specfem::display::format &output_format,
       const specfem::wavefield::type &wavefield_type,
       const specfem::wavefield::simulation_field &wavefield,
-      const int &time_interval, const boost::filesystem::path &output_folder,
-      specfem::MPI::MPI *mpi);
+      const type_real &dt, const int &time_interval,
+      const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi);
 
   /**
    * @brief Updates the wavefield within open window
@@ -80,7 +85,6 @@ public:
   void finalize(specfem::assembly::assembly<specfem::dimension::type::dim2>
                     &assembly) override;
 
-private:
   const specfem::display::format output_format;  ///< Output format of the plot
   const specfem::wavefield::type wavefield_type; ///< Type of the wavefield
   const specfem::wavefield::simulation_field wavefield; ///< Type of wavefield
@@ -96,6 +100,9 @@ private:
 
   // MPI object
   specfem::MPI::MPI *mpi;
+
+  int time_interval; // Interval between output timesteps
+  type_real dt;      // Time step
 
 #ifndef NO_VTK
 
@@ -124,6 +131,15 @@ private:
 
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
+
+#ifndef NO_HDF5
+  // VTK HDF5 file handling members
+  std::string hdf5_filename; // Store filename for reopening
+  int current_timestep;
+  int numPoints;          // Number of points in grid
+  int numCells;           // Number of cells in grid
+  int numConnectivityIds; // Number of connectivity IDs
+#endif
 
 #endif // NO_VTK
 };
