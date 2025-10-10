@@ -91,7 +91,7 @@ KOKKOS_FORCEINLINE_FUNCTION auto element_gradient(
       df_dxi[icomponent] +=
           quadrature(ix, l) * f(ielement, iz, iy, l, icomponent);
       df_deta[icomponent] +=
-          quadrature(iy, l) * f(ielement, iz, l, iy, icomponent);
+          quadrature(iy, l) * f(ielement, iz, l, ix, icomponent);
       df_dgamma[icomponent] +=
           quadrature(iz, l) * f(ielement, l, iy, ix, icomponent);
     }

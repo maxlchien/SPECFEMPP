@@ -4,6 +4,7 @@
 #include "mesh/mesh.hpp"
 #include "specfem/assembly/element_types.hpp"
 #include <Kokkos_Core.hpp>
+#include <boost/graph/filtered_graph.hpp>
 
 using EdgeViewType =
     Kokkos::View<specfem::mesh_entity::edge *, Kokkos::DefaultExecutionSpace>;
@@ -16,7 +17,7 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
 
   // Count the number of interfaces for each combination of connection
   FOR_EACH_IN_PRODUCT(
-      (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
+      (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
        INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
        BOUNDARY_TAG(NONE, STACEY, ACOUSTIC_FREE_SURFACE,
                     COMPOSITE_STACEY_DIRICHLET)),
@@ -51,6 +52,64 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
               "specfem::assembly::interface_types::coupled_edges", count);
           _h_self_edges_ = Kokkos::create_mirror_view(_self_edges_);
           _h_coupled_edges_ = Kokkos::create_mirror_view(_coupled_edges_);
+        } else if (_connection_tag_ ==
+                   specfem::connections::type::nonconforming) {
+          // TODO populate
+          const auto &graph = mesh.graph();
+
+          // Filter out strongly conforming connections
+          auto filter = [&graph](const auto &edge) {
+            return graph[edge].connection ==
+                   specfem::connections::type::nonconforming;
+          };
+
+          // Create a filtered graph view
+          const auto &nc_graph = boost::make_filtered_graph(graph, filter);
+
+          std::vector<specfem::mesh_entity::edge> self_collect;
+          std::vector<specfem::mesh_entity::edge> coupled_collect;
+
+          for (const auto &edge :
+               boost::make_iterator_range(boost::edges(nc_graph))) {
+            const int ispec1 = boost::source(edge, nc_graph);
+            const int ispec2 = boost::target(edge, nc_graph);
+            const auto boundary_tag = element_types.get_boundary_tag(ispec1);
+            const auto medium1 = element_types.get_medium_tag(ispec1);
+            const auto medium2 = element_types.get_medium_tag(ispec2);
+            if (boundary_tag == _boundary_tag_ && medium1 == self_medium &&
+                medium2 == coupled_medium) {
+
+              const specfem::mesh_entity::type self_orientation =
+                  nc_graph[edge].orientation;
+              const auto [edge_inv, exists] =
+                  boost::edge(ispec2, ispec1, nc_graph);
+              if (!exists) {
+                throw std::runtime_error("Non-symmetric adjacency graph "
+                                         "detected in `compute_intersection`.");
+              }
+              const specfem::mesh_entity::type coupled_orientation =
+                  nc_graph[edge_inv].orientation;
+              count++;
+              // we do not need orientation flipping -- that's handled by
+              // the transfer function
+              self_collect.push_back({ ispec1, self_orientation, false });
+              coupled_collect.push_back({ ispec2, coupled_orientation, false });
+            }
+          }
+
+          _self_edges_ = EdgeViewType(
+              "specfem::assembly::interface_types::self_edges", count);
+          _coupled_edges_ = EdgeViewType(
+              "specfem::assembly::interface_types::coupled_edges", count);
+          _h_self_edges_ = Kokkos::create_mirror_view(_self_edges_);
+          _h_coupled_edges_ = Kokkos::create_mirror_view(_coupled_edges_);
+
+          for (int iedge = 0; iedge < count; iedge++) {
+            _h_self_edges_(iedge) = self_collect[iedge];
+            _h_coupled_edges_(iedge) = coupled_collect[iedge];
+          }
+          Kokkos::deep_copy(_self_edges_, _h_self_edges_);
+          Kokkos::deep_copy(_coupled_edges_, _h_coupled_edges_);
         }
       })
 
@@ -110,7 +169,7 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::
                       const specfem::element::boundary_tag boundary) const {
 
   FOR_EACH_IN_PRODUCT(
-      (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
+      (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
        INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
        BOUNDARY_TAG(NONE, STACEY, ACOUSTIC_FREE_SURFACE,
                     COMPOSITE_STACEY_DIRICHLET)),
@@ -131,17 +190,17 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::
                         const specfem::interface::interface_tag edge,
                         const specfem::element::boundary_tag boundary) const {
 
-  FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
-                       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
-                       BOUNDARY_TAG(NONE, STACEY, ACOUSTIC_FREE_SURFACE,
-                                    COMPOSITE_STACEY_DIRICHLET)),
-                      CAPTURE(self_edges, coupled_edges) {
-                        if (_connection_tag_ == connection &&
-                            _interface_tag_ == edge &&
-                            _boundary_tag_ == boundary) {
-                          return std::make_tuple(_self_edges_, _coupled_edges_);
-                        }
-                      })
+  FOR_EACH_IN_PRODUCT(
+      (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
+       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
+       BOUNDARY_TAG(NONE, STACEY, ACOUSTIC_FREE_SURFACE,
+                    COMPOSITE_STACEY_DIRICHLET)),
+      CAPTURE(self_edges, coupled_edges) {
+        if (_connection_tag_ == connection && _interface_tag_ == edge &&
+            _boundary_tag_ == boundary) {
+          return std::make_tuple(_self_edges_, _coupled_edges_);
+        }
+      })
 
   throw std::runtime_error(
       "Connection type, interface type or boundary type not found");

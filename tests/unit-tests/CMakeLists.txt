@@ -372,6 +372,29 @@ target_link_libraries(
 )
 
 add_executable(
+  nonconforming_assembly_tests
+  assembly/runner.cpp
+  assembly/nonconforming_interfaces/container_init_test.cpp
+)
+target_link_libraries(
+  nonconforming_assembly_tests
+  reader
+  writer
+  mesh
+  assembly
+  quadrature
+  mpi_environment
+  io
+  kokkos_environment
+  yaml-cpp
+  utilities
+  boost
+  -lpthread -lm
+  gtest_main
+)
+
+
+add_executable(
   assembly_tests
   assembly/test_fixture/test_fixture.cpp
   assembly/runner.cpp
