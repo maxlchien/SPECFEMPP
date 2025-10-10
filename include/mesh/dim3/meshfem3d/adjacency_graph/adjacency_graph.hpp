@@ -2,6 +2,7 @@
 
 #include "enumerations/interface.hpp"
 #include <boost/graph/adjacency_list.hpp>
+#include <memory>
 
 namespace specfem::mesh::meshfem3d {
 
@@ -164,7 +165,7 @@ private:
    * Stores the complete adjacency graph with vertices representing spectral
    * elements and edges representing interfaces with their properties.
    */
-  Graph graph_;
+  std::shared_ptr<Graph> graph_;
 
 public:
   int nspec; ///< Number of spectral elements in the mesh
@@ -181,7 +182,7 @@ public:
    * // Graph must be populated with add_vertex/add_edge operations
    * @endcode
    */
-  adjacency_graph() = default;
+  adjacency_graph() : nspec(0), graph_(std::make_shared<Graph>(0)) {}
 
   /**
    * @brief Constructor with pre-allocated vertex capacity
@@ -199,7 +200,8 @@ public:
    * // Vertices 0-999 are pre-allocated and ready for edge addition
    * @endcode
    */
-  adjacency_graph(const int nspec) : nspec(nspec), graph_(nspec) {}
+  adjacency_graph(const int nspec)
+      : nspec(nspec), graph_(std::make_shared<Graph>(nspec)) {}
 
   /**
    * @brief Mutable access to the underlying Boost Graph
@@ -222,7 +224,7 @@ public:
    * auto [adj_iter, adj_end] = boost::adjacent_vertices(0, graph);
    * @endcode
    */
-  Graph &graph() { return graph_; }
+  Graph &graph() { return *graph_; }
 
   /**
    * @brief Immutable access to the underlying Boost Graph
@@ -247,7 +249,7 @@ public:
    * }
    * @endcode
    */
-  const Graph &graph() const { return graph_; }
+  const Graph &graph() const { return *graph_; }
 
   /**
    * @brief Check if the adjacency graph is empty
@@ -264,7 +266,7 @@ public:
    * }
    * @endcode
    */
-  bool empty() const { return boost::num_vertices(graph_) == 0; }
+  bool empty() const { return boost::num_vertices(*graph_) == 0; }
 
   /**
    * @brief Verify graph symmetry for undirected adjacency relationships
