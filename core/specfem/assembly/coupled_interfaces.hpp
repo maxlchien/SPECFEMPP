@@ -1,3 +1,5 @@
+#pragma once
+
 #include "enumerations/interface.hpp"
 
 namespace specfem::assembly {
@@ -6,7 +8,8 @@ namespace coupled_interfaces_impl {
 
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
-          specfem::element::boundary_tag BoundaryTag>
+          specfem::element::boundary_tag BoundaryTag,
+          specfem::connections::type ConnectionTag>
 struct interface_container;
 
 } // namespace coupled_interfaces_impl

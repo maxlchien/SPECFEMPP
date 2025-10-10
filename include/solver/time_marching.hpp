@@ -7,8 +7,8 @@
 #include "kokkos_kernels/frechet_kernels.hpp"
 #include "solver.hpp"
 #include "specfem/periodic_tasks.hpp"
-#include "timescheme/newmark.hpp"
-#include "timescheme/timescheme.hpp"
+#include "specfem/timescheme.hpp"
+#include "specfem/timescheme/newmark.hpp"
 
 namespace specfem {
 namespace solver {

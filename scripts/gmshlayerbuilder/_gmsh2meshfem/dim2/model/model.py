@@ -1,36 +1,126 @@
 from dataclasses import dataclass, field
 from dataclasses import replace as dataclass_replace
+from typing import Iterable
 
 import numpy as np
 from _gmsh2meshfem.gmsh_dep import GmshContext
 
 from .boundary import BoundarySpec
 from .edges import ConformingInterfaces
-from .index_mapping import IndexMapping
+from .index_mapping import IndexMapping, JoinedIndexMapping
 from .nonconforming_interfaces import (
     NonconformingInterfaces,
 )
+from .physical_group import (
+    NullPhysicalGroup,
+    PhysicalGroup,
+    UnionPhysicalGroup,
+    physical_group_from_name,
+)
 from .plotter import plot_model
 
+
+# TODO: consider using some sort of joint node and element index mapping container during
+# construction, which would simplify the process. In particular, `element_nodes`
+# needs to be shared around a lot.
 @dataclass
 class Model:
     """Result generated from LayeredBuilder. This does not need gmsh to be initialized."""
 
     nodes: np.ndarray
+    """
+    Shape `(num_nodes,3)` array of node positions.
+    The node index is referenced by `model.elements`.
+    """
+
     elements: np.ndarray
+    """
+    Shape `(num_elements,9)` array of node indices for each element.
+    The positions of each node can be recovered with
+    `model.nodes[model.elements[element_index, control_node_index], :]`
+    """
+
     materials: np.ndarray
+    """
+    Shape `num_elements` array with the material index for each element,
+    used by the meshfem par-file. The element index is shared with `model.elements`.
+    """
+
     boundaries: BoundarySpec
+    """
+    Categorizes the information of the external edges of the model, characterized by pairs
+    `(element_index, side_of_element)` for each.
+    """
+
     _node_gmshtag_to_index_mapping: IndexMapping
+    """
+    Stores the original tags for each node. This is used when merging models, where
+    two nodes are equated if they have the same tag.
+    """
+
     conforming_interfaces: ConformingInterfaces = field(
         default_factory=ConformingInterfaces
     )
+    """
+    Currently unused, but stores the adjacencies given by relating edges with the same
+    node indices.
+    """
+
     nonconforming_interfaces: NonconformingInterfaces = field(
         default_factory=NonconformingInterfaces
     )
+    """
+    Categorizes adjacencies by relating edges which have nontrival spatial intersection
+    (we do not care about corners) that are not categorized by `conforming_interfaces`.
+    """
+
+    physical_groups: dict[str, PhysicalGroup] = field(default_factory=dict)
+    """
+    Stores labels (
+[physical groups](https://gmsh.info/doc/texinfo/gmsh.html#Elementary-entities-vs-physical-groups)
+    in `gmsh`) specified in the external mesher and the elements they point to.
+    """
+
+    bbox: np.ndarray = field(init=False)
+    """
+    A 2x3 array specifying the bounds of the model. bbox[0,:] are the minimums on each axis,
+    while bbox[1,:] are the maxima.
+    """
+
+    def __post_init__(self):
+        """Called after construction to clean/enforce certain things"""
+
+        self.bbox = np.stack(
+            [np.min(self.nodes, axis=0), np.max(self.nodes, axis=0)], axis=0
+        )
+
+        # characteristic length scale for dimensionalizing eps
+        charlen = np.linalg.norm(self.bbox[1, :] - self.bbox[0, :])
+
+        # verify nodes are on an x-z plane.
+        normal_vec = np.array([0, 1, 0])
+        offset = np.einsum("...i,i->...", self.nodes, normal_vec)
+        offset -= np.mean(offset)
+
+        max_offset_ind = np.argmax(np.abs(offset))
+        if offset[max_offset_ind] > charlen * 1e-3:
+            e = ValueError("Model is not in x-z plane")
+            e.add_note(
+                "The 2D Model object stores the 3d points from the mesher, "
+                "but requires all points to lie on the same x-z plane."
+            )
+            e.add_note(
+                "Please check that your mesh's points all have the same y-value."
+            )
+            e.add_note(
+                f"maximum deviation: {offset[max_offset_ind]:+e} by node "
+                f"{self._node_gmshtag_to_index_mapping.invert(max_offset_ind)}"
+                f" with position {self.nodes[max_offset_ind, :]}"
+            )
+            raise e
 
     def plot(self):
-        """Displays, using matplotlib, the mesh corresponding to this model.
-        """
+        """Displays, using matplotlib, the mesh corresponding to this model."""
         plot_model(self.nodes, self.elements)
 
     @staticmethod
@@ -40,7 +130,7 @@ class Model:
         """
         nodemap1 = model1._node_gmshtag_to_index_mapping
         nodemap2 = model2._node_gmshtag_to_index_mapping
-        nodemapu = IndexMapping.join(
+        nodemapu = JoinedIndexMapping(
             nodemap1,
             nodemap2,
         )
@@ -48,8 +138,8 @@ class Model:
         nodes[nodemapu.apply(nodemap1.original_tag_list)] = model1.nodes
         nodes[nodemapu.apply(nodemap2.original_tag_list)] = model2.nodes
 
-        elem1_remapped = nodemapu.apply(nodemap1.invert(model1.elements))
-        elem2_remapped = nodemapu.apply(nodemap2.invert(model2.elements))
+        elem1_remapped = nodemapu.left_to_joined.apply(model1.elements)
+        elem2_remapped = nodemapu.right_to_joined.apply(model2.elements)
 
         # equate elements if they have same nodes
         elemu, elemu_inds, elemu_inv = np.unique(
@@ -59,21 +149,32 @@ class Model:
             return_counts=False,
             axis=0,
         )
-        elem_ind_remap = IndexMapping(elemu_inds)
+        num_elems1 = elem1_remapped.shape[0]
+
+        # we may want to consider updating JoinedIndexMapping to allow the
+        # passing of index equivalencies. For now, hack it.
+        elem_left_map = IndexMapping(elemu_inv[:num_elems1])
+        elem_right_map = IndexMapping(elemu_inv[num_elems1:])
+        elem_ind_remap = JoinedIndexMapping(elem_left_map, elem_right_map)
 
         # remap element ids in bdspec
-        bdspec1 = dataclass_replace(
-            model1.boundaries,
-            element_inds=elem_ind_remap.apply(model1.boundaries.element_inds),
-        )
-        num_elems1 = elem1_remapped.shape[0]
-        bdspec2 = dataclass_replace(
-            model2.boundaries,
-            element_inds=elem_ind_remap.apply(
-                model2.boundaries.element_inds + num_elems1
-            ),
-        )
+        bdspec1 = model1.boundaries.remapped_elements(elem_ind_remap.left_to_joined)
+        bdspec2 = model2.boundaries.remapped_elements(elem_ind_remap.right_to_joined)
         combined_bdries = BoundarySpec.union(bdspec1, bdspec2)
+
+        # remap element and node ids in physical groups
+        combined_physical_groups = {}
+        for name in model1.physical_groups.keys() | model2.physical_groups.keys():
+            pg1 = model1.physical_groups.get(name, NullPhysicalGroup(name))
+            pg2 = model2.physical_groups.get(name, NullPhysicalGroup(name))
+
+            pg1.remap_nodes(nodemapu.left_to_joined)
+            pg2.remap_nodes(nodemapu.right_to_joined)
+            pg1.remap_elements(elem_ind_remap.left_to_joined)
+            pg2.remap_elements(elem_ind_remap.right_to_joined)
+
+            combined_physical_groups[name] = UnionPhysicalGroup(name, pg1, pg2)
+
         # remap element ids in materials
         elem_materials = np.full(elemu.shape[0], 0, dtype=np.uint8)
         elem_materials[elemu_inv[:num_elems1]] = model1.materials
@@ -82,16 +183,20 @@ class Model:
         # remap element ids in conforming interfaces
         nci1 = dataclass_replace(
             model1.nonconforming_interfaces,
-            elements_a=elem_ind_remap.apply(model1.nonconforming_interfaces.elements_a),
-            elements_b=elem_ind_remap.apply(model1.nonconforming_interfaces.elements_b),
+            elements_a=elem_ind_remap.left_to_joined.apply(
+                model1.nonconforming_interfaces.elements_a
+            ),
+            elements_b=elem_ind_remap.left_to_joined.apply(
+                model1.nonconforming_interfaces.elements_b
+            ),
         )
         nci2 = dataclass_replace(
             model2.nonconforming_interfaces,
-            elements_a=elem_ind_remap.apply(
-                model2.nonconforming_interfaces.elements_a + num_elems1
+            elements_a=elem_ind_remap.right_to_joined.apply(
+                model2.nonconforming_interfaces.elements_a
             ),
-            elements_b=elem_ind_remap.apply(
-                model2.nonconforming_interfaces.elements_b + num_elems1
+            elements_b=elem_ind_remap.right_to_joined.apply(
+                model2.nonconforming_interfaces.elements_b
             ),
         )
         # match nonconforming interfaces
@@ -117,10 +222,15 @@ class Model:
                 elemu_inv[num_elems1:],
             ),
             nonconforming_interfaces=ncis,
+            physical_groups=combined_physical_groups,
         )
 
     @staticmethod
-    def from_meshed_surface(surface: list[int] | int, gmsh: GmshContext) -> "Model":
+    def from_meshed_surface(
+        surface: list[int] | int,
+        gmsh: GmshContext,
+        physical_group_captures: Iterable[str] | None = None,
+    ) -> "Model":
         """Given an initialized mesh in gmsh, constructs a Model
         that stores the data of a surface or collection of
         surfaces with the given tag(s). The resulting Model is
@@ -129,6 +239,7 @@ class Model:
         Args:
             surface (list[int] | int): gmsh surface tag(s)
             gmsh (GmshContext): the gmsh handshake to secure active environment.
+            physical_group_captures (list[str] | None): a list of the physical groups to store.
         """
         if isinstance(surface, list):
             if len(surface) == 0:
@@ -206,6 +317,18 @@ class Model:
                 [(2, surface)], oriented=False, recursive=False
             )
 
+            physical_groups: dict[str, PhysicalGroup] = {}
+            for name in (
+                [] if physical_group_captures is None else physical_group_captures
+            ):
+                physical_groups[name] = physical_group_from_name(
+                    gmsh,
+                    node_indexing.invert(element_nodes),
+                    node_indexing,
+                    node_locs,
+                    name,
+                )
+
             return Model(
                 nodes=node_locs,
                 elements=element_nodes,
@@ -215,15 +338,20 @@ class Model:
                     [tag for dim, tag in boundary_entities if dim == 1],
                     node_indexing.invert(element_nodes),
                     node_indexing,
-                    node_locs
+                    node_locs,
                 ),
                 _node_gmshtag_to_index_mapping=node_indexing,
                 conforming_interfaces=ConformingInterfaces.from_element_node_matrix(
                     element_nodes
                 ),
+                physical_groups=physical_groups,
             )
         else:
             return Model.union(
-                Model.from_meshed_surface(surface[0], gmsh),
-                Model.from_meshed_surface(surface[1:], gmsh),
+                Model.from_meshed_surface(
+                    surface[0], gmsh, physical_group_captures=physical_group_captures
+                ),
+                Model.from_meshed_surface(
+                    surface[1:], gmsh, physical_group_captures=physical_group_captures
+                ),
             )

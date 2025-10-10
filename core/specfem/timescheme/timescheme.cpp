@@ -1,4 +1,4 @@
-#include "timescheme/timescheme.hpp"
+#include "specfem/timescheme.hpp"
 #include "specfem_setup.hpp"
 #include <ostream>
 
