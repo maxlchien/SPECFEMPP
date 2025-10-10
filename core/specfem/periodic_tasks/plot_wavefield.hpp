@@ -122,6 +122,7 @@ public:
   // Separated grid and wavefield functions
   void create_quad_grid();
   void create_biquad_grid();
+  void create_lagrange_quad_grid();
   vtkSmartPointer<vtkFloatArray> compute_wavefield_scalars(
       specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
   vtkSmartPointer<vtkDataSetMapper> map_materials_with_color();

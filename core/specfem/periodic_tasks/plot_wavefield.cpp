@@ -17,6 +17,7 @@
 #include <fstream>
 #include <vtkActor.h>
 #include <vtkBiQuadraticQuad.h>
+#include <vtkCamera.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkDataSetMapper.h>
@@ -24,6 +25,7 @@
 #include <vtkFloatArray.h>
 #include <vtkGraphicsFactory.h>
 #include <vtkJPEGWriter.h>
+#include <vtkLagrangeQuadrilateral.h>
 #include <vtkLookupTable.h>
 #include <vtkNamedColors.h>
 #include <vtkPNGWriter.h>
@@ -190,8 +192,8 @@ specfem::periodic_tasks::plot_wavefield::map_materials_with_color() {
   for (int icell = 0; icell < nspec; ++icell) {
     for (int i = 0; i < cell_points; ++i) {
       points->InsertNextPoint(coordinates(0, icell, z_index[i], x_index[i]),
-                              coordinates(1, icell, z_index[i], x_index[i]),
-                              0.0);
+                              0.0,
+                              coordinates(1, icell, z_index[i], x_index[i]));
     }
     auto quad = vtkSmartPointer<vtkQuad>::New();
     for (int i = 0; i < cell_points; ++i) {
@@ -276,8 +278,8 @@ void specfem::periodic_tasks::plot_wavefield::create_biquad_grid() {
   for (int icell = 0; icell < ncells; ++icell) {
     for (int i = 0; i < cell_points; ++i) {
       points->InsertNextPoint(coordinates(0, icell, z_index[i], x_index[i]),
-                              coordinates(1, icell, z_index[i], x_index[i]),
-                              0.0);
+                              0.0,
+                              coordinates(1, icell, z_index[i], x_index[i]));
     }
     auto quad = vtkSmartPointer<vtkBiQuadraticQuad>::New();
     for (int i = 0; i < cell_points; ++i) {
@@ -289,6 +291,65 @@ void specfem::periodic_tasks::plot_wavefield::create_biquad_grid() {
   unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   unstructured_grid->SetPoints(points);
   unstructured_grid->SetCells(VTK_BIQUADRATIC_QUAD, cells);
+}
+
+/**
+ * @brief Create a Lagrange quadrilateral grid using all GLL points
+ *
+ * This function creates a higher-order Lagrange quadrilateral element for each
+ * spectral element, using all GLL points as control points. Unlike the quad
+ * grid approach that creates 16 separate quads per element, this creates one
+ * higher-order element per spectral element that captures the full polynomial
+ * representation.
+ *
+ * For ngll = 5, each spectral element becomes one vtkLagrangeQuadrilateral
+ * with 25 control points arranged in a structured 5x5 grid.
+ */
+void specfem::periodic_tasks::plot_wavefield::create_lagrange_quad_grid() {
+  const auto &coordinates = assembly.mesh.h_coord;
+
+  // Each spectral element becomes one Lagrange quadrilateral
+  const int ncells = nspec;
+  const int points_per_element = ngllx * ngllz;
+
+  auto points = vtkSmartPointer<vtkPoints>::New();
+  auto cells = vtkSmartPointer<vtkCellArray>::New();
+
+  int point_counter = 0;
+
+  // Loop over spectral elements
+  for (int ispec = 0; ispec < nspec; ++ispec) {
+    auto lagrange_quad = vtkSmartPointer<vtkLagrangeQuadrilateral>::New();
+
+    // Set the order of the Lagrange quadrilateral
+    // Order is ngll-1 in each direction
+    lagrange_quad->SetOrder(ngllx - 1, ngllz - 1);
+    lagrange_quad->GetPointIds()->SetNumberOfIds(points_per_element);
+
+    // Add all GLL points for this element
+    for (int iz = 0; iz < ngllz; ++iz) {
+      for (int ix = 0; ix < ngllx; ++ix) {
+        // Insert the point
+        points->InsertNextPoint(coordinates(0, ispec, iz, ix), 0.0,
+                                coordinates(1, ispec, iz, ix));
+
+        // VTK Lagrange quadrilateral uses a specific point ordering
+        // We need to map from (ix, iz) to the VTK point index
+        // For a 2D quadrilateral: ix -> I direction, iz -> J direction, K=0
+        int vtk_point_idx = lagrange_quad->PointIndexFromIJK(ix, iz, 0);
+        lagrange_quad->GetPointIds()->SetId(vtk_point_idx, point_counter);
+        point_counter++;
+      }
+    }
+
+    // Add the cell
+    cells->InsertNextCell(lagrange_quad);
+  }
+
+  // Create the unstructured grid
+  unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  unstructured_grid->SetPoints(points);
+  unstructured_grid->SetCells(VTK_LAGRANGE_QUADRILATERAL, cells);
 }
 
 /**
@@ -359,8 +420,8 @@ void specfem::periodic_tasks::plot_wavefield::create_quad_grid() {
           int ix_pos = ix + x_index[ipoint];
 
           // Insert the point
-          points->InsertNextPoint(coordinates(0, ispec, iz_pos, ix_pos),
-                                  coordinates(1, ispec, iz_pos, ix_pos), 0.0);
+          points->InsertNextPoint(coordinates(0, ispec, iz_pos, ix_pos), 0.0,
+                                  coordinates(1, ispec, iz_pos, ix_pos));
 
           // Set the point ID for this quad
           quad->GetPointIds()->SetId(ipoint, point_counter);
@@ -459,6 +520,32 @@ specfem::periodic_tasks::plot_wavefield::compute_wavefield_scalars(
                          wavefield_data(icell, z_index[i], x_index[i], 0)) +
                         (wavefield_data(icell, z_index[i], x_index[i], 1) *
                          wavefield_data(icell, z_index[i], x_index[i], 1))));
+        }
+      }
+    }
+  }
+  // For Lagrange quadrilateral grid
+  else if (unstructured_grid->GetCellType(0) == VTK_LAGRANGE_QUADRILATERAL) {
+    const int points_per_element = ngllx * ngllz;
+
+    // For Lagrange quadrilaterals, we have all GLL points
+    for (int ispec = 0; ispec < nspec; ++ispec) {
+      for (int iz = 0; iz < ngllz; ++iz) {
+        for (int ix = 0; ix < ngllx; ++ix) {
+          // Insert scalar value
+          if (wavefield_type == specfem::wavefield::type::pressure ||
+              wavefield_type == specfem::wavefield::type::rotation ||
+              wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
+              wavefield_type == specfem::wavefield::type::curl) {
+            scalars->InsertNextValue(
+                std::abs(wavefield_data(ispec, iz, ix, 0)));
+          } else {
+            scalars->InsertNextValue(
+                std::sqrt((wavefield_data(ispec, iz, ix, 0) *
+                           wavefield_data(ispec, iz, ix, 0)) +
+                          (wavefield_data(ispec, iz, ix, 1) *
+                           wavefield_data(ispec, iz, ix, 1))));
+          }
         }
       }
     }
@@ -595,9 +682,19 @@ void initialize<specfem::display::format::vtkhdf>(
   const auto &element_types = plotter.assembly.element_types;
   std::vector<int> material_ids;
 
-  // Map each VTK cell to its corresponding spectral element
-  // For quad grid: each spectral element has (ngllx-1)*(ngllz-1) cells
-  const int n_cells_per_spec = (plotter.ngllx - 1) * (plotter.ngllz - 1);
+  // Determine number of cells per spectral element based on grid type
+  int n_cells_per_spec;
+  if (plotter.unstructured_grid->GetCellType(0) == VTK_LAGRANGE_QUADRILATERAL) {
+    // For Lagrange quadrilateral grid: 1 cell per spectral element
+    n_cells_per_spec = 1;
+  } else if (plotter.unstructured_grid->GetCellType(0) ==
+             VTK_BIQUADRATIC_QUAD) {
+    // For biquadratic grid: 1 cell per spectral element
+    n_cells_per_spec = 1;
+  } else {
+    // For quad grid: each spectral element has (ngllx-1)*(ngllz-1) cells
+    n_cells_per_spec = (plotter.ngllx - 1) * (plotter.ngllz - 1);
+  }
 
   for (int ispec = 0; ispec < plotter.nspec; ++ispec) {
     const auto material_tag = element_types.get_medium_tag(ispec);
@@ -813,6 +910,14 @@ void initialize_display(specfem::periodic_tasks::plot_wavefield &plotter,
   plotter.renderer->SetBackground(
       plotter.colors->GetColor3d("White").GetData());
 
+  // Configure camera for X-Z plane visualization
+  // Position camera to look at X-Z plane from a Y perspective
+  auto camera = plotter.renderer->GetActiveCamera();
+  camera->SetPosition(0, -1, 0);   // Camera positioned back in Y direction
+  camera->SetFocalPoint(0, 0, 0);  // Looking at origin
+  camera->SetViewUp(0, 0, 1);      // Z-axis points up in the view
+  plotter.renderer->ResetCamera(); // Auto-fit the view to the data
+
   // Plot edges
   if (false) {
     // Create edges extractor and actors
@@ -887,7 +992,8 @@ void specfem::periodic_tasks::plot_wavefield::initialize(
     specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
 
   // Create the grid structure
-  create_quad_grid(); // or create_biquad_grid() based on preference
+  create_lagrange_quad_grid(); // or create_quad_grid() or create_biquad_grid()
+                               // based on preference
 
   // Compute initial wavefield scalars and add to grid
   auto scalars = compute_wavefield_scalars(assembly);
