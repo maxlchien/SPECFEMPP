@@ -153,14 +153,13 @@ class Exporter:
         # node coords
         # =========================
         with (self.destination_folder / self.node_coords_file).open("w") as f:
-            # gmsh is in 3d. this Exporter is in a 2d namespace.
-            # by default, we will resolve by assuming y=0, but in the future, some
-            # more general projection rule may be desired.
-            nodes_arr = self.model.nodes[...,(0,2)]
+            nodes_arr = self.model.nodes[..., (0, 2)]
 
             # header is number of lines (1 line per node)
             nnodes = nodes_arr.shape[0]
             f.write(str(nnodes) + "\n")
+
+            assert nodes_arr.shape[1] == 2, "2d exporter received 3d points!"
 
             for inod in range(nnodes):
                 f.write(f"{nodes_arr[inod, 0]:.10f} {nodes_arr[inod, 1]:.10f}\n")
@@ -181,11 +180,7 @@ class Exporter:
         # materials
         # =========================
         with (self.destination_folder / self.materials_file).open("w") as f:
-
-            # no header entry
-
-            for mat in self.model.materials:
-                f.write(f"{mat}\n")
+            f.write("\n".join(str(mat) for mat in self.model.materials))
 
         # =========================
         # free surface
@@ -204,7 +199,7 @@ class Exporter:
                 node_indices = self.model.elements[
                     elem, EdgeType.QUA_9_node_indices_on_type(edgetype)[::2]
                 ]
-                f.write(f"{elem} 2 {node_indices[0]} {node_indices[1]}\n")
+                f.write(f"{elem + 1} 2 {node_indices[0] + 1} {node_indices[1] + 1}\n")
 
         # =========================
         # absorbing bdries (if needed)
@@ -221,7 +216,7 @@ class Exporter:
                         elem, EdgeType.QUA_9_node_indices_on_type(edgetype)[::2]
                     ]
                     f.write(
-                        f"{elem} 2 {node_indices[0]} {node_indices[1]} {edgetype + 1}\n"
+                        f"{elem + 1} 2 {node_indices[0] + 1} {node_indices[1] + 1} {edgetype + 1}\n"
                     )
 
         # =========================
