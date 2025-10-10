@@ -1,7 +1,8 @@
 #pragma once
 
-#include "enumerations/dimension.hpp"
-#include "enumerations/medium.hpp"
+#include "datatypes/element_view.hpp"
+#include "enumerations/interface.hpp"
+#include "specfem/data_access.hpp"
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
@@ -145,15 +146,16 @@ template <int NGLL, specfem::dimension::type DimensionTag, typename MemorySpace,
           bool StoreWeightTimesHPrimeGLL>
 struct QuadratureTraits
     : public ImplQuadratureTraits<
-          Kokkos::View<type_real[NGLL][NGLL], Kokkos::LayoutRight, MemorySpace,
-                       MemoryTraits>,
+          specfem::datatype::ScalarElementViewType<
+              type_real, DimensionTag, NGLL, MemorySpace, MemoryTraits>,
           StoreHPrimeGLL, StoreWeightTimesHPrimeGLL> {
 
   constexpr static int ngll = NGLL;
   constexpr static int dimension =
       specfem::dimension::dimension<DimensionTag>::dim;
-  using ViewType = Kokkos::View<type_real[NGLL][NGLL], Kokkos::LayoutRight,
-                                MemorySpace, MemoryTraits>;
+  using ViewType =
+      specfem::datatype::ScalarElementViewType<type_real, DimensionTag, NGLL,
+                                               MemorySpace, MemoryTraits>;
 
   KOKKOS_FUNCTION QuadratureTraits() = default;
 
@@ -201,7 +203,11 @@ template <int NGLL, specfem::dimension::type DimensionTag, typename MemorySpace,
 struct quadrature
     : public impl::QuadratureTraits<NGLL, DimensionTag, MemorySpace,
                                     MemoryTraits, StoreHPrimeGLL,
-                                    StoreWeightTimesHPrimeGLL> {
+                                    StoreWeightTimesHPrimeGLL>,
+      public specfem::data_access::Accessor<
+          specfem::data_access::AccessorType::element,
+          specfem::data_access::DataClassType::quadrature, DimensionTag,
+          false> {
 
   /**
    * @name Typedefs

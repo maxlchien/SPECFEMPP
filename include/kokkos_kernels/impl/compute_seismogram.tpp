@@ -4,7 +4,7 @@
 #include "specfem/chunk_element.hpp"
 #include "compute_seismogram.hpp"
 #include "datatypes/simd.hpp"
-#include "element/quadrature.hpp"
+#include "specfem/element.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"

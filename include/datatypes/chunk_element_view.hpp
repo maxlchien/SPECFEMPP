@@ -152,7 +152,7 @@ struct ScalarChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
                                                 ///< the elements of the array
   using base_type = T;                          ///< Base type of the array
   constexpr static auto dimension_tag =
-      specfem::dimension::type::dim2; ///< Dimension tag
+      specfem::dimension::type::dim3; ///< Dimension tag
   using index_type =
       typename specfem::point::index<dimension_tag,
                                      UseSIMD>; ///< index type for accessing at

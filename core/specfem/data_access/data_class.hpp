@@ -18,6 +18,7 @@ enum DataClassType {
   stress,
   stress_integrand,
   boundary,
-  coupled_interface
+  coupled_interface,
+  quadrature
 };
 } // namespace specfem::data_access
