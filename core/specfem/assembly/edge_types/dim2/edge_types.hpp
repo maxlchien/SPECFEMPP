@@ -16,7 +16,7 @@ private:
                    Kokkos::DefaultExecutionSpace>;
 
 public:
-  constexpr static auto dimension = specfem::dimension::type::dim2;
+  constexpr static auto dimension_tag = specfem::dimension::type::dim2;
   std::tuple<typename EdgeViewType::HostMirror,
              typename EdgeViewType::HostMirror>
   get_edges_on_host(const specfem::connections::type connection,
@@ -30,14 +30,16 @@ public:
 
   edge_types(
       const int ngllx, const int ngllz,
-      const specfem::assembly::mesh<dimension> &mesh,
-      const specfem::assembly::element_types<dimension> &element_types,
-      const specfem::mesh::coupled_interfaces<dimension> &coupled_interfaces);
+      const specfem::assembly::mesh<dimension_tag> &mesh,
+      const specfem::assembly::element_types<dimension_tag> &element_types,
+      const specfem::mesh::coupled_interfaces<dimension_tag>
+          &coupled_interfaces);
 
   edge_types() = default;
 
 private:
-  FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
+  FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2),
+                       CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
                        INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
                        BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
                                     COMPOSITE_STACEY_DIRICHLET)),
