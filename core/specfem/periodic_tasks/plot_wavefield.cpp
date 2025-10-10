@@ -1,7 +1,7 @@
-#include "periodic_tasks/plot_wavefield.hpp"
+#include "plot_wavefield.hpp"
 #include "enumerations/display.hpp"
 #include "enumerations/interface.hpp"
-#include "periodic_tasks/plotter.hpp"
+#include "plotter.hpp"
 #include "specfem/assembly.hpp"
 #include "utilities/strings.hpp"
 
