@@ -5,11 +5,6 @@
 #include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 
-// Forward declarations
-namespace specfem::point {
-template <specfem::dimension::type DimensionTag, bool UseSIMD> struct index;
-} // namespace specfem::point
-
 namespace specfem {
 namespace datatype {
 
