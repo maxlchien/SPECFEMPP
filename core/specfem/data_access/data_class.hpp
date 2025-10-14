@@ -5,6 +5,7 @@ enum DataClassType {
   index,
   edge_index,
   assembly_index,
+  gll_index,
   mapped_index,
   properties,
   kernels,

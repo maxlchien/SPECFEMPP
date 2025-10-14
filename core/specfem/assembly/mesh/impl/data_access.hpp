@@ -1,5 +1,7 @@
 #pragma once
 
+#include "execution/element_iterator.hpp"
+#include "execution/for_all.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem::assembly {
@@ -36,10 +38,12 @@ impl_load(const MemberType &team,
                                Kokkos::DefaultExecutionSpace>,
                 "Calling team must have a host execution space");
 
-  Kokkos::parallel_for(
-      Kokkos::TeamThreadRange(team, NGLL * NGLL), [&](const int &xz) {
-        int ix, iz;
-        sub2ind(xz, NGLL, iz, ix);
+  specfem::execution::for_each_level(
+      specfem::execution::ElementIterator<specfem::dimension::type::dim2,
+                                          MemberType>(team, NGLL),
+      [&](const auto index) {
+        int ix = index.ix;
+        int iz = index.iz;
         if constexpr (store_hprime_gll) {
           if constexpr (on_device) {
             element_quadrature.hprime_gll(iz, ix) = quadrature.hprime(iz, ix);

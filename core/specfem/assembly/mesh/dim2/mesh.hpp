@@ -68,5 +68,3 @@ public:
   bool empty() = delete;
 };
 } // namespace specfem::assembly
-
-#include "data_access.hpp"

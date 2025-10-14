@@ -98,7 +98,7 @@ struct ScalarElementViewType<T, specfem::dimension::type::dim2,
   template <typename IndexType>
   KOKKOS_INLINE_FUNCTION constexpr value_type &
   operator()(const IndexType &index) {
-    return (*this)(index.ispec, index.iz, index.ix);
+    return (*this)(index.iz, index.ix);
   }
 };
 
@@ -183,7 +183,7 @@ struct ScalarElementViewType<T, specfem::dimension::type::dim3,
   template <typename IndexType>
   KOKKOS_INLINE_FUNCTION constexpr value_type &
   operator()(const IndexType &index) {
-    return (*this)(index.ispec, index.iz, index.iy, index.ix);
+    return (*this)(index.iz, index.iy, index.ix);
   }
 };
 
