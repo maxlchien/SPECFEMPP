@@ -118,8 +118,10 @@ template <typename ViewType> struct TensorChunkEdgeSubview {
    * @param i Dimension index
    * @return Size of the dimension
    */
-  KOKKOS_INLINE_FUNCTION
-  constexpr std::size_t extent(const size_t &i) const {
+  template <
+      specfem::dimension::type D = index_type::dimension_tag,
+      typename std::enable_if_t<D == specfem::dimension::type::dim2, int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr std::size_t extent(const size_t &i) const {
     return view.extent(i + 2);
   }
 
