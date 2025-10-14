@@ -145,17 +145,18 @@ template <int NGLL, specfem::dimension::type DimensionTag, typename MemorySpace,
           typename MemoryTraits, bool StoreHPrimeGLL,
           bool StoreWeightTimesHPrimeGLL>
 struct QuadratureTraits
-    : public ImplQuadratureTraits<
-          specfem::datatype::ScalarElementViewType<
-              type_real, DimensionTag, NGLL, MemorySpace, MemoryTraits>,
-          StoreHPrimeGLL, StoreWeightTimesHPrimeGLL> {
+    : public ImplQuadratureTraits<specfem::datatype::ScalarElementViewType<
+                                      type_real, specfem::dimension::type::dim2,
+                                      NGLL, MemorySpace, MemoryTraits>,
+                                  StoreHPrimeGLL, StoreWeightTimesHPrimeGLL> {
 
   constexpr static int ngll = NGLL;
   constexpr static int dimension =
       specfem::dimension::dimension<DimensionTag>::dim;
   using ViewType =
-      specfem::datatype::ScalarElementViewType<type_real, DimensionTag, NGLL,
-                                               MemorySpace, MemoryTraits>;
+      specfem::datatype::ScalarElementViewType<type_real,
+                                               specfem::dimension::type::dim2,
+                                               NGLL, MemorySpace, MemoryTraits>;
 
   KOKKOS_FUNCTION QuadratureTraits() = default;
 

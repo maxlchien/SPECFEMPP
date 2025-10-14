@@ -22,11 +22,11 @@ namespace specfem::assembly {
  * @param element_quadrature Quadrature data for the element (output)
  */
 template <bool on_device, typename MemberType, typename ViewType>
-KOKKOS_INLINE_FUNCTION void
-impl_load(const MemberType &team,
-          const specfem::assembly::mesh_impl::quadrature<
-              specfem::dimension::type::dim2> &quadrature,
-          ViewType &element_quadrature) {
+KOKKOS_INLINE_FUNCTION void impl_load(
+    const MemberType &team,
+    const specfem::assembly::mesh_impl::quadrature<ViewType::dimension_tag>
+        &quadrature,
+    ViewType &element_quadrature) {
 
   constexpr bool store_hprime_gll = ViewType::store_hprime_gll;
 
