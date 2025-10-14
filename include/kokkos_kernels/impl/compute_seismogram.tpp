@@ -87,7 +87,7 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
                                            dimension, medium_tag, using_simd>;
   using ElementQuadratureType = specfem::element::quadrature<
       ngll, dimension, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
   using ViewType = Kokkos::View<type_real[ParallelConfig::chunk_size][ngll][ngll][2],
                                Kokkos::LayoutLeft,
                                specfem::kokkos::DevScratchSpace,

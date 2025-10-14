@@ -61,7 +61,7 @@ void specfem::kokkos_kernels::impl::compute_material_derivatives(
 
   using ElementQuadratureType = specfem::element::quadrature<
       NGLL, DimensionTag, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
 
   using PointDisplacementType =
       specfem::point::displacement<DimensionTag, MediumTag, using_simd>;

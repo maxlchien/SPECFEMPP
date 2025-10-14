@@ -55,8 +55,6 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
     const specfem::wavefield::type &wavefield_component,
     WavefieldViewType wavefield_on_entire_grid) {
 
-  static_assert(QuadratureType::store_hprime_gll,
-                "quadrature type needs to store GLL points");
   static_assert(WavefieldViewType::rank() == 4,
                 "wavefield_on_entire_grid needs to be a 4D view");
 

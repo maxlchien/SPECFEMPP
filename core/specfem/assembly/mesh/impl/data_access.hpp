@@ -28,10 +28,6 @@ KOKKOS_INLINE_FUNCTION void impl_load(
         &quadrature,
     ViewType &element_quadrature) {
 
-  constexpr bool store_hprime_gll = ViewType::store_hprime_gll;
-
-  constexpr bool store_weight_times_hprime_gll =
-      ViewType::store_weight_times_hprime_gll;
   constexpr int NGLL = ViewType::ngll;
 
   static_assert(std::is_same_v<typename MemberType::execution_space,
@@ -44,21 +40,10 @@ KOKKOS_INLINE_FUNCTION void impl_load(
       [&](const auto index) {
         int ix = index.ix;
         int iz = index.iz;
-        if constexpr (store_hprime_gll) {
-          if constexpr (on_device) {
-            element_quadrature.hprime_gll(iz, ix) = quadrature.hprime(iz, ix);
-          } else {
-            element_quadrature.hprime_gll(iz, ix) = quadrature.h_hprime(iz, ix);
-          }
-        }
-        if constexpr (store_weight_times_hprime_gll) {
-          if constexpr (on_device) {
-            element_quadrature.hprime_wgll(ix, iz) =
-                quadrature.hprime(iz, ix) * quadrature.weights(iz);
-          } else {
-            element_quadrature.hprime_wgll(ix, iz) =
-                quadrature.h_hprime(iz, ix) * quadrature.h_weights(iz);
-          }
+        if constexpr (on_device) {
+          element_quadrature.hprime_gll(iz, ix) = quadrature.hprime(iz, ix);
+        } else {
+          element_quadrature.hprime_gll(iz, ix) = quadrature.h_hprime(iz, ix);
         }
       });
 }

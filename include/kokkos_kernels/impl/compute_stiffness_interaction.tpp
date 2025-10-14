@@ -85,7 +85,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
       using_simd>;
   using ElementQuadratureType = specfem::element::quadrature<
       ngll, dimension, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
 
   using PointBoundaryType =
       specfem::point::boundary<boundary_tag, dimension, using_simd>;
