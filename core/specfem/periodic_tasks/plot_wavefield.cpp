@@ -71,9 +71,9 @@ specfem::periodic_tasks::plot_wavefield::plot_wavefield(
   throw std::runtime_error(message.str());
 }
 
+template <specfem::dimension::type DimensionTag>
 void specfem::periodic_tasks::plot_wavefield::run(
-    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-    const int istep) {
+    specfem::assembly::assembly<DimensionTag> &assembly, const int istep) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -82,8 +82,9 @@ void specfem::periodic_tasks::plot_wavefield::run(
   throw std::runtime_error(message.str());
 }
 
+template <specfem::dimension::type DimensionTag>
 void specfem::periodic_tasks::plot_wavefield::initialize(
-    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
+    specfem::assembly::assembly<DimensionTag> &assembly) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -92,8 +93,9 @@ void specfem::periodic_tasks::plot_wavefield::initialize(
   throw std::runtime_error(message.str());
 }
 
+template <specfem::dimension::type DimensionTag>
 void specfem::periodic_tasks::plot_wavefield::finalize(
-    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
+    specfem::assembly::assembly<DimensionTag> &assembly) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -988,8 +990,9 @@ void initialize<specfem::display::format::JPG>(
   plotter.render_window->SetOffScreenRendering(1);
 }
 
+template <specfem::dimension::type DimensionTag>
 void specfem::periodic_tasks::plot_wavefield::initialize(
-    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
+    specfem::assembly::assembly<DimensionTag> &assembly) {
 
   // Create the grid structure
   create_lagrange_quad_grid(); // or create_quad_grid() or create_biquad_grid()
@@ -1313,9 +1316,9 @@ void run<specfem::display::format::vtkhdf>(
 #endif
 }
 
+template <specfem::dimension::type DimensionTag>
 void specfem::periodic_tasks::plot_wavefield::run(
-    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-    const int istep) {
+    specfem::assembly::assembly<DimensionTag> &assembly, const int istep) {
 
   // Update the wavefield scalars only
   auto scalars = compute_wavefield_scalars(assembly);
@@ -1345,8 +1348,9 @@ void specfem::periodic_tasks::plot_wavefield::run(
   }
 }
 
+template <specfem::dimension::type DimensionTag>
 void specfem::periodic_tasks::plot_wavefield::finalize(
-    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
+    specfem::assembly::assembly<DimensionTag> &assembly) {
 
   // If interactive, start the event loop if it hasn't been started
   if (output_format == specfem::display::format::on_screen &&
@@ -1368,3 +1372,30 @@ void specfem::periodic_tasks::plot_wavefield::finalize(
 }
 
 #endif // NO_VTK
+
+// Explicit template instantiations for both 2D and 3D
+template void
+specfem::periodic_tasks::plot_wavefield::run<specfem::dimension::type::dim2>(
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+    const int istep);
+
+// template void specfem::periodic_tasks::plot_wavefield::run<
+//     specfem::dimension::type::dim3>(
+//     specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly,
+//     const int istep);
+
+template void specfem::periodic_tasks::plot_wavefield::initialize<
+    specfem::dimension::type::dim2>(
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
+
+// template void specfem::periodic_tasks::plot_wavefield::initialize<
+//     specfem::dimension::type::dim3>(
+//     specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly);
+
+template void specfem::periodic_tasks::plot_wavefield::finalize<
+    specfem::dimension::type::dim2>(
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
+
+// template void specfem::periodic_tasks::plot_wavefield::finalize<
+//     specfem::dimension::type::dim3>(
+//     specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly);

@@ -176,7 +176,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
           team.team_barrier();
 
           specfem::algorithms::divergence(
-              chunk_index, jacobian_matrix, wgll,
+              chunk_index, wgll,
               element_quadrature.hprime_wgll, stress_integrand.F,
               [&](const auto &iterator_index,
                   const typename PointAccelerationType::value_type &result) {

@@ -28,19 +28,27 @@ public:
    * @brief Function to be called periodically.
    *
    */
-  virtual void
-  run(specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-      const int istep) {};
+  template <specfem::dimension::type DimensionTag>
+  void run(specfem::assembly::assembly<DimensionTag> &assembly,
+           const int istep) {
+    // Default implementation for dimension-agnostic tasks
+    // Derived classes can override run_impl for dimension-specific behavior
+  };
 
   /**
    * @brief Functions to be called once at the beginning and once at the end of
    * the simulation.
    *
    */
-  virtual void initialize(
-      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {};
-  virtual void finalize(
-      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {};
+  template <specfem::dimension::type DimensionTag>
+  void initialize(specfem::assembly::assembly<DimensionTag> &assembly) {
+    // Default implementation
+  };
+
+  template <specfem::dimension::type DimensionTag>
+  void finalize(specfem::assembly::assembly<DimensionTag> &assembly) {
+    // Default implementation
+  };
 
   /**
    * @brief Returns true if the data should be plotted at the current

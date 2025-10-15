@@ -20,9 +20,9 @@ class check_signal : public periodic_task {
    * @brief Check for keyboard interrupt and more, when running from Python
    *
    */
-  void
-  run(specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-      const int istep) override;
+  template <specfem::dimension::type DimensionTag>
+  void run(specfem::assembly::assembly<DimensionTag> &assembly,
+           const int istep);
 };
 
 } // namespace periodic_tasks

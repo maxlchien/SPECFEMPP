@@ -106,13 +106,7 @@ void execute(
   //                   Get receivers
   // --------------------------------------------------------------
   // create single receiver receivers vector for now
-  std::vector<std::shared_ptr<
-      specfem::receivers::receiver<specfem::dimension::type::dim3> > >
-      receivers;
-  receivers.emplace_back(
-      std::make_shared<
-          specfem::receivers::receiver<specfem::dimension::type::dim3> >(
-          "NET", "STA", 50000.0, 40000.0, 0.0));
+  auto receivers = specfem::io::read_3d_receivers(setup.get_stations());
 
   mpi->cout("Receiver Information:");
   mpi->cout("-------------------------------");
@@ -137,6 +131,10 @@ void execute(
       nstep_between_samples, setup.get_simulation_type(),
       setup.allocate_boundary_values(), setup.instantiate_property_reader());
 
+  if (mpi->main_proc())
+    mpi->cout(assembly.print());
+  // --------------------------------------------------------------
+
   // --------------------------------------------------------------
   //                   Instantiate Timescheme
   // --------------------------------------------------------------
@@ -144,9 +142,14 @@ void execute(
 
   if (mpi->main_proc())
     std::cout << *time_scheme << std::endl;
+  // --------------------------------------------------------------
 
-  if (mpi->main_proc())
-    mpi->cout(assembly.print());
+  // --------------------------------------------------------------
+  //                   Instantiate Solver
+  // --------------------------------------------------------------
+  std::shared_ptr<specfem::solver::solver> solver =
+      setup.instantiate_solver<5>(dt, assembly, time_scheme, tasks);
+  // --------------------------------------------------------------
 
   return;
 }

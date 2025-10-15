@@ -128,12 +128,10 @@ template <typename ChunkIndexType, typename TensorFieldType,
           std::enable_if_t<
               specfem::data_access::is_chunk_element<TensorFieldType>::value,
               int> = 0>
-KOKKOS_FUNCTION void divergence(
-    const ChunkIndexType &chunk_index,
-    const specfem::assembly::jacobian_matrix<specfem::dimension::type::dim2>
-        &jacobian_matrix,
-    const WeightsType &weights, const QuadratureType &hprimewgll,
-    const TensorFieldType &f, const CallableType &callback) {
+KOKKOS_FUNCTION void
+divergence(const ChunkIndexType &chunk_index, const WeightsType &weights,
+           const QuadratureType &hprimewgll, const TensorFieldType &f,
+           const CallableType &callback) {
 
   using VectorPointViewType = specfem::datatype::VectorPointViewType<
       type_real, TensorFieldType::components, TensorFieldType::using_simd>;

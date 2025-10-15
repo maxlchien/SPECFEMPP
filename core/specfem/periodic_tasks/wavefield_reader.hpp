@@ -27,16 +27,16 @@ public:
    * @brief Check for keyboard interrupt and more, when running from Python
    *
    */
-  void
-  run(specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-      const int istep) override {
+  template <specfem::dimension::type DimensionTag>
+  void run(specfem::assembly::assembly<DimensionTag> &assembly,
+           const int istep) {
     std::cout << "Reading wavefield files:" << std::endl;
     std::cout << "-------------------------------" << std::endl;
     reader.run(assembly, istep);
   }
 
-  void initialize(specfem::assembly::assembly<specfem::dimension::type::dim2>
-                      &assembly) override {
+  template <specfem::dimension::type DimensionTag>
+  void initialize(specfem::assembly::assembly<DimensionTag> &assembly) {
     std::cout << "Reading coordinate files:" << std::endl;
     std::cout << "-------------------------------" << std::endl;
     reader.initialize(assembly);

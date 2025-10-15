@@ -83,9 +83,9 @@ public:
    * @brief Updates the wavefield within open window
    *
    */
-  void
-  run(specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-      const int istep) override;
+  template <specfem::dimension::type DimensionTag>
+  void run(specfem::assembly::assembly<DimensionTag> &assembly,
+           const int istep);
 
   /**
    * @brief Wavefield plotter
@@ -94,8 +94,8 @@ public:
    *
    * @param assembly SPECFFEM++ assembly object
    */
-  void initialize(specfem::assembly::assembly<specfem::dimension::type::dim2>
-                      &assembly) override;
+  template <specfem::dimension::type DimensionTag>
+  void initialize(specfem::assembly::assembly<DimensionTag> &assembly);
 
   /**
    * @brief Finalize the plotter
@@ -104,8 +104,8 @@ public:
    *
    * @param assembly SPECFFEM++ assembly object
    */
-  void finalize(specfem::assembly::assembly<specfem::dimension::type::dim2>
-                    &assembly) override;
+  template <specfem::dimension::type DimensionTag>
+  void finalize(specfem::assembly::assembly<DimensionTag> &assembly);
 
   const specfem::display::format output_format;  ///< Output format of the plot
   const specfem::wavefield::type wavefield_type; ///< Type of the wavefield

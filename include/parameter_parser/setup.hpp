@@ -258,16 +258,16 @@ public:
     return this->solver->get_simulation_type();
   }
 
-  template <int NGLL>
+  template <int NGLL, specfem::dimension::type DimensionTag>
   std::shared_ptr<specfem::solver::solver> instantiate_solver(
       const type_real dt,
-      const specfem::assembly::assembly<specfem::dimension::type::dim2>
-          &assembly,
+      const specfem::assembly::assembly<DimensionTag> &assembly,
       std::shared_ptr<specfem::time_scheme::time_scheme> time_scheme,
       const std::vector<
           std::shared_ptr<specfem::periodic_tasks::periodic_task> > &tasks)
       const {
-    return this->solver->instantiate<NGLL>(dt, assembly, time_scheme, tasks);
+    return this->solver->instantiate<NGLL, DimensionTag>(dt, assembly,
+                                                         time_scheme, tasks);
   }
 
   int get_nsteps() const { return this->time_scheme->get_nsteps(); }
