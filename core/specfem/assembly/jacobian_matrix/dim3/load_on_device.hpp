@@ -40,4 +40,19 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const PointIndexType &index,
   }
 }
 
+// SIMD version - not supported for 3D jacobian matrix
+template <
+    typename PointIndexType, typename ContainerType, typename PointType,
+    typename std::enable_if_t<
+        specfem::data_access::is_index_type<PointIndexType>::value &&
+            PointIndexType::dimension_tag == specfem::dimension::type::dim3 &&
+            PointIndexType::using_simd && PointType::simd::using_simd &&
+            specfem::data_access::is_jacobian_matrix<ContainerType>::value,
+        int> = 0>
+KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const PointIndexType &index,
+                                                const ContainerType &container,
+                                                PointType &point) {
+  Kokkos::abort("SIMD not supported for 3D jacobian matrix");
+}
+
 } // namespace specfem::assembly

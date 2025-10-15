@@ -41,19 +41,21 @@ namespace medium {
  * @param wavefield_on_entire_grid The wavefield view to store the computed
  * values
  */
-template <specfem::element::medium_tag MediumTag,
+template <specfem::dimension::type DimensionTag,
+          specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, typename ChunkIndexType,
           typename DisplacementFieldType, typename VelocityFieldType,
           typename AccelerationFieldType, typename QuadratureType,
           typename WavefieldViewType>
-KOKKOS_INLINE_FUNCTION auto compute_wavefield(
-    const ChunkIndexType &chunk_index,
-    const specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-    const QuadratureType &quadrature, const DisplacementFieldType &displacement,
-    const VelocityFieldType &velocity,
-    const AccelerationFieldType &acceleration,
-    const specfem::wavefield::type &wavefield_component,
-    WavefieldViewType wavefield_on_entire_grid) {
+KOKKOS_INLINE_FUNCTION auto
+compute_wavefield(const ChunkIndexType &chunk_index,
+                  const specfem::assembly::assembly<DimensionTag> &assembly,
+                  const QuadratureType &quadrature,
+                  const DisplacementFieldType &displacement,
+                  const VelocityFieldType &velocity,
+                  const AccelerationFieldType &acceleration,
+                  const specfem::wavefield::type &wavefield_component,
+                  WavefieldViewType wavefield_on_entire_grid) {
 
   static_assert(QuadratureType::store_hprime_gll,
                 "quadrature type needs to store GLL points");
@@ -67,15 +69,12 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
   static_assert(AccelerationFieldType::medium_tag == MediumTag,
                 "AccelerationFieldType medium tag does not match MediumTag");
 
-  static_assert(DisplacementFieldType::dimension_tag ==
-                    specfem::dimension::type::dim2,
-                "DisplacementFieldType dimension tag must be dim2");
-  static_assert(VelocityFieldType::dimension_tag ==
-                    specfem::dimension::type::dim2,
-                "VelocityFieldType dimension tag must be dim2");
-  static_assert(AccelerationFieldType::dimension_tag ==
-                    specfem::dimension::type::dim2,
-                "AccelerationFieldType dimension tag must be dim2");
+  static_assert(DisplacementFieldType::dimension_tag == DimensionTag,
+                "DisplacementFieldType dimension tag must match DimensionTag");
+  static_assert(VelocityFieldType::dimension_tag == DimensionTag,
+                "VelocityFieldType dimension tag must match DimensionTag");
+  static_assert(AccelerationFieldType::dimension_tag == DimensionTag,
+                "AccelerationFieldType dimension tag must match DimensionTag");
 
   static_assert(
       specfem::data_access::is_chunk_element<DisplacementFieldType>::value &&
@@ -84,8 +83,7 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
       "All field types must be chunk view types");
 
   using dimension_dispatch =
-      std::integral_constant<specfem::dimension::type,
-                             specfem::dimension::type::dim2>;
+      std::integral_constant<specfem::dimension::type, DimensionTag>;
   using medium_dispatch =
       std::integral_constant<specfem::element::medium_tag, MediumTag>;
   using property_dispatch =

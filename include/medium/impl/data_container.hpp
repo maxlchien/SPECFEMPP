@@ -34,6 +34,24 @@
   (_ACCESS_ELEMENT_ON_HOST(elem, BOOST_PP_TUPLE_ELEM(1, data)),                \
    BOOST_PP_SEQ_ELEM(1, elem));
 
+// Helper function to get flat index from mapping for dim2
+template <typename MappingType, typename IndexType>
+KOKKOS_FORCEINLINE_FUNCTION
+    std::enable_if_t<IndexType::dimension_tag == specfem::dimension::type::dim2,
+                     std::size_t>
+    get_flat_index(const MappingType &mapping, const IndexType &index) {
+  return mapping(index.ispec, index.iz, index.ix);
+}
+
+// Helper function to get flat index from mapping for dim3
+template <typename MappingType, typename IndexType>
+KOKKOS_FORCEINLINE_FUNCTION
+    std::enable_if_t<IndexType::dimension_tag == specfem::dimension::type::dim3,
+                     std::size_t>
+    get_flat_index(const MappingType &mapping, const IndexType &index) {
+  return mapping(index.ispec, index.iz, index.iy, index.ix);
+}
+
 #define _DATA_ACCESSOR(seq)                                                    \
   template <typename FunctorType, typename IndexType>                          \
   KOKKOS_INLINE_FUNCTION std::enable_if_t<                                     \
@@ -41,7 +59,7 @@
   for_each_on_device(const IndexType &index, FunctorType f) const {            \
     const auto &mapping =                                                      \
         BOOST_PP_SEQ_ELEM(0, BOOST_PP_SEQ_ELEM(0, seq)).get_mapping();         \
-    const std::size_t _index = mapping(index.ispec, index.iz, index.ix);       \
+    const std::size_t _index = get_flat_index(mapping, index);                 \
     BOOST_PP_SEQ_FOR_EACH(_CALL_FUNCTOR_ON_DEVICE_CONST, (f, _index), seq)     \
   }                                                                            \
   template <typename FunctorType, typename IndexType>                          \
@@ -52,14 +70,14 @@
   for_each_on_device(const IndexType &index, FunctorType f) const {            \
     const auto &mapping =                                                      \
         BOOST_PP_SEQ_ELEM(0, BOOST_PP_SEQ_ELEM(0, seq)).get_mapping();         \
-    const std::size_t _index = mapping(index.ispec, index.iz, index.ix);       \
+    const std::size_t _index = get_flat_index(mapping, index);                 \
     BOOST_PP_SEQ_FOR_EACH(_CALL_FUNCTOR_ON_DEVICE, (f, _index), seq)           \
   }                                                                            \
   template <typename FunctorType, typename IndexType>                          \
   void for_each_on_host(const IndexType &index, FunctorType f) const {         \
     const auto &mapping =                                                      \
         BOOST_PP_SEQ_ELEM(0, BOOST_PP_SEQ_ELEM(0, seq)).get_mapping();         \
-    const std::size_t _index = mapping(index.ispec, index.iz, index.ix);       \
+    const std::size_t _index = get_flat_index(mapping, index);                 \
     BOOST_PP_SEQ_FOR_EACH(_CALL_FUNCTOR_ON_HOST, (f, _index), seq)             \
   }
 
