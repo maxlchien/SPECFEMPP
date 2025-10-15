@@ -15,16 +15,16 @@ namespace specfem::assembly::assembly_impl {
 
 template <specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, int NGLL>
-class helper<specfem::dimension::type::dim2, MediumTag, PropertyTag, NGLL> {
+class helper<specfem::dimension::type::dim3, MediumTag, PropertyTag, NGLL> {
 public:
-  constexpr static auto dimension = specfem::dimension::type::dim2;
+  constexpr static auto dimension = specfem::dimension::type::dim3;
   constexpr static auto medium_tag = MediumTag;
   constexpr static auto property_tag = PropertyTag;
   constexpr static auto ngll = NGLL;
   constexpr static bool using_simd = false;
 
-  helper(specfem::assembly::assembly<specfem::dimension::type::dim2> assembly,
-         Kokkos::View<type_real ****, Kokkos::LayoutLeft,
+  helper(specfem::assembly::assembly<specfem::dimension::type::dim3> assembly,
+         Kokkos::View<type_real *****, Kokkos::LayoutLeft,
                       Kokkos::DefaultExecutionSpace>
              wavefield_on_entire_grid)
       : assembly(assembly), wavefield_on_entire_grid(wavefield_on_entire_grid) {
@@ -37,7 +37,7 @@ public:
   void operator()(const specfem::wavefield::type wavefield_type) {
     const auto buffer = assembly.fields.buffer;
 
-    // Get the element grid (ngllx, ngllz)
+    // Get the element grid (ngllx, nglly, ngllz)
     const auto &element_grid = assembly.mesh.element_grid;
 
     const auto elements =
@@ -50,7 +50,7 @@ public:
     }
 
     using ParallelConfig = specfem::parallel_config::default_chunk_config<
-        specfem::dimension::type::dim2,
+        specfem::dimension::type::dim3,
         specfem::datatype::simd<type_real, false>,
         Kokkos::DefaultExecutionSpace>;
 
@@ -66,15 +66,15 @@ public:
         using_simd>;
 
     using QuadratureType = specfem::element::quadrature<
-        ngll, specfem::dimension::type::dim2, specfem::kokkos::DevScratchSpace,
+        ngll, specfem::dimension::type::dim3, specfem::kokkos::DevScratchSpace,
         Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
 
     using PointPropertyType =
-        specfem::point::properties<specfem::dimension::type::dim2, medium_tag,
+        specfem::point::properties<specfem::dimension::type::dim3, medium_tag,
                                    property_tag, false>;
 
     using PointFieldDerivativesType =
-        specfem::point::field_derivatives<specfem::dimension::type::dim2,
+        specfem::point::field_derivatives<specfem::dimension::type::dim3,
                                           medium_tag, false>;
 
     int scratch_size =
@@ -102,9 +102,9 @@ public:
                                             velocity, acceleration);
           team.team_barrier();
 
-          const auto wavefield =
-              Kokkos::subview(wavefield_on_entire_grid, chunk_index.get_range(),
-                              Kokkos::ALL, Kokkos::ALL, Kokkos::ALL);
+          const auto wavefield = Kokkos::subview(
+              wavefield_on_entire_grid, chunk_index.get_range(), Kokkos::ALL,
+              Kokkos::ALL, Kokkos::ALL, Kokkos::ALL);
 
           specfem::medium::compute_wavefield<MediumTag, PropertyTag>(
               chunk_index, assembly, quadrature, displacement, velocity,
@@ -115,8 +115,8 @@ public:
   }
 
 private:
-  const specfem::assembly::assembly<specfem::dimension::type::dim2> assembly;
-  Kokkos::View<type_real ****, Kokkos::LayoutLeft,
+  const specfem::assembly::assembly<specfem::dimension::type::dim3> assembly;
+  Kokkos::View<type_real *****, Kokkos::LayoutLeft,
                Kokkos::DefaultExecutionSpace>
       wavefield_on_entire_grid;
 };
