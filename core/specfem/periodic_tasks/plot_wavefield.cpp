@@ -59,7 +59,7 @@ specfem::periodic_tasks::plot_wavefield::plot_wavefield(
     : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
       plotter(time_interval), output_format(output_format),
       output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
-      time_interval(time_interval), ngllx(assembly.mesh.element_grid.ngllx),
+      ngllx(assembly.mesh.element_grid.ngllx),
       ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
   std::ostringstream message;
   message
@@ -113,7 +113,7 @@ specfem::periodic_tasks::plot_wavefield::plot_wavefield(
     : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
       plotter(time_interval), output_format(output_format),
       output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
-      time_interval(time_interval), ngllx(assembly.mesh.element_grid.ngllx),
+      ngllx(assembly.mesh.element_grid.ngllx),
       ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {};
 
 // Sigmoid function centered at 0.0

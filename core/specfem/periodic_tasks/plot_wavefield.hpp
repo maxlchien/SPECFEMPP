@@ -94,15 +94,14 @@ public:
       assembly; ///< Assembly object
 
   // Grid parameter members
-  int nspec;
-  int ngllx;
-  int ngllz;
+  int nspec; ///< Number of elements
+  int ngllx; ///< Number of GLL points in x direction per element
+  int ngllz; ///< Number of GLL points in z direction per element
 
   // MPI object
   specfem::MPI::MPI *mpi;
 
-  int time_interval; // Interval between output timesteps
-  type_real dt;      // Time step
+  type_real dt; ///< Time step
 
 #ifndef NO_VTK
 
@@ -122,11 +121,12 @@ public:
   // Separated grid and wavefield functions
   void create_quad_grid();
   void create_biquad_grid();
+  void create_lagrange_quad_grid();
+
   vtkSmartPointer<vtkFloatArray> compute_wavefield_scalars(
       specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
   vtkSmartPointer<vtkDataSetMapper> map_materials_with_color();
-  vtkSmartPointer<vtkUnstructuredGrid> get_wavefield_on_vtk_biquad_grid();
-  vtkSmartPointer<vtkUnstructuredGrid> get_wavefield_on_vtk_quad_grid();
+
   double sigmoid(double x);
 
   // Get wavefield type from display type
