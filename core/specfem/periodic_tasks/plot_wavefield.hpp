@@ -30,6 +30,28 @@ class vtkFloatArray;
 
 #endif // NO_VTK
 
+// Forward declarations of friend functions in global namespace
+#ifndef NO_VTK
+namespace specfem::periodic_tasks {
+class plot_wavefield;
+}
+
+template <specfem::display::format format>
+void initialize(specfem::periodic_tasks::plot_wavefield &plotter,
+                vtkSmartPointer<vtkFloatArray> &scalars);
+
+void initialize_display(specfem::periodic_tasks::plot_wavefield &plotter,
+                        vtkSmartPointer<vtkFloatArray> &scalars);
+
+template <specfem::display::format format>
+void run(specfem::periodic_tasks::plot_wavefield &plotter,
+         vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
+
+void run_render(specfem::periodic_tasks::plot_wavefield &plotter,
+                vtkSmartPointer<vtkFloatArray> &scalars);
+
+#endif // NO_VTK
+
 namespace specfem {
 namespace periodic_tasks {
 /**
@@ -103,6 +125,7 @@ public:
 
   type_real dt; ///< Time step
 
+private:
 #ifndef NO_VTK
 
   // VTK objects that need to persist between calls
@@ -118,6 +141,15 @@ public:
   vtkSmartPointer<vtkLookupTable> lut;
   vtkSmartPointer<vtkNamedColors> colors;
 
+#ifndef NO_HDF5
+  // VTK HDF5 file handling members
+  std::string hdf5_filename; // Store filename for reopening
+  int current_timestep;
+  int numPoints;          // Number of points in grid
+  int numCells;           // Number of cells in grid
+  int numConnectivityIds; // Number of connectivity IDs
+#endif
+
   // Separated grid and wavefield functions
   void create_quad_grid();
   void create_biquad_grid();
@@ -131,14 +163,23 @@ public:
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
 
-#ifndef NO_HDF5
-  // VTK HDF5 file handling members
-  std::string hdf5_filename; // Store filename for reopening
-  int current_timestep;
-  int numPoints;          // Number of points in grid
-  int numCells;           // Number of cells in grid
-  int numConnectivityIds; // Number of connectivity IDs
-#endif
+  // Friend function declarations (these are in global namespace)
+  template <specfem::display::format format>
+  friend void ::initialize(specfem::periodic_tasks::plot_wavefield &plotter,
+                           vtkSmartPointer<vtkFloatArray> &scalars);
+
+  friend void ::initialize_display(
+      specfem::periodic_tasks::plot_wavefield &plotter,
+      vtkSmartPointer<vtkFloatArray> &scalars);
+
+  // Friend functions for running different output formats
+  template <specfem::display::format format>
+  friend void ::run(specfem::periodic_tasks::plot_wavefield &plotter,
+                    vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
+
+  // Friend function for rendering
+  friend void ::run_render(specfem::periodic_tasks::plot_wavefield &plotter,
+                           vtkSmartPointer<vtkFloatArray> &scalars);
 
 #endif // NO_VTK
 };
