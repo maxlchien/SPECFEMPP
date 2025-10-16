@@ -9,7 +9,7 @@
 namespace specfem {
 namespace element {
 /**
- * @brief Struct used to store quadrature values within an element.
+ * @brief Struct used to store lagrange_derivative values within an element.
  *
  * Currently we store the derivatives of the Lagrange polynomials since these
  * are the variables required when computing gradients and divergences in
@@ -22,10 +22,11 @@ namespace element {
  */
 template <int NGLL, specfem::dimension::type DimensionTag, typename MemorySpace,
           typename MemoryTraits>
-struct quadrature : public specfem::data_access::Accessor<
-                        specfem::data_access::AccessorType::element,
-                        specfem::data_access::DataClassType::quadrature,
-                        DimensionTag, false> {
+struct lagrange_derivative
+    : public specfem::data_access::Accessor<
+          specfem::data_access::AccessorType::element,
+          specfem::data_access::DataClassType::lagrange_derivative,
+          DimensionTag, false> {
   /**
    * @name Typedefs
    *
@@ -33,13 +34,11 @@ struct quadrature : public specfem::data_access::Accessor<
   ///@{
 
   /**
-   * @brief Underlying view type used to store quadrature values.
+   * @brief Underlying view type used to store lagrange_derivative values.
    *
    */
-  using ViewType =
-      specfem::datatype::ScalarElementViewType<type_real,
-                                               specfem::dimension::type::dim2,
-                                               NGLL, MemorySpace, MemoryTraits>;
+  using ViewType = Kokkos::View<type_real[NumberOfGLLPoints][NumberOfGLLPoints],
+                                Kokkos::LayoutRight, MemorySpace, MemoryTraits>;
   ViewType hprime_gll; ///< Derivatives of lagrange polynomials \f$l'\f$ at GLL
                        ///< points.
   constexpr static auto dimension_tag =
@@ -57,23 +56,25 @@ struct quadrature : public specfem::data_access::Accessor<
    * @brief Default constructor
    *
    */
-  KOKKOS_FUNCTION quadrature() = default;
+  KOKKOS_FUNCTION lagrange_derivative() = default;
 
   /**
-   * @brief Constructor that initializes the quadrature with a view.
+   * @brief Constructor that initializes the lagrange_derivative with a view.
    *
-   * @param view View to initialize the quadrature with.
+   * @param view View to initialize the lagrange_derivative with.
    */
-  KOKKOS_FUNCTION quadrature(const ViewType &view) : hprime_gll(view) {}
+  KOKKOS_FUNCTION lagrange_derivative(const ViewType &view)
+      : hprime_gll(view) {}
 
   /**
-   * @brief Constructor that initializes the quadrature within Scratch Memory.
+   * @brief Constructor that initializes the lagrange_derivative within Scratch
+   * Memory.
    *
    * @tparam MemberType Type of the Kokkos team member.
    * @param team Kokkos team member.
    */
   template <typename MemberType>
-  KOKKOS_FUNCTION quadrature(const MemberType &team)
+  KOKKOS_FUNCTION lagrange_derivative(const MemberType &team)
       : hprime_gll(team.team_scratch(0)) {
     static_assert(
         Kokkos::SpaceAccessibility<typename MemberType::execution_space,
