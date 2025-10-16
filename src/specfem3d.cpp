@@ -151,6 +151,22 @@ void execute(
       setup.instantiate_solver<5>(dt, assembly, time_scheme, tasks);
   // --------------------------------------------------------------
 
+  // --------------------------------------------------------------
+  //                   Execute Solver
+  // --------------------------------------------------------------
+  // Time the solver
+  mpi->cout("Executing time loop:");
+  mpi->cout("-------------------------------");
+
+  const auto solver_start_time = std::chrono::system_clock::now();
+  solver->run();
+  const auto solver_end_time = std::chrono::system_clock::now();
+
+  std::chrono::duration<double> solver_time =
+      solver_end_time - solver_start_time;
+
+  mpi->cout("Solver time: " + std::to_string(solver_time.count()) + " seconds");
+  // --------------------------------------------------------------
   return;
 }
 
