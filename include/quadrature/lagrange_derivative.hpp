@@ -88,6 +88,39 @@ struct lagrange_derivative
    * @return int Amount of shared memory in bytes
    */
   constexpr static int shmem_size() { return ViewType::shmem_size(); }
+
+  /**
+   * @brief Access the derivative of the Lagrange polynomial at GLL points
+   *
+   * @param l Index of the Lagrange polynomial
+   * @param ix Index of the GLL point
+   * @return Reference to the derivative value
+   */
+  KOKKOS_INLINE_FUNCTION constexpr auto &xi()(const int l, const int ix) {
+    return hprime_gll(l, ix);
+  }
+
+  /**
+   * @brief Access the derivative of the Lagrange polynomial at GLL points
+   *
+   * @param l Index of the Lagrange polynomial
+   * @param iy Index of the GLL point
+   * @return Reference to the derivative value
+   */
+  KOKKOS_INLINE_FUNCTION constexpr auto &eta()(const int l, const int iy) {
+    return hprime_gll(l, iy);
+  }
+
+  /**
+   * @brief Access the derivative of the Lagrange polynomial at GLL points
+   *
+   * @param l Index of the Lagrange polynomial
+   * @param iz Index of the GLL point
+   * @return Reference to the derivative value
+   */
+  KOKKOS_INLINE_FUNCTION constexpr auto &gamma()(const int l, const int iz) {
+    return hprime_gll(l, iz);
+  }
 };
 
 } // namespace element

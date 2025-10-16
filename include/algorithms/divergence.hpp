@@ -18,7 +18,8 @@ template <typename TensorFieldType, typename WeightsType,
 KOKKOS_FORCEINLINE_FUNCTION auto
 element_divergence(const TensorFieldType &f,
                    const typename TensorFieldType::index_type &local_index,
-                   const WeightsType &weights, const QuadratureType &hprime) {
+                   const WeightsType &weights,
+                   const QuadratureType &lagrange_derivative) {
   using datatype = typename TensorFieldType::simd::datatype;
 
   using VectorPointViewType = specfem::datatype::VectorPointViewType<
@@ -35,12 +36,12 @@ element_divergence(const TensorFieldType &f,
   /// We omit the divergence here since we multiplied it when computing F.
   for (int l = 0; l < ngll; ++l) {
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp1l[icomp] +=
-          f(ielement, iz, l, icomp, 0) * hprime(l, ix) * weights(l);
+      temp1l[icomp] += f(ielement, iz, l, icomp, 0) *
+                       lagrange_derivative.xi(l, ix) * weights(l);
     }
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp2l[icomp] +=
-          f(ielement, l, ix, icomp, 1) * hprime(l, iz) * weights(l);
+      temp2l[icomp] += f(ielement, l, ix, icomp, 1) *
+                       lagrange_derivative.gamma(l, iz) * weights(l);
     }
   }
   VectorPointViewType result;
@@ -59,7 +60,7 @@ KOKKOS_FORCEINLINE_FUNCTION auto
 element_divergence(const TensorFieldType &f,
                    const typename TensorFieldType::index_type &index,
                    const int &ielement, const WeightsType &weights,
-                   const QuadratureType &hprime) {
+                   const QuadratureType &lagrange_derivative) {
   using datatype = typename TensorFieldType::simd::datatype;
 
   using VectorPointViewType = specfem::datatype::VectorPointViewType<
@@ -77,16 +78,16 @@ element_divergence(const TensorFieldType &f,
   /// We omit the divergence here since we multiplied it when computing F.
   for (int l = 0; l < ngll; ++l) {
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp1l[icomp] +=
-          f(ielement, iz, iy, l, icomp, 0) * hprime(l, ix) * weights(l);
+      temp1l[icomp] += f(ielement, iz, iy, l, icomp, 0) *
+                       lagrange_derivative.xi(l, ix) * weights(l);
     }
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp2l[icomp] +=
-          f(ielement, iz, l, ix, icomp, 1) * hprime(l, iy) * weights(l);
+      temp2l[icomp] += f(ielement, iz, l, ix, icomp, 1) *
+                       lagrange_derivative.eta(l, iy) * weights(l);
     }
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp3l[icomp] +=
-          f(ielement, l, iy, ix, icomp, 2) * hprime(l, iz) * weights(l);
+      temp3l[icomp] += f(ielement, l, iy, ix, icomp, 2) *
+                       lagrange_derivative.gamma(l, iz) * weights(l);
     }
   }
   VectorPointViewType result;
