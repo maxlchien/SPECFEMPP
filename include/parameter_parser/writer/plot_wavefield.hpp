@@ -55,13 +55,14 @@ public:
   instantiate_wavefield_plotter(
       const specfem::assembly::assembly<specfem::dimension::type::dim2>
           &assembly,
-      specfem::MPI::MPI *mpi) const;
+      const type_real &dt, specfem::MPI::MPI *mpi) const;
 
 private:
   std::string output_format;  ///< format of output file
   std::string output_folder;  ///< Path to output folder
   std::string component;      ///< Component of the wavefield to plot
   std::string wavefield_type; ///< Type of wavefield to plot
+  type_real dt;               ///< Time step
   int time_interval;          ///< Time interval for plotting
 };
 } // namespace runtime_configuration
