@@ -167,6 +167,9 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
 
         if (const YAML::Node &n_plotter = n_writer["display"]) {
 
+          std::cout << "[DEBUG] Display section found in YAML config"
+                    << std::endl;
+
 #ifdef NO_VTK
           std::ostringstream message;
           message
@@ -190,10 +193,15 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
           }
 
           at_least_one_writer = true;
+          std::cout << "[DEBUG] Creating plot_wavefield object" << std::endl;
           this->plot_wavefield =
               std::make_unique<specfem::runtime_configuration::plot_wavefield>(
                   n_plotter);
+          std::cout << "[DEBUG] plot_wavefield object created successfully"
+                    << std::endl;
         } else {
+          std::cout << "[DEBUG] No display section found in YAML config"
+                    << std::endl;
           this->plot_wavefield = nullptr;
         }
 

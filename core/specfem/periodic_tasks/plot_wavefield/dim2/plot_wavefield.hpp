@@ -2,10 +2,12 @@
 
 #include "enumerations/display.hpp"
 #include "enumerations/wavefield.hpp"
-#include "plotter.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/periodic_tasks/plot_wavefield.hpp"
+#include "specfem/periodic_tasks/plotter.hpp"
 #include "specfem_mpi/interface.hpp"
 #include <boost/filesystem.hpp>
+
 #ifdef NO_VTK
 #include <sstream>
 
@@ -35,7 +37,9 @@ namespace periodic_tasks {
 /**
  * @brief Writer to plot the wavefield
  */
-class plot_wavefield : public plotter {
+template <>
+class plot_wavefield<specfem::dimension::type::dim2>
+    : public plotter<specfem::dimension::type::dim2> {
 public:
   /**
    * @brief Construct a new plotter object
@@ -61,9 +65,9 @@ public:
    * @brief Updates the wavefield within open window
    *
    */
-  template <specfem::dimension::type DimensionTag>
-  void run(specfem::assembly::assembly<DimensionTag> &assembly,
-           const int istep);
+  void
+  run(specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+      const int istep) override;
 
   /**
    * @brief Wavefield plotter
@@ -72,8 +76,8 @@ public:
    *
    * @param assembly SPECFFEM++ assembly object
    */
-  template <specfem::dimension::type DimensionTag>
-  void initialize(specfem::assembly::assembly<DimensionTag> &assembly);
+  void initialize(specfem::assembly::assembly<specfem::dimension::type::dim2>
+                      &assembly) override;
 
   /**
    * @brief Finalize the plotter
@@ -82,8 +86,8 @@ public:
    *
    * @param assembly SPECFFEM++ assembly object
    */
-  template <specfem::dimension::type DimensionTag>
-  void finalize(specfem::assembly::assembly<DimensionTag> &assembly);
+  void finalize(specfem::assembly::assembly<specfem::dimension::type::dim2>
+                    &assembly) override;
 
   const specfem::display::format output_format;  ///< Output format of the plot
   const specfem::wavefield::type wavefield_type; ///< Type of the wavefield

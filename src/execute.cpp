@@ -23,10 +23,11 @@ print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
   return message.str();
 }
 
-void execute(
-    const YAML::Node &parameter_dict, const YAML::Node &default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
-    specfem::MPI::MPI *mpi) {
+void execute(const YAML::Node &parameter_dict, const YAML::Node &default_dict,
+             std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
+                 specfem::dimension::type::dim2> > >
+                 tasks,
+             specfem::MPI::MPI *mpi) {
 
   // --------------------------------------------------------------
   //                    Read parameter file
@@ -128,7 +129,8 @@ void execute(
   // --------------------------------------------------------------
   //                   Read wavefields
   // --------------------------------------------------------------
-  const auto wavefield_reader = setup.instantiate_wavefield_reader();
+  const auto wavefield_reader =
+      setup.instantiate_wavefield_reader<specfem::dimension::type::dim2>();
   // if (wavefield_reader) {
   //   mpi->cout("Reading wavefield files:");
   //   mpi->cout("-------------------------------");
@@ -145,7 +147,8 @@ void execute(
   // --------------------------------------------------------------
   //                  Write Forward Wavefields
   // --------------------------------------------------------------
-  const auto wavefield_writer = setup.instantiate_wavefield_writer();
+  const auto wavefield_writer =
+      setup.instantiate_wavefield_writer<specfem::dimension::type::dim2>();
   if (wavefield_writer) {
     tasks.push_back(wavefield_writer);
   }
