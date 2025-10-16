@@ -23,7 +23,7 @@ void specfem::kokkos_kernels::impl::invert_mass_matrix(
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
   constexpr bool using_simd = false;
 #else
-  constexpr bool using_simd = true;
+  constexpr bool using_simd = (DimensionTag == specfem::dimension::type::dim2) ? true : false;
 #endif
 
   using PointMassType =
