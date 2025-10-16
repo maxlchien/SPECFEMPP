@@ -23,11 +23,11 @@ template <specfem::dimension::type DimensionTag,
 void specfem::kokkos_kernels::impl::compute_seismograms(
     specfem::assembly::assembly<DimensionTag> &assembly, const int &isig_step) {
 
+  constexpr auto dimension_tag = DimensionTag;
   constexpr auto medium_tag = MediumTag;
   constexpr auto property_tag = PropertyTag;
   constexpr auto wavefield_simulation_field = SimulationFieldType;
   constexpr int ngll = NGLL;
-  constexpr auto dimension = DimensionTag;
 
   const auto [elements, receiver_indices] =
       assembly.receivers.get_indices_on_device(medium_tag, property_tag);
@@ -72,30 +72,40 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
 #endif
 
   using ParallelConfig =
-      specfem::parallel_config::chunk_config<dimension, 1, 1, nthreads,
+      specfem::parallel_config::chunk_config<dimension_tag, 1, 1, nthreads,
                                              lane_size, no_simd,
                                              Kokkos::DefaultExecutionSpace>;
 
   using ChunkDisplacementType =
       specfem::chunk_element::displacement<parallel_config::chunk_size, ngll,
-                                           dimension, medium_tag, using_simd>;
+                                           dimension_tag, medium_tag, using_simd>;
   using ChunkVelocityType =
       specfem::chunk_element::velocity<parallel_config::chunk_size, ngll,
-                                       dimension, medium_tag, using_simd>;
+                                       dimension_tag, medium_tag, using_simd>;
   using ChunkAccelerationType =
       specfem::chunk_element::acceleration<parallel_config::chunk_size, ngll,
-                                           dimension, medium_tag, using_simd>;
+                                           dimension_tag, medium_tag, using_simd>;
   using ElementQuadratureType = specfem::element::quadrature<
-      ngll, dimension, specfem::kokkos::DevScratchSpace,
+      ngll, dimension_tag, specfem::kokkos::DevScratchSpace,
       Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
-  using ViewType = Kokkos::View<type_real[ParallelConfig::chunk_size][ngll][ngll][2],
-                               Kokkos::LayoutLeft,
-                               specfem::kokkos::DevScratchSpace,
-                               Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
-  using ResultsViewType =
+
+  using ViewType = std::conditional_t<
+      dimension_tag == specfem::dimension::type::dim2,
+      Kokkos::View<type_real[ParallelConfig::chunk_size][ngll][ngll][2],
+                   Kokkos::LayoutLeft, specfem::kokkos::DevScratchSpace,
+                   Kokkos::MemoryTraits<Kokkos::Unmanaged>>,
+      Kokkos::View<type_real[ParallelConfig::chunk_size][ngll][ngll][ngll][3],
+                   Kokkos::LayoutLeft, specfem::kokkos::DevScratchSpace,
+                   Kokkos::MemoryTraits<Kokkos::Unmanaged>>>;
+
+  using ResultsViewType = std::conditional_t<
+      dimension_tag == specfem::dimension::type::dim2,
       Kokkos::View<type_real[ParallelConfig::chunk_size][2], Kokkos::LayoutLeft,
                    specfem::kokkos::DevScratchSpace,
-                   Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+                   Kokkos::MemoryTraits<Kokkos::Unmanaged>>,
+      Kokkos::View<type_real[ParallelConfig::chunk_size][3], Kokkos::LayoutLeft,
+                   specfem::kokkos::DevScratchSpace,
+                   Kokkos::MemoryTraits<Kokkos::Unmanaged>>>;
 
   int scratch_size = ChunkDisplacementType::shmem_size() +
                      ChunkVelocityType::shmem_size() +
@@ -135,7 +145,7 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
                                             velocity, acceleration);
           team.team_barrier();
 
-          specfem::medium::compute_wavefield<medium_tag, property_tag>(
+          specfem::medium::compute_wavefield<dimension_tag, medium_tag, property_tag>(
               chunk_index, assembly, element_quadrature, displacement, velocity,
               acceleration, wavefield_type, wavefield);
 

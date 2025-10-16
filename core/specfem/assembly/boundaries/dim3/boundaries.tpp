@@ -29,11 +29,13 @@ specfem::assembly::boundaries<specfem::dimension::type::dim3>::boundaries(
       specfem::assembly::boundaries_impl::acoustic_free_surface<dimension_tag>(
           nspec, ngllz, nglly, ngllx, mesh.boundaries.acoustic_free_surface,
           mesh_assembly, this->h_acoustic_free_surface_index_mapping,
-          boundary_tag);
+          boundary_tag, mesh.tags);
 
-  this->stacey = specfem::assembly::boundaries_impl::stacey<dimension_tag>(
-      nspec, ngllz, nglly, ngllx, mesh.boundaries.absorbing_boundary, mesh_assembly,
-      jacobian_matrix, this->h_stacey_index_mapping, boundary_tag);
+  if (mesh.parameters.stacey_abc) {
+    this->stacey = specfem::assembly::boundaries_impl::stacey<dimension_tag>(
+        nspec, ngllz, nglly, ngllx, mesh.boundaries.absorbing_boundary, mesh_assembly,
+        jacobian_matrix, this->h_stacey_index_mapping, boundary_tag);
+  }
 
   for (int ispec = 0; ispec < nspec; ispec++) {
     this->h_boundary_tags(ispec) = boundary_tag[ispec].get_tag();
@@ -41,10 +43,14 @@ specfem::assembly::boundaries<specfem::dimension::type::dim3>::boundaries(
 
   // Check if mesh and compute boundary tags match
   for (int ispec = 0; ispec < nspec; ++ispec) {
-    const int ispec_compute = mesh_assembly.mesh_to_compute(ispec);
+    // In dim3, mesh and compute indices are the same (no reordering)
+    const int ispec_compute = ispec;
     const auto m_boundary_tag = mesh.tags.tags_container(ispec).boundary_tag;
     const auto c_boundary_tag = this->h_boundary_tags(ispec_compute);
     if (m_boundary_tag != c_boundary_tag) {
+      std::cout << "ispec: " << ispec << std::endl;
+      std::cout << "m_boundary_tag: " << specfem::element::to_string(m_boundary_tag) << std::endl;
+      std::cout << "c_boundary_tag: " << specfem::element::to_string(c_boundary_tag) << std::endl;
       throw std::runtime_error("Mesh and compute boundary tags do not match");
     }
   }

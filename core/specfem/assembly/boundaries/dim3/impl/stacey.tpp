@@ -21,34 +21,41 @@ specfem::assembly::boundaries_impl::stacey<specfem::dimension::type::dim3>::
            std::vector<specfem::element::boundary_tag_container>
                &element_boundary_tags) {
 
-  // We need to make sure that boundary index mapping maps every spectral
-  // element index to the corresponding index within
-  // quadrature_point_boundary_tag
+  // For 3D, the mesh structure already contains all boundary information:
+  // - ispec(i): spectral element index for each face
+  // - ijk(i, dim, gll_point): GLL point indices for each face
+  // - normal(i, dim, gll_point): pre-computed normal vectors
+  // - jacobian2Dw(i, gll_point): pre-computed 2D jacobian with weight
 
-  // mesh.absorbing_boundary.ispec_absorbing_boundary stores the ispec for
-  // every Stacey surface. At the corners of the mesh, multiple surfaces
-  // belong to the same ispec. The first part of the code assigns a unique index
-  // to each ispec.
-
-  // For SIMD loads we need to ensure that there is a contiguous mapping within
-  // ispec and index of boundary_index_mapping i.e. boundary_index_mapping(ispec
-  // +1) - boundary_index_mapping(ispec) = 1
+  // We just need to create a mapping from ispec to boundary index
+  // and use the pre-computed boundary data
 
   // -------------------------------------------------------------------
 
   // Create a map from ispec to index in stacey
 
-  const int nelements = stacey.nelements;
+  const int nelements = stacey.num_abs_boundary_faces;
+
+  // Initialize all index mappings to -1
+  for (int ispec = 0; ispec < nspec; ++ispec) {
+    boundary_index_mapping(ispec) = -1;
+  }
+
+  // Early return if no absorbing boundaries (ABC is disabled)
+  // Even if the mesh file contains boundary data, we should skip processing
+  // if num_abs_boundary_faces is 0 or if elastic/acoustic flags are both false
+  if (nelements == 0 || (!stacey.elastic && !stacey.acoustic)) {
+    return;
+  }
 
   std::map<int, std::vector<int> > ispec_to_stacey;
 
   for (int i = 0; i < nelements; ++i) {
-    const int ispec_mesh = stacey.index_mapping(i);
-    const int ispec_compute = mesh.mesh_to_compute(ispec_mesh);
-    if (ispec_to_stacey.find(ispec_compute) == ispec_to_stacey.end()) {
-      ispec_to_stacey[ispec_compute] = { i };
+    const int ispec = stacey.ispec(i);
+    if (ispec_to_stacey.find(ispec) == ispec_to_stacey.end()) {
+      ispec_to_stacey[ispec] = { i };
     } else {
-      ispec_to_stacey[ispec_compute].push_back(i);
+      ispec_to_stacey[ispec].push_back(i);
     }
   }
 
@@ -57,11 +64,6 @@ specfem::assembly::boundaries_impl::stacey<specfem::dimension::type::dim3>::
   // -------------------------------------------------------------------
 
   // Assign boundary index mapping
-
-  // Initialize all index mappings to -1
-  for (int ispec = 0; ispec < nspec; ++ispec) {
-    boundary_index_mapping(ispec) = -1;
-  }
 
   // Assign boundary index mapping
   int total_indices = 0;
@@ -127,46 +129,33 @@ specfem::assembly::boundaries_impl::stacey<specfem::dimension::type::dim3>::
   // -------------------------------------------------------------------
 
   // Assign boundary values
+  // For 3D, we use the pre-computed normal and jacobian2Dw from the mesh
 
   for (auto &map : ispec_to_stacey) {
-    const int ispec_compute = map.first;
+    const int ispec = map.first;
     const auto &indices = map.second;
-    const int local_index = boundary_index_mapping(ispec_compute);
+    const int local_index = boundary_index_mapping(ispec);
 
-    element_boundary_tags[ispec_compute] +=
+    element_boundary_tags[ispec] +=
         specfem::element::boundary_tag::stacey;
 
+    // For each face on this element
     for (int i : indices) {
-      for (int iz = 0; iz < ngllz; ++iz) {
-        for (int iy = 0; iy < nglly; ++iy) {
-          for (int ix = 0; ix < ngllx; ++ix) {
-            if (is_on_boundary(
-                    stacey.type(i), iz, ix, iy, ngllz, ngllx, nglly)) {
-              this->h_quadrature_point_boundary_tag(local_index, iz, iy, ix) +=
-                  specfem::element::boundary_tag::stacey;
+      // The ijk array contains the i,j,k indices for each GLL point on the face
+      // ijk(i, 0:2, igll) gives the i,j,k indices for GLL point igll on face i
+      for (int igll = 0; igll < stacey.ngllsquare; ++igll) {
+        const int ix = stacey.ijk(i, 0, igll);
+        const int iy = stacey.ijk(i, 1, igll);
+        const int iz = stacey.ijk(i, 2, igll);
 
-              // Compute face normal and face weight
-              std::array<type_real, 3> weights = { mesh.h_weights(ix),
-                                                   mesh.h_weights(iy),
-                                                   mesh.h_weights(iz) };
-              specfem::point::index<dimension_tag> index(ispec_compute, iz, ix, iy);
-              specfem::point::jacobian_matrix<dimension_tag, true, false>
-                  point_jacobian_matrix;
-              specfem::assembly::load_on_host(index, jacobian_matrix,
-                                              point_jacobian_matrix);
+        this->h_quadrature_point_boundary_tag(local_index, iz, iy, ix) +=
+            specfem::element::boundary_tag::stacey;
 
-              auto [face_normal, face_weight] = get_boundary_face_and_weight(
-                      stacey.type(i), weights, point_jacobian_matrix);
-
-              // ------------------- Assign face normal and face weight
-
-              this->h_face_weight(local_index, iz, iy, ix) = face_weight;
-              this->h_face_normal(local_index, iz, iy, ix, 0) = face_normal[0];
-              this->h_face_normal(local_index, iz, iy, ix, 1) = face_normal[1];
-              this->h_face_normal(local_index, iz, iy, ix, 2) = face_normal[2];
-            }
-          }
-        }
+        // Use pre-computed normal and jacobian from mesh
+        this->h_face_weight(local_index, iz, iy, ix) = stacey.jacobian2Dw(i, igll);
+        this->h_face_normal(local_index, iz, iy, ix, 0) = stacey.normal(i, 0, igll);
+        this->h_face_normal(local_index, iz, iy, ix, 1) = stacey.normal(i, 1, igll);
+        this->h_face_normal(local_index, iz, iy, ix, 2) = stacey.normal(i, 2, igll);
       }
     }
   }

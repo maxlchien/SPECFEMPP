@@ -106,7 +106,7 @@ public:
               Kokkos::subview(wavefield_on_entire_grid, chunk_index.get_range(),
                               Kokkos::ALL, Kokkos::ALL, Kokkos::ALL);
 
-          specfem::medium::compute_wavefield<MediumTag, PropertyTag>(
+          specfem::medium::compute_wavefield<dimension, MediumTag, PropertyTag>(
               chunk_index, assembly, quadrature, displacement, velocity,
               acceleration, wavefield_type, wavefield);
         });

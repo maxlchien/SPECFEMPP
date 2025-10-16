@@ -43,7 +43,8 @@ public:
           &acoustic_free_surface,
       const specfem::assembly::mesh<dimension_tag> &mesh,
       const Kokkos::View<int *, Kokkos::HostSpace> &boundary_index_mapping,
-      std::vector<specfem::element::boundary_tag_container> &boundary_tag);
+      std::vector<specfem::element::boundary_tag_container> &boundary_tag,
+      const specfem::mesh::tags<dimension_tag> &mesh_tags);
 
   template <typename IndexType,
             typename std::enable_if_t<

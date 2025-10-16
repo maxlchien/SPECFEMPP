@@ -59,8 +59,12 @@ compute_wavefield(const ChunkIndexType &chunk_index,
 
   static_assert(QuadratureType::store_hprime_gll,
                 "quadrature type needs to store GLL points");
-  static_assert(WavefieldViewType::rank() == 4,
-                "wavefield_on_entire_grid needs to be a 4D view");
+  static_assert((WavefieldViewType::rank() == 4 &&
+                 DimensionTag == specfem::dimension::type::dim2) ||
+                    (WavefieldViewType::rank() == 5 &&
+                     DimensionTag == specfem::dimension::type::dim3),
+                "wavefield_on_entire_grid needs to be a 4D for 2D view and 5D "
+                "for 3D view");
 
   static_assert(DisplacementFieldType::medium_tag == MediumTag,
                 "DisplacementFieldType medium tag does not match MediumTag");

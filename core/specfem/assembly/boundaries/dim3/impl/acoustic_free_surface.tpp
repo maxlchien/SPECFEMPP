@@ -16,47 +16,47 @@ specfem::assembly::boundaries_impl::acoustic_free_surface<specfem::dimension::ty
         const specfem::assembly::mesh<dimension_tag> &mesh,
         const Kokkos::View<int *, Kokkos::HostSpace> &boundary_index_mapping,
         std::vector<specfem::element::boundary_tag_container>
-            &element_boundary_tags) {
+            &element_boundary_tags,
+        const specfem::mesh::tags<dimension_tag> &mesh_tags) {
 
-  // We need to make sure that boundary index mapping maps every spectral
-  // element index to the corresponding index within
-  // quadrature_point_boundary_tag
+  // For 3D, the mesh structure already contains all boundary information:
+  // - ispec(i): spectral element index for each face
+  // - ijk(i, dim, gll_point): GLL point indices for each face
+  // - normal(i, dim, gll_point): pre-computed normal vectors
+  // - jacobian2Dw(i, gll_point): pre-computed 2D jacobian with weight
 
-  // mesh.acoustic_free_surface.ispec_acoustic_surface stores the ispec for
-  // every acoustic free surface. At the corners of the mesh, multiple surfaces
-  // belong to the same ispec. The first part of the code assigns a unique index
-  // to each ispec.
-
-  // For SIMD loads we need to ensure that there is a contiguous mapping within
-  // ispec and index of boundary_index_mapping i.e. boundary_index_mapping(ispec
-  // +1) - boundary_index_mapping(ispec) = 1
+  // We just need to create a mapping from ispec to boundary index
+  // and mark which quadrature points are on the boundary
 
   // -------------------------------------------------------------------
 
   // Create a map from ispec to index in acoustic_free_surface
 
-  const int nelements = acoustic_free_surface.nelem_acoustic_surface;
-  std::map<int, std::vector<int> > ispec_to_acoustic_surface;
-
-  for (int i = 0; i < nelements; ++i) {
-    const int ispec_mesh = acoustic_free_surface.index_mapping(i);
-    const int ispec_compute = mesh.mesh_to_compute(ispec_mesh);
-    if (ispec_to_acoustic_surface.find(ispec_compute) ==
-        ispec_to_acoustic_surface.end()) {
-      ispec_to_acoustic_surface[ispec_compute] = { i };
-    } else {
-      ispec_to_acoustic_surface[ispec_compute].push_back(i);
-    }
-  }
-
-  const int total_acfree_surface_elements = ispec_to_acoustic_surface.size();
-
-  // -------------------------------------------------------------------
+  const int nelements = acoustic_free_surface.nelements;
 
   // Initialize all index mappings to -1
   for (int ispec = 0; ispec < nspec; ++ispec) {
     boundary_index_mapping(ispec) = -1;
   }
+
+  // Early return if no free surface faces
+  if (nelements == 0) {
+    return;
+  }
+
+  std::map<int, std::vector<int> > ispec_to_acoustic_surface;
+
+  for (int i = 0; i < nelements; ++i) {
+    const int ispec = acoustic_free_surface.ispec(i);
+    if (ispec_to_acoustic_surface.find(ispec) ==
+        ispec_to_acoustic_surface.end()) {
+      ispec_to_acoustic_surface[ispec] = { i };
+    } else {
+      ispec_to_acoustic_surface[ispec].push_back(i);
+    }
+  }
+
+  const int total_acfree_surface_elements = ispec_to_acoustic_surface.size();
 
   // -------------------------------------------------------------------
 
@@ -100,27 +100,32 @@ specfem::assembly::boundaries_impl::acoustic_free_surface<specfem::dimension::ty
       Kokkos::create_mirror_view(quadrature_point_boundary_tag);
 
   // Assign boundary tags
+  // For 3D, we use the ijk array to determine which GLL points are on the boundary
 
   for (auto &map : ispec_to_acoustic_surface) {
     const int ispec = map.first;
     const auto &indices = map.second;
-    for (auto &index : indices) {
-      const auto type = acoustic_free_surface.type(index);
-      const int index_compute = boundary_index_mapping(ispec);
+    const int index_compute = boundary_index_mapping(ispec);
+
+    // Only add the acoustic_free_surface tag if the element is actually acoustic
+    // Elastic elements at the free surface do not require special treatment
+    const auto medium_tag = mesh_tags.tags_container(ispec).medium_tag;
+    if (medium_tag == specfem::element::medium_tag::acoustic) {
       element_boundary_tags[ispec] +=
           specfem::element::boundary_tag::acoustic_free_surface;
+    }
 
-      // Assign boundary tag to each quadrature point
-      for (int iz = 0; iz < ngllz; ++iz) {
-        for (int iy = 0; iy < nglly; ++iy) {
-          for (int ix = 0; ix < ngllx; ++ix) {
-            if (is_on_boundary(
-                    type, iz, ix, iy, ngllz, ngllx, nglly)) {
-              this->h_quadrature_point_boundary_tag(index_compute, iz, iy, ix) +=
-                  specfem::element::boundary_tag::acoustic_free_surface;
-            }
-          }
-        }
+    // For each face on this element
+    for (auto &index : indices) {
+      // The ijk array contains the i,j,k indices for each GLL point on the face
+      // ijk(index, 0:2, igll) gives the i,j,k indices for GLL point igll on face index
+      for (int igll = 0; igll < acoustic_free_surface.ngllsquare; ++igll) {
+        const int ix = acoustic_free_surface.ijk(index, 0, igll);
+        const int iy = acoustic_free_surface.ijk(index, 1, igll);
+        const int iz = acoustic_free_surface.ijk(index, 2, igll);
+
+        this->h_quadrature_point_boundary_tag(index_compute, iz, iy, ix) +=
+            specfem::element::boundary_tag::acoustic_free_surface;
       }
     }
   }
