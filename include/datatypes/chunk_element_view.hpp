@@ -32,14 +32,14 @@ template <typename T, specfem::dimension::type DimensionTag,
           typename MemorySpace =
               Kokkos::DefaultExecutionSpace::scratch_memory_space,
           typename MemoryTraits = Kokkos::MemoryTraits<Kokkos::Unmanaged> >
-struct ScalarChunkViewType;
+struct ScalarChunkElementViewType;
 
 /* 2D specialization */
 template <typename T, int NumberOfElements, int NumberOfGLLPoints, bool UseSIMD,
           typename MemorySpace, typename MemoryTraits>
-struct ScalarChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
-                           NumberOfGLLPoints, UseSIMD, MemorySpace,
-                           MemoryTraits>
+struct ScalarChunkElementViewType<T, specfem::dimension::type::dim2,
+                                  NumberOfElements, NumberOfGLLPoints, UseSIMD,
+                                  MemorySpace, MemoryTraits>
     : public Kokkos::View<
           typename specfem::datatype::simd<T, UseSIMD>::datatype
               [NumberOfElements][NumberOfGLLPoints][NumberOfGLLPoints],
@@ -95,10 +95,10 @@ struct ScalarChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
    * @brief Default constructor
    */
   KOKKOS_FUNCTION
-  ScalarChunkViewType() = default;
+  ScalarChunkElementViewType() = default;
 
   /**
-   * @brief Construct a new ScalarChunkViewType object within
+   * @brief Construct a new ScalarChunkElementViewType object within
    * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
@@ -108,7 +108,7 @@ struct ScalarChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
    */
   template <typename ScratchMemorySpace>
   KOKKOS_FUNCTION
-  ScalarChunkViewType(const ScratchMemorySpace &scratch_memory_space)
+  ScalarChunkElementViewType(const ScratchMemorySpace &scratch_memory_space)
       : Kokkos::View<
             value_type[NumberOfElements][NumberOfGLLPoints][NumberOfGLLPoints],
             MemorySpace, MemoryTraits>(scratch_memory_space) {}
@@ -130,7 +130,7 @@ struct ScalarChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
 /* 3D specialization */
 template <typename T, int NumberOfElements, int NumberOfGLLPoints, bool UseSIMD,
           typename MemorySpace, typename MemoryTraits>
-struct ScalarChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
+struct ScalarChunkElementViewType<T, specfem::dimension::type::dim3, NumberOfElements,
                            NumberOfGLLPoints, UseSIMD, MemorySpace,
                            MemoryTraits>
     : public Kokkos::View<typename specfem::datatype::simd<T, UseSIMD>::datatype
@@ -152,7 +152,7 @@ struct ScalarChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
                                                 ///< the elements of the array
   using base_type = T;                          ///< Base type of the array
   constexpr static auto dimension_tag =
-      specfem::dimension::type::dim2; ///< Dimension tag
+      specfem::dimension::type::dim3; ///< Dimension tag
   using index_type =
       typename specfem::point::index<dimension_tag,
                                      UseSIMD>; ///< index type for accessing at
@@ -188,10 +188,10 @@ struct ScalarChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
    * @brief Default constructor
    */
   KOKKOS_FUNCTION
-  ScalarChunkViewType() = default;
+  ScalarChunkElementViewType() = default;
 
   /**
-   * @brief Construct a new ScalarChunkViewType object within
+   * @brief Construct a new ScalarChunkElementViewType object within
    * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
@@ -201,7 +201,7 @@ struct ScalarChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
    */
   template <typename ScratchMemorySpace>
   KOKKOS_FUNCTION
-  ScalarChunkViewType(const ScratchMemorySpace &scratch_memory_space)
+  ScalarChunkElementViewType(const ScratchMemorySpace &scratch_memory_space)
       : Kokkos::View<value_type[NumberOfElements][NumberOfGLLPoints]
                                [NumberOfGLLPoints][NumberOfGLLPoints],
                      MemorySpace, MemoryTraits>(scratch_memory_space) {}
@@ -239,15 +239,15 @@ template <
     int NumberOfGLLPoints, int Components, bool UseSIMD = false,
     typename MemorySpace = Kokkos::DefaultExecutionSpace::scratch_memory_space,
     typename MemoryTraits = Kokkos::MemoryTraits<Kokkos::Unmanaged> >
-struct VectorChunkViewType;
+struct VectorChunkElementViewType;
 
 /* 2D specialization */
 template <typename T, int NumberOfElements, int NumberOfGLLPoints,
           int Components, bool UseSIMD, typename MemorySpace,
           typename MemoryTraits>
-struct VectorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
-                           NumberOfGLLPoints, Components, UseSIMD, MemorySpace,
-                           MemoryTraits>
+struct VectorChunkElementViewType<
+    T, specfem::dimension::type::dim2, NumberOfElements, NumberOfGLLPoints,
+    Components, UseSIMD, MemorySpace, MemoryTraits>
     : public Kokkos::View<typename specfem::datatype::simd<T, UseSIMD>::datatype
                               [NumberOfElements][NumberOfGLLPoints]
                               [NumberOfGLLPoints][Components],
@@ -307,10 +307,10 @@ struct VectorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
    * @brief Default constructor
    */
   KOKKOS_FUNCTION
-  VectorChunkViewType() = default;
+  VectorChunkElementViewType() = default;
 
   /**
-   * @brief Construct a new VectorChunkViewType object within
+   * @brief Construct a new VectorChunkElementViewType object within
    * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
@@ -320,7 +320,7 @@ struct VectorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
    */
   template <typename ScratchMemorySpace>
   KOKKOS_FUNCTION
-  VectorChunkViewType(const ScratchMemorySpace &scratch_memory_space)
+  VectorChunkElementViewType(const ScratchMemorySpace &scratch_memory_space)
       : Kokkos::View<value_type[NumberOfElements][NumberOfGLLPoints]
                                [NumberOfGLLPoints][Components],
                      MemorySpace, MemoryTraits>(scratch_memory_space) {}
@@ -345,7 +345,7 @@ struct VectorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
    * @param index Point index
    */
   KOKKOS_INLINE_FUNCTION
-  impl::VectorChunkSubview<VectorChunkViewType>
+  impl::VectorChunkElementSubview<VectorChunkElementViewType>
   operator()(const index_type &index) {
     return { *this, index };
   }
@@ -355,7 +355,7 @@ struct VectorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
 template <typename T, int NumberOfElements, int NumberOfGLLPoints,
           int Components, bool UseSIMD, typename MemorySpace,
           typename MemoryTraits>
-struct VectorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
+struct VectorChunkElementViewType<T, specfem::dimension::type::dim3, NumberOfElements,
                            NumberOfGLLPoints, Components, UseSIMD, MemorySpace,
                            MemoryTraits>
     : public Kokkos::View<
@@ -418,10 +418,10 @@ struct VectorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
    * @brief Default constructor
    */
   KOKKOS_FUNCTION
-  VectorChunkViewType() = default;
+  VectorChunkElementViewType() = default;
 
   /**
-   * @brief Construct a new VectorChunkViewType object within
+   * @brief Construct a new VectorChunkElementViewType object within
    * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
@@ -431,7 +431,7 @@ struct VectorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
    */
   template <typename ScratchMemorySpace>
   KOKKOS_FUNCTION
-  VectorChunkViewType(const ScratchMemorySpace &scratch_memory_space)
+  VectorChunkElementViewType(const ScratchMemorySpace &scratch_memory_space)
       : Kokkos::View<
             value_type[NumberOfElements][NumberOfGLLPoints][NumberOfGLLPoints]
                       [NumberOfGLLPoints][Components],
@@ -457,7 +457,7 @@ struct VectorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
    * @param index Point index
    */
   KOKKOS_INLINE_FUNCTION
-  impl::VectorChunkSubview<VectorChunkViewType>
+  impl::VectorChunkElementSubview<VectorChunkElementViewType>
   operator()(const index_type &index) {
     return { *this, index };
   }
@@ -484,15 +484,15 @@ template <typename T, specfem::dimension::type DimensionTag,
           typename MemorySpace =
               Kokkos::DefaultExecutionSpace::scratch_memory_space,
           typename MemoryTraits = Kokkos::MemoryTraits<Kokkos::Unmanaged> >
-struct TensorChunkViewType;
+struct TensorChunkElementViewType;
 
 /* 2D specialization */
 template <typename T, int NumberOfElements, int NumberOfGLLPoints,
           int Components, int NumberOfDimensions, bool UseSIMD,
           typename MemorySpace, typename MemoryTraits>
-struct TensorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
-                           NumberOfGLLPoints, Components, NumberOfDimensions,
-                           UseSIMD, MemorySpace, MemoryTraits>
+struct TensorChunkElementViewType<
+    T, specfem::dimension::type::dim2, NumberOfElements, NumberOfGLLPoints,
+    Components, NumberOfDimensions, UseSIMD, MemorySpace, MemoryTraits>
     : public Kokkos::View<
           typename specfem::datatype::simd<T, UseSIMD>::datatype
               [NumberOfElements][NumberOfGLLPoints][NumberOfGLLPoints]
@@ -559,10 +559,10 @@ struct TensorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
    *
    */
   KOKKOS_FUNCTION
-  TensorChunkViewType() = default;
+  TensorChunkElementViewType() = default;
 
   /**
-   * @brief Construct a new TensorChunkViewType object within
+   * @brief Construct a new TensorChunkElementViewType object within
    * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
@@ -575,7 +575,7 @@ struct TensorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
                 std::is_same<MemorySpace, ScratchMemorySpace>::value,
                 bool>::type = true>
   KOKKOS_FUNCTION
-  TensorChunkViewType(const ScratchMemorySpace &scratch_memory_space)
+  TensorChunkElementViewType(const ScratchMemorySpace &scratch_memory_space)
       : Kokkos::View<
             value_type[NumberOfElements][NumberOfGLLPoints][NumberOfGLLPoints]
                       [Components][NumberOfDimensions],
@@ -603,7 +603,7 @@ struct TensorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
    * @param index Point index
    */
   KOKKOS_INLINE_FUNCTION
-  impl::TensorChunkSubview<TensorChunkViewType>
+  impl::TensorChunkElementSubview<TensorChunkElementViewType>
   operator()(const index_type &index) {
     return { *this, index };
   }
@@ -613,7 +613,7 @@ struct TensorChunkViewType<T, specfem::dimension::type::dim2, NumberOfElements,
 template <typename T, int NumberOfElements, int NumberOfGLLPoints,
           int Components, int NumberOfDimensions, bool UseSIMD,
           typename MemorySpace, typename MemoryTraits>
-struct TensorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
+struct TensorChunkElementViewType<T, specfem::dimension::type::dim3, NumberOfElements,
                            NumberOfGLLPoints, Components, NumberOfDimensions,
                            UseSIMD, MemorySpace, MemoryTraits>
     : public Kokkos::View<
@@ -682,10 +682,10 @@ struct TensorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
    *
    */
   KOKKOS_FUNCTION
-  TensorChunkViewType() = default;
+  TensorChunkElementViewType() = default;
 
   /**
-   * @brief Construct a new TensorChunkViewType object within
+   * @brief Construct a new TensorChunkElementViewType object within
    * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
@@ -698,7 +698,7 @@ struct TensorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
                 std::is_same<MemorySpace, ScratchMemorySpace>::value,
                 bool>::type = true>
   KOKKOS_FUNCTION
-  TensorChunkViewType(const ScratchMemorySpace &scratch_memory_space)
+  TensorChunkElementViewType(const ScratchMemorySpace &scratch_memory_space)
       : Kokkos::View<
             value_type[NumberOfElements][NumberOfGLLPoints][NumberOfGLLPoints]
                       [NumberOfGLLPoints][Components][NumberOfDimensions],
@@ -726,7 +726,7 @@ struct TensorChunkViewType<T, specfem::dimension::type::dim3, NumberOfElements,
    * @param index Point index
    */
   KOKKOS_INLINE_FUNCTION
-  impl::TensorChunkSubview<TensorChunkViewType>
+  impl::TensorChunkElementSubview<TensorChunkElementViewType>
   operator()(const index_type &index) {
     return { *this, index };
   }
