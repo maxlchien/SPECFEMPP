@@ -30,28 +30,6 @@ class vtkFloatArray;
 
 #endif // NO_VTK
 
-// Forward declarations of friend functions in global namespace
-#ifndef NO_VTK
-namespace specfem::periodic_tasks {
-class plot_wavefield;
-}
-
-template <specfem::display::format format>
-void initialize(specfem::periodic_tasks::plot_wavefield &plotter,
-                vtkSmartPointer<vtkFloatArray> &scalars);
-
-void initialize_display(specfem::periodic_tasks::plot_wavefield &plotter,
-                        vtkSmartPointer<vtkFloatArray> &scalars);
-
-template <specfem::display::format format>
-void run(specfem::periodic_tasks::plot_wavefield &plotter,
-         vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
-
-void run_render(specfem::periodic_tasks::plot_wavefield &plotter,
-                vtkSmartPointer<vtkFloatArray> &scalars);
-
-#endif // NO_VTK
-
 namespace specfem {
 namespace periodic_tasks {
 /**
@@ -163,23 +141,16 @@ private:
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
 
-  // Friend function declarations (these are in global namespace)
   template <specfem::display::format format>
-  friend void ::initialize(specfem::periodic_tasks::plot_wavefield &plotter,
-                           vtkSmartPointer<vtkFloatArray> &scalars);
+  void initialize(vtkSmartPointer<vtkFloatArray> &scalars);
 
-  friend void ::initialize_display(
-      specfem::periodic_tasks::plot_wavefield &plotter,
-      vtkSmartPointer<vtkFloatArray> &scalars);
+  void initialize_display(vtkSmartPointer<vtkFloatArray> &scalars);
 
-  // Friend functions for running different output formats
   template <specfem::display::format format>
-  friend void ::run(specfem::periodic_tasks::plot_wavefield &plotter,
-                    vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
+  void run(vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
 
   // Friend function for rendering
-  friend void ::run_render(specfem::periodic_tasks::plot_wavefield &plotter,
-                           vtkSmartPointer<vtkFloatArray> &scalars);
+  void run_render(vtkSmartPointer<vtkFloatArray> &scalars);
 
 #endif // NO_VTK
 };
