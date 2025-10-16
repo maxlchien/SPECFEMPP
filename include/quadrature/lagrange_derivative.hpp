@@ -7,7 +7,7 @@
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
-namespace element {
+namespace quadrature {
 /**
  * @brief Struct used to store lagrange_derivative values within an element.
  *
@@ -24,7 +24,7 @@ template <int NGLL, specfem::dimension::type DimensionTag, typename MemorySpace,
           typename MemoryTraits>
 struct lagrange_derivative
     : public specfem::data_access::Accessor<
-          specfem::data_access::AccessorType::element,
+          specfem::data_access::AccessorType::quadrature,
           specfem::data_access::DataClassType::lagrange_derivative,
           DimensionTag, false> {
   /**
@@ -37,8 +37,8 @@ struct lagrange_derivative
    * @brief Underlying view type used to store lagrange_derivative values.
    *
    */
-  using ViewType = Kokkos::View<type_real[NumberOfGLLPoints][NumberOfGLLPoints],
-                                Kokkos::LayoutRight, MemorySpace, MemoryTraits>;
+  using ViewType = Kokkos::View<type_real[NGLL][NGLL], Kokkos::LayoutRight,
+                                MemorySpace, MemoryTraits>;
   ViewType hprime_gll; ///< Derivatives of lagrange polynomials \f$l'\f$ at GLL
                        ///< points.
   constexpr static auto dimension_tag =
@@ -96,7 +96,7 @@ struct lagrange_derivative
    * @param ix Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr auto &xi()(const int l, const int ix) {
+  KOKKOS_INLINE_FUNCTION constexpr auto &xi(const int l, const int ix) const {
     return hprime_gll(l, ix);
   }
 
@@ -107,7 +107,10 @@ struct lagrange_derivative
    * @param iy Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr auto &eta()(const int l, const int iy) {
+  template <
+      specfem::dimension::type D = DimensionTag,
+      typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
+  KOKKOS_INLINE_FUNCTION constexpr auto &eta(const int l, const int iy) const {
     return hprime_gll(l, iy);
   }
 
@@ -118,10 +121,11 @@ struct lagrange_derivative
    * @param iz Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr auto &gamma()(const int l, const int iz) {
+  KOKKOS_INLINE_FUNCTION constexpr auto &gamma(const int l,
+                                               const int iz) const {
     return hprime_gll(l, iz);
   }
 };
 
-} // namespace element
+} // namespace quadrature
 } // namespace specfem

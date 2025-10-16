@@ -57,8 +57,7 @@ KOKKOS_FUNCTION void impl_compute_wavefield(
   if (wavefield_type == specfem::wavefield::type::pressure) {
 
     specfem::algorithms::gradient(
-        chunk_index, assembly.jacobian_matrix, quadrature.hprime_gll,
-        active_field,
+        chunk_index, assembly.jacobian_matrix, quadrature, active_field,
         [&](const typename ChunkIndexType::iterator_type::index_type
                 &iterator_index,
             const FieldDerivativesType::value_type &du) {

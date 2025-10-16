@@ -16,17 +16,18 @@ namespace specfem::assembly {
  * @ingroup QuadratureDataAccess
  *
  * @tparam MemberType Member type. Needs to be a Kokkos::TeamPolicy member type
- * @tparam ViewType View type. Needs to be of @ref specfem::element::quadrature
+ * @tparam ViewType View type. Needs to be of @ref
+ * specfem::quadrature::lagrange_derivative
  * @param team Team member
  * @param mesh Mesh data
- * @param element_quadrature Quadrature data for the element (output)
+ * @param lagrange_derivative Quadrature data for the element (output)
  */
 template <bool on_device, typename MemberType, typename ViewType>
 KOKKOS_INLINE_FUNCTION void impl_load(
     const MemberType &team,
     const specfem::assembly::mesh_impl::quadrature<ViewType::dimension_tag>
         &quadrature,
-    ViewType &element_quadrature) {
+    ViewType &lagrange_derivative) {
 
   constexpr int NGLL = ViewType::ngll;
 
@@ -41,9 +42,9 @@ KOKKOS_INLINE_FUNCTION void impl_load(
         int ix = index.ix;
         int iz = index.iz;
         if constexpr (on_device) {
-          element_quadrature.hprime_gll(iz, ix) = quadrature.hprime(iz, ix);
+          lagrange_derivative.hprime_gll(iz, ix) = quadrature.hprime(iz, ix);
         } else {
-          element_quadrature.hprime_gll(iz, ix) = quadrature.h_hprime(iz, ix);
+          lagrange_derivative.hprime_gll(iz, ix) = quadrature.h_hprime(iz, ix);
         }
       });
 }
@@ -59,21 +60,22 @@ KOKKOS_INLINE_FUNCTION void impl_load(
  * @ingroup QuadratureDataAccess
  *
  * @tparam MemberType Member type. Needs to be a Kokkos::TeamPolicy member type
- * @tparam ViewType View type. Needs to be of @ref specfem::element::quadrature
+ * @tparam ViewType View type. Needs to be of @ref
+ * specfem::quadrature::lagrange_derivative
  * @param team Team member
  * @param mesh Mesh data
- * @param element_quadrature Quadrature data for the element (output)
+ * @param lagrange_derivative Quadrature data for the element (output)
  */
 template <typename MemberType, typename ViewType,
           typename std::enable_if_t<
-              (specfem::data_access::is_element<ViewType>::value), int> = 0>
+              (specfem::data_access::is_quadrature<ViewType>::value), int> = 0>
 KOKKOS_FUNCTION void load_on_device(
     const MemberType &team,
     const specfem::assembly::mesh_impl::quadrature<ViewType::dimension_tag>
         &quadrature,
-    ViewType &element_quadrature) {
+    ViewType &lagrange_derivative) {
 
-  impl_load<true>(team, quadrature, element_quadrature);
+  impl_load<true>(team, quadrature, lagrange_derivative);
 }
 
 /**
@@ -82,19 +84,20 @@ KOKKOS_FUNCTION void load_on_device(
  * @ingroup QuadratureDataAccess
  *
  * @tparam MemberType Member type. Needs to be a Kokkos::TeamPolicy member type
- * @tparam ViewType View type. Needs to be of @ref specfem::element::quadrature
+ * @tparam ViewType View type. Needs to be of @ref
+ * specfem::quadrature::lagrange_derivative
  * @param team Team member
  * @param mesh Mesh data
- * @param element_quadrature Quadrature data for the element (output)
+ * @param lagrange_derivative Quadrature data for the element (output)
  */
 template <typename MemberType, typename ViewType,
           typename std::enable_if_t<
-              (specfem::data_access::is_element<ViewType>::value), int> = 0>
+              (specfem::data_access::is_quadrature<ViewType>::value), int> = 0>
 void load_on_host(
     const MemberType &team,
     const specfem::assembly::mesh_impl::quadrature<ViewType::dimension_tag>
         &quadrature,
-    ViewType &element_quadrature) {
-  impl_load<false>(team, quadrature, element_quadrature);
+    ViewType &lagrange_derivative) {
+  impl_load<false>(team, quadrature, lagrange_derivative);
 }
 } // namespace specfem::assembly
