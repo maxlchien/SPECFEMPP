@@ -229,6 +229,29 @@ template <typename T> bool contains(const T &list, const dim3::type &value) {
   return std::find(list.begin(), list.end(), value) != list.end();
 }
 
+// clang-format off
+/**
+ * @brief Get the nodes associated with a specific orientation of a 3D mesh entity
+ *
+ * This function returns a vector of node indices that correspond to the nodes
+ * located on a particular orientation of the given 3D mesh entity. The orientation
+ * determines which face, edge, or vertex nodes are retrieved based on the entity type.
+ *
+ * @code{.cpp}
+  * const Kokkos::View<int *, Kokkos::HostSpace> control_nodes("control_nodes", 8); // control nodes of the element
+  * std::vector<int> bottom_face_nodes = {control_nodes(0), control_nodes(1), control_nodes(2), control_nodes(3)};
+  * auto nodes = nodes_on_orientation(specfem::mesh_entity::dim3::type::bottom);
+  * // nodes now contains the indices of nodes on the bottom face of the element
+  * assert(bottom_face_nodes == {control_nodes(nodes[0]), control_nodes(nodes[1]), control_nodes(nodes[2]), control_nodes(nodes[3])});
+  * @endcode
+ *
+ * @param entity The 3D mesh entity (element, face, edge, etc.) for which to retrieve oriented nodes
+ * @return std::vector<int> Vector containing the indices of nodes on the specified orientation
+ */
+// clang-format on
+std::vector<int>
+nodes_on_orientation(const specfem::mesh_entity::dim3::type &entity);
+
 template <specfem::dimension::type Dimension> struct edge;
 
 /**
@@ -318,13 +341,7 @@ public:
    * @note Currently requires identical GLL points in all dimensions for
    * stability
    */
-  element(const int ngllz, const int nglly, const int ngllx)
-      : ngllz(ngllz), nglly(nglly), ngllx(ngllx), orderz(ngllz - 1),
-        ordery(nglly - 1), orderx(ngllx - 1), size(ngllz * nglly * ngllx) {
-    if (ngllz != nglly || ngllz != ngllx) {
-      throw std::invalid_argument("Inconsistent number of GLL points");
-    }
-  };
+  element(const int ngllz, const int nglly, const int ngllx);
 
   /**
    * @brief Checks if the element is consistent across dimensions against a
@@ -347,5 +364,29 @@ public:
    * @return true If any dimension does not match
    */
   bool operator!=(const int ngll) const { return !(*this == ngll); }
+
+  int number_of_points_on_orientation(
+      const specfem::mesh_entity::dim3::type &entity) const;
+
+  std::tuple<int, int, int>
+  map_coordinates(const specfem::mesh_entity::dim3::type &entity,
+                  const int point) const;
+
+  std::tuple<int, int, int>
+  map_coordinates(const specfem::mesh_entity::dim3::type &corner) const;
+
+private:
+  int ngll2d;
+  int ngll;
+
+  std::unordered_map<specfem::mesh_entity::dim3::type,
+                     std::function<std::tuple<int, int, int>(int, int)> >
+      face_coordinates;
+  std::unordered_map<specfem::mesh_entity::dim3::type,
+                     std::function<std::tuple<int, int, int>(int)> >
+      edge_coordinates;
+  std::unordered_map<specfem::mesh_entity::dim3::type,
+                     std::tuple<int, int, int> >
+      corner_coordinates;
 };
 } // namespace specfem::mesh_entity

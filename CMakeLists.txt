@@ -257,8 +257,10 @@ add_library(
         enumerations
         src/enumerations/medium.cpp
         src/enumerations/wavefield.cpp
-        src/enumerations/connections.cpp
-        src/enumerations/mesh_entities.cpp
+        src/enumerations/dim2/connections.cpp
+        src/enumerations/dim3/connections.cpp
+        src/enumerations/dim3/mesh_entities.cpp
+        src/enumerations/dim2/mesh_entities.cpp
 )
 
 target_link_libraries(
