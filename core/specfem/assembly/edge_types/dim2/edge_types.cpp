@@ -11,9 +11,10 @@ using EdgeViewType =
 
 specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
     const int ngllx, const int ngllz,
-    const specfem::assembly::mesh<dimension> &mesh,
-    const specfem::assembly::element_types<dimension> &element_types,
-    const specfem::mesh::coupled_interfaces<dimension> &coupled_interfaces) {
+    const specfem::assembly::mesh<dimension_tag> &mesh,
+    const specfem::assembly::element_types<dimension_tag> &element_types,
+    const specfem::mesh::coupled_interfaces<dimension_tag>
+        &coupled_interfaces) {
 
   // Count the number of interfaces for each combination of connection
   FOR_EACH_IN_PRODUCT(
@@ -56,7 +57,7 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
       })
 
   static const auto connection_mapping =
-      specfem::connections::connection_mapping(ngllx, ngllz);
+      specfem::connections::connection_mapping<dimension_tag>(ngllx, ngllz);
 
   FOR_EACH_IN_PRODUCT(
       (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
