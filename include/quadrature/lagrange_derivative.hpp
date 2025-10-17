@@ -22,11 +22,7 @@ namespace quadrature {
  */
 template <int NGLL, specfem::dimension::type DimensionTag, typename MemorySpace,
           typename MemoryTraits>
-struct lagrange_derivative
-    : public specfem::data_access::Accessor<
-          specfem::data_access::AccessorType::quadrature,
-          specfem::data_access::DataClassType::lagrange_derivative,
-          DimensionTag, false> {
+struct lagrange_derivative {
   /**
    * @name Typedefs
    *
@@ -44,6 +40,9 @@ struct lagrange_derivative
   constexpr static auto dimension_tag =
       DimensionTag;                 ///< Dimension tag (dim2 or dim3)
   constexpr static int ngll = NGLL; ///< Number of GLL points
+  constexpr static auto data_class_type =
+      specfem::data_access::DataClassType::lagrange_derivative; ///< Data class
+                                                                ///< type
   ///@}
 
   /**

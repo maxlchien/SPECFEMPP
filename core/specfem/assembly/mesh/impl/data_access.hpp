@@ -68,7 +68,9 @@ KOKKOS_INLINE_FUNCTION void impl_load(
  */
 template <typename MemberType, typename ViewType,
           typename std::enable_if_t<
-              (specfem::data_access::is_quadrature<ViewType>::value), int> = 0>
+              (ViewType::data_class_type ==
+               specfem::data_access::DataClassType::lagrange_derivative),
+              int> = 0>
 KOKKOS_FUNCTION void load_on_device(
     const MemberType &team,
     const specfem::assembly::mesh_impl::quadrature<ViewType::dimension_tag>
@@ -92,7 +94,9 @@ KOKKOS_FUNCTION void load_on_device(
  */
 template <typename MemberType, typename ViewType,
           typename std::enable_if_t<
-              (specfem::data_access::is_quadrature<ViewType>::value), int> = 0>
+              (ViewType::data_class_type ==
+               specfem::data_access::DataClassType::lagrange_derivative),
+              int> = 0>
 void load_on_host(
     const MemberType &team,
     const specfem::assembly::mesh_impl::quadrature<ViewType::dimension_tag>
