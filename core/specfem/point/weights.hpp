@@ -41,16 +41,23 @@ struct weights<specfem::dimension::type::dim2>
    * @brief Default constructor
    *
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   weights() = default;
 
   /**
    * @brief Constructor with values
    *
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   weights(const int &wz, const int &wx) : wz(wz), wx(wx) {}
   ///@}
+
+  /**
+   * @brief Get the product of the weights
+   *
+   * @return int Product of the weights
+   */
+  KOKKOS_INLINE_FUNCTION int product() const { return wz * wx; }
 };
 
 template <>
@@ -77,17 +84,24 @@ struct weights<specfem::dimension::type::dim3>
    * @brief Default constructor
    *
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   weights() = default;
 
   /**
    * @brief Constructor with values
    *
    */
-  KOKKOS_FUNCTION
+  KOKKOS_INLINE_FUNCTION
   weights(const int &wz, const int &wy, const int &wx)
       : wz(wz), wy(wy), wx(wx) {}
   ///@}
+
+  /**
+   * @brief Get the product of the weights
+   *
+   * @return int Product of the weights
+   */
+  KOKKOS_INLINE_FUNCTION int product() const { return wz * wy * wx; }
 };
 
 } // namespace specfem::point
