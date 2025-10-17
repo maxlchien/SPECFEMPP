@@ -34,3 +34,16 @@ template <specfem::dimension::type DimensionTag> class connection_mapping;
 
 #include "dim2/connections.hpp"
 #include "dim3/connections.hpp"
+
+namespace specfem::connections {
+
+// CTAD guides
+connection_mapping(const int, const int)
+    -> connection_mapping<specfem::dimension::type::dim2>;
+
+connection_mapping(const int, const int, const int,
+                   Kokkos::View<int *, Kokkos::LayoutStride, Kokkos::HostSpace>,
+                   Kokkos::View<int *, Kokkos::LayoutStride, Kokkos::HostSpace>)
+    -> connection_mapping<specfem::dimension::type::dim3>;
+
+} // namespace specfem::connections

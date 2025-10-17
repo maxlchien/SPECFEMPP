@@ -117,7 +117,7 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
       })
 
   static const auto connection_mapping =
-      specfem::connections::connection_mapping<dimension_tag>(ngllx, ngllz);
+      specfem::connections::connection_mapping(ngllx, ngllz);
 
   FOR_EACH_IN_PRODUCT(
       (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),

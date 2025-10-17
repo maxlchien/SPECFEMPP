@@ -117,7 +117,7 @@ void specfem::assembly::mesh<specfem::dimension::type::dim2>::assemble() {
   const auto fg = boost::make_filtered_graph(graph, filter);
 
   const auto element_connections =
-      specfem::connections::connection_mapping<dimension_tag>(ngllx, ngllz);
+      specfem::connections::connection_mapping(ngllx, ngllz);
 
   // Now lets iterate over all edges
   // We only take interior edge points, corners will be treated later

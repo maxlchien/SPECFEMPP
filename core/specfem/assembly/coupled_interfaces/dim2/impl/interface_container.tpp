@@ -30,7 +30,7 @@ specfem::assembly::coupled_interfaces_impl::interface_container<
   }
 
   const auto connection_mapping =
-      specfem::connections::connection_mapping<dimension_tag>(ngllx, ngllz);
+      specfem::connections::connection_mapping(ngllx, ngllz);
 
   const auto [self_edges, coupled_edges] = edge_types.get_edges_on_host(
       specfem::connections::type::weakly_conforming, InterfaceTag, BoundaryTag);
