@@ -35,12 +35,9 @@ KOKKOS_INLINE_FUNCTION void impl_load(
                                Kokkos::DefaultExecutionSpace>,
                 "Calling team must have a host execution space");
 
-  specfem::execution::for_each_level(
-      specfem::execution::ElementIterator<specfem::dimension::type::dim2,
-                                          MemberType>(team, NGLL),
-      [&](const auto index) {
-        int ix = index.ix;
-        int iz = index.iz;
+  Kokkos::parallel_for(
+      Kokkos::TeamThreadMDRange<Kokkos::Rank<2>, MemberType>(team, NGLL, NGLL),
+      [&](const int ix, const int iz) {
         if constexpr (on_device) {
           lagrange_derivative.hprime_gll(iz, ix) = quadrature.hprime(iz, ix);
         } else {
