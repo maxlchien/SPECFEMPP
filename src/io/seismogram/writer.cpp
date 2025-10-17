@@ -138,3 +138,84 @@ void specfem::io::seismogram_writer::write(
     }
   }
 }
+
+void specfem::io::seismogram_writer::write(
+    specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly) {
+  auto &receivers = assembly.receivers;
+
+  receivers.sync_seismograms();
+
+  for (auto station_info : receivers.stations()) {
+
+    std::string network_name = station_info.network_name;
+    std::string station_name = station_info.station_name;
+
+    for (auto seismogram_type : station_info.get_seismogram_types()) {
+
+      std::vector<std::string> filenames;
+      switch (seismogram_type) {
+      case specfem::wavefield::type::displacement:
+
+        filenames = { this->output_folder + "/" + network_name + "." +
+                          station_name + ".S3.BXX.semd",
+                      this->output_folder + "/" + network_name + "." +
+                          station_name + ".S3.BXY.semd",
+                      this->output_folder + "/" + network_name + "." +
+                          station_name + ".S3.BXZ.semd" };
+        break;
+      case specfem::wavefield::type::velocity:
+        filenames = { this->output_folder + "/" + network_name + "." +
+                          station_name + ".S3.BXX.semv",
+                      this->output_folder + "/" + network_name + "." +
+                          station_name + ".S3.BXY.semv",
+                      this->output_folder + "/" + network_name + "." +
+                          station_name + ".S3.BXZ.semv" };
+        break;
+      case specfem::wavefield::type::acceleration:
+        if (this->elastic_wave == specfem::enums::elastic_wave::sh) {
+          filenames = { this->output_folder + "/" + network_name + "." +
+                        station_name + ".S2.BXY.sema" };
+        } else if (this->elastic_wave == specfem::enums::elastic_wave::psv) {
+          filenames = { this->output_folder + "/" + network_name + "." +
+                            station_name + ".S2.BXX.sema",
+                        this->output_folder + "/" + network_name + "." +
+                            station_name + ".S2.BXZ.sema" };
+        }
+        break;
+      case specfem::wavefield::type::pressure:
+        filenames = { this->output_folder + "/" + network_name + "." +
+                      station_name + ".S3.PRE.semp" };
+        break;
+      default:
+        std::ostringstream message;
+        message << "Error reading specfem receiver configuration. (" << __FILE__
+                << ":" << __LINE__ << ")\n";
+        message << "Unknown seismogram type: "
+                << specfem::wavefield::to_string(seismogram_type) << "\n";
+        message
+            << "Valid seismogram types are: displacement, velocity, "
+            << "acceleration, pressure, rotation, intrinsic_rotation, curl.\n";
+        message << "Please check your configuration file.\n";
+        throw std::runtime_error(message.str());
+      }
+
+      const int ncomponents = filenames.size();
+      std::vector<std::ofstream> seismo_file(ncomponents);
+      for (int icomp = 0; icomp < ncomponents; icomp++) {
+        seismo_file[icomp].open(filenames[icomp]);
+      }
+
+      for (auto [time, value] : receivers.get_seismogram(
+               station_name, network_name, seismogram_type)) {
+        for (int icomp = 0; icomp < ncomponents; icomp++) {
+          seismo_file[icomp] << std::scientific << time << " "
+                             << std::scientific << value[icomp] << "\n";
+        }
+      }
+
+      for (int icomp = 0; icomp < ncomponents; icomp++) {
+        seismo_file[icomp].close();
+      }
+    }
+  }
+}

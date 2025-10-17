@@ -36,13 +36,23 @@ public:
         electromagnetic_wave(electromagnetic_wave),
         output_folder(output_folder), dt(dt), t0(t0),
         nstep_between_samples(nstep_between_samples) {};
+
+  /**
+   * @brief Write seismograms
+   *
+   * @param assembly 2D Assembly object
+   *
+   */
+  void write(specfem::assembly::assembly<specfem::dimension::type::dim2>
+                 &assembly) override;
+
   /**
    * @brief Write seismograms
    *
    * @param assembly Assembly object
    *
    */
-  void write(specfem::assembly::assembly<specfem::dimension::type::dim2>
+  void write(specfem::assembly::assembly<specfem::dimension::type::dim3>
                  &assembly) override;
 
 private:
