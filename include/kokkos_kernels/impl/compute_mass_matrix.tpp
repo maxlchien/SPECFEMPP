@@ -3,7 +3,6 @@
 #include "boundary_conditions/boundary_conditions.hpp"
 #include "boundary_conditions/boundary_conditions.tpp"
 #include "datatypes/simd.hpp"
-#include "quadrature/lagrange_derivative.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
@@ -11,6 +10,7 @@
 #include "execution/for_all.hpp"
 #include "medium/compute_mass_matrix.hpp"
 #include "parallel_configuration/chunk_config.hpp"
+#include "quadrature/lagrange_derivative.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
@@ -50,8 +50,9 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
   // Check if the number of GLL points in the mesh elements matches the template
   // parameter NGLL
   if (element_grid != NGLL) {
-    throw std::runtime_error("The number of GLL points in the mesh elements must match "
-                             "the template parameter NGLL.");
+    throw std::runtime_error(
+        "The number of GLL points in the mesh elements must match "
+        "the template parameter NGLL.");
   }
 
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
@@ -76,8 +77,7 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
   using PointBoundaryType =
       specfem::point::boundary<boundary_tag, dimension_tag, using_simd>;
 
-  using PointWeightsType =
-      specfem::point::weights<dimension_tag>;
+  using PointWeightsType = specfem::point::weights<dimension_tag>;
 
   using PointIndex = specfem::point::index<dimension_tag, using_simd>;
 
@@ -93,18 +93,15 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
   specfem::execution::for_all(
       "specfem::kokkos_kernels::compute_mass_matrix", chunk,
       KOKKOS_LAMBDA(const PointIndex &index) {
-        const int ix = index.ix;
-        const int iz = index.iz;
+        PointPropertyType point_property;
+        specfem::assembly::load_on_device(index, properties, point_property);
 
-          PointPropertyType point_property;
-          specfem::assembly::load_on_device(index, properties, point_property);
+        PointJacobianMatrixType point_jacobian_matrix;
+        specfem::assembly::load_on_device(index, jacobian_matrix,
+                                          point_jacobian_matrix);
 
-          PointJacobianMatrixType point_jacobian_matrix;
-          specfem::assembly::load_on_device(index, jacobian_matrix,
-                                            point_jacobian_matrix);
-
-          PointWeightsType point_weights;
-          specfem::assembly::load_on_device(index, mesh.weights, point_weights);
+        PointWeightsType point_weights;
+        specfem::assembly::load_on_device(index, mesh.weights, point_weights);
 
         PointMassType mass_matrix =
             specfem::medium::mass_matrix_component(point_property);
