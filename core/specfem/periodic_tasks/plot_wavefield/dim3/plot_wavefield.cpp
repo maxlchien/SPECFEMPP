@@ -18,6 +18,7 @@
 #include <vtkCellArray.h>
 #include <vtkFloatArray.h>
 #include <vtkLagrangeHexahedron.h>
+#include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
