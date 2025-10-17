@@ -178,6 +178,19 @@ void execute(const YAML::Node parameter_dict, const YAML::Node default_dict,
 
   mpi->cout("Solver time: " + std::to_string(solver_time.count()) + " seconds");
   // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Write Seismograms
+  // --------------------------------------------------------------
+  const auto seismogram_writer = setup.instantiate_seismogram_writer();
+  if (seismogram_writer) {
+    mpi->cout("Writing seismogram files:");
+    mpi->cout("-------------------------------");
+
+    seismogram_writer->write(assembly);
+  }
+  // --------------------------------------------------------------
+
   return;
 }
 
