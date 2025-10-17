@@ -22,7 +22,8 @@ KOKKOS_FUNCTION void impl_compute_wavefield(
                                  specfem::element::property_tag::isotropic>,
     const ChunkIndexType &chunk_index,
     const specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly,
-    const QuadratureType &quadrature, const DisplacementFieldType &displacement,
+    const QuadratureType &lagrange_derivative,
+    const DisplacementFieldType &displacement,
     const VelocityFieldType &velocity,
     const AccelerationFieldType &acceleration,
     const specfem::wavefield::type wavefield_type,
@@ -57,7 +58,8 @@ KOKKOS_FUNCTION void impl_compute_wavefield(
   if (wavefield_type == specfem::wavefield::type::pressure) {
 
     specfem::algorithms::gradient(
-        chunk_index, assembly.jacobian_matrix, quadrature, active_field,
+        chunk_index, assembly.jacobian_matrix, lagrange_derivative,
+        active_field,
         [&](const typename ChunkIndexType::iterator_type::index_type
                 &iterator_index,
             const FieldDerivativesType::value_type &du) {
