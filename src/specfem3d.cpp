@@ -146,6 +146,16 @@ void execute(const YAML::Node parameter_dict, const YAML::Node default_dict,
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
+  //                   Instantiate plotter
+  // --------------------------------------------------------------
+  const auto wavefield_plotter =
+      setup.instantiate_wavefield_plotter(assembly, dt, mpi);
+  if (wavefield_plotter) {
+    tasks.push_back(wavefield_plotter);
+  }
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
   //                   Instantiate Solver
   // --------------------------------------------------------------
   std::shared_ptr<specfem::solver::solver> solver =

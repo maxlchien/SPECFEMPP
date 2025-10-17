@@ -235,6 +235,20 @@ public:
     }
   }
 
+  std::shared_ptr<
+      specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3> >
+  instantiate_wavefield_plotter(
+      const specfem::assembly::assembly<specfem::dimension::type::dim3>
+          &assembly,
+      const type_real &dt, specfem::MPI::MPI *mpi) const {
+    if (this->plot_wavefield) {
+      return this->plot_wavefield->instantiate_wavefield_plotter(assembly, dt,
+                                                                 mpi);
+    } else {
+      return nullptr;
+    }
+  }
+
   std::shared_ptr<specfem::io::reader> instantiate_property_reader() const {
     if (this->property) {
       return this->property->instantiate_property_reader();

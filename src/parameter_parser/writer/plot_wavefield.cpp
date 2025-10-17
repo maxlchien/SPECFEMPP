@@ -133,8 +133,9 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter<
     const specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
     const type_real &dt, specfem::MPI::MPI *mpi) const;
 
-// template
-// std::shared_ptr<specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3>>
-// specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter<specfem::dimension::type::dim3>(
-//     const specfem::assembly::assembly<specfem::dimension::type::dim3>
-//     &assembly, const type_real &dt, specfem::MPI::MPI *mpi) const;
+template std::shared_ptr<
+    specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3> >
+specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter<
+    specfem::dimension::type::dim3>(
+    const specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly,
+    const type_real &dt, specfem::MPI::MPI *mpi) const;

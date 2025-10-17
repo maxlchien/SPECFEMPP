@@ -16,3 +16,4 @@ template <specfem::dimension::type DimensionTag> class plot_wavefield;
 } // namespace specfem::periodic_tasks
 
 #include "plot_wavefield/dim2/plot_wavefield.hpp"
+#include "plot_wavefield/dim3/plot_wavefield.hpp"
