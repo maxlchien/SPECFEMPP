@@ -95,9 +95,8 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
         const int ix = index.ix;
         const int iz = index.iz;
 
-        const auto point_property = [&]() -> PointPropertyType {
+        const auto point_property = [&]() {
           PointPropertyType point_property;
-
           specfem::assembly::load_on_device(index, properties, point_property);
           return point_property;
         }();

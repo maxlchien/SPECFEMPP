@@ -6,14 +6,14 @@
 
 namespace specfem::assembly {
 /**
- * @defgroup QuadratureDataAccess
+ * @defgroup MeshDataAccess
  *
  */
 
 /**
  * @brief Load quadrature data for a spectral element on host or device
  *
- * @ingroup QuadratureDataAccess
+ * @ingroup MeshDataAccess
  *
  * @tparam MemberType Member type. Needs to be a Kokkos::TeamPolicy member type
  * @tparam ViewType View type. Needs to be of @ref
@@ -47,14 +47,14 @@ KOKKOS_INLINE_FUNCTION void impl_load(
 }
 
 /**
- * @defgroup QuadratureDataAccess
+ * @defgroup MeshDataAccess
  *
  */
 
 /**
  * @brief Load quadrature data for a spectral element on the device
  *
- * @ingroup QuadratureDataAccess
+ * @ingroup MeshDataAccess
  *
  * @tparam MemberType Member type. Needs to be a Kokkos::TeamPolicy member type
  * @tparam ViewType View type. Needs to be of @ref
@@ -80,7 +80,7 @@ KOKKOS_FUNCTION void load_on_device(
 /**
  * @brief Load quadrature data for a spectral element on the host
  *
- * @ingroup QuadratureDataAccess
+ * @ingroup MeshDataAccess
  *
  * @tparam MemberType Member type. Needs to be a Kokkos::TeamPolicy member type
  * @tparam ViewType View type. Needs to be of @ref
