@@ -180,17 +180,9 @@ template std::shared_ptr<
 specfem::runtime_configuration::wavefield::instantiate_wavefield_writer<
     specfem::dimension::type::dim2>() const;
 
-// template
-// std::shared_ptr<specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3>>
-// specfem::runtime_configuration::wavefield::instantiate_wavefield_writer<specfem::dimension::type::dim3>()
-// const;
+
 
 template std::shared_ptr<
     specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim2> >
 specfem::runtime_configuration::wavefield::instantiate_wavefield_reader<
     specfem::dimension::type::dim2>() const;
-
-// template
-// std::shared_ptr<specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3>>
-// specfem::runtime_configuration::wavefield::instantiate_wavefield_reader<specfem::dimension::type::dim3>()
-// const;
