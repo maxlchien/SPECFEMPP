@@ -93,6 +93,15 @@ else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     message(STATUS "macOS not detected -- setting __APPLE__ FALSE")
 endif()
 
+# Check if IntelLLVM
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
+    set(__INTEL_LLVM__ TRUE)
+    message(STATUS "IntelLLVM detected -- setting __INTEL_LLVM__ TRUE")
+else(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
+    set(__INTEL_LLVM__ FALSE)
+    message(STATUS "IntelLLVM not detected -- setting __INTEL_LLVM__ FALSE")
+endif()
+
 # Install Kokkos as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/kokkos.cmake")
 
@@ -261,6 +270,7 @@ add_library(
         src/enumerations/dim3/connections.cpp
         src/enumerations/dim3/mesh_entities.cpp
         src/enumerations/dim2/mesh_entities.cpp
+        src/enumerations/coupled_interface.cpp
 )
 
 target_link_libraries(
@@ -445,19 +455,6 @@ target_link_libraries(
 )
 
 add_library(
-        timescheme
-        src/timescheme/timescheme.cpp
-        src/timescheme/newmark.cpp
-)
-
-target_link_libraries(
-        timescheme
-        Kokkos::kokkos
-        yaml-cpp
-        assembly
-)
-
-add_library(
         solver
         src/solver/time_marching.cpp
 )
@@ -485,33 +482,6 @@ target_link_libraries(
         utilities
 )
 
-add_library(
-        periodic_tasks
-        src/periodic_tasks/plot_wavefield.cpp
-        src/periodic_tasks/check_signal.cpp
-        src/periodic_tasks/wavefield_writer.cpp
-        src/periodic_tasks/wavefield_reader.cpp
-)
-
-target_link_libraries(
-        periodic_tasks
-        reader
-        writer
-        io
-)
-
-target_compile_definitions(
-        periodic_tasks
-        PUBLIC
-        $<$<NOT:$<BOOL:${SPECFEM_ENABLE_VTK}>>:-DNO_VTK>
-        $<$<BOOL:${__APPLE__}>:__APPLE__>
-)
-
-target_link_libraries(
-        periodic_tasks
-        assembly
-        $<$<BOOL:${SPECFEM_ENABLE_VTK}>:${VTK_LIBRARIES}>
-)
 
 add_library(
         parameter_reader

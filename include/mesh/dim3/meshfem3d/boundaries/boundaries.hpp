@@ -1,5 +1,5 @@
 /**
- * @file absorbing_boundaries.hpp
+ * @file boundaries.hpp
  * @brief Domain boundary management for 3D spectral element meshes
  *
  * This file contains the Boundaries template specialization for 3D meshes.

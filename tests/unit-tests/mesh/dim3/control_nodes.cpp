@@ -175,7 +175,7 @@ using namespace specfem::test_configuration;
 // Expected control nodes for specific test cases
 static const std::unordered_map<std::string, ExpectedControlNodes3D>
     expected_control_nodes_map = {
-      { "FourNodeElastic",
+      { "EightNodeElastic",
         ExpectedControlNodes3D(
             TotalNodes(125, 2, 2, 2),
             DomainSize(0.0, 100000.0, 0.0, 80000.0, -60000.0, 0.0),

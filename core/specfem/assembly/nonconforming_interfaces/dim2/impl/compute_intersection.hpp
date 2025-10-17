@@ -56,6 +56,7 @@ std::vector<std::pair<type_real, type_real> > compute_intersection(
  * @param transfer_function2 - the nquad_mortar x ngll transfer tensor to
  * populate, mapping fields on edge2 to the mortar.
  */
+template <typename TransferView1, typename TransferView2>
 void set_transfer_functions(
     const Kokkos::View<
         specfem::point::global_coordinates<specfem::dimension::type::dim2> *,
@@ -67,8 +68,7 @@ void set_transfer_functions(
     const specfem::mesh_entity::dim2::type &edge2,
     const Kokkos::View<type_real *, Kokkos::HostSpace> &mortar_quadrature,
     const Kokkos::View<type_real *, Kokkos::HostSpace> &element_quadrature,
-    Kokkos::View<type_real **, Kokkos::HostSpace> &transfer_function1,
-    Kokkos::View<type_real **, Kokkos::HostSpace> &transfer_function2);
+    TransferView1 &transfer_function1, TransferView2 &transfer_function2);
 
 /**
  * @brief Populates the transfer function for a given intersection.
@@ -90,6 +90,8 @@ void set_transfer_functions(
  * @param transfer_function2_prime - derivative of transfer_function2 w.r.t.
  * edge coordinate.
  */
+template <typename TransferView1, typename TransferView2,
+          typename TransferView3, typename TransferView4>
 void set_transfer_functions(
     const Kokkos::View<
         specfem::point::global_coordinates<specfem::dimension::type::dim2> *,
@@ -101,9 +103,7 @@ void set_transfer_functions(
     const specfem::mesh_entity::dim2::type &edge2,
     const Kokkos::View<type_real *, Kokkos::HostSpace> &mortar_quadrature,
     const Kokkos::View<type_real *, Kokkos::HostSpace> &element_quadrature,
-    Kokkos::View<type_real **, Kokkos::HostSpace> &transfer_function1,
-    Kokkos::View<type_real **, Kokkos::HostSpace> &transfer_function1_prime,
-    Kokkos::View<type_real **, Kokkos::HostSpace> &transfer_function2,
-    Kokkos::View<type_real **, Kokkos::HostSpace> &transfer_function2_prime);
+    TransferView1 &transfer_function1, TransferView2 &transfer_function1_prime,
+    TransferView3 &transfer_function2, TransferView4 &transfer_function2_prime);
 
 } // namespace specfem::assembly::nonconforming_interfaces_impl

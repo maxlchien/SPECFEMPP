@@ -62,7 +62,7 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           // Isotropic elastic material
           if (material_id != 2) {
             throw std::runtime_error(
-                "Shear wave velocity (Vs) cannot be zero for acoustic "
+                "Shear wave velocity (Vs) cannot be zero for elastic "
                 "materials.");
           }
 
@@ -76,8 +76,8 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
 
         } else {
           throw std::runtime_error("Shear wave velocity (Vs) cannot be "
-                                   "negative for acoustic or elastic "
-                                   "materials.");
+                                   "negative for any "
+                                   "material.");
         }
       } else {
         // Anisotropic elastic material
