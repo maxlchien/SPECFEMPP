@@ -43,7 +43,7 @@ public:
   static_assert(specfem::data_access::is_container<ContainerType>::value,
                 "ContainerType is not a container");
   static_assert(AccessorType::accessor_type == IndexType::accessor_type,
-                "PointType is not an accessor");
+                "AccessorType and IndexType have incompatible accessors");
 };
 
 template <typename T, typename = void>
