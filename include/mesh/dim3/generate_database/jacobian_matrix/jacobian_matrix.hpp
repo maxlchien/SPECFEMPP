@@ -21,10 +21,10 @@ template <> struct jacobian_matrix<specfem::dimension::type::dim3> {
                                  Kokkos::DefaultHostExecutionSpace>;
   // Parameters
   int nspec;           ///< Number of spectral elements
+  int nspec_irregular; ///< Number of irregular spectral elements
   int ngllx;           ///< Number of GLL points in x
   int nglly;           ///< Number of GLL points in y
   int ngllz;           ///< Number of GLL points in z
-  int nspec_irregular; ///< Number of irregular spectral elements
 
   // Values
   type_real xix_regular;
@@ -64,18 +64,20 @@ template <> struct jacobian_matrix<specfem::dimension::type::dim3> {
    *
    *
    */
-  jacobian_matrix(int nspec, int ngllz, int nglly, int ngllx)
-      : nspec(nspec), ngllx(ngllx), nglly(nglly), ngllz(ngllz),
-        xix("xix", nspec, ngllz, nglly, ngllx),
-        xiy("xiy", nspec, ngllz, nglly, ngllx),
-        xiz("xiz", nspec, ngllz, nglly, ngllx),
-        etax("etax", nspec, ngllz, nglly, ngllx),
-        etay("etay", nspec, ngllz, nglly, ngllx),
-        etaz("etaz", nspec, ngllz, nglly, ngllx),
-        gammax("gammax", nspec, ngllz, nglly, ngllx),
-        gammay("gammay", nspec, ngllz, nglly, ngllx),
-        gammaz("gammaz", nspec, ngllz, nglly, ngllx),
-        jacobian("jacobian", nspec, ngllz, nglly, ngllx) {};
+  jacobian_matrix(int nspec, int nspec_irregular, int ngllz, int nglly,
+                  int ngllx)
+      : nspec(nspec), nspec_irregular(nspec_irregular), ngllx(ngllx),
+        nglly(nglly), ngllz(ngllz),
+        xix("xix", nspec_irregular, ngllz, nglly, ngllx),
+        xiy("xiy", nspec_irregular, ngllz, nglly, ngllx),
+        xiz("xiz", nspec_irregular, ngllz, nglly, ngllx),
+        etax("etax", nspec_irregular, ngllz, nglly, ngllx),
+        etay("etay", nspec_irregular, ngllz, nglly, ngllx),
+        etaz("etaz", nspec_irregular, ngllz, nglly, ngllx),
+        gammax("gammax", nspec_irregular, ngllz, nglly, ngllx),
+        gammay("gammay", nspec_irregular, ngllz, nglly, ngllx),
+        gammaz("gammaz", nspec_irregular, ngllz, nglly, ngllx),
+        jacobian("jacobian", nspec_irregular, ngllz, nglly, ngllx) {};
 
   ///@}
 

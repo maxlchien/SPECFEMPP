@@ -386,9 +386,131 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
   H5Sclose(dataspace);
   H5Gclose(cd_group);
 
-  // Create PointData group and extensible dataset for wavefield scalars
+  // Create PointData group
   hid_t pd_group = H5Gcreate(vtkhdf_group, "PointData", H5P_DEFAULT,
                              H5P_DEFAULT, H5P_DEFAULT);
+
+  // Write static point data: Jacobian
+  {
+    const auto &h_jacobian = this->assembly.jacobian_matrix.h_jacobian;
+    std::vector<float> jacobian_data;
+    jacobian_data.reserve(this->numPoints);
+
+    for (int ispec = 0; ispec < this->nspec; ++ispec) {
+      for (int iz = 0; iz < this->ngllz; ++iz) {
+        for (int iy = 0; iy < this->nglly; ++iy) {
+          for (int ix = 0; ix < this->ngllx; ++ix) {
+
+            if (h_jacobian(ispec, iz, iy, ix) < static_cast<type_real>(1e-10)) {
+              std::cout << "ispec: " << ispec << " iz: " << iz << " iy: " << iy
+                        << " ix: " << ix
+                        << " jacobian: " << h_jacobian(ispec, iz, iy, ix)
+                        << std::endl;
+              Kokkos::abort(
+                  "Error: Jacobian is non-positive, invalid element mapping.");
+            }
+            jacobian_data.push_back(
+                static_cast<float>(h_jacobian(ispec, iz, iy, ix)));
+          }
+        }
+      }
+    }
+
+    dims[0] = jacobian_data.size();
+    dataspace = H5Screate_simple(1, dims, NULL);
+    dataset = H5Dcreate(pd_group, "Jacobian", H5T_NATIVE_FLOAT, dataspace,
+                        H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    H5Dwrite(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+             jacobian_data.data());
+    H5Dclose(dataset);
+    H5Sclose(dataspace);
+  }
+
+  // Write static point data: Material properties (kappa, mu, rho)
+  // Note: These are only available for elastic isotropic materials
+  {
+    std::vector<float> kappa_data, mu_data, rho_data;
+    kappa_data.reserve(this->numPoints);
+    mu_data.reserve(this->numPoints);
+    rho_data.reserve(this->numPoints);
+
+    // Get the elastic isotropic properties container
+    const auto &elastic_properties =
+        this->assembly.properties
+            .get_container<specfem::element::medium_tag::elastic,
+                           specfem::element::property_tag::isotropic>();
+
+    // Access the properties through the assembly
+    // We need to loop through each point and get the properties
+    for (int ispec = 0; ispec < this->nspec; ++ispec) {
+      const auto medium_tag =
+          this->assembly.element_types.get_medium_tag(ispec);
+      const auto property_tag =
+          this->assembly.element_types.get_property_tag(ispec);
+
+      // Check if this is elastic isotropic material
+      if (medium_tag == specfem::element::medium_tag::elastic &&
+          property_tag == specfem::element::property_tag::isotropic) {
+        // Get the property index for this element
+        const int property_index =
+            this->assembly.properties.h_property_index_mapping(ispec);
+
+        for (int iz = 0; iz < this->ngllz; ++iz) {
+          for (int iy = 0; iy < this->nglly; ++iy) {
+            for (int ix = 0; ix < this->ngllx; ++ix) {
+              kappa_data.push_back(static_cast<float>(
+                  elastic_properties.h_kappa(property_index, iz, iy, ix)));
+              mu_data.push_back(static_cast<float>(
+                  elastic_properties.h_mu(property_index, iz, iy, ix)));
+              rho_data.push_back(static_cast<float>(
+                  elastic_properties.h_rho(property_index, iz, iy, ix)));
+            }
+          }
+        }
+      } else {
+        // For non-elastic-isotropic materials, write zeros or NaN
+        for (int iz = 0; iz < this->ngllz; ++iz) {
+          for (int iy = 0; iy < this->nglly; ++iy) {
+            for (int ix = 0; ix < this->ngllx; ++ix) {
+              kappa_data.push_back(0.0f);
+              mu_data.push_back(0.0f);
+              rho_data.push_back(0.0f);
+            }
+          }
+        }
+      }
+    }
+
+    // Write kappa
+    dims[0] = kappa_data.size();
+    dataspace = H5Screate_simple(1, dims, NULL);
+    dataset = H5Dcreate(pd_group, "Kappa", H5T_NATIVE_FLOAT, dataspace,
+                        H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    H5Dwrite(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+             kappa_data.data());
+    H5Dclose(dataset);
+    H5Sclose(dataspace);
+
+    // Write mu
+    dims[0] = mu_data.size();
+    dataspace = H5Screate_simple(1, dims, NULL);
+    dataset = H5Dcreate(pd_group, "Mu", H5T_NATIVE_FLOAT, dataspace,
+                        H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    H5Dwrite(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+             mu_data.data());
+    H5Dclose(dataset);
+    H5Sclose(dataspace);
+
+    // Write rho
+    dims[0] = rho_data.size();
+    dataspace = H5Screate_simple(1, dims, NULL);
+    dataset = H5Dcreate(pd_group, "Rho", H5T_NATIVE_FLOAT, dataspace,
+                        H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    H5Dwrite(dataset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+             rho_data.data());
+    H5Dclose(dataset);
+    H5Sclose(dataspace);
+  }
 
   // Create extensible dataset for wavefield scalars
   // Initial size: 0 (will grow as needed)
