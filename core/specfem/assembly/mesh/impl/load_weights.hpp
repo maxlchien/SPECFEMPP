@@ -47,7 +47,7 @@ template <typename IndexType, typename ViewType,
               (specfem::data_access::is_index_type<IndexType>::value &&
                specfem::data_access::is_point<IndexType>::value),
               int> = 0>
-void load_on_device(
+KOKKOS_INLINE_FUNCTION void load_on_device(
     const IndexType &index, const ViewType &weights,
     specfem::point::weights<IndexType::dimension_tag> &point_weights) {
   impl_load<true>(index, weights, point_weights);

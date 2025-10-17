@@ -27,10 +27,10 @@ struct weights<specfem::dimension::type::dim2>
           specfem::dimension::type::dim2, false> {
   constexpr static auto dimension_tag =
       specfem::dimension::type::dim2; ///< Dimension tag
-  int wz; ///< Weight of the quadrature point in the z direction within
-          ///< the spectral element
-  int wx; ///< Weight of the quadrature point in the x direction within
-          ///< the spectral element
+  type_real wz; ///< Weight of the quadrature point in the z direction within
+                ///< the spectral element
+  type_real wx; ///< Weight of the quadrature point in the x direction within
+                ///< the spectral element
 
   /**
    * @name Constructors
@@ -49,15 +49,15 @@ struct weights<specfem::dimension::type::dim2>
    *
    */
   KOKKOS_INLINE_FUNCTION
-  weights(const int &wz, const int &wx) : wz(wz), wx(wx) {}
+  weights(const type_real &wz, const type_real &wx) : wz(wz), wx(wx) {}
   ///@}
 
   /**
    * @brief Get the product of the weights
    *
-   * @return int Product of the weights
+   * @return type_real Product of the weights
    */
-  KOKKOS_INLINE_FUNCTION int product() const { return wz * wx; }
+  KOKKOS_INLINE_FUNCTION type_real product() const { return wz * wx; }
 };
 
 template <>
@@ -68,12 +68,12 @@ struct weights<specfem::dimension::type::dim3>
           specfem::dimension::type::dim3, false> {
   constexpr static auto dimension_tag =
       specfem::dimension::type::dim3; ///< Dimension tag
-  int wz; ///< Weight of the quadrature point in the z direction within
-          ///< the spectral element
-  int wy; ///< Weight of the quadrature point in the y direction within
-          ///< the spectral element
-  int wx; ///< Weight of the quadrature point in the x direction within
-          ///< the spectral element
+  type_real wz; ///< Weight of the quadrature point in the z direction within
+                ///< the spectral element
+  type_real wy; ///< Weight of the quadrature point in the y direction within
+                ///< the spectral element
+  type_real wx; ///< Weight of the quadrature point in the x direction within
+                ///< the spectral element
 
   /**
    * @name Constructors
@@ -92,16 +92,16 @@ struct weights<specfem::dimension::type::dim3>
    *
    */
   KOKKOS_INLINE_FUNCTION
-  weights(const int &wz, const int &wy, const int &wx)
+  weights(const type_real &wz, const type_real &wy, const type_real &wx)
       : wz(wz), wy(wy), wx(wx) {}
   ///@}
 
   /**
    * @brief Get the product of the weights
    *
-   * @return int Product of the weights
+   * @return type_real Product of the weights
    */
-  KOKKOS_INLINE_FUNCTION int product() const { return wz * wy * wx; }
+  KOKKOS_INLINE_FUNCTION type_real product() const { return wz * wy * wx; }
 };
 
 } // namespace specfem::point
