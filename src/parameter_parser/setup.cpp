@@ -167,8 +167,6 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
 
         if (const YAML::Node &n_plotter = n_writer["display"]) {
 
-          std::cout << "[DEBUG] Display section found in YAML config"
-                    << std::endl;
 
 #ifdef NO_VTK
           std::ostringstream message;
