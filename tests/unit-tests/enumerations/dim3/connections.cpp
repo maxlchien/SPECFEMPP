@@ -254,6 +254,22 @@ private:
   }
 };
 
+std::vector<int> get_nodes(const TestElement &element,
+                           const specfem::mesh_entity::dim3::type &entity) {
+  if (specfem::mesh_entity::contains(specfem::mesh_entity::dim3::edges,
+                                     entity)) {
+    auto nodes = specfem::mesh_entity::nodes_on_orientation(entity);
+    return { element.control_nodes(nodes[0]), element.control_nodes(nodes[1]) };
+  } else if (specfem::mesh_entity::contains(specfem::mesh_entity::dim3::corners,
+                                            entity)) {
+    auto nodes = specfem::mesh_entity::nodes_on_orientation(entity);
+    return { element.control_nodes(nodes[0]) };
+  } else {
+    throw std::runtime_error("The provided entity is not an edge or corner");
+    ;
+  }
+}
+
 // Define 12 nodes
 const static std::array<specfem::connections_test::Coordinate, 12>
     coordinates = {
@@ -294,6 +310,9 @@ protected:
     // We rotate the elements so that the specified entities align
     element1.rotate(specfem::mesh_entity::dim3::type::top, config.entity1);
     element2.rotate(specfem::mesh_entity::dim3::type::bottom, config.entity2);
+
+    edges_on_face1 = specfem::mesh_entity::edges_of_face(config.entity1);
+    edges_on_face2 = specfem::mesh_entity::edges_of_face(config.entity2);
   }
 
   void TearDown() override {
@@ -314,6 +333,9 @@ public:
 
   specfem::connections_test::TestElement element1;
   specfem::connections_test::TestElement element2;
+
+  std::array<specfem::mesh_entity::dim3::type, 4> edges_on_face1;
+  std::array<specfem::mesh_entity::dim3::type, 4> edges_on_face2;
 };
 
 Kokkos::View<specfem::connections_test::Coordinate ***, Kokkos::HostSpace>
@@ -358,7 +380,7 @@ compute_coordinates(const specfem::connections_test::TestElement &element) {
   return coords;
 }
 
-TEST_P(CoupledElements, MapCoordinatesTest) {
+TEST_P(CoupledElements, FaceConnections) {
   const auto &config = GetParam();
   // Create connection mapping between the two elements
   specfem::mesh_entity::element<specfem::dimension::type::dim3> mapping(5, 5,
@@ -369,22 +391,104 @@ TEST_P(CoupledElements, MapCoordinatesTest) {
 
   const int num_points =
       mapping.number_of_points_on_orientation(config.entity1);
+  const auto element_coord1 = compute_coordinates(element1);
+  const auto element_coord2 = compute_coordinates(element2);
   for (int ipoint = 0; ipoint < num_points; ++ipoint) {
     const auto [iz1, iy1, ix1] =
         mapping.map_coordinates(config.entity1, ipoint);
     const auto [iz2, iy2, ix2] = connection.map_coordinates(
         config.entity1, config.entity2, iz1, iy1, ix1);
 
-    const auto coordinate1 = compute_coordinates(element1)(iz1, iy1, ix1);
-    const auto coordinate2 = compute_coordinates(element2)(iz2, iy2, ix2);
+    const auto coordinate1 = element_coord1(iz1, iy1, ix1);
+    const auto coordinate2 = element_coord2(iz2, iy2, ix2);
     // Verify that the coordinates match on the shared face
     EXPECT_TRUE(coordinate1 == coordinate2)
         << "Mapped coordinates do not match for point index " << ipoint
         << " on entities "
         << specfem::mesh_entity::dim3::to_string(config.entity1) << " and "
         << specfem::mesh_entity::dim3::to_string(config.entity2) << ".\n"
-        << "Element 1 coordinate: " << coordinate1.to_string() << "\n"
-        << "Element 2 coordinate: " << coordinate2.to_string() << std::endl;
+        << "Element 1 coordinate: " << coordinate1.to_string() << " at (" << ix1
+        << ", " << iy1 << ", " << iz1 << ")\n"
+        << "Element 2 coordinate: " << coordinate2.to_string() << " at (" << ix2
+        << ", " << iy2 << ", " << iz2 << ")\n";
+  }
+}
+
+TEST_P(CoupledElements, EdgeConnections) {
+  const auto &config = GetParam();
+  // Create connection mapping between the two elements
+  specfem::mesh_entity::element<specfem::dimension::type::dim3> mapping(5, 5,
+                                                                        5);
+
+  specfem::connections::connection_mapping<specfem::dimension::type::dim3>
+      connection(5, 5, 5, element1.control_nodes, element2.control_nodes);
+
+  // Test edge connections
+
+  const auto element_coord1 = compute_coordinates(element1);
+  const auto element_coord2 = compute_coordinates(element2);
+  for (const auto edge1 : edges_on_face1) {
+    for (const auto edge2 : edges_on_face2) {
+      if (specfem::connections_test::get_nodes(element1, edge1) ==
+          specfem::connections_test::get_nodes(element2, edge2)) {
+        const int num_points = mapping.number_of_points_on_orientation(edge1);
+        for (int ipoint = 0; ipoint < num_points; ++ipoint) {
+          const auto [iz1, iy1, ix1] = mapping.map_coordinates(edge1, ipoint);
+          const auto [iz2, iy2, ix2] =
+              connection.map_coordinates(edge1, edge2, iz1, iy1, ix1);
+
+          const auto coordinate1 = element_coord1(iz1, iy1, ix1);
+          const auto coordinate2 = element_coord2(iz2, iy2, ix2);
+          // Verify that the coordinates match on the shared edge
+          EXPECT_TRUE(coordinate1 == coordinate2)
+              << "Mapped coordinates do not match for point index " << ipoint
+              << " on edges " << specfem::mesh_entity::dim3::to_string(edge1)
+              << " and " << specfem::mesh_entity::dim3::to_string(edge2)
+              << ".\n"
+              << "Element 1 coordinate: " << coordinate1.to_string() << " at ("
+              << ix1 << ", " << iy1 << ", " << iz1 << ")\n"
+              << "Element 2 coordinate: " << coordinate2.to_string() << " at ("
+              << ix2 << ", " << iy2 << ", " << iz2 << ")\n";
+        }
+      }
+    }
+  }
+}
+
+TEST_P(CoupledElements, NodeConnections) {
+  const auto &config = GetParam();
+  // Create connection mapping between the two elements
+  specfem::mesh_entity::element<specfem::dimension::type::dim3> mapping(5, 5,
+                                                                        5);
+
+  specfem::connections::connection_mapping<specfem::dimension::type::dim3>
+      connection(5, 5, 5, element1.control_nodes, element2.control_nodes);
+
+  const auto element_coord1 = compute_coordinates(element1);
+  const auto element_coord2 = compute_coordinates(element2);
+  for (const auto node1 :
+       specfem::mesh_entity::corners_of_face(config.entity1)) {
+    for (const auto node2 :
+         specfem::mesh_entity::corners_of_face(config.entity2)) {
+      if (specfem::connections_test::get_nodes(element1, node1) ==
+          specfem::connections_test::get_nodes(element2, node2)) {
+        // Get local coordinates of the nodes
+        const auto [iz1, iy1, ix1] = mapping.map_coordinates(node1);
+        const auto [iz2, iy2, ix2] = connection.map_coordinates(node1, node2);
+        const auto coordinate1 = element_coord1(iz1, iy1, ix1);
+        const auto coordinate2 = element_coord2(iz2, iy2, ix2);
+        // Verify that the coordinates match on the shared node
+        EXPECT_TRUE(coordinate1 == coordinate2)
+            << "Mapped coordinates do not match for node "
+            << specfem::mesh_entity::dim3::to_string(node1) << " on entities "
+            << specfem::mesh_entity::dim3::to_string(config.entity1) << " and "
+            << specfem::mesh_entity::dim3::to_string(config.entity2) << ".\n"
+            << "Element 1 coordinate: " << coordinate1.to_string() << " at ("
+            << ix1 << ", " << iy1 << ", " << iz1 << ")\n"
+            << "Element 2 coordinate: " << coordinate2.to_string() << " at ("
+            << ix2 << ", " << iy2 << ", " << iz2 << ")\n";
+      }
+    }
   }
 }
 

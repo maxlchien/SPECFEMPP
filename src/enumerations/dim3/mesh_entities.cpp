@@ -440,25 +440,153 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::map_coordinates(
 std::vector<int> specfem::mesh_entity::nodes_on_orientation(
     const specfem::mesh_entity::dim3::type &entity) {
 
-  if (!specfem::mesh_entity::contains(specfem::mesh_entity::dim3::faces,
-                                      entity)) {
-    throw std::runtime_error("The provided entity is not a face.");
-  }
-
   switch (entity) {
+  // Faces
   case specfem::mesh_entity::dim3::type::left:
-    return { 0, 3, 7, 4 };
+    return { 0, 4, 7, 3 };
   case specfem::mesh_entity::dim3::type::right:
     return { 1, 2, 6, 5 };
   case specfem::mesh_entity::dim3::type::front:
     return { 0, 1, 5, 4 };
   case specfem::mesh_entity::dim3::type::back:
-    return { 3, 2, 6, 7 };
+    return { 3, 7, 6, 2 };
   case specfem::mesh_entity::dim3::type::bottom:
-    return { 0, 1, 2, 3 };
+    return { 0, 3, 2, 1 };
   case specfem::mesh_entity::dim3::type::top:
     return { 4, 5, 6, 7 };
+  // Edges
+  case specfem::mesh_entity::dim3::type::bottom_left:
+    return { 0, 3 };
+  case specfem::mesh_entity::dim3::type::bottom_right:
+    return { 1, 2 };
+  case specfem::mesh_entity::dim3::type::top_left:
+    return { 4, 7 };
+  case specfem::mesh_entity::dim3::type::top_right:
+    return { 5, 6 };
+  case specfem::mesh_entity::dim3::type::front_bottom:
+    return { 0, 1 };
+  case specfem::mesh_entity::dim3::type::front_top:
+    return { 4, 5 };
+  case specfem::mesh_entity::dim3::type::front_left:
+    return { 0, 4 };
+  case specfem::mesh_entity::dim3::type::front_right:
+    return { 1, 5 };
+  case specfem::mesh_entity::dim3::type::back_bottom:
+    return { 3, 2 };
+  case specfem::mesh_entity::dim3::type::back_top:
+    return { 7, 6 };
+  case specfem::mesh_entity::dim3::type::back_left:
+    return { 3, 7 };
+  case specfem::mesh_entity::dim3::type::back_right:
+    return { 2, 6 };
+  // Corners
+  case specfem::mesh_entity::dim3::type::bottom_front_left:
+    return { 0 };
+  case specfem::mesh_entity::dim3::type::bottom_front_right:
+    return { 1 };
+  case specfem::mesh_entity::dim3::type::bottom_back_left:
+    return { 3 };
+  case specfem::mesh_entity::dim3::type::bottom_back_right:
+    return { 2 };
+  case specfem::mesh_entity::dim3::type::top_front_left:
+    return { 4 };
+  case specfem::mesh_entity::dim3::type::top_front_right:
+    return { 5 };
+  case specfem::mesh_entity::dim3::type::top_back_left:
+    return { 7 };
+  case specfem::mesh_entity::dim3::type::top_back_right:
+    return { 6 };
   default:
-    throw std::runtime_error("The provided entity is not a face.");
+    throw std::runtime_error("The provided entity is not a valid mesh entity");
+  }
+}
+
+std::array<specfem::mesh_entity::dim3::type, 4>
+specfem::mesh_entity::edges_of_face(
+    const specfem::mesh_entity::dim3::type &face) {
+
+  if (!specfem::mesh_entity::contains(specfem::mesh_entity::dim3::faces,
+                                      face)) {
+    throw std::runtime_error("The argument is not a face");
+  }
+
+  switch (face) {
+  case specfem::mesh_entity::dim3::type::bottom:
+    return { specfem::mesh_entity::dim3::type::bottom_left,
+             specfem::mesh_entity::dim3::type::bottom_right,
+             specfem::mesh_entity::dim3::type::back_bottom,
+             specfem::mesh_entity::dim3::type::front_bottom };
+  case specfem::mesh_entity::dim3::type::right:
+    return { specfem::mesh_entity::dim3::type::bottom_right,
+             specfem::mesh_entity::dim3::type::top_right,
+             specfem::mesh_entity::dim3::type::front_right,
+             specfem::mesh_entity::dim3::type::back_right };
+  case specfem::mesh_entity::dim3::type::top:
+    return { specfem::mesh_entity::dim3::type::top_left,
+             specfem::mesh_entity::dim3::type::top_right,
+             specfem::mesh_entity::dim3::type::front_top,
+             specfem::mesh_entity::dim3::type::back_top };
+  case specfem::mesh_entity::dim3::type::left:
+    return { specfem::mesh_entity::dim3::type::bottom_left,
+             specfem::mesh_entity::dim3::type::top_left,
+             specfem::mesh_entity::dim3::type::back_left,
+             specfem::mesh_entity::dim3::type::front_left };
+  case specfem::mesh_entity::dim3::type::front:
+    return { specfem::mesh_entity::dim3::type::front_bottom,
+             specfem::mesh_entity::dim3::type::front_top,
+             specfem::mesh_entity::dim3::type::front_right,
+             specfem::mesh_entity::dim3::type::front_left };
+  case specfem::mesh_entity::dim3::type::back:
+    return { specfem::mesh_entity::dim3::type::back_bottom,
+             specfem::mesh_entity::dim3::type::back_top,
+             specfem::mesh_entity::dim3::type::back_right,
+             specfem::mesh_entity::dim3::type::back_left };
+  default:
+    throw std::runtime_error("Invalid face type");
+  }
+}
+
+std::array<specfem::mesh_entity::dim3::type, 4>
+specfem::mesh_entity::corners_of_face(
+    const specfem::mesh_entity::dim3::type &face) {
+
+  if (!specfem::mesh_entity::contains(specfem::mesh_entity::dim3::faces,
+                                      face)) {
+    throw std::runtime_error("The argument is not a face");
+  }
+
+  switch (face) {
+  case specfem::mesh_entity::dim3::type::bottom:
+    return { specfem::mesh_entity::dim3::type::bottom_front_left,
+             specfem::mesh_entity::dim3::type::bottom_front_right,
+             specfem::mesh_entity::dim3::type::bottom_back_right,
+             specfem::mesh_entity::dim3::type::bottom_back_left };
+  case specfem::mesh_entity::dim3::type::right:
+    return { specfem::mesh_entity::dim3::type::bottom_front_right,
+             specfem::mesh_entity::dim3::type::top_front_right,
+             specfem::mesh_entity::dim3::type::top_back_right,
+             specfem::mesh_entity::dim3::type::bottom_back_right };
+  case specfem::mesh_entity::dim3::type::top:
+    return { specfem::mesh_entity::dim3::type::top_front_left,
+             specfem::mesh_entity::dim3::type::top_front_right,
+             specfem::mesh_entity::dim3::type::top_back_right,
+             specfem::mesh_entity::dim3::type::top_back_left };
+  case specfem::mesh_entity::dim3::type::left:
+    return { specfem::mesh_entity::dim3::type::bottom_front_left,
+             specfem::mesh_entity::dim3::type::top_front_left,
+             specfem::mesh_entity::dim3::type::top_back_left,
+             specfem::mesh_entity::dim3::type::bottom_back_left };
+  case specfem::mesh_entity::dim3::type::front:
+    return { specfem::mesh_entity::dim3::type::bottom_front_left,
+             specfem::mesh_entity::dim3::type::bottom_front_right,
+             specfem::mesh_entity::dim3::type::top_front_right,
+             specfem::mesh_entity::dim3::type::top_front_left };
+  case specfem::mesh_entity::dim3::type::back:
+    return { specfem::mesh_entity::dim3::type::bottom_back_left,
+             specfem::mesh_entity::dim3::type::bottom_back_right,
+             specfem::mesh_entity::dim3::type::top_back_right,
+             specfem::mesh_entity::dim3::type::top_back_left };
+  default:
+    throw std::runtime_error("Invalid face type");
   }
 }

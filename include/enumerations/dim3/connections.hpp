@@ -33,10 +33,7 @@ public:
 
   std::tuple<int, int, int>
   map_coordinates(const specfem::mesh_entity::dim3::type &from,
-                  const specfem::mesh_entity::dim3::type &to) const {
-    // Implement the mapping logic here
-    return std::make_tuple(0, 0, 0);
-  }
+                  const specfem::mesh_entity::dim3::type &to) const;
 
 private:
   int ngllz;

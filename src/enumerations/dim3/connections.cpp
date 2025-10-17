@@ -31,6 +31,25 @@ std::array<int, 4> get_face_nodes(const specfem::mesh_entity::dim3::type &face,
            element(nodes[3]) };
 }
 
+template <typename ViewType>
+std::array<int, 2> get_edge_nodes(const specfem::mesh_entity::dim3::type &edge,
+                                  const ViewType &element) {
+
+  if (!specfem::mesh_entity::contains(specfem::mesh_entity::dim3::edges,
+                                      edge)) {
+    throw std::runtime_error("The provided entity is not an edge.");
+  }
+
+  auto nodes = specfem::mesh_entity::nodes_on_orientation(edge);
+
+  if (nodes.size() != 2) {
+    throw std::runtime_error("An edge must have exactly 2 nodes.");
+  }
+
+  // Return the control node indices for the specified edge
+  return { element(nodes[0]), element(nodes[1]) };
+}
+
 /**
  * @brief Computes the permutation of face nodes to match a reference face
  *
@@ -60,10 +79,14 @@ compute_face_permutation(const std::array<int, 4> &face_nodes,
   if (it == face_nodes.end()) {
     throw std::runtime_error("Reference face node not found in face nodes.");
   }
+
+  // We assume that the normal from 2 faces point outward of the element they
+  // are a part of i.e. in opposite directions Thus, we need to reverse the
+  // order of the nodes when computing the permutation
   int start_index = std::distance(face_nodes.begin(), it);
   std::array<int, 4> permutation;
   for (int i = 0; i < 4; ++i) {
-    permutation[i] = (start_index + i) % 4;
+    permutation[i] = (4 + (start_index - i)) % 4;
   }
 
   // Verify the permutation
@@ -130,7 +153,6 @@ affine_transform(const std::array<int, 4> &permutation, const type_real j,
   std::array<std::array<type_real, 2>, 2> A;
   std::array<type_real, 2> b;
 
-  const std::array<std::array<type_real, 2>, 4> s = REF_FACE_NODES;
   const std::array<std::array<type_real, 2>, 4> t = {
     REF_FACE_NODES[permutation[0]], REF_FACE_NODES[permutation[1]],
     REF_FACE_NODES[permutation[2]], REF_FACE_NODES[permutation[3]]
@@ -151,6 +173,17 @@ affine_transform(const std::array<int, 4> &permutation, const type_real j,
   return { j_prime, i_prime };
 }
 
+int edge_transform(const std::array<int, 2> &from_nodes,
+                   const std::array<int, 2> &to_nodes, const int index) {
+  if (from_nodes[0] == to_nodes[0] && from_nodes[1] == to_nodes[1]) {
+    return index;
+  } else if (from_nodes[0] == to_nodes[1] && from_nodes[1] == to_nodes[0]) {
+    return 1 - index;
+  } else {
+    throw std::runtime_error("Edges do not match for transformation.");
+  }
+}
+
 std::tuple<int, int, int>
 specfem::connections::connection_mapping<specfem::dimension::type::dim3>::
     map_coordinates(const specfem::mesh_entity::dim3::type &from,
@@ -165,21 +198,31 @@ specfem::connections::connection_mapping<specfem::dimension::type::dim3>::
     // logic
     auto face1_nodes = get_face_nodes(from, element1);
     auto face2_nodes = get_face_nodes(to, element2);
+
+    // Compute the permutation to align face1 with face2
     auto perm = compute_face_permutation(face1_nodes, face2_nodes);
+
+    // cordinate permutation
 
     // Get the (j, i) coordinates on the 'from' face
     const auto [j, i] = [=]() {
       switch (from) {
       case specfem::mesh_entity::dim3::type::left:
+        return std::make_pair(static_cast<type_real>(iy) / (nglly - 1),
+                              static_cast<type_real>(iz) / (ngllz - 1));
       case specfem::mesh_entity::dim3::type::right:
         return std::make_pair(static_cast<type_real>(iz) / (ngllz - 1),
                               static_cast<type_real>(iy) / (nglly - 1));
       case specfem::mesh_entity::dim3::type::front:
-      case specfem::mesh_entity::dim3::type::back:
         return std::make_pair(static_cast<type_real>(iz) / (ngllz - 1),
                               static_cast<type_real>(ix) / (ngllx - 1));
-      case specfem::mesh_entity::dim3::type::top:
+      case specfem::mesh_entity::dim3::type::back:
+        return std::make_pair(static_cast<type_real>(ix) / (ngllx - 1),
+                              static_cast<type_real>(iz) / (ngllz - 1));
       case specfem::mesh_entity::dim3::type::bottom:
+        return std::make_pair(static_cast<type_real>(ix) / (ngllx - 1),
+                              static_cast<type_real>(iy) / (nglly - 1));
+      case specfem::mesh_entity::dim3::type::top:
         return std::make_pair(static_cast<type_real>(iy) / (nglly - 1),
                               static_cast<type_real>(ix) / (ngllx - 1));
       default:
@@ -192,8 +235,8 @@ specfem::connections::connection_mapping<specfem::dimension::type::dim3>::
     return [=](const type_real j_prime, const type_real i_prime) {
       switch (to) {
       case specfem::mesh_entity::dim3::type::left:
-        return std::make_tuple(static_cast<int>(j_prime * (ngllz - 1)),
-                               static_cast<int>(i_prime * (nglly - 1)), 0);
+        return std::make_tuple(static_cast<int>(i_prime * (ngllz - 1)),
+                               static_cast<int>(j_prime * (nglly - 1)), 0);
       case specfem::mesh_entity::dim3::type::right:
         // X-axis faces
         return std::make_tuple(static_cast<int>(j_prime * (ngllz - 1)),
@@ -204,9 +247,9 @@ specfem::connections::connection_mapping<specfem::dimension::type::dim3>::
                                static_cast<int>(i_prime * (ngllx - 1)));
       case specfem::mesh_entity::dim3::type::back:
         // Y-axis faces
-        return std::make_tuple(static_cast<int>(j_prime * (ngllz - 1)),
+        return std::make_tuple(static_cast<int>(i_prime * (ngllz - 1)),
                                nglly - 1,
-                               static_cast<int>(i_prime * (ngllx - 1)));
+                               static_cast<int>(j_prime * (ngllx - 1)));
       case specfem::mesh_entity::dim3::type::top:
         // Z-axis faces
         return std::make_tuple(ngllz - 1,
@@ -214,15 +257,92 @@ specfem::connections::connection_mapping<specfem::dimension::type::dim3>::
                                static_cast<int>(i_prime * (ngllx - 1)));
       case specfem::mesh_entity::dim3::type::bottom:
         // Z-axis faces
-        return std::make_tuple(0, static_cast<int>(j_prime * (nglly - 1)),
-                               static_cast<int>(i_prime * (ngllx - 1)));
+        return std::make_tuple(0, static_cast<int>(i_prime * (nglly - 1)),
+                               static_cast<int>(j_prime * (ngllx - 1)));
       default:
         throw std::runtime_error("Invalid face orientation.");
       }
     }(j_prime, i_prime);
   }
 
-  std::runtime_error(
+  if (specfem::mesh_entity::contains(specfem::mesh_entity::dim3::edges, from) &&
+      specfem::mesh_entity::contains(specfem::mesh_entity::dim3::edges, to)) {
+
+    auto edge1_nodes = get_edge_nodes(from, element1);
+    auto edge2_nodes = get_edge_nodes(to, element2);
+
+    const int i = [=]() {
+      switch (from) {
+      case specfem::mesh_entity::dim3::type::front_bottom:
+      case specfem::mesh_entity::dim3::type::front_top:
+      case specfem::mesh_entity::dim3::type::back_bottom:
+      case specfem::mesh_entity::dim3::type::back_top:
+        return ix;
+      case specfem::mesh_entity::dim3::type::bottom_left:
+      case specfem::mesh_entity::dim3::type::top_left:
+      case specfem::mesh_entity::dim3::type::bottom_right:
+      case specfem::mesh_entity::dim3::type::top_right:
+        return iy;
+      case specfem::mesh_entity::dim3::type::front_left:
+      case specfem::mesh_entity::dim3::type::front_right:
+      case specfem::mesh_entity::dim3::type::back_left:
+      case specfem::mesh_entity::dim3::type::back_right:
+        return iz;
+      default:
+        throw std::runtime_error("Invalid edge orientation.");
+      }
+    }();
+
+    const int i_prime = edge_transform(edge1_nodes, edge2_nodes, i);
+
+    return [=](const int i_prime) {
+      switch (to) {
+      case specfem::mesh_entity::dim3::type::front_bottom:
+        return std::make_tuple(0, 0, i_prime);
+      case specfem::mesh_entity::dim3::type::front_top:
+        return std::make_tuple(ngllz - 1, 0, i_prime);
+      case specfem::mesh_entity::dim3::type::back_bottom:
+        return std::make_tuple(0, nglly - 1, i_prime);
+      case specfem::mesh_entity::dim3::type::back_top:
+        return std::make_tuple(ngllz - 1, nglly - 1, i_prime);
+      case specfem::mesh_entity::dim3::type::bottom_left:
+        return std::make_tuple(0, i_prime, 0);
+      case specfem::mesh_entity::dim3::type::top_left:
+        return std::make_tuple(ngllz - 1, i_prime, 0);
+      case specfem::mesh_entity::dim3::type::bottom_right:
+        return std::make_tuple(0, i_prime, ngllx - 1);
+      case specfem::mesh_entity::dim3::type::top_right:
+        return std::make_tuple(ngllz - 1, i_prime, ngllx - 1);
+      case specfem::mesh_entity::dim3::type::front_left:
+        return std::make_tuple(i_prime, 0, 0);
+      case specfem::mesh_entity::dim3::type::front_right:
+        return std::make_tuple(i_prime, 0, ngllx - 1);
+      case specfem::mesh_entity::dim3::type::back_left:
+        return std::make_tuple(i_prime, nglly - 1, 0);
+      case specfem::mesh_entity::dim3::type::back_right:
+        return std::make_tuple(i_prime, nglly - 1, ngllx - 1);
+      default:
+        throw std::runtime_error("Invalid edge orientation.");
+      }
+    }(i_prime);
+  }
+  throw std::runtime_error(
       "Mapping between the specified mesh entities is not implemented.");
   return std::make_tuple(0, 0, 0);
+}
+
+std::tuple<int, int, int>
+specfem::connections::connection_mapping<specfem::dimension::type::dim3>::
+    map_coordinates(const specfem::mesh_entity::dim3::type &from,
+                    const specfem::mesh_entity::dim3::type &to) const {
+
+  if (!(specfem::mesh_entity::contains(specfem::mesh_entity::dim3::corners,
+                                       from) &&
+        specfem::mesh_entity::contains(specfem::mesh_entity::dim3::corners,
+                                       to)))
+    throw std::runtime_error("Both entities must be corners for this mapping.");
+
+  return specfem::mesh_entity::element<specfem::dimension::type::dim3>(
+             ngllz, nglly, ngllx)
+      .map_coordinates(to);
 }

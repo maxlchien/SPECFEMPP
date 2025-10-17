@@ -173,7 +173,7 @@ target_link_libraries(
 
 add_executable(
   enumerations_tests
-  # enumerations/dim3/mesh_entity.cpp
+  enumerations/dim3/mesh_entity.cpp
   enumerations/dim3/connections.cpp
   enumerations/dim3/runner.cpp
 )

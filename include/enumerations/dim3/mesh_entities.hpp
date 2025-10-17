@@ -389,4 +389,10 @@ private:
                      std::tuple<int, int, int> >
       corner_coordinates;
 };
+
+std::array<specfem::mesh_entity::dim3::type, 4>
+edges_of_face(const specfem::mesh_entity::dim3::type &face);
+
+std::array<specfem::mesh_entity::dim3::type, 4>
+corners_of_face(const specfem::mesh_entity::dim3::type &face);
 } // namespace specfem::mesh_entity
