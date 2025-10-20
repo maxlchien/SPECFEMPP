@@ -9,6 +9,7 @@ parameters:
       Interfaces : None
       Sources : Force source (1)
       Boundary conditions : Neumann BCs on all edges
+      Debugging comment : This test tests elastic compute_forces routine
 
   simulation-setup:
     ## quadrature setup
@@ -18,6 +19,7 @@ parameters:
     ## Solver setup
     solver:
       time-marching:
+        type-of-simulation: forward
         time-scheme:
           type: Newmark
           dt: 1.1e-3
@@ -27,19 +29,11 @@ parameters:
       forward:
         writer:
           seismogram:
-            format: "ascii"
-            directory: "OUTPUT_FILES/results"
-
-
-          # Uncomment the following lines to enable display output if VTK is installed
-          # display:
-          #   format: on_screen
-          #   field: displacement
-          #   simulation-field: forward
-          #   time-interval: 10
+            format: ascii
+            directory: "."
 
   receivers:
-    stations: "OUTPUT_FILES/STATIONS"
+    stations: "displacement_tests/Newmark/serial/dim2/HomogeneousElasticDomainMomentTensor/STATIONS"
     angle: 0.0
     seismogram-type:
       - displacement
@@ -55,7 +49,6 @@ parameters:
 
   ## databases
   databases:
-    mesh-database: "OUTPUT_FILES/database.bin"
+    mesh-database: "displacement_tests/Newmark/serial/dim2/HomogeneousElasticDomainMomentTensor/database.bin"
 
-  ## sources
-  sources: "source.yaml"
+  sources: "displacement_tests/Newmark/serial/dim2/HomogeneousElasticDomainMomentTensor/sources.yaml"
