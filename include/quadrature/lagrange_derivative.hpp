@@ -95,7 +95,7 @@ struct lagrange_derivative {
    * @param ix Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr auto &xi(const int l, const int ix) const {
+  KOKKOS_INLINE_FUNCTION constexpr const auto &xi(const int l, const int ix) const {
     return hprime_gll(l, ix);
   }
 
