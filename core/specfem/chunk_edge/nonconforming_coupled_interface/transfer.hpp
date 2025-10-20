@@ -18,8 +18,6 @@ namespace impl {
 /**
  * @brief
  *
- */
- *
  * @tparam IsSelf self side of InterfaceTag or coupled (other) side.
  * @tparam NumberElements Number of elements in the chunk.
  * @tparam NQuadElement Number of quadrature points (Gauss-Lobatto-Legendre) on
@@ -38,127 +36,125 @@ template <bool IsSelf, int NumberElements, int NQuadElement, int NQuadInterface,
           typename MemoryTraits, bool UseSIMD>
 struct nonconforming_transfer_function;
 
- template <int NumberElements, int NQuadElement, int NQuadInterface,
-           typename MemorySpace, typename MemoryTraits, bool UseSIMD>
- struct nonconforming_transfer_function<
-     true, NumberElements, NQuadElement, NQuadInterface,
-     specfem::dimension::type::dim2, MemorySpace, MemoryTraits, UseSIMD> {
- private:
-   /**
-    * @name Typedefs
-    *
-    */
-   ///@{
-   using simd = specfem::datatype::simd<type_real, UseSIMD>; ///< SIMD type.
+template <int NumberElements, int NQuadElement, int NQuadInterface,
+          typename MemorySpace, typename MemoryTraits, bool UseSIMD>
+struct nonconforming_transfer_function<
+    true, NumberElements, NQuadElement, NQuadInterface,
+    specfem::dimension::type::dim2, MemorySpace, MemoryTraits, UseSIMD> {
+private:
+  /**
+   * @name Typedefs
+   *
+   */
+  ///@{
+  using simd = specfem::datatype::simd<type_real, UseSIMD>; ///< SIMD type.
 
- protected:
-   using TransferViewType = specfem::datatype::VectorChunkEdgeViewType<
-       type_real, specfem::dimension::type::dim2, NumberElements, NQuadElement,
-       NQuadInterface, UseSIMD, MemorySpace,
-       MemoryTraits>; ///< Underlying view used to store data of the transfer
-                      ///< function.
+protected:
+  using TransferViewType = specfem::datatype::VectorChunkEdgeViewType<
+      type_real, specfem::dimension::type::dim2, NumberElements, NQuadElement,
+      NQuadInterface, UseSIMD, MemorySpace,
+      MemoryTraits>; ///< Underlying view used to store data of the transfer
+                     ///< function.
 
- public:
-   /** @brief Side polarity */
-   static constexpr bool is_self = true;
+public:
+  /** @brief Side polarity */
+  static constexpr bool is_self = true;
 
-   /** @brief Transfer function (edge -> mortar). Only the relevant side is
-    * enabled.
-    */
-   TransferViewType transfer_function_self;
+  /** @brief Transfer function (edge -> mortar). Only the relevant side is
+   * enabled.
+   */
+  TransferViewType transfer_function_self;
 
-   /**
-    * @brief Constructs coupled interface point with geometric data
-    *
-    * @param transfer_function Transfer function from the edge to the mortar
-    */
-   KOKKOS_INLINE_FUNCTION
-   nonconforming_transfer_function(const TransferViewType &transfer_function)
-       : transfer_function_self(transfer_function) {}
+  /**
+   * @brief Constructs coupled interface point with geometric data
+   *
+   * @param transfer_function Transfer function from the edge to the mortar
+   */
+  KOKKOS_INLINE_FUNCTION
+  nonconforming_transfer_function(const TransferViewType &transfer_function)
+      : transfer_function_self(transfer_function) {}
 
-   KOKKOS_INLINE_FUNCTION
-   nonconforming_transfer_function() = default;
+  KOKKOS_INLINE_FUNCTION
+  nonconforming_transfer_function() = default;
 
-   /**
-    * @brief Constructor that initializes data views in Scratch
-    * Memory.
-    *
-    * @tparam MemberType Kokos team member type.
-    * @param team Kokkos team member.
-    */
-   template <typename MemberType>
-   KOKKOS_INLINE_FUNCTION
-   nonconforming_transfer_function(const MemberType &team)
-       : transfer_function_self(team.team_scratch(0)) {}
+  /**
+   * @brief Constructor that initializes data views in Scratch
+   * Memory.
+   *
+   * @tparam MemberType Kokos team member type.
+   * @param team Kokkos team member.
+   */
+  template <typename MemberType>
+  KOKKOS_INLINE_FUNCTION nonconforming_transfer_function(const MemberType &team)
+      : transfer_function_self(team.team_scratch(0)) {}
 
-   /**
-    * @brief Get the amount memory in bytes required for shared memory
-    *
-    * @return int Amount of shared memory in bytes
-    */
-   constexpr static int shmem_size() { return TransferViewType::shmem_size(); }
- };
+  /**
+   * @brief Get the amount memory in bytes required for shared memory
+   *
+   * @return int Amount of shared memory in bytes
+   */
+  constexpr static int shmem_size() { return TransferViewType::shmem_size(); }
+};
 
- template <int NumberElements, int NQuadElement, int NQuadInterface,
-           typename MemorySpace, typename MemoryTraits, bool UseSIMD>
- struct nonconforming_transfer_function<
-     false, NumberElements, NQuadElement, NQuadInterface,
-     specfem::dimension::type::dim2, MemorySpace, MemoryTraits, UseSIMD> {
- private:
-   /**
-    * @name Typedefs
-    *
-    */
-   ///@{
-   using simd = specfem::datatype::simd<type_real, UseSIMD>; ///< SIMD type.
+template <int NumberElements, int NQuadElement, int NQuadInterface,
+          typename MemorySpace, typename MemoryTraits, bool UseSIMD>
+struct nonconforming_transfer_function<
+    false, NumberElements, NQuadElement, NQuadInterface,
+    specfem::dimension::type::dim2, MemorySpace, MemoryTraits, UseSIMD> {
+private:
+  /**
+   * @name Typedefs
+   *
+   */
+  ///@{
+  using simd = specfem::datatype::simd<type_real, UseSIMD>; ///< SIMD type.
 
- protected:
-   using TransferViewType = specfem::datatype::VectorChunkEdgeViewType<
-       type_real, specfem::dimension::type::dim2, NumberElements, NQuadElement,
-       NQuadInterface, UseSIMD, MemorySpace,
-       MemoryTraits>; ///< Underlying view used to store data of the transfer
-                      ///< function.
+protected:
+  using TransferViewType = specfem::datatype::VectorChunkEdgeViewType<
+      type_real, specfem::dimension::type::dim2, NumberElements, NQuadElement,
+      NQuadInterface, UseSIMD, MemorySpace,
+      MemoryTraits>; ///< Underlying view used to store data of the transfer
+                     ///< function.
 
- public:
-   /** @brief Side polarity */
-   static constexpr bool is_self = false;
+public:
+  /** @brief Side polarity */
+  static constexpr bool is_self = false;
 
-   /** @brief Transfer function (edge -> mortar). Only the relevant side is
-    * enabled.
-    */
-   TransferViewType transfer_function_coupled;
+  /** @brief Transfer function (edge -> mortar). Only the relevant side is
+   * enabled.
+   */
+  TransferViewType transfer_function_coupled;
 
-   /**
-    * @brief Constructs coupled interface point with geometric data
-    *
-    * @param transfer_function Transfer function from the edge to the mortar
-    */
-   KOKKOS_INLINE_FUNCTION
-   nonconforming_transfer_function(const TransferViewType &transfer_function)
-       : transfer_function_coupled(transfer_function) {}
+  /**
+   * @brief Constructs coupled interface point with geometric data
+   *
+   * @param transfer_function Transfer function from the edge to the mortar
+   */
+  KOKKOS_INLINE_FUNCTION
+  nonconforming_transfer_function(const TransferViewType &transfer_function)
+      : transfer_function_coupled(transfer_function) {}
 
-   KOKKOS_INLINE_FUNCTION
-   nonconforming_transfer_function() = default;
+  KOKKOS_INLINE_FUNCTION
+  nonconforming_transfer_function() = default;
 
-   /**
-    * @brief Constructor that initializes data views in Scratch
-    * Memory.
-    *
-    * @tparam MemberType Kokos team member type.
-    * @param team Kokkos team member.
-    */
-   template <typename MemberType>
-   KOKKOS_INLINE_FUNCTION
-   nonconforming_transfer_function(const MemberType &team)
-       : transfer_function_coupled(team.team_scratch(0)) {}
+  /**
+   * @brief Constructor that initializes data views in Scratch
+   * Memory.
+   *
+   * @tparam MemberType Kokos team member type.
+   * @param team Kokkos team member.
+   */
+  template <typename MemberType>
+  KOKKOS_INLINE_FUNCTION nonconforming_transfer_function(const MemberType &team)
+      : transfer_function_coupled(team.team_scratch(0)) {}
 
-   /**
-    * @brief Get the amount memory in bytes required for shared memory
-    *
-    * @return int Amount of shared memory in bytes
-    */
-   constexpr static int shmem_size() { return TransferViewType::shmem_size(); }
- };
+  /**
+   * @brief Get the amount memory in bytes required for shared memory
+   *
+   * @return int Amount of shared memory in bytes
+   */
+  constexpr static int shmem_size() { return TransferViewType::shmem_size(); }
+};
 
- } // namespace impl
- } // namespace specfem::chunk_edge
+} // namespace impl
+} // namespace specfem::chunk_edge
