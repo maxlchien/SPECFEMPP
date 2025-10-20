@@ -11,4 +11,4 @@ sources:
       Ricker:
         factor: 1e14
         tshift: 0.0
-        f0: 0.25
+        f0: 0.15
