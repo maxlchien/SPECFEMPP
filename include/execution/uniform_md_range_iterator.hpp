@@ -64,7 +64,7 @@ public:
    * @brief Constructor for UniformMDRangeIterator.
    *
    * @param team The Kokkos team member type.
-   * @param n Number of theads at each rank.
+   * @param n Number of threads at each rank.
    */
 
   template <int D = rank, typename std::enable_if_t<D == 2, int> = 0>
