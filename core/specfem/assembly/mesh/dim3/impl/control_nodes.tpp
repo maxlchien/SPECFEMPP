@@ -1,8 +1,8 @@
 #pragma once
 
 #include "control_nodes.hpp"
-#include "mesh/mesh.hpp"
 #include "enumerations/dimension.hpp"
+#include "mesh/mesh.hpp"
 #include <Kokkos_Core.hpp>
 
 specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim3>::
@@ -13,8 +13,6 @@ specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim3>::
                                control_nodes.nspec, control_nodes.ngnod, ndim),
       h_control_node_coordinates(
           Kokkos::create_mirror_view(control_node_coordinates)) {
-
-
 
   Kokkos::parallel_for(
       "specfem::assembly::mesh::control_nodes::copy_to_device",
@@ -29,6 +27,41 @@ specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim3>::
       });
 
   Kokkos::fence();
+  Kokkos::deep_copy(control_node_coordinates, h_control_node_coordinates);
+  return;
+}
+
+specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim3>::
+    control_nodes(const specfem::mesh::meshfem3d::ControlNodes<dimension_tag>
+                      &control_nodes)
+    : nspec(control_nodes.nspec), ngnod(control_nodes.ngnod),
+      control_node_coordinates("specfem::assembly::mesh::control_nodes",
+                               control_nodes.nspec, control_nodes.ngnod, ndim),
+      h_control_node_coordinates(
+          Kokkos::create_mirror_view(control_node_coordinates)) {
+
+  // We use the device by default for better performance.
+
+  using MemorySpace = typename Kokkos::DefaultExecutionSpace::memory_space;
+
+  const auto coordinates = Kokkos::create_mirror_view_and_copy(
+      MemorySpace(), control_nodes.coordinates);
+  h_control_node_index = control_nodes.control_node_index;
+  control_node_index =
+      Kokkos::create_mirror_view_and_copy(MemorySpace(), h_control_node_index);
+
+  Kokkos::parallel_for(
+      "specfem::assembly::mesh::control_nodes::copy_to_device",
+      Kokkos::MDRangePolicy<Kokkos::Rank<2> >(
+          { 0, 0 }, { control_nodes.nspec, control_nodes.ngnod }),
+      KOKKOS_LAMBDA(const int ispec, const int ia) {
+        const int index = control_node_index(ispec, ia);
+        for (int idim = 0; idim < ndim; ++idim)
+          control_node_coordinates(ispec, ia, idim) = coordinates(index, idim);
+      });
+
+  Kokkos::fence();
+
   Kokkos::deep_copy(control_node_coordinates, h_control_node_coordinates);
   return;
 }

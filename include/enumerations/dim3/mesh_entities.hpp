@@ -96,8 +96,9 @@ const std::string to_string(const specfem::mesh_entity::dim3::type &entity);
  * - front: y-positive boundary
  * - back: y-negative boundary
  */
-const std::list<type> faces = { type::bottom, type::right, type::top,
-                                type::left,   type::front, type::back };
+const std::list<specfem::mesh_entity::dim3::type> faces = {
+  type::bottom, type::right, type::top, type::left, type::front, type::back
+};
 
 /**
  * @brief List of all edge types in a hexahedral element
@@ -112,7 +113,7 @@ const std::list<type> faces = { type::bottom, type::right, type::top,
  * - Front vertical edges: front_bottom, front_top, front_left, front_right
  * - Back vertical edges: back_bottom, back_top, back_left, back_right
  */
-const std::list<type> edges = {
+const std::list<specfem::mesh_entity::dim3::type> edges = {
   type::bottom_left,  type::bottom_right, type::top_right,  type::top_left,
   type::front_bottom, type::front_top,    type::front_left, type::front_right,
   type::back_bottom,  type::back_top,     type::back_left,  type::back_right
@@ -132,7 +133,7 @@ const std::list<type> edges = {
  * - Top corners (z-positive): top_front_left, top_front_right,
  *   top_back_left, top_back_right
  */
-const std::list<type> corners = {
+const std::list<specfem::mesh_entity::dim3::type> corners = {
   type::bottom_front_left, type::bottom_front_right, type::bottom_back_left,
   type::bottom_back_right, type::top_front_left,     type::top_front_right,
   type::top_back_left,     type::top_back_right
