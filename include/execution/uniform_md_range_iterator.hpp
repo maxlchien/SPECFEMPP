@@ -30,7 +30,7 @@ public:
       typename base_type::base_policy_type; ///< Base policy type. Evaluates to
                                             ///< @c Kokkos::TeamThreadRange
   using policy_index_type =
-      typename base_type::policy_index_type; /// Policy index type. Must be
+      typename base_type::policy_index_type; ///< Policy index type. Must be
                                              ///< convertible to integral type.
   using index_type = specfem::datatype::impl::RegisterArray<
       int, Kokkos::extents<std::size_t, rank>,
