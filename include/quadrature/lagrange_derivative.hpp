@@ -109,7 +109,7 @@ struct lagrange_derivative {
   template <
       specfem::dimension::type D = DimensionTag,
       typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
-  KOKKOS_INLINE_FUNCTION constexpr auto &eta(const int l, const int iy) const {
+  KOKKOS_INLINE_FUNCTION constexpr const auto &eta(const int l, const int iy) const {
     return hprime_gll(l, iy);
   }
 
