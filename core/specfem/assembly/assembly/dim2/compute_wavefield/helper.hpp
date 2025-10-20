@@ -64,9 +64,10 @@ public:
         specfem::parallel_config::chunk_size, ngll, dimension, medium_tag,
         using_simd>;
 
-    using QuadratureType = specfem::element::quadrature<
-        ngll, specfem::dimension::type::dim2, specfem::kokkos::DevScratchSpace,
-        Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+    using QuadratureType =
+        specfem::element::quadrature<ngll, specfem::dimension::type::dim2,
+                                     specfem::kokkos::DevScratchSpace,
+                                     Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
     using PointPropertyType =
         specfem::point::properties<specfem::dimension::type::dim2, medium_tag,

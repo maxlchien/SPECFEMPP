@@ -18,8 +18,7 @@ template <typename TensorFieldType, typename WeightsType,
 KOKKOS_FORCEINLINE_FUNCTION auto
 element_divergence(const TensorFieldType &f,
                    const typename TensorFieldType::index_type &local_index,
-                   const WeightsType &weights,
-                   const QuadratureType &hprimewgll) {
+                   const WeightsType &weights, const QuadratureType &hprime) {
   using datatype = typename TensorFieldType::simd::datatype;
 
   using VectorPointViewType = specfem::datatype::VectorPointViewType<
@@ -36,10 +35,12 @@ element_divergence(const TensorFieldType &f,
   /// We omit the divergence here since we multiplied it when computing F.
   for (int l = 0; l < ngll; ++l) {
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp1l[icomp] += f(ielement, iz, l, icomp, 0) * hprimewgll(ix, l);
+      temp1l[icomp] +=
+          f(ielement, iz, l, icomp, 0) * hprime(l, ix) * weights(l);
     }
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp2l[icomp] += f(ielement, l, ix, icomp, 1) * hprimewgll(iz, l);
+      temp2l[icomp] +=
+          f(ielement, l, ix, icomp, 1) * hprime(l, iz) * weights(l);
     }
   }
   VectorPointViewType result;
@@ -58,7 +59,7 @@ KOKKOS_FORCEINLINE_FUNCTION auto
 element_divergence(const TensorFieldType &f,
                    const typename TensorFieldType::index_type &index,
                    const int &ielement, const WeightsType &weights,
-                   const QuadratureType &hprimewgll) {
+                   const QuadratureType &hprime) {
   using datatype = typename TensorFieldType::simd::datatype;
 
   using VectorPointViewType = specfem::datatype::VectorPointViewType<
@@ -76,13 +77,16 @@ element_divergence(const TensorFieldType &f,
   /// We omit the divergence here since we multiplied it when computing F.
   for (int l = 0; l < ngll; ++l) {
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp1l[icomp] += f(ielement, iz, iy, l, icomp, 0) * hprimewgll(ix, l);
+      temp1l[icomp] +=
+          f(ielement, iz, iy, l, icomp, 0) * hprime(l, ix) * weights(l);
     }
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp2l[icomp] += f(ielement, iz, l, ix, icomp, 1) * hprimewgll(iy, l);
+      temp2l[icomp] +=
+          f(ielement, iz, l, ix, icomp, 1) * hprime(l, iy) * weights(l);
     }
     for (int icomp = 0; icomp < components; ++icomp) {
-      temp3l[icomp] += f(ielement, l, iy, ix, icomp, 2) * hprimewgll(iz, l);
+      temp3l[icomp] +=
+          f(ielement, l, iy, ix, icomp, 2) * hprime(l, iz) * weights(l);
     }
   }
   VectorPointViewType result;
@@ -116,7 +120,7 @@ element_divergence(const TensorFieldType &f,
  * @param chunk_index Chunk index specifying the elements within this chunk
  * @param jacobian_matrix Jacobian matrix of basis functions
  * @param weights Weights for the quadrature
- * @param hprimewgll Integration quadrature
+ * @param hprime Integration quadrature
  * @param f Field to compute the divergence of
  * @param callback Callback functor. Callback signature must be:
  * @code void(const typename IteratorType::index_type, const
@@ -132,7 +136,7 @@ KOKKOS_FUNCTION void divergence(
     const ChunkIndexType &chunk_index,
     const specfem::assembly::jacobian_matrix<specfem::dimension::type::dim2>
         &jacobian_matrix,
-    const WeightsType &weights, const QuadratureType &hprimewgll,
+    const WeightsType &weights, const QuadratureType &hprime,
     const TensorFieldType &f, const CallableType &callback) {
 
   using VectorPointViewType = specfem::datatype::VectorPointViewType<
@@ -152,7 +156,7 @@ KOKKOS_FUNCTION void divergence(
               &iterator_index) {
         const auto local_index = iterator_index.get_local_index();
         const auto result =
-            impl::element_divergence(f, local_index, weights, hprimewgll);
+            impl::element_divergence(f, local_index, weights, hprime);
         callback(iterator_index, result);
       });
 

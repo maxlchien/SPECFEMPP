@@ -30,7 +30,7 @@ The following code snippet demonstrates how to compute the gradient of displacem
 
         // Quadrature point view type
         using QuadratureViewType = specfem::element::quadrature<
-                5, dim2, ScratchSpace, Unmanaged, true, true>;
+                5, dim2, ScratchSpace, Unmanaged>;
 
         // Create an output view to store the gradient
         View<type_real *****> compute_gradient("gradient", nelements, ngll, ngll, 2, 2);

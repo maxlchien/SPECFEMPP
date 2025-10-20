@@ -85,7 +85,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
       using_simd>;
   using ElementQuadratureType = specfem::element::quadrature<
       ngll, dimension, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, true>;
+      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
 
   using PointBoundaryType =
       specfem::point::boundary<boundary_tag, dimension, using_simd>;
@@ -177,7 +177,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
 
           specfem::algorithms::divergence(
               chunk_index, jacobian_matrix, wgll,
-              element_quadrature.hprime_wgll, stress_integrand.F,
+              element_quadrature.hprime_gll, stress_integrand.F,
               [&](const auto &iterator_index,
                   const typename PointAccelerationType::value_type &result) {
                 const auto &index = iterator_index.get_index();
