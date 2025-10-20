@@ -46,27 +46,25 @@ public:
   template <int D = rank>
   KOKKOS_INLINE_FUNCTION typename std::enable_if<D == 2, const index_type>::type
   operator()(const int &i) const {
-    const int iz = i / n;
-    const int ix = i % n;
-    return index_type(iz, ix);
+    const int i1 = i / n;
+    const int i2 = i % n;
+    return index_type(i1, i2);
   }
 
   template <int D = rank>
   KOKKOS_INLINE_FUNCTION typename std::enable_if<D == 3, const index_type>::type
   operator()(const int &i) const {
-    const int iz = i / (n * n);
-    const int iy = (i / n) % n;
-    const int ix = i % n;
-    return index_type(iz, iy, ix);
+    const int i1 = i / (n * n);
+    const int i2 = (i / n) % n;
+    const int i3 = i % n;
+    return index_type(i1, i2, i3);
   }
 
   /**
    * @brief Constructor for UniformMDRangeIterator.
    *
    * @param team The Kokkos team member type.
-   * @param indices View of indices of elements within this chunk.
-   * @param element_grid Element grid information containing n, ngllx, ngllz,
-   * etc.
+   * @param n Number of theads at each rank.
    */
 
   template <int D = rank, typename std::enable_if_t<D == 2, int> = 0>
