@@ -120,7 +120,7 @@ struct lagrange_derivative {
    * @param iz Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr auto &gamma(const int l,
+  KOKKOS_INLINE_FUNCTION constexpr const auto &gamma(const int l,
                                                const int iz) const {
     return hprime_gll(l, iz);
   }
