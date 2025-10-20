@@ -127,63 +127,35 @@ specfem::assembly::jacobian_matrix<
   std::cout << "Checking for small Jacobian values..." << std::endl;
 
   bool found = false;
-  // Kokkos::parallel_reduce(
-  //     "specfem::assembly::jacobian_matrix::check_small_jacobian",
-  //     Kokkos::RangePolicy<Kokkos::DefaultHostExecutionSpace>(0, nspec),
-  //     [=, *this](const int &ispec, bool &l_found) {
-  //       for (int iz = 0; iz < ngllz; ++iz) {
-  //         for (int iy = 0; iy < nglly; ++iy) {
-  //           for (int ix = 0; ix < ngllx; ++ix) {
-  //             // Define the local_index
-  //             const specfem::point::index<dimension_tag, false> index(ispec,
-  //             iz,
-  //                                                                     iy,
-  //                                                                     ix);
+  Kokkos::parallel_reduce(
+      "specfem::assembly::jacobian_matrix::check_small_jacobian",
+      Kokkos::RangePolicy<Kokkos::DefaultHostExecutionSpace>(0, nspec),
+      [=, *this](const int &ispec, bool &l_found) {
+        for (int iz = 0; iz < ngllz; ++iz) {
+          for (int iy = 0; iy < nglly; ++iy) {
+            for (int ix = 0; ix < ngllx; ++ix) {
+              // Define the local_index
+              const specfem::point::index<dimension_tag, false> index(ispec, iz,
+                                                                      iy, ix);
 
-  //             // Get the Jacobian determinant
-  //             const auto jacobian = [&]() {
-  //               PointJacobianMatrixType jacobian_matrix;
-  //               specfem::assembly::load_on_host(index, *this,
-  //               jacobian_matrix); return jacobian_matrix.jacobian;
-  //             }();
+              // Get the Jacobian determinant
+              const auto jacobian = [&]() {
+                PointJacobianMatrixType jacobian_matrix;
+                specfem::assembly::load_on_host(index, *this, jacobian_matrix);
+                return jacobian_matrix.jacobian;
+              }();
 
-  //             // Check if below threshold
-  //             if (jacobian < threshold) {
-  //               small_jacobian(ispec) = true;
-  //               l_found = true;
-  //               break;
-  //             }
-  //           }
-  //         }
-  //       }
-  //     },
-  //     found);
-
-  for (int ispec = 0; ispec < nspec; ispec++) {
-    for (int iz = 0; iz < ngllz; iz++) {
-      for (int iy = 0; iy < nglly; iy++) {
-        for (int ix = 0; ix < ngllx; ix++) {
-
-          if (ispec == 1560 && iz == 4 && iy == 4 && ix == 4) {
-            std::cout << "ispec: " << ispec << " iz: " << iz << " iy: " << iy
-                      << " ix: " << ix
-                      << " jacobian: " << h_jacobian(ispec, iz, iy, ix)
-                      << std::endl;
-          }
-
-          if (h_jacobian(ispec, iz, iy, ix) < threshold) {
-            small_jacobian(ispec) = true;
-            std::cout << "Small Jacobian found in element " << ispec
-                      << " at GLL point (" << ix << ", " << iy << ", " << iz
-                      << ") with value " << h_jacobian(ispec, iz, iy, ix)
-                      << std::endl;
-            Kokkos::abort(
-                "Error: Small Jacobian detected, invalid element mapping.");
+              // Check if below threshold
+              if (jacobian < threshold) {
+                small_jacobian(ispec) = true;
+                l_found = true;
+                break;
+              }
+            }
           }
         }
-      }
-    }
-  }
+      },
+      found);
 
   return std::make_tuple(found, small_jacobian);
 }
