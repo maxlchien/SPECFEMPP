@@ -139,7 +139,7 @@ static const std::unordered_map<std::string, ExpectedControlNodes3D>
     expected_control_nodes_map = {
       { "EightNodeElastic",
         ExpectedControlNodes3D(
-            TotalControlNodes(125, 8),
+            TotalControlNodes(8, 8),
             { // Domain corner
               ControlNode3D(0.0, 0.0, 0.0, 4, 4, 4),
               // Shared nodes

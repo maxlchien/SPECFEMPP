@@ -452,7 +452,7 @@ add_executable(
 
   # New dim3 tests
   assembly/dim3/mesh/shape_functions.cpp
-  assembly/dim3/mesh/points.hpp
+  assembly/dim3/mesh/points.cpp
   assembly/dim3/mesh/control_nodes.cpp
 )
 

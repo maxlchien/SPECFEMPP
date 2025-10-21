@@ -78,7 +78,7 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
           { 0, 1, 1, 1 }, { nchunks, ngllz - 1, nglly - 1, ngllx - 1 }),
       [=](const int ichunk, const int iz, const int iy, const int ix) {
         for (int ielement = 0; ielement < chunk_size; ielement++) {
-          int ispec = ichunk + ielement;
+          int ispec = ichunk * chunk_size + ielement;
           if (ispec >= nspec)
             break;
           this->h_index_mapping(ispec, iz, iy, ix) =
@@ -102,7 +102,7 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
   const auto mapping = specfem::mesh_entity::element(ngllz, nglly, ngllx);
 
   // Iterate over all faces
-  for (int ichunk = 0; ichunk < nchunks; ichunk++) {
+  for (int ichunk = 0; ichunk < nspec; ichunk += chunk_size) {
     // Iterate over all faces
     for (auto iface : specfem::mesh_entity::dim3::faces) {
       const int npoints = mapping.number_of_points_on_orientation(iface);
@@ -113,8 +113,12 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
             break;
           const auto [iz, iy, ix] = mapping.map_coordinates(iface, ipoint);
           // skip points on edges and corners
-          if (iz == 0 || iz == ngllz - 1 || iy == 0 || iy == nglly - 1 ||
-              ix == 0 || ix == ngllx - 1)
+          if (((iz == 0 || iz == ngllz - 1) &&
+               (iy == 0 || iy == nglly - 1 || ix == 0 || ix == ngllx - 1)) ||
+              ((iy == 0 || iy == nglly - 1) &&
+               (ix == 0 || ix == ngllx - 1 || iz == 0 || iz == ngllz - 1)) ||
+              ((ix == 0 || ix == ngllx - 1) &&
+               (iz == 0 || iz == ngllz - 1 || iy == 0 || iy == nglly - 1)))
             continue;
 
           // Check if already assigned
@@ -156,8 +160,7 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
 
     // Iterate over all edges
     for (auto iedge : specfem::mesh_entity::dim3::edges) {
-      const int npoints =
-          mapping.number_of_points_on_orientation(iedge);
+      const int npoints = mapping.number_of_points_on_orientation(iedge);
       for (int ipoint = 0; ipoint < npoints; ipoint++) {
         for (int ielement = 0; ielement < chunk_size; ielement++) {
           int ispec = ichunk + ielement;
@@ -169,14 +172,16 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
               (ix == 0 || ix == ngllx - 1))
             continue;
 
-          // Check if already assigned
+          auto valid_connections = specfem::mesh_entity::faces_of_edge(iedge);
+          valid_connections.push_back(iedge);
           bool previously_assigned = false;
           for (auto edge :
                boost::make_iterator_range(boost::out_edges(ispec, fg))) {
-            if (fg[edge].orientation == iedge) {
+            if (specfem::mesh_entity::contains(valid_connections,
+                                               fg[edge].orientation)) {
               const int jspec = boost::target(edge, fg);
               const auto other_face = boost::edge(jspec, ispec, graph).first;
-              const auto jedge = fg[other_face].orientation;
+              const auto jorientation = fg[other_face].orientation;
               const auto connections = specfem::connections::connection_mapping(
                   ngllz, nglly, ngllx,
                   Kokkos::subview(control_nodes.h_control_node_index, ispec,
@@ -185,7 +190,8 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
                                   Kokkos::ALL));
 
               const auto [mapped_iz, mapped_iy, mapped_ix] =
-                  connections.map_coordinates(iedge, jedge, iz, iy, ix);
+                  connections.map_coordinates(fg[edge].orientation,
+                                              jorientation, iz, iy, ix);
               if (this->h_index_mapping(jspec, mapped_iz, mapped_iy,
                                         mapped_ix) != -1) {
                 this->h_index_mapping(ispec, iz, iy, ix) =
@@ -211,14 +217,24 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
         if (ispec >= nspec)
           break;
         const auto [iz, iy, ix] = mapping.map_coordinates(icorner);
+
+        auto valid_faces = specfem::mesh_entity::faces_of_corner(icorner);
+        auto valid_connections = specfem::mesh_entity::edges_of_corner(icorner);
+
+        // append valid_faces to valid_connections
+        valid_connections.insert(valid_connections.end(), valid_faces.begin(),
+                                 valid_faces.end());
+        valid_connections.push_back(icorner);
+
         // Check if already assigned
         bool previously_assigned = false;
         for (auto corner :
              boost::make_iterator_range(boost::out_edges(ispec, fg))) {
-          if (fg[corner].orientation == icorner) {
+          if (specfem::mesh_entity::contains(valid_connections,
+                                             fg[corner].orientation)) {
             const int jspec = boost::target(corner, fg);
             const auto other_face = boost::edge(jspec, ispec, graph).first;
-            const auto jcorner = fg[other_face].orientation;
+            const auto jorientation = fg[other_face].orientation;
             const auto connections = specfem::connections::connection_mapping(
                 ngllz, nglly, ngllx,
                 Kokkos::subview(control_nodes.h_control_node_index, ispec,
@@ -226,8 +242,18 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
                 Kokkos::subview(control_nodes.h_control_node_index, jspec,
                                 Kokkos::ALL));
 
-            const auto [mapped_iz, mapped_iy, mapped_ix] =
-                connections.map_coordinates(icorner, jcorner);
+            int mapped_iz, mapped_iy, mapped_ix;
+            if (specfem::mesh_entity::contains(
+                    specfem::mesh_entity::dim3::corners,
+                    fg[corner].orientation)) {
+              std::tie(mapped_iz, mapped_iy, mapped_ix) =
+                  connections.map_coordinates(fg[corner].orientation,
+                                              jorientation);
+            } else {
+              std::tie(mapped_iz, mapped_iy, mapped_ix) =
+                  connections.map_coordinates(fg[corner].orientation,
+                                              jorientation, iz, iy, ix);
+            }
             if (this->h_index_mapping(jspec, mapped_iz, mapped_iy, mapped_ix) !=
                 -1) {
               this->h_index_mapping(ispec, iz, iy, ix) =

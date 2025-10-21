@@ -2,7 +2,7 @@
 #include "MPI_environment.hpp"
 #include "enumerations/connections.hpp"
 #include "enumerations/interface.hpp"
-#include "enumerations/mesh_entity.hpp"
+#include "enumerations/mesh_entities.hpp"
 #include "io/interface.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem/assembly.hpp"
@@ -95,6 +95,10 @@ struct ExpectedMapping {
     // Create a filtered graph view
     const auto fg = boost::make_filtered_graph(graph, filter);
 
+    const auto mapping = specfem::mesh_entity::element(
+        total_quadrature_points.ngllz, total_quadrature_points.nglly,
+        total_quadrature_points.ngllx);
+
     // Validate index mapping and coordinates against expected mesh
     for (int e = 0; e < points.nspec; e++) {
       for (const auto edge :
@@ -106,10 +110,27 @@ struct ExpectedMapping {
 
         const auto connections = specfem::connections::connection_mapping(
             points.ngllz, points.nglly, points.ngllx,
-            Kokkos::subview(expected_mesh.control_nodes.h_control_node_index, e,
+            Kokkos::subview(expected_mesh.control_nodes.control_node_index, e,
                             Kokkos::ALL),
-            Kokkos::subview(expected_mesh.control_nodes.h_control_node_index,
+            Kokkos::subview(expected_mesh.control_nodes.control_node_index,
                             neighbor, Kokkos::ALL));
+
+        if (specfem::mesh_entity::contains(specfem::mesh_entity::dim3::corners,
+                                           orientation1)) {
+          const auto [iz, iy, ix] = mapping.map_coordinates(orientation1);
+          const auto [mapped_iz, mapped_iy, mapped_ix] =
+              connections.map_coordinates(orientation1, orientation2);
+          const int global_index_1 = points.h_index_mapping(e, iz, iy, ix);
+          const int global_index_2 =
+              points.h_index_mapping(neighbor, mapped_iz, mapped_iy, mapped_ix);
+          ASSERT_EQ(global_index_1, global_index_2)
+              << "Global index mismatch between element " << e
+              << " and neighbor " << neighbor << " at corner on orientation "
+              << specfem::mesh_entity::dim3::to_string(orientation1) << ". "
+              << "Expected: " << global_index_2 << ", "
+              << "Got: " << global_index_1 << std::endl;
+          continue; // Corner test complete
+        }
 
         const int npoints =
             mapping.number_of_points_on_orientation(orientation1);
@@ -124,7 +145,8 @@ struct ExpectedMapping {
           ASSERT_EQ(global_index_1, global_index_2)
               << "Global index mismatch between element " << e
               << " and neighbor " << neighbor << " at point " << p
-              << " on orientation " << orientation1 << ". "
+              << " on orientation "
+              << specfem::mesh_entity::dim3::to_string(orientation1) << ". "
               << "Expected: " << global_index_2 << ", "
               << "Got: " << global_index_1 << std::endl;
         }
@@ -138,12 +160,18 @@ struct ExpectedMapping {
 
 } // namespace specfem::assembly_test
 
-usiong namespace specfem::assembly_test;
+using namespace specfem::assembly_test;
 
 const std::unordered_map<std::string, ExpectedMapping> expected_mappings = {
   { "EightNodeElastic",
-    ExpectedMapping(TotalQuadraturePoints(8, 5, 5, 5, 1000),
-                    "dim3/mesh/EightNodeElastic/database.bin") }
+    // Total quadrature points:
+    //    Interior points: 8 elements * 3 * 3 * 3 = 216
+    //    Face points: 36 faces * 3 * 3 = 324
+    //    Edge points: 54 edges * 3 = 162
+    //    Corner points: 27 corners * 1 = 27
+    //    Total = 216 + 324 + 162 + 27 = 729
+    ExpectedMapping(TotalQuadraturePoints(8, 5, 5, 5, 729),
+                    "data/dim3/EightNodeElastic/database.bin") }
 };
 
 TEST_P(Assembly3DTest, Points) {
