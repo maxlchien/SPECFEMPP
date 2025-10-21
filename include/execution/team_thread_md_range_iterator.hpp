@@ -10,10 +10,11 @@
 namespace specfem {
 namespace execution {
 
-template <typename TeamMemberType, int... Ranks> class ThreadMDRangeIterator;
+template <typename TeamMemberType, int... Ranks>
+class TeamThreadMDRangeIterator;
 
 template <typename TeamMemberType, int N1, int N2>
-class ThreadMDRangeIterator<TeamMemberType, N1, N2>
+class TeamThreadMDRangeIterator<TeamMemberType, N1, N2>
     : public TeamThreadRangePolicy<TeamMemberType, int> {
 
 private:
@@ -42,18 +43,18 @@ public:
   }
 
   /**
-   * @brief Constructor for ThreadMDRangeIterator.
+   * @brief Constructor for TeamThreadMDRangeIterator.
    *
    * @param team The Kokkos team member type.
    * @param n Number of threads at each rank.
    */
 
-  KOKKOS_INLINE_FUNCTION ThreadMDRangeIterator(const TeamMemberType &team)
+  KOKKOS_INLINE_FUNCTION TeamThreadMDRangeIterator(const TeamMemberType &team)
       : base_type(team, N1 * N2) {}
 };
 
 template <typename TeamMemberType, int N1, int N2, int N3>
-class ThreadMDRangeIterator<TeamMemberType, N1, N2, N3>
+class TeamThreadMDRangeIterator<TeamMemberType, N1, N2, N3>
     : public TeamThreadRangePolicy<TeamMemberType, int> {
 
 private:
@@ -81,7 +82,7 @@ public:
     return index_type(i1, i2, i3);
   }
 
-  KOKKOS_INLINE_FUNCTION ThreadMDRangeIterator(const TeamMemberType &team)
+  KOKKOS_INLINE_FUNCTION TeamThreadMDRangeIterator(const TeamMemberType &team)
       : base_type(team, N1 * N2 * N3) {}
 
 private:
