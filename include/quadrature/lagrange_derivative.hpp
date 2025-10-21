@@ -95,7 +95,7 @@ struct lagrange_derivative {
    * @param ix Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr auto &xi(const int l, const int ix) const {
+  KOKKOS_INLINE_FUNCTION constexpr const auto &xi(const int l, const int ix) const {
     return hprime_gll(l, ix);
   }
 
@@ -109,7 +109,7 @@ struct lagrange_derivative {
   template <
       specfem::dimension::type D = DimensionTag,
       typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
-  KOKKOS_INLINE_FUNCTION constexpr auto &eta(const int l, const int iy) const {
+  KOKKOS_INLINE_FUNCTION constexpr const auto &eta(const int l, const int iy) const {
     return hprime_gll(l, iy);
   }
 
@@ -120,7 +120,7 @@ struct lagrange_derivative {
    * @param iz Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr auto &gamma(const int l,
+  KOKKOS_INLINE_FUNCTION constexpr const auto &gamma(const int l,
                                                const int iz) const {
     return hprime_gll(l, iz);
   }
