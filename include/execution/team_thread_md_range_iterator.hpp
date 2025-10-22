@@ -37,9 +37,15 @@ public:
       typename base_type::execution_space; ///< Execution space type.
 
   KOKKOS_INLINE_FUNCTION const index_type operator()(const int &i) const {
-    const int i1 = i / N2;
-    const int i2 = i % N2;
-    return index_type(i1, i2);
+   if constexpr (std::is_same_v<TeamMemberType::execution_space, Kokkos::DefaultHostExecutionSpace>) {
+     const int i1 = i % N1;
+     const int i2 = i / N1;
+     return index_type(i1, i2);
+   } else {
+     const int i1 = i / N2;
+     const int i2 = i % N2;
+     return index_type(i1, i2);
+   }
   }
 
   /**
