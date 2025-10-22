@@ -181,20 +181,29 @@ struct ExpectedJacobian3D {
 
 using namespace specfem::assembly_test;
 
+//
+// Ground truth data for Jacobian matrix tests in 3D
+// How should you add new test cases?
+// The goal is to test elements where you might think Jacobian computation
+// could be wrong. For example, elements with high aspect ratio, distorted
+// elements, etc.
+// The first tests check jacobian for a simple EightNodeElastic element, where
+// we expect the jacobian to be very uniform across all GLL points.
+// Future tests should check more complex elements.
 static const std::unordered_map<std::string, ExpectedJacobian3D>
     expected_jacobians_3d = { { "EightNodeElastic",
                                 { { 5, 5, 5, 8 }, // Total GLL points: ngllx,
                                                   // nglly, ngllz, nelements
                                   { { 0,
                                       8,
-                                      { { 0.0, 50000.0, 50000.0 },
-                                        { 50000.0, 50000.0, 0.0 },
-                                        { 50000.0, 0.0, 0.0 },
-                                        { 0.0, 0.0, 50000.0 },
-                                        { 0.0, 50000.0, 50000.0 },
-                                        { 50000.0, 50000.0, 0.0 },
-                                        { 50000.0, 0.0, 0.0 },
-                                        { 0.0, 0.0, 0.0 } } } } } } };
+                                      { { 0.0, 0.0, -60000.0 },
+                                        { 50000.0, 0.0, -60000.0 },
+                                        { 50000.0, 40000.0, -60000.0 },
+                                        { 0.0, 40000.0, -60000.0 },
+                                        { 0.0, 0.0, -30000.0 },
+                                        { 50000.0, 0.0, -30000.0 },
+                                        { 50000.0, 40000.0, -30000.0 },
+                                        { 0.0, 40000.0, -30000.0 } } } } } } };
 
 TEST_P(Assembly3DTest, JacobianMatrix) {
   const auto &param_name = GetParam();
