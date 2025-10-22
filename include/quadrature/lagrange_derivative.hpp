@@ -9,7 +9,7 @@
 namespace specfem {
 namespace quadrature {
 /**
- * @brief Struct used to store lagrange_derivative values within an element.
+ * @brief Struct used to store derivatives of Lagrange interpolants within an element at GLL points. 
  *
  * Currently we store the derivatives of the Lagrange polynomials since these
  * are the variables required when computing gradients and divergences in
