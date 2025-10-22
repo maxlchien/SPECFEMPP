@@ -31,6 +31,7 @@ struct Assembly3D {
       nspec,     ngnod, 5, 5, 5, mesh.adjacency_graph, mesh.control_nodes,
       quadrature
     };
+    assembly.jacobian_matrix = { assembly.mesh };
   }
 };
 } // namespace specfem::test_configuration
