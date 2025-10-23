@@ -177,6 +177,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
       chunk_index.get_iterator(),
       [&](const typename ChunkIndexType::iterator_type::index_type
               &iterator_index) {
+        const auto index = iterator_index.get_index();
         const auto local_index = iterator_index.get_local_index();
         datatype df_dxi[components] = { 0.0 };
         datatype df_dgamma[components] = { 0.0 };
@@ -184,7 +185,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
                                         using_simd>
             point_jacobian_matrix;
 
-        specfem::assembly::load_on_device(local_index, jacobian_matrix,
+        specfem::assembly::load_on_device(index, jacobian_matrix,
                                           point_jacobian_matrix);
 
         const auto df =
@@ -256,6 +257,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
       chunk_index.get_iterator(),
       [&](const typename ChunkIndexType::iterator_type::index_type
               &iterator_index) {
+        const auto index = iterator_index.get_index();
         const auto local_index = iterator_index.get_local_index();
         datatype df_dxi[components] = { 0.0 };
         datatype df_dgamma[components] = { 0.0 };
@@ -263,7 +265,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
                                         using_simd>
             point_jacobian_matrix;
 
-        specfem::assembly::load_on_device(local_index, jacobian_matrix,
+        specfem::assembly::load_on_device(index, jacobian_matrix,
                                           point_jacobian_matrix);
 
         const auto df =

@@ -594,6 +594,8 @@ target_link_libraries(
   Kokkos::kokkos
   mpi_environment
   assembly
+  quadrature
+  utilities
   -lpthread -lm
 )
 
@@ -885,6 +887,7 @@ if(NOT MPI_PARALLEL)
     lagrange_tests
     locate_point_fixture_2d
     locate_point_fixture_3d
+    gradient_tests
     mass_matrix_tests
     compute_coupling_tests
     mesh_dim2_tests
