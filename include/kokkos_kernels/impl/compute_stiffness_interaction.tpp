@@ -5,7 +5,7 @@
 #include "boundary_conditions/boundary_conditions.hpp"
 #include "boundary_conditions/boundary_conditions.tpp"
 #include "datatypes/simd.hpp"
-#include "specfem/element.hpp"
+#include "quadrature/lagrange_derivative.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
@@ -83,7 +83,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
       parallel_config::chunk_size, ngll, dimension, medium_tag,
       specfem::kokkos::DevScratchSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>,
       using_simd>;
-  using ElementQuadratureType = specfem::element::quadrature<
+  using ElementQuadratureType = specfem::quadrature::lagrange_derivative<
       ngll, dimension, specfem::kokkos::DevScratchSpace,
       Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
 
@@ -136,15 +136,15 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
           const auto &chunk_index = chunk_iterator_index.get_index();
           const auto team = chunk_index.get_policy_index();
           ChunkElementFieldType element_field(team.team_scratch(0));
-          ElementQuadratureType element_quadrature(team);
+          ElementQuadratureType lagrange_derivative(team);
           ChunkStressIntegrandType stress_integrand(team);
-          specfem::assembly::load_on_device(team, mesh, element_quadrature);
+          specfem::assembly::load_on_device(team, mesh, lagrange_derivative);
           specfem::assembly::load_on_device(chunk_index, field, element_field);
 
           team.team_barrier();
 
           specfem::algorithms::gradient(
-              chunk_index, jacobian_matrix, element_quadrature.hprime_gll,
+              chunk_index, jacobian_matrix, lagrange_derivative,
               element_field,
               [&](const auto &iterator_index,
                   const typename PointFieldDerivativesType::value_type &du) {
@@ -177,7 +177,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
 
           specfem::algorithms::divergence(
               chunk_index, jacobian_matrix, wgll,
-              element_quadrature.hprime_gll, stress_integrand.F,
+              lagrange_derivative, stress_integrand.F,
               [&](const auto &iterator_index,
                   const typename PointAccelerationType::value_type &result) {
                 const auto &index = iterator_index.get_index();

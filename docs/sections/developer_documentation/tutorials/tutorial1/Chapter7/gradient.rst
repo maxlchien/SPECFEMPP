@@ -29,7 +29,7 @@ The following code snippet demonstrates how to compute the gradient of displacem
             ScratchSpace, Unmanaged, true, false, false, false, using_simd>;
 
         // Quadrature point view type
-        using QuadratureViewType = specfem::element::quadrature<
+        using QuadratureViewType = specfem::quadrature::lagrange_derivative<
                 5, dim2, ScratchSpace, Unmanaged>;
 
         // Create an output view to store the gradient
@@ -37,16 +37,16 @@ The following code snippet demonstrates how to compute the gradient of displacem
 
         // Scratch pad size
         int scratch_size = ChunkElementFieldType::shmem_size() +
-                     ChunkStressIntegrandType::shmem_size()
+                     ChunkStressIntegrandType::shmem_size();
 
         Kokkos::parallel_for(
             "gradient", chunk_policy.set_scratch_size(0, Kokkos::PerTeam(scratch_size)),
             KOKKOS_CLASS_LAMBDA(const typename ChunkPolicyType::member_type &team) {
                 // Scratch views
                 ChunkElementFieldType element_field(team);
-                ElementQuadratureType element_quadrature(team);
+                ElementQuadratureType lagrange_derivative(team);
 
-                specfem::assembly::load_on_device(team, quadrature, element_quadrature);
+                specfem::assembly::load_on_device(team, quadrature, lagrange_derivative);
                 for (int tile = 0; tile < ChunkPolicyType::tile_size * simd_size;
                     tile += ChunkPolicyType::chunk_size * simd_size) {
                     const int starting_element_index =
@@ -65,7 +65,7 @@ The following code snippet demonstrates how to compute the gradient of displacem
                     team.team_barrier();
 
                     gradient(team, iterator, jacobian_matrix,
-                        element_quadrature.hprime_gll, element_field.displacement,
+                        lagrange_derivative, element_field.displacement,
                         [&](const typename ChunkPolicyType::iterator_type::index_type
                                 &iterator_index,
                             const typename PointFieldDerivativesType::ViewType &du) {

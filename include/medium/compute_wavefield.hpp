@@ -31,7 +31,7 @@ namespace medium {
  * @tparam ChunkFieldType Chunk field type that stores the intrinsic field
  * values specfem::chunk_element::field
  * @tparam QuadratureType The quadrature type that stores the lagrange
- * polynomial values specfem::element::quadrature
+ * polynomial values specfem::quadrature::lagrange_derivative
  * @tparam WavefieldViewType 4 dimensional Kokkos view (output)
  * @param chunk_index The chunk index that contains the spectral element indices
  * @param assembly SPECFEM++ assembly object

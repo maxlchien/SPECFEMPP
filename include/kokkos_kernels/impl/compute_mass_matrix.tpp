@@ -3,7 +3,7 @@
 #include "boundary_conditions/boundary_conditions.hpp"
 #include "boundary_conditions/boundary_conditions.tpp"
 #include "datatypes/simd.hpp"
-#include "specfem/element.hpp"
+#include "quadrature/lagrange_derivative.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
