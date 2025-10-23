@@ -1,4 +1,25 @@
 
+/**
+ * @file gradient.cpp
+ * @brief Unit tests for 2D spectral element gradient computation algorithms.
+ *
+ *
+ * The test framework uses a tag-dispatch pattern to enable extensible test
+ * scenarios through initializer overloading. Recent development history:
+ * - commit 6bf3a5f1: Initial gradient test implementation
+ * - commit cdb4ba3d: Added comprehensive 2D test coverage including trivial
+ * cases, uniform functions, random fields, and multi-element meshes
+ *
+ * @note To add new test cases, follow the pattern:
+ * 1. Define new initializer tags in appropriate namespaces
+ * 2. Overload corresponding init_* functions
+ * 3. Add tuple combinations to GradientTestTypes
+ * 4. Optionally provide specialized gradient reference implementations
+ *
+ * @see specfem::algorithms::gradient
+ * @see ExpectedJacobian3D for related 3D testing patterns
+ */
+
 #include <Kokkos_Core.hpp>
 #include <array>
 #include <gtest/gtest.h>
@@ -20,25 +41,57 @@
 
 namespace specfem::algorithms_test {
 
-constexpr static int ngll = 5;
+constexpr static int ngll =
+    5; ///< Number of GLL points per dimension (5th order spectral elements)
 
+/**
+ * @brief Initializer tags for scalar field test data generation.
+ */
 namespace FunctionInitializer {
-struct ZERO {};
-struct UNIFORM {};
-struct RANDOM {};
-struct TWO_ELEMENT {};
+struct ZERO {};        ///< Zero-valued field: f(x,z) = 0 everywhere
+struct UNIFORM {};     ///< Uniform field: f(x,z) = 1 everywhere
+struct RANDOM {};      ///< Pseudo-random field values for stochastic testing
+struct TWO_ELEMENT {}; ///< Multi-element field with element-dependent values
 } // namespace FunctionInitializer
 
+/**
+ * @brief Initializer tags for quadrature derivative matrix configuration.
+ *
+ * These tags control the initialization of the derivative matrix used in
+ * gradient computation. The matrix represents \f$\frac{\partial L_j}{\partial
+ * \xi_i}\f$ where \f$L_j\f$ are Lagrange basis functions.
+ */
 namespace QuadratureInitializer {
-struct IDENTITY {};
-struct LAGRANGE {};
+struct IDENTITY {}; ///< Identity matrix for simplified analytical verification
+struct LAGRANGE {}; ///< Proper GLL Lagrange derivative matrix from quadrature
 } // namespace QuadratureInitializer
 
+/**
+ * @brief Initializer tags for Jacobian matrix test configurations.
+ *
+ * These tags define different geometric transformation scenarios for testing
+ * coordinate mapping between reference element \f$[-1,1]^2\f$ and physical
+ * space.
+ */
 namespace JacobianInitializer {
-struct IDENTITY {};
-struct TWO_ELEMENT {};
+struct IDENTITY {};    ///< Identity Jacobian (no geometric transformation)
+struct TWO_ELEMENT {}; ///< Multi-element mesh with scaled transformations
 } // namespace JacobianInitializer
 
+/**
+ * @brief Initialize identity Jacobian matrix for single-element test cases.
+ *
+ * Creates a single spectral element with identity Jacobian transformation at
+ * all GLL points. This represents a reference element with no geometric
+ * deformation, where \f$\frac{\partial \xi}{\partial x} = \frac{\partial
+ * \gamma}{\partial z} = 1\f$ and \f$\frac{\partial \xi}{\partial z} =
+ * \frac{\partial \gamma}{\partial x} = 0\f$.
+ *
+ * @return Vector containing single element's Jacobian data with identity values
+ *
+ * @note This configuration allows direct comparison between reference and
+ * physical space gradients since the coordinate transformation is trivial.
+ */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 2>, 5>, 5> >
 init_jacobian(const JacobianInitializer::IDENTITY &) {
@@ -47,15 +100,28 @@ init_jacobian(const JacobianInitializer::IDENTITY &) {
       jacobian(1);
   for (int iz = 0; iz < 5; ++iz) {
     for (int ix = 0; ix < 5; ++ix) {
-      jacobian[0][iz][ix][0][0] = 1.0;
-      jacobian[0][iz][ix][0][1] = 0.0;
-      jacobian[0][iz][ix][1][0] = 0.0;
-      jacobian[0][iz][ix][1][1] = 1.0;
+      jacobian[0][iz][ix][0][0] = 1.0; // ξₓ = ∂ξ/∂x
+      jacobian[0][iz][ix][0][1] = 0.0; // ξᵤ = ∂ξ/∂z
+      jacobian[0][iz][ix][1][0] = 0.0; // γₓ = ∂γ/∂x
+      jacobian[0][iz][ix][1][1] = 1.0; // γᵤ = ∂γ/∂z
     }
   }
   return jacobian;
 }
 
+/**
+ * @brief Initialize two-element Jacobian dataset with scaled transformations.
+ *
+ * Creates a two-element mesh where each element has scaled identity Jacobian
+ * matrices. Element 0 has identity scaling (1.0), while element 1 has 2.0
+ * scaling, effectively creating elements of different sizes.
+ *
+ * @return Vector containing Jacobian data for both elements with scaling
+ * factors
+ *
+ * @note This tests multi-element gradient computation and coordinate
+ *       transformation consistency across element boundaries.
+ */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 2>, 5>, 5> >
 init_jacobian(const JacobianInitializer::TWO_ELEMENT &) {
@@ -65,16 +131,27 @@ init_jacobian(const JacobianInitializer::TWO_ELEMENT &) {
   for (int ielement = 0; ielement < 2; ++ielement) {
     for (int iz = 0; iz < 5; ++iz) {
       for (int ix = 0; ix < 5; ++ix) {
-        jacobian[ielement][iz][ix][0][0] = 1.0 + ielement;
-        jacobian[ielement][iz][ix][0][1] = 0.0;
-        jacobian[ielement][iz][ix][1][0] = 0.0;
-        jacobian[ielement][iz][ix][1][1] = 1.0 + ielement;
+        const type_real scale = 1.0 + ielement;   // Element scaling factor
+        jacobian[ielement][iz][ix][0][0] = scale; // Scaled ξₓ
+        jacobian[ielement][iz][ix][0][1] = 0.0;   // ξᵤ = 0
+        jacobian[ielement][iz][ix][1][0] = 0.0;   // γₓ = 0
+        jacobian[ielement][iz][ix][1][1] = scale; // Scaled γᵤ
       }
     }
   }
   return jacobian;
 }
 
+/**
+ * @brief Helper wrapper that materializes jacobian_matrix containers for tests.
+ *
+ * This class provides a type-safe interface for creating and accessing Jacobian
+ * matrix data using compile-time dispatch based on initializer tags. It manages
+ * the storage and conversion between test data formats and SPECFEM++ assembly
+ * data structures.
+ *
+ * @tparam Initializer Tag describing which init_jacobian overload to invoke
+ */
 template <typename Initializer> struct JacobianMatrix {
   constexpr static specfem::dimension::type dimension_tag =
       specfem::dimension::type::dim2;
@@ -82,16 +159,46 @@ template <typename Initializer> struct JacobianMatrix {
       std::array<std::array<std::array<std::array<type_real, 2>, 2>, 5>, 5> >
       _jacobian;
 
+  /**
+   * @brief Construct Jacobian data using the supplied initializer tag.
+   *
+   * @param initializer Tag-dispatch parameter selecting initialization strategy
+   */
   JacobianMatrix(const Initializer &initializer)
       : _jacobian(init_jacobian(initializer)) {}
 
+  /**
+   * @brief Accessor for individual Jacobian matrix components.
+   *
+   * @param ielement Element index
+   * @param iz GLL point index in z direction
+   * @param ix GLL point index in x direction
+   * @param idim First tensor index (0=ξ, 1=γ)
+   * @param jdim Second tensor index (0=x, 1=z)
+   * @return Reference to Jacobian component J[idim][jdim]
+   */
   const type_real &operator()(const int ielement, const int iz, const int ix,
                               const int idim, const int jdim) const {
     return _jacobian[ielement][iz][ix][idim][jdim];
   }
 
+  /**
+   * @brief Get the number of spectral elements in this dataset.
+   *
+   * @return Number of elements
+   */
   const int n_elements() const { return static_cast<int>(_jacobian.size()); }
 
+  /**
+   * @brief Convert to specfem::assembly::jacobian_matrix format.
+   *
+   * This method creates a properly formatted jacobian_matrix object that can
+   * be used with the production gradient algorithms. The conversion maps the
+   * internal storage to the xix, xiz, gammax, gammaz components expected by
+   * the assembly framework.
+   *
+   * @return Assembled jacobian_matrix ready for algorithm testing
+   */
   specfem::assembly::jacobian_matrix<dimension_tag> jacobian() {
     specfem::assembly::jacobian_matrix<dimension_tag> jacobian_matrix(
         n_elements(), 5, 5);
@@ -100,13 +207,13 @@ template <typename Initializer> struct JacobianMatrix {
       for (int iz = 0; iz < 5; ++iz) {
         for (int ix = 0; ix < 5; ++ix) {
           jacobian_matrix.xix(ielement, iz, ix) =
-              _jacobian[ielement][iz][ix][0][0];
+              _jacobian[ielement][iz][ix][0][0]; // ∂ξ/∂x
           jacobian_matrix.xiz(ielement, iz, ix) =
-              _jacobian[ielement][iz][ix][0][1];
+              _jacobian[ielement][iz][ix][0][1]; // ∂ξ/∂z
           jacobian_matrix.gammax(ielement, iz, ix) =
-              _jacobian[ielement][iz][ix][1][0];
+              _jacobian[ielement][iz][ix][1][0]; // ∂γ/∂x
           jacobian_matrix.gammaz(ielement, iz, ix) =
-              _jacobian[ielement][iz][ix][1][1];
+              _jacobian[ielement][iz][ix][1][1]; // ∂γ/∂z
         }
       }
     }
@@ -114,6 +221,15 @@ template <typename Initializer> struct JacobianMatrix {
   }
 };
 
+/**
+ * @brief Build identity derivative matrix for simplified testing.
+ *
+ * Creates an identity matrix that simplifies gradient computation validation
+ * by eliminating the complexity of proper Lagrange derivative evaluation.
+ * Useful for analytical verification of gradient transformation logic.
+ *
+ * @return 5×5 identity matrix for quadrature derivative operations
+ */
 std::array<std::array<type_real, 5>, 5>
 init_quadrature(const QuadratureInitializer::IDENTITY &) {
   std::array<std::array<type_real, 5>, 5> quadrature{};
@@ -125,6 +241,16 @@ init_quadrature(const QuadratureInitializer::IDENTITY &) {
   return quadrature;
 }
 
+/**
+ * @brief Build proper GLL Lagrange derivative matrix.
+ *
+ * Constructs the actual derivative matrix used in spectral element methods,
+ * \f$h'_{ij} = \frac{dL_j}{d\xi}\Big|_{\xi_i}\f$, where \f$L_j(\xi)\f$ are
+ * the Lagrange interpolating polynomials and \f$\xi_i\f$ are GLL quadrature
+ * points.
+ *
+ * @return 5×5 GLL derivative matrix for realistic gradient computation
+ */
 std::array<std::array<type_real, 5>, 5>
 init_quadrature(const QuadratureInitializer::LAGRANGE &) {
   std::array<std::array<type_real, 5>, 5> quadrature{};
@@ -133,23 +259,52 @@ init_quadrature(const QuadratureInitializer::LAGRANGE &) {
   const auto hprime = gll.get_hhprime();
   for (int i = 0; i < 5; ++i) {
     for (int j = 0; j < 5; ++j) {
-      quadrature[j][i] = hprime(i, j);
+      quadrature[j][i] = hprime(i, j); // Transpose for proper indexing
     }
   }
   return quadrature;
 }
 
+/**
+ * @brief Helper owning quadrature derivative matrix for gradient evaluation.
+ *
+ * This class manages derivative matrices used in gradient computation,
+ * providing type-safe access to different quadrature configurations through
+ * compile-time dispatch.
+ *
+ * @tparam Initializer Tag selecting which init_quadrature overload to use
+ */
 template <typename Initializer> struct Quadrature {
   std::array<std::array<type_real, 5>, 5> _quadrature;
 
+  /**
+   * @brief Construct derivative matrix using the selected initializer tag.
+   *
+   * @param initializer Tag-dispatch parameter for quadrature initialization
+   */
   Quadrature(const Initializer &initializer)
       : _quadrature(init_quadrature(initializer)) {}
 
+  /**
+   * @brief Access derivative matrix entry.
+   *
+   * @param i Row index (output GLL point)
+   * @param j Column index (input GLL point)
+   * @return Derivative value \f$\frac{dL_j}{d\xi}\Big|_{\xi_i}\f$
+   */
   type_real operator()(const int &i, const int &j) const {
     return _quadrature[i][j];
   }
 };
 
+/**
+ * @brief Generate zero-valued scalar field for manufactured solution tests.
+ *
+ * Creates a field where f(ξ,γ) = 0 at all GLL points. This provides a trivial
+ * case where the exact gradient is known analytically: ∇f = (0,0) everywhere.
+ *
+ * @return Single-element vector containing zero field data
+ */
 auto init_function(const FunctionInitializer::ZERO &) {
   std::vector<std::array<std::array<type_real, ngll>, ngll> > _f(1);
   for (int icomp = 0; icomp < 1; ++icomp) {
@@ -162,6 +317,15 @@ auto init_function(const FunctionInitializer::ZERO &) {
   return _f;
 }
 
+/**
+ * @brief Generate uniform scalar field for manufactured solution tests.
+ *
+ * Creates a constant field where f(ξ,γ) = 1 at all GLL points. For identity
+ * Jacobian and identity quadrature, this yields known gradient behavior that
+ * can be verified analytically.
+ *
+ * @return Single-element vector containing uniform field data
+ */
 auto init_function(const FunctionInitializer::UNIFORM &) {
   std::vector<std::array<std::array<type_real, 5>, 5> > _f(1);
   for (int icomp = 0; icomp < 1; ++icomp) {
@@ -174,6 +338,17 @@ auto init_function(const FunctionInitializer::UNIFORM &) {
   return _f;
 }
 
+/**
+ * @brief Generate pseudo-random scalar field for stochastic validation.
+ *
+ * Creates a field with random values between [0,1] to test gradient computation
+ * with non-trivial function values. Helps verify numerical stability and
+ * algorithmic correctness for arbitrary field configurations.
+ *
+ * @return Single-element vector containing random field data
+ *
+ * @warning Uses rand() for simplicity; not cryptographically secure
+ */
 auto init_function(const FunctionInitializer::RANDOM &) {
   std::vector<std::array<std::array<type_real, 5>, 5> > _f(1);
   for (int icomp = 0; icomp < 1; ++icomp) {
@@ -186,22 +361,41 @@ auto init_function(const FunctionInitializer::RANDOM &) {
   return _f;
 }
 
+/**
+ * @brief Generate two-element scalar field with element-wise constant values.
+ *
+ * Creates a multi-element field where element 0 has f = 1.0 and element 1 has
+ * f = 2.0. This tests gradient computation consistency across element
+ * boundaries and validates multi-element assembly pathways.
+ *
+ * @return Two-element vector containing element-dependent constant field data
+ */
 auto init_function(const FunctionInitializer::TWO_ELEMENT &) {
   std::vector<std::array<std::array<type_real, 5>, 5> > _f(2);
   for (int ielement = 0; ielement < 2; ++ielement) {
     for (int iz = 0; iz < 5; ++iz) {
       for (int ix = 0; ix < 5; ++ix) {
-        _f[ielement][iz][ix] = 1.0 + ielement;
+        _f[ielement][iz][ix] = 1.0 + ielement; // Element-dependent constant
       }
     }
   }
   return _f;
 }
 
+/**
+ * @brief Helper owning scalar test data and exposing Kokkos views for gradient
+ * calls.
+ *
+ * This class manages scalar field data for test cases, providing conversion
+ * between test-friendly storage formats and the Kokkos Views required by
+ * the production gradient algorithms.
+ *
+ * @tparam Initializer Tag selecting which init_function overload to invoke
+ */
 template <typename Initializer> struct Function {
   constexpr static specfem::dimension::type dimension_tag =
       specfem::dimension::type::dim2;
-  constexpr static int components = 1;
+  constexpr static int components = 1; ///< Scalar field (single component)
 
   using memory_space = Kokkos::HostSpace;
   using memory_traits = Kokkos::MemoryTraits<>;
@@ -209,15 +403,41 @@ template <typename Initializer> struct Function {
   using view_type = Kokkos::View<type_real *[ngll][ngll][components],
                                  memory_space, memory_traits>;
 
+  /**
+   * @brief Construct scalar field using the supplied initializer tag.
+   *
+   * @param initializer Tag-dispatch parameter for field initialization
+   */
   Function(const Initializer &initializer) : _f(init_function(initializer)) {}
 
+  /**
+   * @brief Element-wise access to scalar field values.
+   *
+   * @param ielement Element index
+   * @param iz GLL point index in z direction
+   * @param ix GLL point index in x direction
+   * @return Field value at specified location
+   */
   const type_real &operator()(const int &ielement, const int &iz,
                               const int &ix) const {
     return _f[ielement][iz][ix];
   }
 
+  /**
+   * @brief Get the number of spectral elements in this field.
+   *
+   * @return Number of elements
+   */
   int n_elements() const { return static_cast<int>(_f.size()); }
 
+  /**
+   * @brief Convert to Kokkos View format for gradient algorithm interface.
+   *
+   * Creates a Kokkos View that can be passed to specfem::algorithms::gradient()
+   * and related chunk-based execution frameworks.
+   *
+   * @return Kokkos View containing field data in algorithm-compatible format
+   */
   view_type view() const {
     view_type f_view("f_view", _f.size());
     for (int ielement = 0; ielement < static_cast<int>(_f.size()); ++ielement) {
@@ -231,9 +451,21 @@ template <typename Initializer> struct Function {
   }
 
 private:
-  std::vector<std::array<std::array<type_real, ngll>, ngll> > _f;
+  std::vector<std::array<std::array<type_real, ngll>, ngll> > _f; ///< Internal
+                                                                  ///< field
+                                                                  ///< storage
 };
 
+/**
+ * @brief Analytical gradient reference for zero field with identity
+ * configuration.
+ *
+ * For f(x,z) = 0 everywhere, the exact gradient is ∇f = (0,0) at all points.
+ * This provides a trivial but important validation case for algorithm
+ * correctness.
+ *
+ * @return Gradient field with zero values at all GLL points
+ */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
 gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
@@ -244,13 +476,23 @@ gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
       grad(1);
   for (int iz = 0; iz < 5; ++iz) {
     for (int ix = 0; ix < 5; ++ix) {
-      grad[0][iz][ix][0][0] = 0.0;
-      grad[0][iz][ix][0][1] = 0.0;
+      grad[0][iz][ix][0][0] = 0.0; // ∂f/∂x = 0
+      grad[0][iz][ix][0][1] = 0.0; // ∂f/∂z = 0
     }
   }
   return grad;
 }
 
+/**
+ * @brief Analytical gradient reference for uniform field with identity
+ * configuration.
+ *
+ * For f(x,z) = 1 (constant) with identity Jacobian and identity quadrature,
+ * the expected behavior depends on the specific derivative implementation.
+ * With identity quadrature, uniform functions produce unit gradients.
+ *
+ * @return Gradient field with unit values reflecting derivative matrix behavior
+ */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
 gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
@@ -261,20 +503,32 @@ gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
       grad(1);
   for (int iz = 0; iz < 5; ++iz) {
     for (int ix = 0; ix < 5; ++ix) {
-      grad[0][iz][ix][0][0] = 1.0;
-      grad[0][iz][ix][0][1] = 1.0;
+      grad[0][iz][ix][0][0] = 1.0; // Identity quadrature effect
+      grad[0][iz][ix][0][1] = 1.0; // Identity quadrature effect
     }
   }
   return grad;
 }
 
+/**
+ * @brief Generic reference gradient calculator mirroring
+ * specfem::algorithms::gradient().
+ *
+ *
+ * @tparam Jacobian JacobianMatrix type providing coordinate transformation data
+ * @tparam Quadrature Quadrature type providing derivative matrix
+ * @tparam Function Function type providing scalar field data
+ * @param jacobian Jacobian transformation data
+ * @param quadrature Derivative matrix for reference coordinate differentiation
+ * @param function Scalar field to differentiate
+ * @return Computed gradient at all GLL points in all elements
+ */
 template <typename Jacobian, typename Quadrature, typename Function>
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
 gradient(const Jacobian &jacobian, const Quadrature &quadrature,
          const Function &function) {
 
-  // Placeholder for actual gradient computation logic
   std::vector<
       std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
       grad(function.n_elements());
@@ -282,19 +536,24 @@ gradient(const Jacobian &jacobian, const Quadrature &quadrature,
   for (int ielement = 0; ielement < function.n_elements(); ++ielement) {
     for (int iz = 0; iz < ngll; ++iz) {
       for (int ix = 0; ix < ngll; ++ix) {
-        type_real df_dxi = 0.0;
-        type_real df_gamma = 0.0;
+        // Compute reference coordinate derivatives using quadrature matrix
+        type_real df_dxi = 0.0;    // ∂f/∂ξ
+        type_real df_dgamma = 0.0; // ∂f/∂γ
+
+        // Sum over GLL points using derivative matrix
         for (int l = 0; l < ngll; ++l) {
-          // Compute gradient components here using f, jacobian, and quadrature
           df_dxi += quadrature(ix, l) * function(ielement, iz, l);
-          df_gamma += quadrature(iz, l) * function(ielement, l, ix);
+          df_dgamma += quadrature(iz, l) * function(ielement, l, ix);
         }
-        grad[ielement][iz][ix][0][0] =
-            df_dxi * jacobian(ielement, iz, ix, 0, 0) +
-            df_gamma * jacobian(ielement, iz, ix, 1, 0);
-        grad[ielement][iz][ix][0][1] =
-            df_dxi * jacobian(ielement, iz, ix, 0, 1) +
-            df_gamma * jacobian(ielement, iz, ix, 1, 1);
+
+        // Transform to physical coordinates using Jacobian
+        grad[ielement][iz][ix][0][0] =                    // ∂f/∂x
+            df_dxi * jacobian(ielement, iz, ix, 0, 0) +   // ∂f/∂ξ · ∂ξ/∂x
+            df_dgamma * jacobian(ielement, iz, ix, 1, 0); // ∂f/∂γ · ∂γ/∂x
+
+        grad[ielement][iz][ix][0][1] =                    // ∂f/∂z
+            df_dxi * jacobian(ielement, iz, ix, 0, 1) +   // ∂f/∂ξ · ∂ξ/∂z
+            df_dgamma * jacobian(ielement, iz, ix, 1, 1); // ∂f/∂γ · ∂γ/∂z
       }
     }
   }
@@ -306,21 +565,99 @@ gradient(const Jacobian &jacobian, const Quadrature &quadrature,
 
 using namespace specfem::algorithms_test;
 
+/**
+ * @brief GoogleTest fixture bundling manufactured data and Jacobian views.
+ *
+ * This fixture provides a type-safe framework for testing gradient computation
+ * with different combinations of Jacobian matrices, quadrature configurations,
+ * and scalar field data. Each test instantiation receives a unique combination
+ * of initializer tags that determine the specific test scenario.
+ *
+ * @tparam TestingType Tuple of (JacobianInitializer, QuadratureInitializer,
+ * FunctionInitializer)
+ */
 template <typename TestingType>
 struct GradientTestFixture : public ::testing::Test {
-  using JacobianInitializer = std::tuple_element_t<0, TestingType>;
-  using QuadratureInitializer = std::tuple_element_t<1, TestingType>;
-  using FunctionInitializer = std::tuple_element_t<2, TestingType>;
+  using JacobianInitializer =
+      std::tuple_element_t<0, TestingType>; ///< Jacobian initialization
+                                            ///< strategy
+  using QuadratureInitializer =
+      std::tuple_element_t<1, TestingType>; ///< Quadrature initialization
+                                            ///< strategy
+  using FunctionInitializer =
+      std::tuple_element_t<2, TestingType>; ///< Function initialization
+                                            ///< strategy
 
+  /**
+   * @brief Construct test helpers using tag dispatch for each component.
+   *
+   * This constructor uses the compile-time type information to instantiate
+   * the appropriate helper objects for the specific test combination.
+   */
   GradientTestFixture()
       : jacobian_matrix(JacobianInitializer{}),
         quadrature(QuadratureInitializer{}), function(FunctionInitializer{}) {}
 
-  JacobianMatrix<JacobianInitializer> jacobian_matrix;
-  Quadrature<QuadratureInitializer> quadrature;
-  Function<FunctionInitializer> function;
+  JacobianMatrix<JacobianInitializer> jacobian_matrix; ///< Coordinate
+                                                       ///< transformation data
+  Quadrature<QuadratureInitializer> quadrature; ///< Derivative matrix for
+                                                ///< gradient computation
+  Function<FunctionInitializer> function;       ///< Scalar field test data
 };
 
+/**
+ * @brief Test case combinations for parameterized gradient validation.
+ *
+ * This type list defines all the test scenarios that will be instantiated by
+ * GoogleTest's parameterized testing framework. Each tuple represents a unique
+ * combination of initialization strategies that exercises different aspects of
+ * the gradient computation algorithm.
+ *
+ * **Current test cases:**
+ * 1. **Identity+Zero**: Basic correctness test with trivial inputs
+ * 2. **Identity+Uniform**: Simple analytical validation case
+ * 3. **Lagrange+Random**: Realistic quadrature with arbitrary field data
+ * 4. **TwoElement+TwoElement**: Multi-element consistency validation
+ *
+ * **Adding new test cases:**
+ * To extend the test coverage, follow this process:
+ *
+ * 1. **Define new initializer tags** in the appropriate namespace:
+ *    ```cpp
+ *    namespace JacobianInitializer {
+ *    struct SCALED_ROTATION {}; // New Jacobian type
+ *    }
+ *    ```
+ *
+ * 2. **Overload the corresponding init_* function**:
+ *    ```cpp
+ *    std::vector<...> init_jacobian(const JacobianInitializer::SCALED_ROTATION
+ * &) {
+ *        // Implementation for rotated/scaled Jacobian
+ *    }
+ *    ```
+ *
+ * 3. **Add new tuple to GradientTestTypes**:
+ *    ```cpp
+ *    std::tuple<JacobianInitializer::SCALED_ROTATION,
+ *               QuadratureInitializer::LAGRANGE,
+ *               FunctionInitializer::POLYNOMIAL>
+ *    ```
+ *
+ * 4. **Optionally add specialized gradient() overload** for analytical
+ * reference:
+ *    ```cpp
+ *    std::vector<...> gradient(
+ *        const JacobianMatrix<JacobianInitializer::SCALED_ROTATION> &jacobian,
+ *        const Quadrature<QuadratureInitializer::LAGRANGE> &quadrature,
+ *        const Function<FunctionInitializer::POLYNOMIAL> &function) {
+ *        // Analytical reference implementation
+ *    }
+ *    ```
+ *
+ * The test framework will automatically instantiate and execute the new
+ * scenario.
+ */
 using GradientTestTypes = ::testing::Types<
     std::tuple<JacobianInitializer::IDENTITY, QuadratureInitializer::IDENTITY,
                FunctionInitializer::ZERO>,
@@ -332,19 +669,37 @@ using GradientTestTypes = ::testing::Types<
                QuadratureInitializer::IDENTITY,
                FunctionInitializer::TWO_ELEMENT> >;
 
+/**
+ * @brief Instantiate parameterized test suite for all declared tuple
+ * combinations.
+ */
 TYPED_TEST_SUITE(GradientTestFixture, GradientTestTypes);
 
+/**
+ * @brief Validate specfem::algorithms::gradient() against manufactured
+ * solutions.
+ *
+ * This test performs comprehensive validation of the gradient computation by:
+ * 1. Computing expected gradients using the reference implementation
+ * 2. Setting up chunked domain iteration matching production usage
+ * 3. Calling the production gradient algorithm with test data
+ * 4. Comparing computed vs. expected results at each GLL point
+ *
+ * The test validates both the mathematical accuracy and the execution pathway
+ * of the gradient algorithm, ensuring consistency between reference and
+ * production implementations across different geometric and field
+ * configurations.
+ */
 TYPED_TEST(GradientTestFixture, TestGradientComputation) {
-  // Implement test logic here using this->jacobian_matrix, this->quadrature,
-  // and this->function
-
+  // Verify consistency between function and Jacobian element counts
   ASSERT_TRUE(this->function.n_elements() == this->jacobian_matrix.n_elements())
       << "Mismatch in number of elements between function and jacobian matrix";
 
+  // Compute expected results using reference implementation
   const auto expected_gradient = specfem::algorithms_test::gradient(
       this->jacobian_matrix, this->quadrature, this->function);
 
-  // Create an iterator;
+  // Set up chunked domain iteration for production algorithm testing
   using simd = specfem::datatype::simd<type_real, false>;
   Kokkos::View<int *, Kokkos::HostSpace> element_indices(
       "element_indices", this->function.n_elements());
@@ -367,13 +722,14 @@ TYPED_TEST(GradientTestFixture, TestGradientComputation) {
       type_real, specfem::dimension::type::dim2, 1, ngll, 1, false,
       Kokkos::HostSpace, Kokkos::MemoryTraits<> >;
 
-  // Call gradient computation
+  // Execute production gradient algorithm and validate results
   specfem::execution::for_each_level(chunk, [&](const typename decltype(
                                                 chunk)::index_type &index) {
     const FunctionView f(Kokkos::subview(function_view, index.get_range(),
                                          Kokkos::ALL(), Kokkos::ALL(),
                                          Kokkos::ALL()));
-    // Call gradient algorithm here
+
+    // Call the production gradient algorithm
     specfem::algorithms::gradient(
         index, jacobian, this->quadrature, f,
         [&](const auto &iterator_index, const auto &df) {
@@ -384,18 +740,19 @@ TYPED_TEST(GradientTestFixture, TestGradientComputation) {
 
           const auto e = expected_gradient[ispec][iz][ix];
 
-          // Verify computed gradient against expected gradient
+          // Point-wise validation of computed gradient components
           if (!specfem::utilities::is_close(df(0, 0), e[0][0]) ||
               !specfem::utilities::is_close(df(0, 1), e[0][1])) {
-            FAIL() << "Mismatch for element " << local_index.ispec << "\n"
-                   << "    at quadrature point (" << iz << ", " << ix << ")\n"
+            FAIL() << "Gradient mismatch for element " << local_index.ispec
+                   << "\n"
+                   << "    at GLL point (" << iz << ", " << ix << ")\n"
                    << "    expected: (" << e[0][0] << ", " << e[0][1] << ")\n"
-                   << "    got: (" << df(0, 0) << ", " << df(0, 1) << ")";
+                   << "    computed: (" << df(0, 0) << ", " << df(0, 1) << ")";
           }
         });
   });
 
-  SUCCEED() << "Gradient computation test executed successfully.";
+  SUCCEED() << "Gradient computation validation passed for all test points.";
 }
 
 int main(int argc, char *argv[]) {
