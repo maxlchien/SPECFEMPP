@@ -581,6 +581,23 @@ target_link_libraries(
 )
 
 add_executable(
+  gradient_tests
+  algorithms/dim2/gradient.cpp
+)
+
+target_link_libraries(
+  gradient_tests
+  quadrature
+  algorithms
+  kokkos_environment
+  gtest_main
+  Kokkos::kokkos
+  mpi_environment
+  assembly
+  -lpthread -lm
+)
+
+add_executable(
   policies_tests
   policies/policies.cpp
 )
