@@ -2,7 +2,7 @@
 
 #include "enumerations/interface.hpp"
 #include "execution/for_all.hpp"
-#include "execution/thread_md_range_iterator.hpp"
+#include "execution/team_thread_md_range_iterator.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem::assembly {
@@ -37,7 +37,8 @@ KOKKOS_INLINE_FUNCTION void impl_load(
                 "Calling team must have a host execution space");
 
   specfem::execution::for_each_level(
-      specfem::execution::ThreadMDRangeIterator<MemberType, NGLL, NGLL>(team),
+      specfem::execution::TeamThreadMDRangeIterator<MemberType, NGLL, NGLL>(
+          team),
       [&](const auto index) {
         int iz = index(0);
         int ix = index(1);
