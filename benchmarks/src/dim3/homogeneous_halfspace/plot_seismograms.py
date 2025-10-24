@@ -272,7 +272,7 @@ def main():
         ax.set_aspect("auto")
 
     plt.tight_layout()
-    plt.savefig("seismogram_plot.png", dpi=300, bbox_inches="tight")
+    plt.savefig("OUTPUT_FILES/seismogram_plot.png", dpi=300, bbox_inches="tight")
     plt.show()
 
 
