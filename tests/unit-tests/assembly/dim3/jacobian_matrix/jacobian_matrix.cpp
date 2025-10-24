@@ -22,9 +22,6 @@
  * hexahedral elements in physical space, allowing for accurate integration and
  * differentiation operations.
  *
- * @note Recent commits (cc3a5571, efd2e72c) implemented constructor-based
- * initialization and fixed test validation routines for improved robustness.
- *
  * @see specfem::assembly::jacobian_matrix
  * @see specfem::jacobian::compute_jacobian
  * @see ExpectedJacobian3D for test data structures
@@ -89,7 +86,7 @@ namespace specfem::assembly_test {
  * using tensor products of 1D GLL quadrature points. This structure stores
  * the total configuration for the entire mesh.
  */
-struct TotalGLLPoints {
+struct GridExtents {
   int ngllx;     ///< Number of GLL points in x direction
   int nglly;     ///< Number of GLL points in y direction
   int ngllz;     ///< Number of GLL points in z direction
@@ -103,7 +100,7 @@ struct TotalGLLPoints {
    * @param ngllz Number of GLL points in z direction
    * @param nelements Total number of spectral elements
    */
-  TotalGLLPoints(int ngllx, int nglly, int ngllz, int nelements)
+  GridExtents(int ngllx, int nglly, int ngllz, int nelements)
       : ngllx(ngllx), nglly(nglly), ngllz(ngllz), nelements(nelements) {}
 };
 
@@ -207,7 +204,7 @@ struct ExpectedJacobian3D {
   constexpr static specfem::dimension::type dimension =
       specfem::dimension::type::dim3; ///< Compile-time dimension specification
 
-  TotalGLLPoints total_gll_points; ///< GLL discretization parameters
+  GridExtents total_gll_points;    ///< GLL discretization parameters
   std::vector<Element3D> elements; ///< Collection of test elements
 
   /**
@@ -216,7 +213,7 @@ struct ExpectedJacobian3D {
    * @param total_gll_points GLL point configuration for the mesh
    * @param elements Initializer list of Element3D test cases
    */
-  ExpectedJacobian3D(TotalGLLPoints total_gll_points,
+  ExpectedJacobian3D(GridExtents total_gll_points,
                      const std::initializer_list<Element3D> &elements)
       : total_gll_points(total_gll_points), elements(elements) {}
 
