@@ -217,10 +217,8 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
                     acceleration);
 
                 // Apply boundary conditions
-                if constexpr (DimensionTag == specfem::dimension::type::dim2) {
-                  specfem::boundary_conditions::apply_boundary_conditions(
-                      point_boundary, point_property, velocity, acceleration);
-                }
+                specfem::boundary_conditions::apply_boundary_conditions(
+                    point_boundary, point_property, velocity, acceleration);
 
                 // Store forward boundary values for reconstruction during
                 // adjoint simulations. The function does nothing if the
