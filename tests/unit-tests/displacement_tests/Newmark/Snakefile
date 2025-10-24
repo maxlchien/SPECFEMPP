@@ -4,7 +4,9 @@ configfile = "dim2/tests.yaml"
 
 rule all:
     input:
-        trace_dirs
+        trace_dirs = expand("serial/dim2/{test_name}/traces",
+        test_name=config,
+        )
 
 
 for test_name in test_names:
