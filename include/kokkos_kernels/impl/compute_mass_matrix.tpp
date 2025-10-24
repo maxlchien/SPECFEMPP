@@ -3,7 +3,6 @@
 #include "boundary_conditions/boundary_conditions.hpp"
 #include "boundary_conditions/boundary_conditions.tpp"
 #include "datatypes/simd.hpp"
-#include "quadrature/lagrange_derivative.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
@@ -11,6 +10,7 @@
 #include "execution/for_all.hpp"
 #include "medium/compute_mass_matrix.hpp"
 #include "parallel_configuration/chunk_config.hpp"
+#include "quadrature/lagrange_derivative.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
@@ -24,7 +24,7 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
     const type_real &dt,
     const specfem::assembly::assembly<DimensionTag> &assembly) {
 
-  constexpr auto dimension = DimensionTag;
+  constexpr auto dimension_tag = DimensionTag;
   constexpr auto wavefield = WavefieldType;
   constexpr auto medium_tag = MediumTag;
   constexpr auto property_tag = PropertyTag;
@@ -32,7 +32,7 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
 
   // Get the number of components for the element
   constexpr int components =
-      specfem::element::attributes<dimension, medium_tag>::components;
+      specfem::element::attributes<dimension_tag, medium_tag>::components;
 
   const auto elements = assembly.element_types.get_elements_on_device(
       MediumTag, PropertyTag, BoundaryTag);
@@ -50,8 +50,9 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
   // Check if the number of GLL points in the mesh elements matches the template
   // parameter NGLL
   if (element_grid != NGLL) {
-    throw std::runtime_error("The number of GLL points in the mesh elements must match "
-                             "the template parameter NGLL.");
+    throw std::runtime_error(
+        "The number of GLL points in the mesh elements must match "
+        "the template parameter NGLL.");
   }
 
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
@@ -61,22 +62,24 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
 #endif
   using simd = specfem::datatype::simd<type_real, using_simd>;
   using parallel_config = specfem::parallel_config::default_chunk_config<
-      dimension, simd, Kokkos::DefaultExecutionSpace>;
+      dimension_tag, simd, Kokkos::DefaultExecutionSpace>;
 
   using PointMassType =
-      specfem::point::mass_inverse<dimension, medium_tag, using_simd>;
+      specfem::point::mass_inverse<dimension_tag, medium_tag, using_simd>;
 
   using PointPropertyType =
-      specfem::point::properties<dimension, medium_tag, property_tag,
+      specfem::point::properties<dimension_tag, medium_tag, property_tag,
                                  using_simd>;
 
   using PointJacobianMatrixType =
-      specfem::point::jacobian_matrix<dimension, true, using_simd>;
+      specfem::point::jacobian_matrix<dimension_tag, true, using_simd>;
 
   using PointBoundaryType =
-      specfem::point::boundary<boundary_tag, dimension, using_simd>;
+      specfem::point::boundary<boundary_tag, dimension_tag, using_simd>;
 
-  using PointIndex = specfem::point::index<dimension, using_simd>;
+  using PointWeightsType = specfem::point::weights<dimension_tag>;
+
+  using PointIndex = specfem::point::index<dimension_tag, using_simd>;
 
   const auto &mesh = assembly.mesh;
   const auto &jacobian_matrix = assembly.jacobian_matrix;
@@ -84,35 +87,26 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
   const auto &boundaries = assembly.boundaries;
   const auto field = assembly.fields.template get_simulation_field<wavefield>();
 
-  const auto wgll = mesh.weights;
-
   specfem::execution::ChunkedDomainIterator chunk(parallel_config(), elements,
                                                   element_grid);
 
   specfem::execution::for_all(
       "specfem::kokkos_kernels::compute_mass_matrix", chunk,
       KOKKOS_LAMBDA(const PointIndex &index) {
-        const int ix = index.ix;
-        const int iz = index.iz;
+        PointPropertyType point_property;
+        specfem::assembly::load_on_device(index, properties, point_property);
 
-        const auto point_property = [&]() -> PointPropertyType {
-          PointPropertyType point_property;
+        PointJacobianMatrixType point_jacobian_matrix;
+        specfem::assembly::load_on_device(index, jacobian_matrix,
+                                          point_jacobian_matrix);
 
-          specfem::assembly::load_on_device(index, properties, point_property);
-          return point_property;
-        }();
-
-        const auto jacobian = [&]() {
-          PointJacobianMatrixType point_jacobian_matrix;
-          specfem::assembly::load_on_device(index, jacobian_matrix,
-                                            point_jacobian_matrix);
-          return point_jacobian_matrix.jacobian;
-        }();
+        PointWeightsType point_weights;
+        specfem::assembly::load_on_device(index, mesh.weights, point_weights);
 
         PointMassType mass_matrix =
             specfem::medium::mass_matrix_component(point_property);
 
-        mass_matrix *= wgll(ix) * wgll(iz) * jacobian;
+        mass_matrix *= point_weights.product() * point_jacobian_matrix.jacobian;
 
         PointBoundaryType point_boundary;
         specfem::assembly::load_on_device(index, boundaries, point_boundary);

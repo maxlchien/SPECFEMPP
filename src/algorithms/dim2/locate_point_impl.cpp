@@ -129,9 +129,9 @@ std::pair<type_real, bool> get_local_edge_coordinate(
     const Kokkos::View<
         specfem::point::global_coordinates<specfem::dimension::type::dim2> *,
         Kokkos::HostSpace> &coorg,
-    const specfem::mesh_entity::type &mesh_entity, type_real coord) {
+    const specfem::mesh_entity::dim2::type &mesh_entity, type_real coord) {
   constexpr type_real local_deriv_eps = 1e-12;
-  constexpr type_real global_coord_eps = 1e-2;
+  constexpr type_real global_coord_eps = 5e-2;
   const int ngnod = coorg.extent(0);
 
   // full local coords
@@ -147,13 +147,13 @@ std::pair<type_real, bool> get_local_edge_coordinate(
   auto [edgecoord, jacobian_edgecoordx, jacobian_edgecoordz] =
       [&xi, &gamma, &mesh_entity,
        &jacobian]() -> std::tuple<type_real &, type_real &, type_real &> {
-    if (mesh_entity == specfem::mesh_entity::type::bottom) {
+    if (mesh_entity == specfem::mesh_entity::dim2::type::bottom) {
       gamma = -1;
       return { xi, jacobian.xix, jacobian.xiz };
-    } else if (mesh_entity == specfem::mesh_entity::type::right) {
+    } else if (mesh_entity == specfem::mesh_entity::dim2::type::right) {
       xi = 1;
       return { gamma, jacobian.gammax, jacobian.gammaz };
-    } else if (mesh_entity == specfem::mesh_entity::type::top) {
+    } else if (mesh_entity == specfem::mesh_entity::dim2::type::top) {
       gamma = 1;
       return { xi, jacobian.xix, jacobian.xiz };
     } else {
@@ -214,6 +214,8 @@ std::pair<type_real, bool> get_local_edge_coordinate(
         << "  (target_x, target_z) = (" << global.x << ", " << global.z << ")\n"
         << "   (found_x,  found_z) = (" << loc.x << ", " << loc.z << ")\n"
         << "            final_dist = " << distance << "\n"
+        << "                             (" << std::scientific
+        << distance / mesh_charlen << std::fixed << " x mesh length scale)\n"
         << "This may have been caused by improper meshing along a "
            "nonconforming interface.\n";
     throw std::runtime_error(oss.str());
