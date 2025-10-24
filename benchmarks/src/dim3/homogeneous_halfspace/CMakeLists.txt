@@ -25,6 +25,13 @@ file(
   DESTINATION ${CURRENT_BENCHMARK_BUILD_DIR}
 )
 
+file(
+  CREATE_LINK
+    ${CMAKE_CURRENT_SOURCE_DIR}/reference_seismograms
+    ${CURRENT_BENCHMARK_BUILD_DIR}/reference_seismograms
+    SYMBOLIC
+)
+
 # Configure files directly into the cmake benchmarks_build!
 configure_file(CMakeFiles/Mesh_Par_file.in ${CURRENT_BENCHMARK_BUILD_DIR}/DATA/meshfem3D_files/Mesh_Par_file)
 configure_file(CMakeFiles/interfaces.txt.in ${CURRENT_BENCHMARK_BUILD_DIR}/DATA/meshfem3D_files/interfaces.txt)
