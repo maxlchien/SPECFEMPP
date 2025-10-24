@@ -1,5 +1,34 @@
 #include "specfem/assembly/mesh.hpp"
 
+template <typename CoordinateView, typename ShapeFunctionView,
+          typename ControlNodeCoordinates>
+void initialize_coordinates(
+    const int nspec, const int ngllz, const int nglly, const int ngllx,
+    const int ngnod, const CoordinateView &coordinates,
+    const ShapeFunctionView &shape_functions,
+    const ControlNodeCoordinates &control_node_coordinates) {
+
+  Kokkos::parallel_for(
+      "specfem::assembly::mesh::points::initialize_coordinates",
+      Kokkos::MDRangePolicy<Kokkos::Rank<4> >({ 0, 0, 0, 0 },
+                                              { nspec, ngllz, nglly, ngllx }),
+      KOKKOS_LAMBDA(const int ispec, const int iz, const int iy, const int ix) {
+        for (int ia = 0; ia < ngnod; ia++) {
+          coordinates(ispec, iz, iy, ix, 0) +=
+              shape_functions(iz, iy, ix, ia) *
+              control_node_coordinates(ispec, ia, 0);
+          coordinates(ispec, iz, iy, ix, 1) +=
+              shape_functions(iz, iy, ix, ia) *
+              control_node_coordinates(ispec, ia, 1);
+          coordinates(ispec, iz, iy, ix, 2) +=
+              shape_functions(iz, iy, ix, ia) *
+              control_node_coordinates(ispec, ia, 2);
+        }
+      });
+
+  Kokkos::fence();
+}
+
 specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
     const specfem::mesh::mapping<dimension_tag> &mapping,
     const specfem::mesh::coordinates<dimension_tag> &coordinates)
@@ -298,25 +327,10 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
 
   const int ngnod = control_nodes.ngnod;
 
-  Kokkos::parallel_for(
-      "specfem::assembly::mesh::points::initialize_coordinates",
-      Kokkos::MDRangePolicy<Kokkos::Rank<4> >({ 0, 0, 0, 0 },
-                                              { nspec, ngllz, nglly, ngllx }),
-      KOKKOS_LAMBDA(const int ispec, const int iz, const int iy, const int ix) {
-        for (int ia = 0; ia < ngnod; ia++) {
-          this->coord(ispec, iz, iy, ix, 0) +=
-              shape_functions.shape3D(iz, iy, ix, ia) *
-              control_nodes.control_node_coordinates(ispec, ia, 0);
-          this->coord(ispec, iz, iy, ix, 1) +=
-              shape_functions.shape3D(iz, iy, ix, ia) *
-              control_nodes.control_node_coordinates(ispec, ia, 1);
-          this->coord(ispec, iz, iy, ix, 2) +=
-              shape_functions.shape3D(iz, iy, ix, ia) *
-              control_nodes.control_node_coordinates(ispec, ia, 2);
-        }
-      });
+  initialize_coordinates(nspec, ngllz, nglly, ngllx, ngnod, this->h_coord,
+                         shape_functions.shape3D,
+                         control_nodes.control_node_coordinates);
 
-  Kokkos::fence();
   Kokkos::deep_copy(this->h_coord, this->coord);
 
   return;
