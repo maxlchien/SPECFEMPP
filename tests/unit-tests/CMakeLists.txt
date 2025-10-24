@@ -600,6 +600,9 @@ target_link_libraries(
   -lpthread -lm
 )
 
+# Turn unity build off for gradient_tests
+set_target_properties(gradient_tests PROPERTIES UNITY_BUILD OFF)
+
 add_executable(
   policies_tests
   policies/policies.cpp
