@@ -177,11 +177,14 @@ init_jacobian(const JacobianInitializer3D::TWO_ELEMENT &) {
 template <typename Initializer> struct JacobianMatrix3D {
   constexpr static specfem::dimension::type dimension_tag =
       specfem::dimension::type::dim3;
+
+private:
   std::vector<std::array<
       std::array<std::array<std::array<std::array<type_real, 3>, 3>, 5>, 5>,
       5> >
       _jacobian;
 
+public:
   /**
    * @brief Construct Jacobian data using the supplied initializer tag.
    *
