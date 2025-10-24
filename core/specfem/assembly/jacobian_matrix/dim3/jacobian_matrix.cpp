@@ -2,6 +2,35 @@
 #include "mesh/mesh.hpp"
 #include "specfem/jacobian.hpp"
 
+template <typename ShapeFunctionView, typename CoordinateView>
+void initialize_jacobian_matrix(
+    const int nspec, const int ngllz, const int nglly, const int ngllx,
+    specfem::assembly::jacobian_matrix<specfem::dimension::type::dim3>
+        &jacobian_matrix,
+    const ShapeFunctionView &shape_derivatives,
+    const CoordinateView &coordinates) {
+
+  constexpr static auto dimension_tag = specfem::dimension::type::dim3;
+
+  Kokkos::parallel_for(
+      "specfem::assembly::jacobian_matrix::initialize_from_mesh",
+      Kokkos::MDRangePolicy<Kokkos::Rank<4> >({ 0, 0, 0, 0 },
+                                              { nspec, ngllz, nglly, ngllx }),
+      KOKKOS_LAMBDA(const int ispec, const int iz, const int iy, const int ix) {
+        // compute jacobian matrix
+        const auto point_jacobian = specfem::jacobian::compute_jacobian(
+            Kokkos::subview(coordinates, ispec, Kokkos::ALL(), Kokkos::ALL()),
+            Kokkos::subview(shape_derivatives, iz, iy, ix, Kokkos::ALL(),
+                            Kokkos::ALL()));
+
+        specfem::assembly::store_on_device(
+            specfem::point::index<dimension_tag, false>(ispec, iz, iy, ix),
+            point_jacobian, jacobian_matrix);
+      });
+
+  Kokkos::fence();
+}
+
 specfem::assembly::jacobian_matrix<specfem::dimension::type::dim3>::
     jacobian_matrix(
         const specfem::mesh::jacobian_matrix<dimension_tag> &mesh_jacobian)
@@ -206,21 +235,8 @@ specfem::assembly::jacobian_matrix<specfem::dimension::type::dim3>::
   const auto &shape_derivatives = assembly_mesh.dshape3D;
   const auto &coordinates = assembly_mesh.control_node_coordinates;
 
-  Kokkos::parallel_for(
-      "specfem::assembly::jacobian_matrix::initialize_from_mesh",
-      Kokkos::MDRangePolicy<Kokkos::Rank<4> >({ 0, 0, 0, 0 },
-                                              { nspec, ngllz, nglly, ngllx }),
-      KOKKOS_LAMBDA(const int ispec, const int iz, const int iy, const int ix) {
-        // compute jacobian matrix
-        const auto jacobian_matrix = specfem::jacobian::compute_jacobian(
-            Kokkos::subview(coordinates, ispec, Kokkos::ALL(), Kokkos::ALL()),
-            Kokkos::subview(shape_derivatives, iz, iy, ix, Kokkos::ALL(),
-                            Kokkos::ALL()));
-
-        specfem::assembly::store_on_device(
-            specfem::point::index<dimension_tag, false>(ispec, iz, iy, ix),
-            jacobian_matrix, *this);
-      });
+  initialize_jacobian_matrix(nspec, ngllz, nglly, ngllx, *this,
+                             shape_derivatives, coordinates);
 
   Kokkos::deep_copy(h_xix, xix);
   Kokkos::deep_copy(h_xiy, xiy);
