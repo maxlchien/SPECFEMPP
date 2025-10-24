@@ -33,18 +33,16 @@
 
 // Add constructor implementation for NO_VTK builds
 specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    plot_wavefield(
-        const specfem::assembly::assembly<specfem::dimension::type::dim3>
-            &assembly,
-        const specfem::display::format &output_format,
-        const specfem::wavefield::type &wavefield_type,
-        const specfem::wavefield::simulation_field &wavefield,
-        const type_real &dt, const int &time_interval,
-        const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi)
+    plot_wavefield(const specfem::assembly::assembly<dimension_tag> &assembly,
+                   const specfem::display::format &output_format,
+                   const specfem::wavefield::type &wavefield_type,
+                   const specfem::wavefield::simulation_field &wavefield,
+                   const type_real &dt, const int &time_interval,
+                   const boost::filesystem::path &output_folder,
+                   specfem::MPI::MPI *mpi)
     : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
-      plotter<specfem::dimension::type::dim3>(time_interval),
-      output_format(output_format), output_folder(output_folder),
-      nspec(assembly.mesh.nspec), dt(dt),
+      plotter<dimension_tag>(time_interval), output_format(output_format),
+      output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
       ngllx(assembly.mesh.element_grid.ngllx),
       nglly(assembly.mesh.element_grid.nglly),
       ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
@@ -57,8 +55,7 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 }
 
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    run(specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly,
-        const int istep) {
+    run(specfem::assembly::assembly<dimension_tag> &assembly, const int istep) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -68,8 +65,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 }
 
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    initialize(
-        specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly) {
+    initialize(specfem::assembly::assembly<dimension_tag> &assembly) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -79,8 +75,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 }
 
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    finalize(
-        specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly) {
+    finalize(specfem::assembly::assembly<dimension_tag> &assembly) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -93,18 +88,16 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 
 // Constructor
 specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    plot_wavefield(
-        const specfem::assembly::assembly<specfem::dimension::type::dim3>
-            &assembly,
-        const specfem::display::format &output_format,
-        const specfem::wavefield::type &wavefield_type,
-        const specfem::wavefield::simulation_field &wavefield,
-        const type_real &dt, const int &time_interval,
-        const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi)
+    plot_wavefield(const specfem::assembly::assembly<dimension_tag> &assembly,
+                   const specfem::display::format &output_format,
+                   const specfem::wavefield::type &wavefield_type,
+                   const specfem::wavefield::simulation_field &wavefield,
+                   const type_real &dt, const int &time_interval,
+                   const boost::filesystem::path &output_folder,
+                   specfem::MPI::MPI *mpi)
     : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
-      plotter<specfem::dimension::type::dim3>(time_interval),
-      output_format(output_format), output_folder(output_folder),
-      nspec(assembly.mesh.nspec), dt(dt),
+      plotter<dimension_tag>(time_interval), output_format(output_format),
+      output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
       ngllx(assembly.mesh.element_grid.ngllx),
       nglly(assembly.mesh.element_grid.nglly),
       ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
@@ -196,7 +189,7 @@ void specfem::periodic_tasks::plot_wavefield<
 // Compute wavefield scalar values for the grid points
 vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
     plot_wavefield<specfem::dimension::type::dim3>::compute_wavefield_scalars(
-        specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly) {
+        specfem::assembly::assembly<dimension_tag> &assembly) {
   const auto wavefield_type = get_wavefield_type();
   const auto &wavefield_data =
       assembly.generate_wavefield_on_entire_grid(wavefield, wavefield_type);
@@ -683,8 +676,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 }
 
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    initialize(
-        specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly) {
+    initialize(specfem::assembly::assembly<dimension_tag> &assembly) {
 
   // Create the grid structure
   create_lagrange_hex_grid();
@@ -969,8 +961,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 }
 
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    run(specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly,
-        const int istep) {
+    run(specfem::assembly::assembly<dimension_tag> &assembly, const int istep) {
 
   // Update the wavefield scalars only
   auto scalars = compute_wavefield_scalars(assembly);
@@ -999,8 +990,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 }
 
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    finalize(
-        specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly) {
+    finalize(specfem::assembly::assembly<dimension_tag> &assembly) {
 
   // Clean up VTK objects
   unstructured_grid = nullptr;

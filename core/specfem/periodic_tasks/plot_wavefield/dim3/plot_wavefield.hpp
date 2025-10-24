@@ -32,6 +32,9 @@ template <>
 class plot_wavefield<specfem::dimension::type::dim3>
     : public plotter<specfem::dimension::type::dim3> {
 public:
+  constexpr static specfem::dimension::type dimension_tag =
+      specfem::dimension::type::dim3;
+
   /**
    * @brief Construct a new plotter object
    *
@@ -56,9 +59,8 @@ public:
    * @brief Updates the wavefield and writes to HDF5 file
    *
    */
-  void
-  run(specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly,
-      const int istep) override;
+  void run(specfem::assembly::assembly<dimension_tag> &assembly,
+           const int istep) override;
 
   /**
    * @brief Initialize the wavefield plotter
@@ -67,8 +69,8 @@ public:
    *
    * @param assembly SPECFEM++ assembly object
    */
-  void initialize(specfem::assembly::assembly<specfem::dimension::type::dim3>
-                      &assembly) override;
+  void
+  initialize(specfem::assembly::assembly<dimension_tag> &assembly) override;
 
   /**
    * @brief Finalize the plotter
@@ -77,16 +79,14 @@ public:
    *
    * @param assembly SPECFEM++ assembly object
    */
-  void finalize(specfem::assembly::assembly<specfem::dimension::type::dim3>
-                    &assembly) override;
+  void finalize(specfem::assembly::assembly<dimension_tag> &assembly) override;
 
   const specfem::display::format output_format;  ///< Output format of the plot
   const specfem::wavefield::type wavefield_type; ///< Type of the wavefield
   const specfem::wavefield::simulation_field wavefield; ///< Type of wavefield
                                                         ///< to plot
   const boost::filesystem::path output_folder; ///< Path to output folder
-  specfem::assembly::assembly<specfem::dimension::type::dim3>
-      assembly; ///< Assembly object
+  specfem::assembly::assembly<dimension_tag> assembly; ///< Assembly object
 
   // Grid parameter members
   int nspec; ///< Number of elements
@@ -116,7 +116,7 @@ private:
   // Grid creation and wavefield computation
   void create_lagrange_hex_grid();
   vtkSmartPointer<vtkFloatArray> compute_wavefield_scalars(
-      specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly);
+      specfem::assembly::assembly<dimension_tag> &assembly);
 
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
