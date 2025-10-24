@@ -35,7 +35,7 @@ specfem::assembly::receivers<specfem::dimension::type::dim3>::receivers(
                                           nsteps_between_samples) {
 
   // Discretization from the mesh
-  const auto nspec = mesh.nspec;
+  this->nspec = mesh.nspec;
   const auto &element_grid = mesh.element_grid;
 
   // Validate and populate seismogram type mapping
