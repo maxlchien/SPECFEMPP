@@ -583,6 +583,7 @@ target_link_libraries(
 add_executable(
   gradient_tests
   algorithms/dim2/gradient.cpp
+  algorithms/dim3/gradient.cpp
 )
 
 target_link_libraries(

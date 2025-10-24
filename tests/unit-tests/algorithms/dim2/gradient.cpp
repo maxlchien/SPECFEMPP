@@ -47,12 +47,12 @@ constexpr static int ngll =
 /**
  * @brief Initializer tags for scalar field test data generation.
  */
-namespace FunctionInitializer {
+namespace FunctionInitializer2D {
 struct ZERO {};        ///< Zero-valued field: f(x,z) = 0 everywhere
 struct UNIFORM {};     ///< Uniform field: f(x,z) = 1 everywhere
 struct RANDOM {};      ///< Pseudo-random field values for stochastic testing
 struct TWO_ELEMENT {}; ///< Multi-element field with element-dependent values
-} // namespace FunctionInitializer
+} // namespace FunctionInitializer2D
 
 /**
  * @brief Initializer tags for quadrature derivative matrix configuration.
@@ -61,10 +61,10 @@ struct TWO_ELEMENT {}; ///< Multi-element field with element-dependent values
  * gradient computation. The matrix represents \f$\frac{\partial L_j}{\partial
  * \xi_i}\f$ where \f$L_j\f$ are Lagrange basis functions.
  */
-namespace QuadratureInitializer {
+namespace QuadratureInitializer2D {
 struct IDENTITY {}; ///< Identity matrix for simplified analytical verification
 struct LAGRANGE {}; ///< Proper GLL Lagrange derivative matrix from quadrature
-} // namespace QuadratureInitializer
+} // namespace QuadratureInitializer2D
 
 /**
  * @brief Initializer tags for Jacobian matrix test configurations.
@@ -73,10 +73,10 @@ struct LAGRANGE {}; ///< Proper GLL Lagrange derivative matrix from quadrature
  * coordinate mapping between reference element \f$[-1,1]^2\f$ and physical
  * space.
  */
-namespace JacobianInitializer {
+namespace JacobianInitializer2D {
 struct IDENTITY {};    ///< Identity Jacobian (no geometric transformation)
 struct TWO_ELEMENT {}; ///< Multi-element mesh with scaled transformations
-} // namespace JacobianInitializer
+} // namespace JacobianInitializer2D
 
 /**
  * @brief Initialize identity Jacobian matrix for single-element test cases.
@@ -94,7 +94,7 @@ struct TWO_ELEMENT {}; ///< Multi-element mesh with scaled transformations
  */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 2>, 5>, 5> >
-init_jacobian(const JacobianInitializer::IDENTITY &) {
+init_jacobian(const JacobianInitializer2D::IDENTITY &) {
   std::vector<
       std::array<std::array<std::array<std::array<type_real, 2>, 2>, 5>, 5> >
       jacobian(1);
@@ -124,7 +124,7 @@ init_jacobian(const JacobianInitializer::IDENTITY &) {
  */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 2>, 5>, 5> >
-init_jacobian(const JacobianInitializer::TWO_ELEMENT &) {
+init_jacobian(const JacobianInitializer2D::TWO_ELEMENT &) {
   std::vector<
       std::array<std::array<std::array<std::array<type_real, 2>, 2>, 5>, 5> >
       jacobian(2);
@@ -152,7 +152,7 @@ init_jacobian(const JacobianInitializer::TWO_ELEMENT &) {
  *
  * @tparam Initializer Tag describing which init_jacobian overload to invoke
  */
-template <typename Initializer> struct JacobianMatrix {
+template <typename Initializer> struct JacobianMatrix2D {
   constexpr static specfem::dimension::type dimension_tag =
       specfem::dimension::type::dim2;
   std::vector<
@@ -164,7 +164,7 @@ template <typename Initializer> struct JacobianMatrix {
    *
    * @param initializer Tag-dispatch parameter selecting initialization strategy
    */
-  JacobianMatrix(const Initializer &initializer)
+  JacobianMatrix2D(const Initializer &initializer)
       : _jacobian(init_jacobian(initializer)) {}
 
   /**
@@ -231,7 +231,7 @@ template <typename Initializer> struct JacobianMatrix {
  * @return 5×5 identity matrix for quadrature derivative operations
  */
 std::array<std::array<type_real, 5>, 5>
-init_quadrature(const QuadratureInitializer::IDENTITY &) {
+init_quadrature(const QuadratureInitializer2D::IDENTITY &) {
   std::array<std::array<type_real, 5>, 5> quadrature{};
   for (int i = 0; i < 5; ++i) {
     for (int j = 0; j < 5; ++j) {
@@ -252,7 +252,7 @@ init_quadrature(const QuadratureInitializer::IDENTITY &) {
  * @return 5×5 GLL derivative matrix for realistic gradient computation
  */
 std::array<std::array<type_real, 5>, 5>
-init_quadrature(const QuadratureInitializer::LAGRANGE &) {
+init_quadrature(const QuadratureInitializer2D::LAGRANGE &) {
   std::array<std::array<type_real, 5>, 5> quadrature{};
 
   const specfem::quadrature::gll::gll gll{};
@@ -274,7 +274,7 @@ init_quadrature(const QuadratureInitializer::LAGRANGE &) {
  *
  * @tparam Initializer Tag selecting which init_quadrature overload to use
  */
-template <typename Initializer> struct Quadrature {
+template <typename Initializer> struct Quadrature2D {
   std::array<std::array<type_real, 5>, 5> _quadrature;
 
   /**
@@ -282,7 +282,7 @@ template <typename Initializer> struct Quadrature {
    *
    * @param initializer Tag-dispatch parameter for quadrature initialization
    */
-  Quadrature(const Initializer &initializer)
+  Quadrature2D(const Initializer &initializer)
       : _quadrature(init_quadrature(initializer)) {}
 
   /**
@@ -305,7 +305,7 @@ template <typename Initializer> struct Quadrature {
  *
  * @return Single-element vector containing zero field data
  */
-auto init_function(const FunctionInitializer::ZERO &) {
+auto init_function(const FunctionInitializer2D::ZERO &) {
   std::vector<std::array<std::array<type_real, ngll>, ngll> > _f(1);
   for (int icomp = 0; icomp < 1; ++icomp) {
     for (int iz = 0; iz < ngll; ++iz) {
@@ -326,7 +326,7 @@ auto init_function(const FunctionInitializer::ZERO &) {
  *
  * @return Single-element vector containing uniform field data
  */
-auto init_function(const FunctionInitializer::UNIFORM &) {
+auto init_function(const FunctionInitializer2D::UNIFORM &) {
   std::vector<std::array<std::array<type_real, 5>, 5> > _f(1);
   for (int icomp = 0; icomp < 1; ++icomp) {
     for (int iz = 0; iz < 5; ++iz) {
@@ -349,7 +349,7 @@ auto init_function(const FunctionInitializer::UNIFORM &) {
  *
  * @warning Uses rand() for simplicity; not cryptographically secure
  */
-auto init_function(const FunctionInitializer::RANDOM &) {
+auto init_function(const FunctionInitializer2D::RANDOM &) {
   std::vector<std::array<std::array<type_real, 5>, 5> > _f(1);
   for (int icomp = 0; icomp < 1; ++icomp) {
     for (int iz = 0; iz < 5; ++iz) {
@@ -370,7 +370,7 @@ auto init_function(const FunctionInitializer::RANDOM &) {
  *
  * @return Two-element vector containing element-dependent constant field data
  */
-auto init_function(const FunctionInitializer::TWO_ELEMENT &) {
+auto init_function(const FunctionInitializer2D::TWO_ELEMENT &) {
   std::vector<std::array<std::array<type_real, 5>, 5> > _f(2);
   for (int ielement = 0; ielement < 2; ++ielement) {
     for (int iz = 0; iz < 5; ++iz) {
@@ -392,7 +392,7 @@ auto init_function(const FunctionInitializer::TWO_ELEMENT &) {
  *
  * @tparam Initializer Tag selecting which init_function overload to invoke
  */
-template <typename Initializer> struct Function {
+template <typename Initializer> struct Function2D {
   constexpr static specfem::dimension::type dimension_tag =
       specfem::dimension::type::dim2;
   constexpr static int components = 1; ///< Scalar field (single component)
@@ -408,7 +408,7 @@ template <typename Initializer> struct Function {
    *
    * @param initializer Tag-dispatch parameter for field initialization
    */
-  Function(const Initializer &initializer) : _f(init_function(initializer)) {}
+  Function2D(const Initializer &initializer) : _f(init_function(initializer)) {}
 
   /**
    * @brief Element-wise access to scalar field values.
@@ -468,9 +468,9 @@ private:
  */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
-gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
-         const Quadrature<QuadratureInitializer::IDENTITY> &quadrature,
-         const Function<FunctionInitializer::ZERO> &) {
+gradient(const JacobianMatrix2D<JacobianInitializer2D::IDENTITY> &jacobian,
+         const Quadrature2D<QuadratureInitializer2D::IDENTITY> &quadrature,
+         const Function2D<FunctionInitializer2D::ZERO> &) {
   std::vector<
       std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
       grad(1);
@@ -495,9 +495,9 @@ gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
  */
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
-gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
-         const Quadrature<QuadratureInitializer::IDENTITY> &quadrature,
-         const Function<FunctionInitializer::UNIFORM> &) {
+gradient(const JacobianMatrix2D<JacobianInitializer2D::IDENTITY> &jacobian,
+         const Quadrature2D<QuadratureInitializer2D::IDENTITY> &quadrature,
+         const Function2D<FunctionInitializer2D::UNIFORM> &) {
   std::vector<
       std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
       grad(1);
@@ -515,19 +515,20 @@ gradient(const JacobianMatrix<JacobianInitializer::IDENTITY> &jacobian,
  * specfem::algorithms::gradient().
  *
  *
- * @tparam Jacobian JacobianMatrix type providing coordinate transformation data
- * @tparam Quadrature Quadrature type providing derivative matrix
- * @tparam Function Function type providing scalar field data
+ * @tparam Jacobian JacobianMatrix2D type providing coordinate transformation
+ * data
+ * @tparam Quadrature2D Quadrature2D type providing derivative matrix
+ * @tparam Function2D Function2D type providing scalar field data
  * @param jacobian Jacobian transformation data
  * @param quadrature Derivative matrix for reference coordinate differentiation
  * @param function Scalar field to differentiate
  * @return Computed gradient at all GLL points in all elements
  */
-template <typename Jacobian, typename Quadrature, typename Function>
+template <typename Jacobian, typename Quadrature2D, typename Function2D>
 std::vector<
     std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
-gradient(const Jacobian &jacobian, const Quadrature &quadrature,
-         const Function &function) {
+gradient(const Jacobian &jacobian, const Quadrature2D &quadrature,
+         const Function2D &function) {
 
   std::vector<
       std::array<std::array<std::array<std::array<type_real, 2>, 1>, 5>, 5> >
@@ -573,19 +574,19 @@ using namespace specfem::algorithms_test;
  * and scalar field data. Each test instantiation receives a unique combination
  * of initializer tags that determine the specific test scenario.
  *
- * @tparam TestingType Tuple of (JacobianInitializer, QuadratureInitializer,
- * FunctionInitializer)
+ * @tparam TestingType Tuple of (JacobianInitializer2D, QuadratureInitializer2D,
+ * FunctionInitializer2D)
  */
 template <typename TestingType>
-struct GradientTestFixture : public ::testing::Test {
-  using JacobianInitializer =
+struct GradientTestFixture2D : public ::testing::Test {
+  using JacobianInitializer2D =
       std::tuple_element_t<0, TestingType>; ///< Jacobian initialization
                                             ///< strategy
-  using QuadratureInitializer =
-      std::tuple_element_t<1, TestingType>; ///< Quadrature initialization
+  using QuadratureInitializer2D =
+      std::tuple_element_t<1, TestingType>; ///< Quadrature2D initialization
                                             ///< strategy
-  using FunctionInitializer =
-      std::tuple_element_t<2, TestingType>; ///< Function initialization
+  using FunctionInitializer2D =
+      std::tuple_element_t<2, TestingType>; ///< Function2D initialization
                                             ///< strategy
 
   /**
@@ -594,15 +595,17 @@ struct GradientTestFixture : public ::testing::Test {
    * This constructor uses the compile-time type information to instantiate
    * the appropriate helper objects for the specific test combination.
    */
-  GradientTestFixture()
-      : jacobian_matrix(JacobianInitializer{}),
-        quadrature(QuadratureInitializer{}), function(FunctionInitializer{}) {}
+  GradientTestFixture2D()
+      : jacobian_matrix(JacobianInitializer2D{}),
+        quadrature(QuadratureInitializer2D{}),
+        function(FunctionInitializer2D{}) {}
 
-  JacobianMatrix<JacobianInitializer> jacobian_matrix; ///< Coordinate
-                                                       ///< transformation data
-  Quadrature<QuadratureInitializer> quadrature; ///< Derivative matrix for
-                                                ///< gradient computation
-  Function<FunctionInitializer> function;       ///< Scalar field test data
+  JacobianMatrix2D<JacobianInitializer2D> jacobian_matrix; ///< Coordinate
+                                                           ///< transformation
+                                                           ///< data
+  Quadrature2D<QuadratureInitializer2D> quadrature; ///< Derivative matrix for
+                                                    ///< gradient computation
+  Function2D<FunctionInitializer2D> function;       ///< Scalar field test data
 };
 
 /**
@@ -624,14 +627,15 @@ struct GradientTestFixture : public ::testing::Test {
  *
  * 1. **Define new initializer tags** in the appropriate namespace:
  *    ```cpp
- *    namespace JacobianInitializer {
+ *    namespace JacobianInitializer2D {
  *    struct SCALED_ROTATION {}; // New Jacobian type
  *    }
  *    ```
  *
  * 2. **Overload the corresponding init_* function**:
  *    ```cpp
- *    std::vector<...> init_jacobian(const JacobianInitializer::SCALED_ROTATION
+ *    std::vector<...> init_jacobian(const
+ * JacobianInitializer2D::SCALED_ROTATION
  * &) {
  *        // Implementation for rotated/scaled Jacobian
  *    }
@@ -639,18 +643,18 @@ struct GradientTestFixture : public ::testing::Test {
  *
  * 3. **Add new tuple to GradientTestTypes**:
  *    ```cpp
- *    std::tuple<JacobianInitializer::SCALED_ROTATION,
- *               QuadratureInitializer::LAGRANGE,
- *               FunctionInitializer::POLYNOMIAL>
+ *    std::tuple<JacobianInitializer2D::SCALED_ROTATION,
+ *               QuadratureInitializer2D::LAGRANGE,
+ *               FunctionInitializer2D::POLYNOMIAL>
  *    ```
  *
  * 4. **Optionally add specialized gradient() overload** for analytical
  * reference:
  *    ```cpp
  *    std::vector<...> gradient(
- *        const JacobianMatrix<JacobianInitializer::SCALED_ROTATION> &jacobian,
- *        const Quadrature<QuadratureInitializer::LAGRANGE> &quadrature,
- *        const Function<FunctionInitializer::POLYNOMIAL> &function) {
+ *        const JacobianMatrix2D<JacobianInitializer2D::SCALED_ROTATION>
+ * &jacobian, const Quadrature2D<QuadratureInitializer2D::LAGRANGE> &quadrature,
+ *        const Function2D<FunctionInitializer2D::POLYNOMIAL> &function) {
  *        // Analytical reference implementation
  *    }
  *    ```
@@ -659,21 +663,23 @@ struct GradientTestFixture : public ::testing::Test {
  * scenario.
  */
 using GradientTestTypes = ::testing::Types<
-    std::tuple<JacobianInitializer::IDENTITY, QuadratureInitializer::IDENTITY,
-               FunctionInitializer::ZERO>,
-    std::tuple<JacobianInitializer::IDENTITY, QuadratureInitializer::IDENTITY,
-               FunctionInitializer::UNIFORM>,
-    std::tuple<JacobianInitializer::IDENTITY, QuadratureInitializer::LAGRANGE,
-               FunctionInitializer::RANDOM>,
-    std::tuple<JacobianInitializer::TWO_ELEMENT,
-               QuadratureInitializer::IDENTITY,
-               FunctionInitializer::TWO_ELEMENT> >;
+    std::tuple<JacobianInitializer2D::IDENTITY,
+               QuadratureInitializer2D::IDENTITY, FunctionInitializer2D::ZERO>,
+    std::tuple<JacobianInitializer2D::IDENTITY,
+               QuadratureInitializer2D::IDENTITY,
+               FunctionInitializer2D::UNIFORM>,
+    std::tuple<JacobianInitializer2D::IDENTITY,
+               QuadratureInitializer2D::LAGRANGE,
+               FunctionInitializer2D::RANDOM>,
+    std::tuple<JacobianInitializer2D::TWO_ELEMENT,
+               QuadratureInitializer2D::IDENTITY,
+               FunctionInitializer2D::TWO_ELEMENT> >;
 
 /**
  * @brief Instantiate parameterized test suite for all declared tuple
  * combinations.
  */
-TYPED_TEST_SUITE(GradientTestFixture, GradientTestTypes);
+TYPED_TEST_SUITE(GradientTestFixture2D, GradientTestTypes);
 
 /**
  * @brief Validate specfem::algorithms::gradient() against manufactured
@@ -690,7 +696,7 @@ TYPED_TEST_SUITE(GradientTestFixture, GradientTestTypes);
  * production implementations across different geometric and field
  * configurations.
  */
-TYPED_TEST(GradientTestFixture, TestGradientComputation) {
+TYPED_TEST(GradientTestFixture2D, TestGradientComputation) {
   // Verify consistency between function and Jacobian element counts
   ASSERT_TRUE(this->function.n_elements() == this->jacobian_matrix.n_elements())
       << "Mismatch in number of elements between function and jacobian matrix";
@@ -718,16 +724,16 @@ TYPED_TEST(GradientTestFixture, TestGradientComputation) {
   const auto jacobian = this->jacobian_matrix.jacobian();
   const auto function_view = this->function.view();
 
-  using FunctionView = specfem::datatype::VectorChunkElementViewType<
+  using Function2DView = specfem::datatype::VectorChunkElementViewType<
       type_real, specfem::dimension::type::dim2, 1, ngll, 1, false,
       Kokkos::HostSpace, Kokkos::MemoryTraits<> >;
 
   // Execute production gradient algorithm and validate results
   specfem::execution::for_each_level(chunk, [&](const typename decltype(
                                                 chunk)::index_type &index) {
-    const FunctionView f(Kokkos::subview(function_view, index.get_range(),
-                                         Kokkos::ALL(), Kokkos::ALL(),
-                                         Kokkos::ALL()));
+    const Function2DView f(Kokkos::subview(function_view, index.get_range(),
+                                           Kokkos::ALL(), Kokkos::ALL(),
+                                           Kokkos::ALL()));
 
     // Call the production gradient algorithm
     specfem::algorithms::gradient(
