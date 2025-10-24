@@ -454,6 +454,7 @@ add_executable(
   assembly/dim3/mesh/shape_functions.cpp
   assembly/dim3/mesh/points.cpp
   assembly/dim3/mesh/control_nodes.cpp
+  assembly/dim3/jacobian_matrix/jacobian_matrix.cpp
 )
 
 target_compile_definitions(assembly_tests PRIVATE TEST_OUTPUT_DIR=${TEST_OUTPUT_DIR})
