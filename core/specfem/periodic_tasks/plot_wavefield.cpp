@@ -17,6 +17,7 @@
 #include <fstream>
 #include <vtkActor.h>
 #include <vtkBiQuadraticQuad.h>
+#include <vtkCamera.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkDataSetMapper.h>
@@ -24,6 +25,7 @@
 #include <vtkFloatArray.h>
 #include <vtkGraphicsFactory.h>
 #include <vtkJPEGWriter.h>
+#include <vtkLagrangeQuadrilateral.h>
 #include <vtkLookupTable.h>
 #include <vtkNamedColors.h>
 #include <vtkPNGWriter.h>
@@ -190,8 +192,8 @@ specfem::periodic_tasks::plot_wavefield::map_materials_with_color() {
   for (int icell = 0; icell < nspec; ++icell) {
     for (int i = 0; i < cell_points; ++i) {
       points->InsertNextPoint(coordinates(0, icell, z_index[i], x_index[i]),
-                              coordinates(1, icell, z_index[i], x_index[i]),
-                              0.0);
+                              0.0,
+                              coordinates(1, icell, z_index[i], x_index[i]));
     }
     auto quad = vtkSmartPointer<vtkQuad>::New();
     for (int i = 0; i < cell_points; ++i) {
@@ -276,8 +278,8 @@ void specfem::periodic_tasks::plot_wavefield::create_biquad_grid() {
   for (int icell = 0; icell < ncells; ++icell) {
     for (int i = 0; i < cell_points; ++i) {
       points->InsertNextPoint(coordinates(0, icell, z_index[i], x_index[i]),
-                              coordinates(1, icell, z_index[i], x_index[i]),
-                              0.0);
+                              0.0,
+                              coordinates(1, icell, z_index[i], x_index[i]));
     }
     auto quad = vtkSmartPointer<vtkBiQuadraticQuad>::New();
     for (int i = 0; i < cell_points; ++i) {
@@ -289,6 +291,65 @@ void specfem::periodic_tasks::plot_wavefield::create_biquad_grid() {
   unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   unstructured_grid->SetPoints(points);
   unstructured_grid->SetCells(VTK_BIQUADRATIC_QUAD, cells);
+}
+
+/**
+ * @brief Create a Lagrange quadrilateral grid using all GLL points
+ *
+ * This function creates a higher-order Lagrange quadrilateral element for each
+ * spectral element, using all GLL points as control points. Unlike the quad
+ * grid approach that creates 16 separate quads per element, this creates one
+ * higher-order element per spectral element that captures the full polynomial
+ * representation.
+ *
+ * For ngll = 5, each spectral element becomes one vtkLagrangeQuadrilateral
+ * with 25 control points arranged in a structured 5x5 grid.
+ */
+void specfem::periodic_tasks::plot_wavefield::create_lagrange_quad_grid() {
+  const auto &coordinates = assembly.mesh.h_coord;
+
+  // Each spectral element becomes one Lagrange quadrilateral
+  const int ncells = nspec;
+  const int points_per_element = ngllx * ngllz;
+
+  auto points = vtkSmartPointer<vtkPoints>::New();
+  auto cells = vtkSmartPointer<vtkCellArray>::New();
+
+  int point_counter = 0;
+
+  // Loop over spectral elements
+  for (int ispec = 0; ispec < nspec; ++ispec) {
+    auto lagrange_quad = vtkSmartPointer<vtkLagrangeQuadrilateral>::New();
+
+    // Set the order of the Lagrange quadrilateral
+    // Order is ngll-1 in each direction
+    lagrange_quad->SetOrder(ngllx - 1, ngllz - 1);
+    lagrange_quad->GetPointIds()->SetNumberOfIds(points_per_element);
+
+    // Add all GLL points for this element
+    for (int iz = 0; iz < ngllz; ++iz) {
+      for (int ix = 0; ix < ngllx; ++ix) {
+        // Insert the point
+        points->InsertNextPoint(coordinates(0, ispec, iz, ix), 0.0,
+                                coordinates(1, ispec, iz, ix));
+
+        // VTK Lagrange quadrilateral uses a specific point ordering
+        // We need to map from (ix, iz) to the VTK point index
+        // For a 2D quadrilateral: ix -> I direction, iz -> J direction, K=0
+        int vtk_point_idx = lagrange_quad->PointIndexFromIJK(ix, iz, 0);
+        lagrange_quad->GetPointIds()->SetId(vtk_point_idx, point_counter);
+        point_counter++;
+      }
+    }
+
+    // Add the cell
+    cells->InsertNextCell(lagrange_quad);
+  }
+
+  // Create the unstructured grid
+  unstructured_grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
+  unstructured_grid->SetPoints(points);
+  unstructured_grid->SetCells(VTK_LAGRANGE_QUADRILATERAL, cells);
 }
 
 /**
@@ -359,8 +420,8 @@ void specfem::periodic_tasks::plot_wavefield::create_quad_grid() {
           int ix_pos = ix + x_index[ipoint];
 
           // Insert the point
-          points->InsertNextPoint(coordinates(0, ispec, iz_pos, ix_pos),
-                                  coordinates(1, ispec, iz_pos, ix_pos), 0.0);
+          points->InsertNextPoint(coordinates(0, ispec, iz_pos, ix_pos), 0.0,
+                                  coordinates(1, ispec, iz_pos, ix_pos));
 
           // Set the point ID for this quad
           quad->GetPointIds()->SetId(ipoint, point_counter);
@@ -463,29 +524,50 @@ specfem::periodic_tasks::plot_wavefield::compute_wavefield_scalars(
       }
     }
   }
+  // For Lagrange quadrilateral grid
+  else if (unstructured_grid->GetCellType(0) == VTK_LAGRANGE_QUADRILATERAL) {
+    const int points_per_element = ngllx * ngllz;
+
+    // For Lagrange quadrilaterals, we have all GLL points
+    for (int ispec = 0; ispec < nspec; ++ispec) {
+      for (int iz = 0; iz < ngllz; ++iz) {
+        for (int ix = 0; ix < ngllx; ++ix) {
+          // Insert scalar value
+          if (wavefield_type == specfem::wavefield::type::pressure ||
+              wavefield_type == specfem::wavefield::type::rotation ||
+              wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
+              wavefield_type == specfem::wavefield::type::curl) {
+            scalars->InsertNextValue(
+                std::abs(wavefield_data(ispec, iz, ix, 0)));
+          } else {
+            scalars->InsertNextValue(
+                std::sqrt((wavefield_data(ispec, iz, ix, 0) *
+                           wavefield_data(ispec, iz, ix, 0)) +
+                          (wavefield_data(ispec, iz, ix, 1) *
+                           wavefield_data(ispec, iz, ix, 1))));
+          }
+        }
+      }
+    }
+  }
 
   return scalars;
 }
 
-template <specfem::display::format format>
-void initialize(specfem::periodic_tasks::plot_wavefield &plotter,
-                vtkSmartPointer<vtkFloatArray> &scalars);
-
 template <>
-void initialize<specfem::display::format::vtkhdf>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
-    vtkSmartPointer<vtkFloatArray> &scalars) {
+void specfem::periodic_tasks::plot_wavefield::initialize<
+    specfem::display::format::vtkhdf>(vtkSmartPointer<vtkFloatArray> &scalars) {
 
 #ifndef NO_HDF5
 
   // Initialize VTK HDF5 file for time series output
-  plotter.current_timestep = 0;
-  plotter.numPoints = 0;
-  plotter.numCells = 0;
+  this->current_timestep = 0;
+  this->numPoints = 0;
+  this->numCells = 0;
 
   // Create HDF5 file
-  plotter.hdf5_filename = (plotter.output_folder / "wavefield.vtkhdf").string();
-  hid_t hdf5_file_id = H5Fcreate(plotter.hdf5_filename.c_str(), H5F_ACC_TRUNC,
+  this->hdf5_filename = (this->output_folder / "wavefield.vtkhdf").string();
+  hid_t hdf5_file_id = H5Fcreate(this->hdf5_filename.c_str(), H5F_ACC_TRUNC,
                                  H5P_DEFAULT, H5P_DEFAULT);
   hid_t vtkhdf_group =
       H5Gcreate(hdf5_file_id, "/VTKHDF", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -516,11 +598,11 @@ void initialize<specfem::display::format::vtkhdf>(
   }
 
   // Write static geometry to HDF5 file
-  plotter.numPoints = plotter.unstructured_grid->GetNumberOfPoints();
-  plotter.numCells = plotter.unstructured_grid->GetNumberOfCells();
+  this->numPoints = this->unstructured_grid->GetNumberOfPoints();
+  this->numCells = this->unstructured_grid->GetNumberOfCells();
 
   // Extract connectivity
-  vtkCellArray *cells_vtkh = plotter.unstructured_grid->GetCells();
+  vtkCellArray *cells_vtkh = this->unstructured_grid->GetCells();
   vtkIdType npts;
   const vtkIdType *pts;
   std::vector<long long> connectivity;
@@ -528,30 +610,30 @@ void initialize<specfem::display::format::vtkhdf>(
   std::vector<unsigned char> types;
 
   offsets.push_back(0);
-  for (vtkIdType i = 0; i < plotter.numCells; i++) {
+  for (vtkIdType i = 0; i < this->numCells; i++) {
     cells_vtkh->GetCellAtId(i, npts, pts);
     for (vtkIdType j = 0; j < npts; j++) {
       connectivity.push_back(pts[j]);
     }
     offsets.push_back(connectivity.size());
-    types.push_back(plotter.unstructured_grid->GetCellType(i));
+    types.push_back(this->unstructured_grid->GetCellType(i));
   }
 
   // Store connectivity size for later use
-  plotter.numConnectivityIds = connectivity.size();
+  this->numConnectivityIds = connectivity.size();
 
   // Extract points as 2D array (numPoints, 3)
-  std::vector<double> pointCoords(plotter.numPoints * 3);
-  for (vtkIdType i = 0; i < plotter.numPoints; i++) {
+  std::vector<double> pointCoords(this->numPoints * 3);
+  for (vtkIdType i = 0; i < this->numPoints; i++) {
     double pt[3];
-    plotter.unstructured_grid->GetPoint(i, pt);
+    this->unstructured_grid->GetPoint(i, pt);
     pointCoords[i * 3 + 0] = pt[0];
     pointCoords[i * 3 + 1] = pt[1];
     pointCoords[i * 3 + 2] = pt[2];
   }
 
   // Write Points (static geometry) - 2D array (numPoints, 3)
-  hsize_t point_dims[2] = { (hsize_t)plotter.numPoints, 3 };
+  hsize_t point_dims[2] = { (hsize_t)this->numPoints, 3 };
   hid_t dataspace = H5Screate_simple(2, point_dims, NULL);
   hid_t dataset = H5Dcreate(vtkhdf_group, "Points", H5T_NATIVE_DOUBLE,
                             dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -592,14 +674,23 @@ void initialize<specfem::display::format::vtkhdf>(
   H5Sclose(dataspace);
 
   // Extract and write material IDs as CellData
-  const auto &element_types = plotter.assembly.element_types;
+  const auto &element_types = this->assembly.element_types;
   std::vector<int> material_ids;
 
-  // Map each VTK cell to its corresponding spectral element
-  // For quad grid: each spectral element has (ngllx-1)*(ngllz-1) cells
-  const int n_cells_per_spec = (plotter.ngllx - 1) * (plotter.ngllz - 1);
+  // Determine number of cells per spectral element based on grid type
+  int n_cells_per_spec;
+  if (this->unstructured_grid->GetCellType(0) == VTK_LAGRANGE_QUADRILATERAL) {
+    // For Lagrange quadrilateral grid: 1 cell per spectral element
+    n_cells_per_spec = 1;
+  } else if (this->unstructured_grid->GetCellType(0) == VTK_BIQUADRATIC_QUAD) {
+    // For biquadratic grid: 1 cell per spectral element
+    n_cells_per_spec = 1;
+  } else {
+    // For quad grid: each spectral element has (ngllx-1)*(ngllz-1) cells
+    n_cells_per_spec = (this->ngllx - 1) * (this->ngllz - 1);
+  }
 
-  for (int ispec = 0; ispec < plotter.nspec; ++ispec) {
+  for (int ispec = 0; ispec < this->nspec; ++ispec) {
     const auto material_tag = element_types.get_medium_tag(ispec);
     // Convert enum to integer for HDF5 storage
     const int material_id = static_cast<int>(material_tag);
@@ -636,7 +727,7 @@ void initialize<specfem::display::format::vtkhdf>(
   // Create dataset creation property list and set chunking
   hid_t pd_plist = H5Pcreate(H5P_DATASET_CREATE);
   hsize_t pd_chunk_dims[1] = {
-    (hsize_t)plotter.numPoints
+    (hsize_t)this->numPoints
   }; // Chunk size = one timestep worth of data
   H5Pset_chunk(pd_plist, 1, pd_chunk_dims);
 
@@ -756,8 +847,8 @@ void initialize<specfem::display::format::vtkhdf>(
   H5Gclose(vtkhdf_group);
   H5Fclose(hdf5_file_id);
 
-  plotter.mpi->cout("Initialized VTK HDF5 file for wavefield output: " +
-                    plotter.hdf5_filename + " (extensible datasets)");
+  this->mpi->cout("Initialized VTK HDF5 file for wavefield output: " +
+                  this->hdf5_filename + " (extensible datasets)");
 
 #else
   throw std::runtime_error(
@@ -765,60 +856,67 @@ void initialize<specfem::display::format::vtkhdf>(
 #endif
 }
 
-void initialize_display(specfem::periodic_tasks::plot_wavefield &plotter,
-                        vtkSmartPointer<vtkFloatArray> &scalars) {
+void specfem::periodic_tasks::plot_wavefield::initialize_display(
+    vtkSmartPointer<vtkFloatArray> &scalars) {
 
   // Create VTK objects that will persist between calls
-  plotter.colors = vtkSmartPointer<vtkNamedColors>::New();
+  this->colors = vtkSmartPointer<vtkNamedColors>::New();
 
   // Create material mapper and actor
-  plotter.material_mapper = plotter.map_materials_with_color();
-  plotter.material_actor = vtkSmartPointer<vtkActor>::New();
-  plotter.material_actor->SetMapper(plotter.material_mapper);
+  this->material_mapper = this->map_materials_with_color();
+  this->material_actor = vtkSmartPointer<vtkActor>::New();
+  this->material_actor->SetMapper(this->material_mapper);
 
   // Create lookup table
-  plotter.lut = vtkSmartPointer<vtkLookupTable>::New();
-  plotter.lut->SetNumberOfTableValues(256);
-  plotter.lut->Build();
+  this->lut = vtkSmartPointer<vtkLookupTable>::New();
+  this->lut->SetNumberOfTableValues(256);
+  this->lut->Build();
 
   // Create a mapper for the wavefield
-  plotter.wavefield_mapper = vtkSmartPointer<vtkDataSetMapper>::New();
-  plotter.wavefield_mapper->SetInputData(plotter.unstructured_grid);
-  plotter.wavefield_mapper->SetLookupTable(plotter.lut);
-  plotter.wavefield_mapper->SetScalarModeToUsePointData();
-  plotter.wavefield_mapper->SetColorModeToMapScalars();
-  plotter.wavefield_mapper->SetScalarVisibility(1);
+  this->wavefield_mapper = vtkSmartPointer<vtkDataSetMapper>::New();
+  this->wavefield_mapper->SetInputData(this->unstructured_grid);
+  this->wavefield_mapper->SetLookupTable(this->lut);
+  this->wavefield_mapper->SetScalarModeToUsePointData();
+  this->wavefield_mapper->SetColorModeToMapScalars();
+  this->wavefield_mapper->SetScalarVisibility(1);
 
   // Set the range of the lookup table
   double range[2];
   scalars->GetRange(range);
-  plotter.wavefield_mapper->SetScalarRange(range[0], range[1]);
-  plotter.lut->SetRange(range[0], range[1]);
+  this->wavefield_mapper->SetScalarRange(range[0], range[1]);
+  this->lut->SetRange(range[0], range[1]);
 
   // set color gradient from white to black
   for (int i = 0; i < 256; ++i) {
     double t = static_cast<double>(i) / 255.0;
-    double transparency = plotter.sigmoid(t);
-    plotter.lut->SetTableValue(i, 1.0 - t, 1.0 - t, 1.0 - t, transparency);
+    double transparency = this->sigmoid(t);
+    this->lut->SetTableValue(i, 1.0 - t, 1.0 - t, 1.0 - t, transparency);
   }
 
   // Create an actor
   auto wavefield_actor = vtkSmartPointer<vtkActor>::New();
-  wavefield_actor->SetMapper(plotter.wavefield_mapper);
+  wavefield_actor->SetMapper(this->wavefield_mapper);
 
   // Create renderer
-  plotter.renderer = vtkSmartPointer<vtkRenderer>::New();
-  plotter.renderer->AddActor(plotter.material_actor);
-  plotter.renderer->AddActor(wavefield_actor);
-  plotter.renderer->SetBackground(
-      plotter.colors->GetColor3d("White").GetData());
+  this->renderer = vtkSmartPointer<vtkRenderer>::New();
+  this->renderer->AddActor(this->material_actor);
+  this->renderer->AddActor(wavefield_actor);
+  this->renderer->SetBackground(this->colors->GetColor3d("White").GetData());
+
+  // Configure camera for X-Z plane visualization
+  // Position camera to look at X-Z plane from a Y perspective
+  auto camera = this->renderer->GetActiveCamera();
+  camera->SetPosition(0, -1, 0);  // Camera positioned back in Y direction
+  camera->SetFocalPoint(0, 0, 0); // Looking at origin
+  camera->SetViewUp(0, 0, 1);     // Z-axis points up in the view
+  this->renderer->ResetCamera();  // Auto-fit the view to the data
 
   // Plot edges
   if (false) {
     // Create edges extractor and actors
     vtkSmartPointer<vtkExtractEdges> edges =
         vtkSmartPointer<vtkExtractEdges>::New();
-    edges->SetInputData(plotter.unstructured_grid);
+    edges->SetInputData(this->unstructured_grid);
     edges->Update();
 
     vtkSmartPointer<vtkPolyDataMapper> outlineMapper =
@@ -826,68 +924,67 @@ void initialize_display(specfem::periodic_tasks::plot_wavefield &plotter,
     outlineMapper->SetInputConnection(edges->GetOutputPort());
     outlineMapper->ScalarVisibilityOff();
 
-    plotter.outlineActor = vtkSmartPointer<vtkActor>::New();
-    plotter.outlineActor->SetMapper(outlineMapper);
-    plotter.outlineActor->GetProperty()->SetColor(
-        plotter.colors->GetColor3d("Black").GetData());
-    plotter.outlineActor->GetProperty()->SetLineWidth(0.5);
+    this->outlineActor = vtkSmartPointer<vtkActor>::New();
+    this->outlineActor->SetMapper(outlineMapper);
+    this->outlineActor->GetProperty()->SetColor(
+        this->colors->GetColor3d("Black").GetData());
+    this->outlineActor->GetProperty()->SetLineWidth(0.5);
 
-    plotter.renderer->AddActor(plotter.outlineActor);
+    this->renderer->AddActor(this->outlineActor);
   }
 
   // Create render window
-  plotter.render_window = vtkSmartPointer<vtkRenderWindow>::New();
-  plotter.render_window->AddRenderer(plotter.renderer);
-  plotter.render_window->SetSize(2560, 2560);
-  plotter.render_window->SetWindowName("Wavefield");
+  this->render_window = vtkSmartPointer<vtkRenderWindow>::New();
+  this->render_window->AddRenderer(this->renderer);
+  this->render_window->SetSize(2560, 2560);
+  this->render_window->SetWindowName("Wavefield");
 }
 
 template <>
-void initialize<specfem::display::format::on_screen>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
+void specfem::periodic_tasks::plot_wavefield::initialize<
+    specfem::display::format::on_screen>(
     vtkSmartPointer<vtkFloatArray> &scalars) {
 
-  ::initialize_display(plotter, scalars);
+  specfem::periodic_tasks::plot_wavefield::initialize_display(scalars);
 
   // Create render window interactor
-  plotter.render_window_interactor =
+  this->render_window_interactor =
       vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  plotter.render_window_interactor->SetRenderWindow(plotter.render_window);
+  this->render_window_interactor->SetRenderWindow(this->render_window);
 }
 
 template <>
-void initialize<specfem::display::format::PNG>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
-    vtkSmartPointer<vtkFloatArray> &scalars) {
+void specfem::periodic_tasks::plot_wavefield::initialize<
+    specfem::display::format::PNG>(vtkSmartPointer<vtkFloatArray> &scalars) {
 
-  ::initialize_display(plotter, scalars);
+  specfem::periodic_tasks::plot_wavefield::initialize_display(scalars);
 
   // Set off screen rendering
   vtkSmartPointer<vtkGraphicsFactory> graphics_factory;
   graphics_factory->SetOffScreenOnlyMode(1);
   graphics_factory->SetUseMesaClasses(1);
-  plotter.render_window->SetOffScreenRendering(1);
+  this->render_window->SetOffScreenRendering(1);
 }
 
 template <>
-void initialize<specfem::display::format::JPG>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
-    vtkSmartPointer<vtkFloatArray> &scalars) {
+void specfem::periodic_tasks::plot_wavefield::initialize<
+    specfem::display::format::JPG>(vtkSmartPointer<vtkFloatArray> &scalars) {
 
-  ::initialize_display(plotter, scalars);
+  specfem::periodic_tasks::plot_wavefield::initialize_display(scalars);
 
   // Set off screen rendering
   vtkSmartPointer<vtkGraphicsFactory> graphics_factory;
   graphics_factory->SetOffScreenOnlyMode(1);
   graphics_factory->SetUseMesaClasses(1);
-  plotter.render_window->SetOffScreenRendering(1);
+  this->render_window->SetOffScreenRendering(1);
 }
 
 void specfem::periodic_tasks::plot_wavefield::initialize(
     specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
 
   // Create the grid structure
-  create_quad_grid(); // or create_biquad_grid() based on preference
+  create_lagrange_quad_grid(); // or create_quad_grid() or create_biquad_grid()
+                               // based on preference
 
   // Compute initial wavefield scalars and add to grid
   auto scalars = compute_wavefield_scalars(assembly);
@@ -895,16 +992,16 @@ void specfem::periodic_tasks::plot_wavefield::initialize(
 
   switch (output_format) {
   case specfem::display::format::vtkhdf:
-    ::initialize<specfem::display::format::vtkhdf>(*this, scalars);
+    this->initialize<specfem::display::format::vtkhdf>(scalars);
     break;
   case specfem::display::format::on_screen:
-    ::initialize<specfem::display::format::on_screen>(*this, scalars);
+    this->initialize<specfem::display::format::on_screen>(scalars);
     break;
   case specfem::display::format::PNG:
-    ::initialize<specfem::display::format::PNG>(*this, scalars);
+    this->initialize<specfem::display::format::PNG>(scalars);
     break;
   case specfem::display::format::JPG:
-    ::initialize<specfem::display::format::JPG>(*this, scalars);
+    this->initialize<specfem::display::format::JPG>(scalars);
     break;
   default:
     throw std::runtime_error("Unsupported display format");
@@ -913,85 +1010,81 @@ void specfem::periodic_tasks::plot_wavefield::initialize(
   return;
 }
 
-void run_render(specfem::periodic_tasks::plot_wavefield &plotter,
-                vtkSmartPointer<vtkFloatArray> &scalars) {
+void specfem::periodic_tasks::plot_wavefield::run_render(
+    vtkSmartPointer<vtkFloatArray> &scalars) {
   // Get range of scalar values
   double range[2];
   scalars->GetRange(range);
-  plotter.wavefield_mapper->SetScalarRange(range[0], range[1]);
+  this->wavefield_mapper->SetScalarRange(range[0], range[1]);
 
   // Update lookup table range
-  plotter.lut->SetRange(range[0], range[1]);
-  plotter.lut->Build();
+  this->lut->SetRange(range[0], range[1]);
+  this->lut->Build();
 
   // Render
-  plotter.render_window->Render();
+  this->render_window->Render();
 };
 
-template <specfem::display::format format>
-void run(specfem::periodic_tasks::plot_wavefield &plotter,
-         vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
-
 template <>
-void run<specfem::display::format::on_screen>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
+void specfem::periodic_tasks::plot_wavefield::run<
+    specfem::display::format::on_screen>(
     vtkSmartPointer<vtkFloatArray> &scalars, const int istep) {
-  run_render(plotter, scalars);
+  this->run_render(scalars);
 }
 
 template <>
-void run<specfem::display::format::PNG>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
-    vtkSmartPointer<vtkFloatArray> &scalars, const int istep) {
+void specfem::periodic_tasks::plot_wavefield::run<
+    specfem::display::format::PNG>(vtkSmartPointer<vtkFloatArray> &scalars,
+                                   const int istep) {
 
   // Render the field
-  run_render(plotter, scalars);
+  this->run_render(scalars);
 
   // create image filter
   auto image_filter = vtkSmartPointer<vtkWindowToImageFilter>::New();
-  image_filter->SetInput(plotter.render_window);
+  image_filter->SetInput(this->render_window);
   image_filter->Update();
 
   const auto filename =
-      plotter.output_folder /
+      this->output_folder /
       ("wavefield" + specfem::utilities::to_zero_lead(istep, 6) + ".png");
   auto writer = vtkSmartPointer<vtkPNGWriter>::New();
   writer->SetFileName(filename.string().c_str());
   writer->SetInputConnection(image_filter->GetOutputPort());
   writer->Write();
   std::string message = "Wrote wavefield image to " + filename.string();
-  plotter.mpi->cout(message);
+  this->mpi->cout(message);
 }
 
 template <>
-void run<specfem::display::format::JPG>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
-    vtkSmartPointer<vtkFloatArray> &scalars, const int istep) {
+void specfem::periodic_tasks::plot_wavefield::run<
+    specfem::display::format::JPG>(vtkSmartPointer<vtkFloatArray> &scalars,
+                                   const int istep) {
 
   auto image_filter = vtkSmartPointer<vtkWindowToImageFilter>::New();
-  image_filter->SetInput(plotter.render_window);
+  image_filter->SetInput(this->render_window);
   image_filter->Update();
 
   const auto filename =
-      plotter.output_folder /
+      this->output_folder /
       ("wavefield" + specfem::utilities::to_zero_lead(istep, 6) + ".jpg");
   auto writer = vtkSmartPointer<vtkJPEGWriter>::New();
   writer->SetFileName(filename.string().c_str());
   writer->SetInputConnection(image_filter->GetOutputPort());
   writer->Write();
   std::string message = "Wrote wavefield image to " + filename.string();
-  plotter.mpi->cout(message);
+  this->mpi->cout(message);
 }
 
 template <>
-void run<specfem::display::format::vtkhdf>(
-    specfem::periodic_tasks::plot_wavefield &plotter,
-    vtkSmartPointer<vtkFloatArray> &scalars, const int istep) {
+void specfem::periodic_tasks::plot_wavefield::run<
+    specfem::display::format::vtkhdf>(vtkSmartPointer<vtkFloatArray> &scalars,
+                                      const int istep) {
 
 #ifndef NO_HDF5
   // Open HDF5 file for extending datasets
   hid_t hdf5_file_id =
-      H5Fopen(plotter.hdf5_filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
+      H5Fopen(this->hdf5_filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
   hid_t vtkhdf_group = H5Gopen(hdf5_file_id, "/VTKHDF", H5P_DEFAULT);
 
   // Extend and write wavefield data
@@ -999,19 +1092,19 @@ void run<specfem::display::format::vtkhdf>(
   hid_t pd_dataset = H5Dopen(pd_group, "Wavefield", H5P_DEFAULT);
 
   // Extend the wavefield dataset to accommodate new timestep
-  hsize_t new_size[1] = { (hsize_t)((plotter.current_timestep + 1) *
-                                    plotter.numPoints) };
+  hsize_t new_size[1] = { (hsize_t)((this->current_timestep + 1) *
+                                    this->numPoints) };
   H5Dset_extent(pd_dataset, new_size);
 
   // Write wavefield data for this timestep
-  std::vector<float> scalar_data(plotter.numPoints);
-  for (int i = 0; i < plotter.numPoints; i++) {
+  std::vector<float> scalar_data(this->numPoints);
+  for (int i = 0; i < this->numPoints; i++) {
     scalar_data[i] = scalars->GetValue(i);
   }
 
   // Calculate offset and count for this timestep
-  hsize_t offset = plotter.current_timestep * plotter.numPoints;
-  hsize_t count = plotter.numPoints;
+  hsize_t offset = this->current_timestep * this->numPoints;
+  hsize_t count = this->numPoints;
 
   // Select hyperslab in the file dataset
   hid_t filespace = H5Dget_space(pd_dataset);
@@ -1030,18 +1123,18 @@ void run<specfem::display::format::vtkhdf>(
   H5Gclose(pd_group);
 
   // Update temporal metadata arrays - extend all arrays
-  hsize_t new_timestep_count[1] = { (hsize_t)(plotter.current_timestep + 1) };
+  hsize_t new_timestep_count[1] = { (hsize_t)(this->current_timestep + 1) };
 
   // Extend and update NumberOfPoints array
   hid_t np_dataset = H5Dopen(vtkhdf_group, "NumberOfPoints", H5P_DEFAULT);
   H5Dset_extent(np_dataset, new_timestep_count);
-  hsize_t ts_offset = plotter.current_timestep;
+  hsize_t ts_offset = this->current_timestep;
   hsize_t ts_count = 1;
   hid_t np_filespace = H5Dget_space(np_dataset);
   H5Sselect_hyperslab(np_filespace, H5S_SELECT_SET, &ts_offset, NULL, &ts_count,
                       NULL);
   hid_t np_memspace = H5Screate_simple(1, &ts_count, NULL);
-  long long numPoints = plotter.numPoints;
+  long long numPoints = this->numPoints;
   H5Dwrite(np_dataset, H5T_NATIVE_LLONG, np_memspace, np_filespace, H5P_DEFAULT,
            &numPoints);
   H5Sclose(np_memspace);
@@ -1055,7 +1148,7 @@ void run<specfem::display::format::vtkhdf>(
   H5Sselect_hyperslab(nc_filespace, H5S_SELECT_SET, &ts_offset, NULL, &ts_count,
                       NULL);
   hid_t nc_memspace = H5Screate_simple(1, &ts_count, NULL);
-  long long numCells = plotter.numCells;
+  long long numCells = this->numCells;
   H5Dwrite(nc_dataset, H5T_NATIVE_LLONG, nc_memspace, nc_filespace, H5P_DEFAULT,
            &numCells);
   H5Sclose(nc_memspace);
@@ -1070,7 +1163,7 @@ void run<specfem::display::format::vtkhdf>(
   H5Sselect_hyperslab(nci_filespace, H5S_SELECT_SET, &ts_offset, NULL,
                       &ts_count, NULL);
   hid_t nci_memspace = H5Screate_simple(1, &ts_count, NULL);
-  long long numConnIds = plotter.numConnectivityIds;
+  long long numConnIds = this->numConnectivityIds;
   H5Dwrite(nci_dataset, H5T_NATIVE_LLONG, nci_memspace, nci_filespace,
            H5P_DEFAULT, &numConnIds);
   H5Sclose(nci_memspace);
@@ -1081,7 +1174,7 @@ void run<specfem::display::format::vtkhdf>(
   hid_t steps_group = H5Gopen(vtkhdf_group, "Steps", H5P_DEFAULT);
 
   // Extend and write time value for this timestep
-  double time_value = static_cast<double>(istep) * plotter.dt;
+  double time_value = static_cast<double>(istep) * this->dt;
   hid_t values_dataset = H5Dopen(steps_group, "Values", H5P_DEFAULT);
   H5Dset_extent(values_dataset, new_timestep_count);
   hid_t values_filespace = H5Dget_space(values_dataset);
@@ -1175,7 +1268,7 @@ void run<specfem::display::format::vtkhdf>(
   H5Sselect_hyperslab(wf_offsets_filespace, H5S_SELECT_SET, &ts_offset, NULL,
                       &ts_count, NULL);
   hid_t wf_offsets_memspace = H5Screate_simple(1, &ts_count, NULL);
-  long long wavefieldOffset = plotter.current_timestep * plotter.numPoints;
+  long long wavefieldOffset = this->current_timestep * this->numPoints;
   H5Dwrite(wf_offsets_dataset, H5T_NATIVE_LLONG, wf_offsets_memspace,
            wf_offsets_filespace, H5P_DEFAULT, &wavefieldOffset);
   H5Sclose(wf_offsets_memspace);
@@ -1184,7 +1277,7 @@ void run<specfem::display::format::vtkhdf>(
   H5Gclose(pd_offsets_group);
 
   // Update NSteps attribute
-  int nsteps_written = plotter.current_timestep + 1;
+  int nsteps_written = this->current_timestep + 1;
   hid_t attr = H5Aopen(steps_group, "NSteps", H5P_DEFAULT);
   H5Awrite(attr, H5T_NATIVE_INT, &nsteps_written);
   H5Aclose(attr);
@@ -1195,11 +1288,11 @@ void run<specfem::display::format::vtkhdf>(
   H5Gclose(vtkhdf_group);
   H5Fclose(hdf5_file_id);
 
-  plotter.current_timestep++;
+  this->current_timestep++;
 
-  plotter.mpi->cout("Wrote wavefield data for timestep " +
-                    std::to_string(istep) + " to HDF5 file (step " +
-                    std::to_string(plotter.current_timestep) + ")");
+  this->mpi->cout("Wrote wavefield data for timestep " + std::to_string(istep) +
+                  " to HDF5 file (step " +
+                  std::to_string(this->current_timestep) + ")");
 
 #else
   throw std::runtime_error(
@@ -1218,20 +1311,20 @@ void specfem::periodic_tasks::plot_wavefield::run(
   switch (output_format) {
   case (display::format::vtkhdf):
 
-    ::run<specfem::display::format::vtkhdf>(*this, scalars, istep);
+    this->run<specfem::display::format::vtkhdf>(scalars, istep);
     break;
 
   case (display::format::on_screen):
-    ::run<specfem::display::format::on_screen>(*this, scalars, istep);
+    this->run<specfem::display::format::on_screen>(scalars, istep);
     break;
 
   case (display::format::PNG):
 
-    ::run<specfem::display::format::PNG>(*this, scalars, istep);
+    this->run<specfem::display::format::PNG>(scalars, istep);
     break;
 
   case (display::format::JPG):
-    ::run<specfem::display::format::JPG>(*this, scalars, istep);
+    this->run<specfem::display::format::JPG>(scalars, istep);
     break;
 
   default:
