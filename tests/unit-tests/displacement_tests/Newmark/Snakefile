@@ -1,9 +1,6 @@
 import yaml
 
-with open("dim2/tests.yaml") as f:
-    test_names = yaml.safe_load(f)
-
-trace_dirs = [f"serial/dim2/{test_name}/traces" for test_name in test_names]
+configfile = "dim2/tests.yaml"
 
 rule all:
     input:
