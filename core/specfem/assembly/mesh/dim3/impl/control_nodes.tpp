@@ -5,6 +5,39 @@
 #include "mesh/mesh.hpp"
 #include <Kokkos_Core.hpp>
 
+void initialize_control_nodes(
+    specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim3>
+        &dest,
+    const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
+        &src) {
+
+  // We use the device by default for better performance.
+
+  using MemorySpace = typename Kokkos::DefaultExecutionSpace::memory_space;
+
+  const auto coordinates =
+      Kokkos::create_mirror_view_and_copy(MemorySpace(), src.coordinates);
+  dest.h_control_node_index = src.control_node_index;
+  dest.control_node_index = Kokkos::create_mirror_view_and_copy(
+      MemorySpace(), dest.h_control_node_index);
+
+  Kokkos::parallel_for(
+      "specfem::assembly::mesh::control_nodes::copy_to_device",
+      Kokkos::MDRangePolicy<Kokkos::Rank<2> >({ 0, 0 },
+                                              { src.nspec, src.ngnod }),
+      KOKKOS_LAMBDA(const int ispec, const int ia) {
+        const int index = dest.control_node_index(ispec, ia);
+        for (int idim = 0; idim < ndim; ++idim)
+          dest.control_node_coordinates(ispec, ia, idim) =
+              coordinates(index, idim);
+      });
+
+  Kokkos::fence();
+
+  Kokkos::deep_copy(dest.control_node_coordinates, dest.h_control_node_coordinates);
+  return;
+}
+
 specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim3>::
     control_nodes(
         const specfem::mesh::control_nodes<dimension_tag> &control_nodes)
@@ -40,28 +73,5 @@ specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim3>::
       h_control_node_coordinates(
           Kokkos::create_mirror_view(control_node_coordinates)) {
 
-  // We use the device by default for better performance.
-
-  using MemorySpace = typename Kokkos::DefaultExecutionSpace::memory_space;
-
-  const auto coordinates = Kokkos::create_mirror_view_and_copy(
-      MemorySpace(), control_nodes.coordinates);
-  h_control_node_index = control_nodes.control_node_index;
-  control_node_index =
-      Kokkos::create_mirror_view_and_copy(MemorySpace(), h_control_node_index);
-
-  Kokkos::parallel_for(
-      "specfem::assembly::mesh::control_nodes::copy_to_device",
-      Kokkos::MDRangePolicy<Kokkos::Rank<2> >(
-          { 0, 0 }, { control_nodes.nspec, control_nodes.ngnod }),
-      KOKKOS_LAMBDA(const int ispec, const int ia) {
-        const int index = control_node_index(ispec, ia);
-        for (int idim = 0; idim < ndim; ++idim)
-          control_node_coordinates(ispec, ia, idim) = coordinates(index, idim);
-      });
-
-  Kokkos::fence();
-
-  Kokkos::deep_copy(control_node_coordinates, h_control_node_coordinates);
-  return;
+  initialize_control_nodes(*this, control_nodes);
 }
