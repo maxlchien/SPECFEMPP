@@ -1,5 +1,6 @@
 #include "Kokkos_Environment.hpp"
 #include "medium/compute_coupling.hpp"
+#include "parallel_configuration/chunk_edge_config.hpp"
 #include "specfem/chunk_edge.hpp"
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest.h>
@@ -326,20 +327,19 @@ struct EdgeToInterfaceCouplingTestParams {
 
   void run_test() const { params->run_test(name); }
 
-  template <int num_edges, specfem::dimension::type DimensionTag,
+  template <specfem::dimension::type DimensionTag,
             specfem::interface::interface_tag InterfaceTag,
-            std::size_t nquad_edge, std::size_t nquad_intersection>
+            std::size_t nquad_edge, std::size_t nquad_intersection,
+            int num_edges = specfem::parallel_config::default_chunk_edge_config<
+                DimensionTag, Kokkos::DefaultExecutionSpace>::chunk_size>
   static EdgeToInterfaceCouplingTestParams
   from(const std::string &name, const type_real (&edge)[nquad_edge],
        const type_real (&intersection)[nquad_intersection]) {
-    return {
-      name, std::make_shared<EdgeToInterfaceParams<
-                ((std::is_same_v<Kokkos::DefaultExecutionSpace, Kokkos::Serial>)
-                     ? 1
-                     : num_edges),
-                DimensionTag, InterfaceTag, nquad_edge, nquad_intersection> >(
-                edge, intersection)
-    };
+    return { name,
+             std::make_shared<
+                 EdgeToInterfaceParams<num_edges, DimensionTag, InterfaceTag,
+                                       nquad_edge, nquad_intersection> >(
+                 edge, intersection) };
   }
 };
 
@@ -361,11 +361,11 @@ using init_type = std::tuple<std::string, EdgeToInterfaceParamsBase>;
 INSTANTIATE_TEST_SUITE_P(
     NonconformingVariations, EdgeToInterfaceCouplingTest,
     ::testing::Values(EdgeToInterfaceCouplingTestParams::from<
-                          1, specfem::dimension::type::dim2,
+                          specfem::dimension::type::dim2,
                           specfem::interface::interface_tag::elastic_acoustic>(
                           "dim2 elastic-acoustic", { -1, 1 }, { -0.5, 0, 0.5 }),
                       EdgeToInterfaceCouplingTestParams::from<
-                          8, specfem::dimension::type::dim2,
+                          specfem::dimension::type::dim2,
                           specfem::interface::interface_tag::acoustic_elastic>(
                           "dim2 acoustic-elastic", { -1, -0.5, 0, 0.7, 1.2 },
                           { -0.3, 0, 0.4, 0.6 })));
