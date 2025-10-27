@@ -13,6 +13,8 @@
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
+#include "__future__/suppress_warnings.hpp"
+
 namespace specfem::assembly {
 
 /**
@@ -152,7 +154,25 @@ public:
 #endif
 
     // Unreachable code - satisfy compiler return requirements
-    return {};
+
+    // #ifdef _MSC_VER
+    // #pragma warning( push )
+    // #pragma warning( disable : C4172 )
+    // #else
+    // #pragma GCC diagnostic push
+    // #pragma GCC diagnostic ignored "-Wreturn-local-addr"
+    // #endif
+    //     return {};
+    // #ifdef _MSC_VER
+    // #pragma warning( pop )
+    // #else
+    // #pragma GCC diagnostic pop
+    // #endif
+
+    return specfem::__future__::
+        SUPPRESS_WARNING_TEMPORARY_REF_BLANK_CONSTRUCTION<
+            const InterfaceContainerType<InterfaceTag, BoundaryTag,
+                                         ConnectionTag> &>();
   }
 };
 
