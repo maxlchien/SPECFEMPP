@@ -177,24 +177,24 @@ public:
     for (int lane = 0; lane < mask_type::size(); ++lane) {
       if (index.mask(lane)) {
         boundary.tag[lane] += quadrature_point_boundary_tag(
-            index.ispec + lane, index.iz, index.ix, index.iy);
+            index.ispec + lane, index.iz, index.iy, index.ix);
       }
     }
 
     Kokkos::Experimental::where(mask, boundary.face_normal(0))
-        .copy_from(&face_normal(index.ispec, index.iz, index.ix, index.iy, 0),
+        .copy_from(&face_normal(index.ispec, index.iz, index.iy, index.ix, 0),
                    tag_type());
 
     Kokkos::Experimental::where(mask, boundary.face_normal(1))
-        .copy_from(&face_normal(index.ispec, index.iz, index.ix, index.iy, 1),
+        .copy_from(&face_normal(index.ispec, index.iz, index.iy, index.ix, 1),
                    tag_type());
 
     Kokkos::Experimental::where(mask, boundary.face_normal(2))
-        .copy_from(&face_normal(index.ispec, index.iz, index.ix, index.iy, 2),
+        .copy_from(&face_normal(index.ispec, index.iz, index.iy, index.ix, 2),
                    tag_type());
 
     Kokkos::Experimental::where(mask, boundary.face_weight)
-        .copy_from(&face_weight(index.ispec, index.iz, index.ix, index.iy),
+        .copy_from(&face_weight(index.ispec, index.iz, index.iy, index.ix),
                    tag_type());
   }
 

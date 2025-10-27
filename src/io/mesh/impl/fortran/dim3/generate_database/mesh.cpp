@@ -188,7 +188,8 @@ specfem::io::read_3d_mesh(const std::string &mesh_parameters_file,
   // Create the Jacobian matrix object
   mesh.jacobian_matrix =
       specfem::mesh::jacobian_matrix<specfem::dimension::type::dim3>(
-          nspec_irregular_in, ngllx_in, nglly_in, ngllz_in);
+          mesh.parameters.nspec, nspec_irregular_in, ngllx_in, nglly_in,
+          ngllz_in);
 
   // Adding already read parameters for the jacobian_matrix
   mesh.jacobian_matrix.nspec_irregular = nspec_irregular;

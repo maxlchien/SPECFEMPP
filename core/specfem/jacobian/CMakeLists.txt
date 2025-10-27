@@ -1,4 +1,4 @@
-file(GLOB JACOBIAN_SOURCE_FILES "./*.cpp" "./**/*.cpp")
+file(GLOB_RECURSE JACOBIAN_SOURCE_FILES "./*.cpp")
 
 add_library(jacobian ${JACOBIAN_SOURCE_FILES})
 

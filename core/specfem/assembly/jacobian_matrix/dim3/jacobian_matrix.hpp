@@ -20,10 +20,11 @@ struct jacobian_matrix<specfem::dimension::type::dim3>
   using view_type = typename base_type::scalar_type<
       type_real, Kokkos::DefaultExecutionSpace::memory_space>;
 
-  int nspec; ///< Number of spectral elements
-  int ngllx; ///< Number of GLL points in x
-  int nglly; ///< Number of GLL points in y
-  int ngllz; ///< Number of GLL points in z
+  int nspec;           ///< Number of spectral elements
+  int nspec_irregular; ///< Number of irregular spectral elements
+  int ngllx;           ///< Number of GLL points in x
+  int nglly;           ///< Number of GLL points in y
+  int ngllz;           ///< Number of GLL points in z
 
   view_type xix;      ///< @xix
   view_type xiy;      ///< @xiy

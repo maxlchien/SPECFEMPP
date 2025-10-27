@@ -22,7 +22,8 @@
 #include <vector>
 // Specfem2d driver
 
-void execute(
-    const YAML::Node &parameter_dict, const YAML::Node &default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
-    specfem::MPI::MPI *mpi);
+void execute(const YAML::Node &parameter_dict, const YAML::Node &default_dict,
+             std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
+                 specfem::dimension::type::dim2> > >
+                 tasks,
+             specfem::MPI::MPI *mpi);

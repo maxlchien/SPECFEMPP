@@ -92,8 +92,7 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
   specfem::execution::for_all(
       "specfem::kokkos_kernels::compute_mass_matrix", chunk,
       KOKKOS_LAMBDA(const PointIndex &index) {
-        const int ix = index.ix;
-        const int iz = index.iz;
+
 
         const auto point_property = [&]() -> PointPropertyType {
           PointPropertyType point_property;
@@ -112,7 +111,18 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
         PointMassType mass_matrix =
             specfem::medium::mass_matrix_component(point_property);
 
-        mass_matrix *= wgll(ix) * wgll(iz) * jacobian;
+        if constexpr (DimensionTag == specfem::dimension::type::dim2) {
+          const int ix = index.ix;
+          const int iz = index.iz;
+          mass_matrix *= wgll(ix) * wgll(iz) * jacobian;
+        } else if constexpr (DimensionTag ==
+                             specfem::dimension::type::dim3) {
+          const int ix = index.ix;
+          const int iy = index.iy;
+          const int iz = index.iz;
+          mass_matrix *= wgll(ix) * wgll(iy) * wgll(iz) * jacobian;
+        }
+
 
         PointBoundaryType point_boundary;
         specfem::assembly::load_on_device(index, boundaries, point_boundary);

@@ -47,10 +47,11 @@ int parse_args(int argc, char **argv,
   return 1;
 }
 
-void execute(
-    const YAML::Node parameter_dict, const YAML::Node default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
-    specfem::MPI::MPI *mpi) {
+void execute(const YAML::Node parameter_dict, const YAML::Node default_dict,
+             std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
+                 specfem::dimension::type::dim3> > >
+                 tasks,
+             specfem::MPI::MPI *mpi) {
 
   // --------------------------------------------------------------
   //                    Read parameter file
@@ -145,6 +146,16 @@ void execute(
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
+  //                   Instantiate plotter
+  // --------------------------------------------------------------
+  const auto wavefield_plotter =
+      setup.instantiate_wavefield_plotter(assembly, dt, mpi);
+  if (wavefield_plotter) {
+    tasks.push_back(wavefield_plotter);
+  }
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
   //                   Instantiate Solver
   // --------------------------------------------------------------
   std::shared_ptr<specfem::solver::solver> solver =
@@ -196,7 +207,8 @@ int main(int argc, char **argv) {
       const std::string default_file = vm["default_file"].as<std::string>();
       const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
       const YAML::Node default_dict = YAML::LoadFile(default_file);
-      std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
+      std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
+          specfem::dimension::type::dim3> > >
           tasks;
       execute(parameter_dict, default_dict, tasks, mpi);
     }

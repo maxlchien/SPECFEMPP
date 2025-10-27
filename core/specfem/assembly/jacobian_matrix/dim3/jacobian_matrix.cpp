@@ -53,31 +53,42 @@ specfem::assembly::jacobian_matrix<specfem::dimension::type::dim3>::
   Kokkos::deep_copy(h_gammaz, mesh_jacobian.xix_regular);
   Kokkos::deep_copy(h_jacobian, mesh_jacobian.jacobian_regular);
 
+  // Overwrite irregular elements
   if (mesh_jacobian.nspec_irregular > 0) {
+
+    int irregular_element_counter = 0;
 
     for (int ispec = 0; ispec < nspec; ispec++) {
       // if element number is irregular
       if (mesh_jacobian.irregular_element_number(ispec)) {
+
         for (int iz = 0; iz < mesh_jacobian.ngllz; iz++) {
           for (int iy = 0; iy < mesh_jacobian.nglly; iy++) {
             for (int ix = 0; ix < mesh_jacobian.ngllx; ix++) {
-              h_xix(ispec, iz, iy, ix) = mesh_jacobian.xix(ispec, iz, iy, ix);
-              h_xiy(ispec, iz, iy, ix) = mesh_jacobian.xiy(ispec, iz, iy, ix);
-              h_xiz(ispec, iz, iy, ix) = mesh_jacobian.xiz(ispec, iz, iy, ix);
-              h_etax(ispec, iz, iy, ix) = mesh_jacobian.etax(ispec, iz, iy, ix);
-              h_etay(ispec, iz, iy, ix) = mesh_jacobian.etay(ispec, iz, iy, ix);
-              h_etaz(ispec, iz, iy, ix) = mesh_jacobian.etaz(ispec, iz, iy, ix);
+              h_xix(ispec, iz, iy, ix) =
+                  mesh_jacobian.xix(irregular_element_counter, iz, iy, ix);
+              h_xiy(ispec, iz, iy, ix) =
+                  mesh_jacobian.xiy(irregular_element_counter, iz, iy, ix);
+              h_xiz(ispec, iz, iy, ix) =
+                  mesh_jacobian.xiz(irregular_element_counter, iz, iy, ix);
+              h_etax(ispec, iz, iy, ix) =
+                  mesh_jacobian.etax(irregular_element_counter, iz, iy, ix);
+              h_etay(ispec, iz, iy, ix) =
+                  mesh_jacobian.etay(irregular_element_counter, iz, iy, ix);
+              h_etaz(ispec, iz, iy, ix) =
+                  mesh_jacobian.etaz(irregular_element_counter, iz, iy, ix);
               h_gammax(ispec, iz, iy, ix) =
-                  mesh_jacobian.gammax(ispec, iz, iy, ix);
+                  mesh_jacobian.gammax(irregular_element_counter, iz, iy, ix);
               h_gammay(ispec, iz, iy, ix) =
-                  mesh_jacobian.gammay(ispec, iz, iy, ix);
+                  mesh_jacobian.gammay(irregular_element_counter, iz, iy, ix);
               h_gammaz(ispec, iz, iy, ix) =
-                  mesh_jacobian.gammaz(ispec, iz, iy, ix);
+                  mesh_jacobian.gammaz(irregular_element_counter, iz, iy, ix);
               h_jacobian(ispec, iz, iy, ix) =
-                  mesh_jacobian.jacobian(ispec, iz, iy, ix);
+                  mesh_jacobian.jacobian(irregular_element_counter, iz, iy, ix);
             }
           }
         }
+        irregular_element_counter++;
       }
     }
   }

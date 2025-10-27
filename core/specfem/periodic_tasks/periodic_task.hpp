@@ -9,10 +9,10 @@ template <specfem::dimension::type DimensionTag> struct assembly;
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Base writer class
+ * @brief Base writer class templated on dimension
  *
  */
-class periodic_task {
+template <specfem::dimension::type DimensionTag> class periodic_task {
 public:
   /**
    * @brief Construct a new plotter object
@@ -24,15 +24,16 @@ public:
   periodic_task(const int time_interval, const bool include_last_step = true)
       : time_interval(time_interval), include_last_step(include_last_step) {};
 
+  virtual ~periodic_task() = default;
+
   /**
    * @brief Function to be called periodically.
    *
    */
-  template <specfem::dimension::type DimensionTag>
-  void run(specfem::assembly::assembly<DimensionTag> &assembly,
-           const int istep) {
+  virtual void run(specfem::assembly::assembly<DimensionTag> &assembly,
+                   const int istep) {
     // Default implementation for dimension-agnostic tasks
-    // Derived classes can override run_impl for dimension-specific behavior
+    // Derived classes can override for dimension-specific behavior
   };
 
   /**
@@ -40,13 +41,11 @@ public:
    * the simulation.
    *
    */
-  template <specfem::dimension::type DimensionTag>
-  void initialize(specfem::assembly::assembly<DimensionTag> &assembly) {
+  virtual void initialize(specfem::assembly::assembly<DimensionTag> &assembly) {
     // Default implementation
   };
 
-  template <specfem::dimension::type DimensionTag>
-  void finalize(specfem::assembly::assembly<DimensionTag> &assembly) {
+  virtual void finalize(specfem::assembly::assembly<DimensionTag> &assembly) {
     // Default implementation
   };
 
