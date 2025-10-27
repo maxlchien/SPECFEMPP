@@ -1,5 +1,6 @@
 from pathlib import Path
-import sys
+import shutil
+import os
 
 def find_project_root(start_dir: Path) -> Path:
     root = start_dir
@@ -12,18 +13,63 @@ def find_project_root(start_dir: Path) -> Path:
 
 ROOT_DIR = find_project_root(Path(".").resolve())
 
-# __file__ did not point here, so do this
+
 SCRIPT_DIR = ROOT_DIR / "tests" / "unit-tests" / "data" / "dim2" / "ncmarked_conforming_grid_flat"
 PROV_DIR = (SCRIPT_DIR / "provenance").resolve()
 
 # check important tools exist
 GMSH_SCRIPT = ROOT_DIR / "scripts" / "gmshlayerbuilder"
-XMESH_BIN = ROOT_DIR / "bin" / "xmeshfem2D"
+
+
+def find_xmeshfem2D():
+    # xmeshfem should be in path
+    xmesh_bin = "xmeshfem2D"
+    if shutil.which(xmesh_bin) is not None:
+        return xmesh_bin
+
+    term_width = os.get_terminal_size().columns
+    print("="*term_width)
+    print("xmeshfem2D not added to path! Please do so to disambiguate the executable.")
+    print("Searching for xmeshfem2D executable...")
+
+    try:
+        # look in bin
+        bin_dir = ROOT_DIR / "bin"
+        xmesh_bin = bin_dir / "xmeshfem2D"
+        if xmesh_bin.exists():
+            raise StopIteration
+
+        # bin subfolders?
+        for fol in bin_dir.iterdir():
+            if fol.is_dir():
+                xmesh_bin = bin_dir / "xmeshfem2D"
+                if xmesh_bin.exists():
+                    raise StopIteration
+
+        # check build folder:
+        build_folder = ROOT_DIR / "build"
+        if build_folder.is_dir():
+            xmesh_bin = build_folder / "xmeshfem2D"
+            if xmesh_bin.exists():
+                raise StopIteration
+            # subfolders?
+            for fol in build_folder.iterdir():
+                if fol.is_dir():
+                    xmesh_bin = fol / "bin" / "xmeshfem2D"
+                    if xmesh_bin.exists():
+                        raise StopIteration
+
+    except StopIteration:
+        print(f"Found: {xmesh_bin}")
+        print("="*term_width)
+        return xmesh_bin
+
+    raise SystemExit(f"Could not find xmeshfem2D! Please add it to $PATH")
+
+XMESH_BIN = find_xmeshfem2D()
 
 if not GMSH_SCRIPT.exists():
     raise SystemExit(f'Could not find gmshlayerbuilder in "{ROOT_DIR}/scripts"')
-if not XMESH_BIN.exists():
-    raise SystemExit(f'Could not find xmeshfem2D in "{ROOT_DIR}/bin"')
 
 # working directory used by the original script
 WORKDIR = PROV_DIR
@@ -38,6 +84,8 @@ rule all:
         XMESH_SENTINEL
 
 rule gmshlayerbuilder:
+    input:
+        GMSH_SCRIPT
     output:
         directory(str(MESH_DIR))
     run:
