@@ -48,8 +48,8 @@ public:
   instantiate(const type_real dt,
               const specfem::assembly::assembly<DimensionTag> &assembly,
               std::shared_ptr<specfem::time_scheme::time_scheme> time_scheme,
-              const std::vector<
-                  std::shared_ptr<specfem::periodic_tasks::periodic_task> >
+              const std::vector<std::shared_ptr<
+                  specfem::periodic_tasks::periodic_task<DimensionTag> > >
                   &tasks) const;
 
   /**
