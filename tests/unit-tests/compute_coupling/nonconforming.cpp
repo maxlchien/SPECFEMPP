@@ -1,4 +1,5 @@
 #include "Kokkos_Environment.hpp"
+#include "algorithms/transfer.hpp"
 #include "medium/compute_coupling.hpp"
 #include "parallel_configuration/chunk_edge_config.hpp"
 #include "specfem/chunk_edge.hpp"
@@ -240,10 +241,10 @@ struct EdgeToInterfaceParams : EdgeToInterfaceParamsBase {
 
           // validate
 
-          specfem::medium::compute_coupling(self_transfer, self_disp,
-                                            self_on_interface);
-          specfem::medium::compute_coupling(coupled_transfer, coupled_disp,
-                                            coupled_on_interface);
+          specfem::algorithms::transfer(self_transfer, self_disp,
+                                        self_on_interface);
+          specfem::algorithms::transfer(coupled_transfer, coupled_disp,
+                                        coupled_on_interface);
 
           // transfer should send polys to themselves, but in the new basis.
           // the expectation is just the intersection quadrature point to the
