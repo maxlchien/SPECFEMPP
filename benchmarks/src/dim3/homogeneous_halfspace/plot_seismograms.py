@@ -273,7 +273,7 @@ def main():
 
     plt.tight_layout()
     plt.savefig("OUTPUT_FILES/seismogram_plot.png", dpi=300, bbox_inches="tight")
-    plt.show()
+    plt.show(block=False)
 
 
 if __name__ == "__main__":
