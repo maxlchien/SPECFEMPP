@@ -871,6 +871,7 @@ if(NOT MPI_PARALLEL)
     assembly
     assembly_mesh
     data
+    displacement_tests
     domain
     fortran_io
     io
