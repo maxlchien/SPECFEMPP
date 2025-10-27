@@ -1,0 +1,55 @@
+from pathlib import Path
+import sys
+
+def find_project_root(start_dir: Path) -> Path:
+    root = start_dir
+    while True:
+        if (root / ".git").exists():
+            return root
+        if root.parent == root:
+            raise SystemExit("Could not find project root!")
+        root = root.parent
+
+ROOT_DIR = find_project_root(Path(".").resolve())
+
+# __file__ did not point here, so do this
+SCRIPT_DIR = ROOT_DIR / "tests" / "unit-tests" / "data" / "dim2" / "ncmarked_conforming_grid_flat"
+PROV_DIR = (SCRIPT_DIR / "provenance").resolve()
+
+# check important tools exist
+GMSH_SCRIPT = ROOT_DIR / "scripts" / "gmshlayerbuilder"
+XMESH_BIN = ROOT_DIR / "bin" / "xmeshfem2D"
+
+if not GMSH_SCRIPT.exists():
+    raise SystemExit(f'Could not find gmshlayerbuilder in "{ROOT_DIR}/scripts"')
+if not XMESH_BIN.exists():
+    raise SystemExit(f'Could not find xmeshfem2D in "{ROOT_DIR}/bin"')
+
+# working directory used by the original script
+WORKDIR = PROV_DIR
+
+# targets: MESH (directory created by gmshlayerbuilder) and a sentinel for xmeshfem2D
+MESH_DIR = WORKDIR / "MESH"
+XMESH_SENTINEL = WORKDIR / "OUTPUT_FILES" / "xmeshfem2D.done"
+PAR_FILE = WORKDIR / "Par_file"
+
+rule all:
+    input:
+        XMESH_SENTINEL
+
+rule gmshlayerbuilder:
+    output:
+        directory(str(MESH_DIR))
+    run:
+        shell(f"cd {WORKDIR} && python {GMSH_SCRIPT} simple_dg_topo.dat MESH")
+
+rule xmeshfem2D:
+    input:
+        mesh = rules.gmshlayerbuilder.output,
+        parfile = str(PAR_FILE)
+    output:
+        str(XMESH_SENTINEL)
+    run:
+        shell(f"cd {WORKDIR} && {XMESH_BIN} -p Par_file || (echo -e '\\n' && echo 'xmeshfem2D failed. Is it not present in \"{ROOT_DIR}/bin/xmehsfem2D\"?' && exit 1)")
+        # create sentinel on success
+        Path(output[0]).write_text("done\n")
