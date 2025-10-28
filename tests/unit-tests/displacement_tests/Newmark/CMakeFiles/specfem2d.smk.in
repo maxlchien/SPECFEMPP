@@ -1,0 +1,88 @@
+envvars:
+    "SPECFEM2D_BINDIR"
+
+current_workdir = "@CMAKE_CURRENT_SOURCE_DIR@"
+specfem_workdir = "@CMAKE_CURRENT_SOURCE_DIR@/specfem2d_workdir"
+
+
+rule specfem2d_link_executibles:
+    # prompt once for the binary directory and build both paths
+    output:
+        specfem_exec=f"{specfem_workdir}/bin/xspecfem2D",
+        meshfem_exec=f"{specfem_workdir}/bin/xmeshfem2D",
+    localrule: True
+    shell:
+        f"""
+            ln -sf $SPECFEM2D_BINDIR/xspecfem2D {output.specfem_exec}
+            ln -sf $SPECFEM2D_BINDIR/xmeshfem2D {output.meshfem_exec}
+        """
+
+
+rule specfem2d_copy_files:
+    # prompt once for the binary directory and build both paths
+    output:
+        par_file=f"{specfem_workdir}/DATA/Par_file",
+        source=f"{specfem_workdir}/DATA/SOURCE",
+        topography=f"{specfem_workdir}/DATA/topography.dat",
+    localrule: True
+    shell:
+        f"""
+            cp {current_workdir}/provenance/Par_file {output.par_file}
+            cp {current_workdir}/provenance/SOURCE {output.source}
+            cp {current_workdir}/provenance/topography.dat {output.topography}
+        """
+
+
+rule specfem2d_run_mesher:
+    input:
+        meshfem_exec=f"{specfem_workdir}/bin/xmeshfem2D",
+        par_file=f"{specfem_workdir}/DATA/Par_file",
+        topography=f"{specfem_workdir}/DATA/topography.dat",
+    output:
+        mesh=f"{specfem_workdir}/OUTPUT_FILES/Database00000.bin",
+        stations=f"{specfem_workdir}/DATA/STATIONS",
+    shell:
+        f"""
+            cd {specfem_workdir}/ && ./bin/xmeshfem2D > OUTPUT_FILES/output_mesher.txt
+        """
+
+
+rule specfem2d_run_solver:
+    input:
+        specfem_exec=f"{specfem_workdir}/bin/xspecfem2D",
+        par_file=f"{specfem_workdir}/DATA/Par_file",
+        source=f"{specfem_workdir}/DATA/SOURCE",
+        topography=f"{specfem_workdir}/DATA/topography.dat",
+        mesh=f"{specfem_workdir}/OUTPUT_FILES/Database00000.bin",
+        stations=f"{specfem_workdir}/DATA/STATIONS",
+    output:
+        traces=f"{specfem_workdir}/OUTPUT_FILES/output_solver.txt",
+    shell:
+        f"""
+            cd {specfem_workdir}/ && ./bin/xspecfem2D > OUTPUT_FILES/output_solver.txt
+        """
+
+
+rule specfem2d_copy_traces:
+    input:
+        specfem_solver_output=f"{specfem_workdir}/OUTPUT_FILES/output_solver.txt",
+    output:
+        traces=directory(f"{current_workdir}/traces"),
+    run:
+        import os
+        os.makedirs(f"{current_workdir}/traces", exist_ok=True)
+        for trace_file in os.listdir(f"{specfem_workdir}/OUTPUT_FILES/"):
+            trace_file_split = trace_file.split(".")
+            if len(trace_file_split) == 4 and trace_file_split[-1].startswith("sem"):
+                infile = os.path.join(f"{specfem_workdir}/OUTPUT_FILES/", trace_file)
+                outfile = os.path.join(f"{current_workdir}/traces/", ".".join([trace_file_split[0], trace_file_split[1], "S2", trace_file_split[2], trace_file_split[3]]))
+                shell(f"mv {infile} {outfile}")
+
+
+rule clean:
+    localrule: True
+    shell:
+        f"""
+            rm -rf {specfem_workdir}
+            rm -rf {current_workdir}/traces
+        """

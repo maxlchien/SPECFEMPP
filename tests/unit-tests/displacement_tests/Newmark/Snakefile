@@ -1,17 +1,16 @@
-import yaml
-
-configfile = "dim2/tests.yaml"
+configfile: "dim2/tests.yaml"
 
 rule all:
     input:
         trace_dirs = expand("serial/dim2/{test_name}/traces",
-        test_name=config,
+        test_name=config["tests"],
         )
 
 
-for test_name in test_names:
+# for test_name in config["tests"]:
+for test_name in ["HomogeneousElasticDomain"]:
     alias = f'{test_name}_'
-    run_solver_alias = f'{alias}run_solver'
+
     module test_name:
         snakefile: f"serial/dim2/{test_name}/Snakefile"
 
