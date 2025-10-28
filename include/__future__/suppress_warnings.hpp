@@ -47,15 +47,15 @@
     SUPPRESS_WARNING_END()                                                     \
   }
 
+#define SUPPRESS_WARNING_START_TEMPORARY_REF()                                 \
+  { _SUPPRESS_WARNING_START("-Wreturn-local-addr", C4172) }
+
 #define SUPPRESS_WARNING_TEMPORARY_REF(CODEBLOCK)                              \
   {                                                                            \
     SUPPRESS_WARNING_START_TEMPORARY_REF();                                    \
     CODEBLOCK;                                                                 \
     SUPPRESS_WARNING_END()                                                     \
   }
-
-#define SUPPRESS_WARNING_START_TEMPORARY_REF()                                 \
-  { _SUPPRESS_WARNING_START("-Wreturn-local-addr", C4172) }
 
 namespace specfem::__future__ {
 
