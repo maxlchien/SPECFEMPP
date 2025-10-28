@@ -1,12 +1,6 @@
-from pathlib import Path
-import shutil
-import os
+ROOT_DIR = "@CMAKE_SOURCE_DIR@"
 
-ROOT_DIR = @CMAKE_SOURCE_DIR@
-
-
-SCRIPT_DIR = @CMAKE_CURRENT_SOURCE_DIR@
-PROV_DIR = f"{SCRIPT_DIR}/provenance"
+PROV_DIR = "@CMAKE_CURRENT_SOURCE_DIR@"
 
 # check important tools exist
 GMSH_SCRIPT = f"{ROOT_DIR}/scripts/gmshlayerbuilder"
@@ -17,9 +11,9 @@ XMESH_BIN = "xmeshfem2D"
 WORKDIR = PROV_DIR
 
 # targets: MESH (directory created by gmshlayerbuilder) and a sentinel for xmeshfem2D
-MESH_DIR = WORKDIR / "MESH"
-XMESH_SENTINEL = WORKDIR / "OUTPUT_FILES" / "xmeshfem2D.done"
-PAR_FILE = WORKDIR / "Par_file"
+MESH_DIR =  f"{WORKDIR}/MESH"
+XMESH_SENTINEL =  f"{WORKDIR}/OUTPUT_FILES/xmeshfem2D.done"
+PAR_FILE = f"{WORKDIR}/Par_file"
 
 rule all:
     input:
