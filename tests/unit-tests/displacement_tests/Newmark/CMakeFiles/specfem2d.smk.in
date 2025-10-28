@@ -63,22 +63,6 @@ rule specfem2d_run_solver:
         """
 
 
-rule specfem2d_copy_traces:
-    input:
-        specfem_solver_output=f"{specfem_workdir}/OUTPUT_FILES/output_solver.txt",
-    output:
-        traces=directory(f"{current_workdir}/traces"),
-    run:
-        import os
-        os.makedirs(f"{current_workdir}/traces", exist_ok=True)
-        for trace_file in os.listdir(f"{specfem_workdir}/OUTPUT_FILES/"):
-            trace_file_split = trace_file.split(".")
-            if len(trace_file_split) == 4 and trace_file_split[-1].startswith("sem"):
-                infile = os.path.join(f"{specfem_workdir}/OUTPUT_FILES/", trace_file)
-                outfile = os.path.join(f"{current_workdir}/traces/", ".".join([trace_file_split[0], trace_file_split[1], "S2", trace_file_split[2], trace_file_split[3]]))
-                shell(f"mv {infile} {outfile}")
-
-
 rule clean:
     localrule: True
     shell:

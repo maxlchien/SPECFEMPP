@@ -1,5 +1,46 @@
 include: "specfem2d.smk"
 
+
+stations = [f"S{i:04d}" for i in range(1, 21)]
+seismograms = {"BXX": ["semd", "semv", "sema"], "BXZ": ["semd", "semv", "sema"], "PRE": ["semp"]}
+
+traces_specfem2d = [
+    f"specfem2d_workdir/OUTPUT_FILES/AA.{station}.{component}.{seismogram}"
+    for station in stations
+    for component in seismograms.keys()
+    for seismogram in seismograms[component]
+]
+
+traces = [
+    f"traces/AA.{station}.S2.{component}.{seismogram}"
+    for station in stations
+    for component in seismograms.keys()
+    for seismogram in seismograms[component]
+]
+
+
 rule all:
     input:
-        f"{current_workdir}/traces"
+        traces
+
+
+rule run_solver:
+    input:
+        specfem_solver_output=f"{specfem_workdir}/OUTPUT_FILES/output_solver.txt",
+    output:
+        traces=traces_specfem2d,
+
+
+rule collect_traces:
+    input:
+        traces=traces_specfem2d,
+    output:
+        traces=traces,
+    localrule: True
+    run:
+        import os
+        os.makedirs("traces", exist_ok=True)
+        for i in range(len(input.traces)):
+            infile = input.traces[i]
+            outfile = output.traces[i]
+            shell(f"mv {infile} {outfile}")
