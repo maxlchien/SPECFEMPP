@@ -327,7 +327,7 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
 
   const int ngnod = control_nodes.ngnod;
 
-  initialize_coordinates(nspec, ngllz, nglly, ngllx, ngnod, this->h_coord,
+  initialize_coordinates(nspec, ngllz, nglly, ngllx, ngnod, this->coord,
                          shape_functions.shape3D,
                          control_nodes.control_node_coordinates);
 

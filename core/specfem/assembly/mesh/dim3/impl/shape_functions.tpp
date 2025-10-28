@@ -69,7 +69,7 @@ specfem::assembly::mesh_impl::shape_functions<specfem::dimension::type::dim3>::
       h_shape3D(Kokkos::create_mirror_view(shape3D)),
       h_dshape3D(Kokkos::create_mirror_view(dshape3D)) {
 
-  const auto xi = quadrature.xi;
+  const auto xi = quadrature.h_xi;
 
   Kokkos::parallel_for(
       "specfem::assembly::mesh::shape_functions::initialize_shape_functions",
