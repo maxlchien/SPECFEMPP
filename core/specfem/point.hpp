@@ -8,7 +8,6 @@
 #include "point/displacement.hpp"
 #include "point/edge_index.hpp"
 #include "point/field_derivatives.hpp"
-#include "point/gll_index.hpp"
 #include "point/index.hpp"
 #include "point/interface_index.hpp"
 #include "point/jacobian_matrix.hpp"
