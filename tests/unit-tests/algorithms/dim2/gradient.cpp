@@ -209,17 +209,19 @@ public:
     for (int ielement = 0; ielement < n_elements(); ++ielement) {
       for (int iz = 0; iz < 5; ++iz) {
         for (int ix = 0; ix < 5; ++ix) {
-          jacobian_matrix.xix(ielement, iz, ix) =
+          jacobian_matrix.h_xix(ielement, iz, ix) =
               _jacobian[ielement][iz][ix][0][0]; // ∂ξ/∂x
-          jacobian_matrix.xiz(ielement, iz, ix) =
+          jacobian_matrix.h_xiz(ielement, iz, ix) =
               _jacobian[ielement][iz][ix][0][1]; // ∂ξ/∂z
-          jacobian_matrix.gammax(ielement, iz, ix) =
+          jacobian_matrix.h_gammax(ielement, iz, ix) =
               _jacobian[ielement][iz][ix][1][0]; // ∂γ/∂x
-          jacobian_matrix.gammaz(ielement, iz, ix) =
+          jacobian_matrix.h_gammaz(ielement, iz, ix) =
               _jacobian[ielement][iz][ix][1][1]; // ∂γ/∂z
         }
       }
     }
+
+    jacobian_matrix.sync_views();
     return jacobian_matrix;
   }
 };
@@ -280,6 +282,10 @@ init_quadrature(const QuadratureInitializer2D::LAGRANGE &) {
 template <typename Initializer> struct Quadrature2D {
   std::array<std::array<type_real, 5>, 5> _quadrature;
 
+  using view_type =
+      Kokkos::View<type_real[5][5],
+                   Kokkos::DefaultHostExecutionSpace::memory_space>;
+
   /**
    * @brief Construct derivative matrix using the selected initializer tag.
    *
@@ -288,14 +294,20 @@ template <typename Initializer> struct Quadrature2D {
   Quadrature2D(const Initializer &initializer)
       : _quadrature(init_quadrature(initializer)) {}
 
-  /**
-   * @brief Access derivative matrix entry.
-   *
-   * @param i Row index (output GLL point)
-   * @param j Column index (input GLL point)
-   * @return Derivative value \f$\frac{dL_j}{d\xi}\Big|_{\xi_i}\f$
-   */
-  type_real operator()(const int &i, const int &j) const {
+  view_type quadrature() const {
+    view_type::HostMirror quadrature_view("quadrature_view");
+    for (int i = 0; i < 5; ++i) {
+      for (int j = 0; j < 5; ++j) {
+        quadrature_view(i, j) = _quadrature[i][j];
+      }
+    }
+
+    const auto d_quadrature = Kokkos::create_mirror_view_and_copy(
+        Kokkos::DefaultHostExecutionSpace(), quadrature_view);
+    return d_quadrature;
+  }
+
+  type_real operator()(const int i, const int j) const {
     return _quadrature[i][j];
   }
 };
@@ -400,7 +412,7 @@ template <typename Initializer> struct Function2D {
       specfem::dimension::type::dim2;
   constexpr static int components = 1; ///< Scalar field (single component)
 
-  using memory_space = Kokkos::HostSpace;
+  using memory_space = Kokkos::DefaultHostExecutionSpace::memory_space;
   using memory_traits = Kokkos::MemoryTraits<>;
 
   using view_type = Kokkos::View<type_real *[ngll][ngll][components],
@@ -442,7 +454,7 @@ template <typename Initializer> struct Function2D {
    * @return Kokkos View containing field data in algorithm-compatible format
    */
   view_type view() const {
-    view_type f_view("f_view", _f.size());
+    view_type::HostMirror f_view("f_view", _f.size());
     for (int ielement = 0; ielement < static_cast<int>(_f.size()); ++ielement) {
       for (int iz = 0; iz < ngll; ++iz) {
         for (int ix = 0; ix < ngll; ++ix) {
@@ -450,7 +462,10 @@ template <typename Initializer> struct Function2D {
         }
       }
     }
-    return f_view;
+
+    const auto f_device =
+        Kokkos::create_mirror_view_and_copy(memory_space(), f_view);
+    return f_device;
   }
 
 private:
@@ -710,14 +725,17 @@ TYPED_TEST(GradientTestFixture2D, TestGradientComputation) {
 
   // Set up chunked domain iteration for production algorithm testing
   using simd = specfem::datatype::simd<type_real, false>;
-  Kokkos::View<int *, Kokkos::HostSpace> element_indices(
+  Kokkos::View<int *, Kokkos::HostSpace> h_element_indices(
       "element_indices", this->function.n_elements());
   for (int i = 0; i < this->function.n_elements(); ++i) {
-    element_indices(i) = i;
+    h_element_indices(i) = i;
   }
 
+  const auto element_indices = Kokkos::create_mirror_view_and_copy(
+      Kokkos::DefaultExecutionSpace(), h_element_indices);
+
   using ParallelConfig = specfem::parallel_config::default_chunk_config<
-      specfem::dimension::type::dim2, simd, Kokkos::DefaultHostExecutionSpace>;
+      specfem::dimension::type::dim2, simd, Kokkos::DefaultExecutionSpace>;
 
   const specfem::mesh_entity::element element_grid(ngll, ngll);
 
@@ -725,41 +743,60 @@ TYPED_TEST(GradientTestFixture2D, TestGradientComputation) {
       ParallelConfig(), element_indices, element_grid);
 
   const auto jacobian = this->jacobian_matrix.jacobian();
+  const auto quadrature = this->quadrature.quadrature();
   const auto function_view = this->function.view();
 
   using Function2DView = specfem::datatype::VectorChunkElementViewType<
       type_real, specfem::dimension::type::dim2, 1, ngll, 1, false,
-      Kokkos::HostSpace, Kokkos::MemoryTraits<> >;
+      Kokkos::DefaultExecutionSpace::memory_space, Kokkos::MemoryTraits<> >;
+
+  Kokkos::View<type_real ****, Kokkos::DefaultExecutionSpace> gradient_view(
+      "gradient_view", this->function.n_elements(), ngll, ngll, 2);
 
   // Execute production gradient algorithm and validate results
-  specfem::execution::for_each_level(chunk, [&](const typename decltype(
-                                                chunk)::index_type &index) {
-    const Function2DView f(Kokkos::subview(function_view, index.get_range(),
-                                           Kokkos::ALL(), Kokkos::ALL(),
-                                           Kokkos::ALL()));
+  specfem::execution::for_each_level(
+      chunk, [&](const typename decltype(chunk)::index_type &index) {
+        const Function2DView f(Kokkos::subview(function_view, index.get_range(),
+                                               Kokkos::ALL(), Kokkos::ALL(),
+                                               Kokkos::ALL()));
 
-    // Call the production gradient algorithm
-    specfem::algorithms::gradient(
-        index, jacobian, this->quadrature, f,
-        [&](const auto &iterator_index, const auto &df) {
-          const auto local_index = iterator_index.get_index();
-          const int ispec = local_index.ispec;
-          const int iz = local_index.iz;
-          const int ix = local_index.ix;
+        // Call the production gradient algorithm
+        specfem::algorithms::gradient(
+            index, jacobian, quadrature, f,
+            [&](const auto &iterator_index, const auto &df) {
+              const auto local_index = iterator_index.get_index();
+              const int ispec = local_index.ispec;
+              const int iz = local_index.iz;
+              const int ix = local_index.ix;
 
-          const auto e = expected_gradient[ispec][iz][ix];
+              // store computed gradient
+              gradient_view(ispec, iz, ix, 0) = df(0, 0);
+              gradient_view(ispec, iz, ix, 1) = df(0, 1);
+            });
+      });
 
-          // Point-wise validation of computed gradient components
-          if (!specfem::utilities::is_close(df(0, 0), e[0][0]) ||
-              !specfem::utilities::is_close(df(0, 1), e[0][1])) {
-            FAIL() << "Gradient mismatch for element " << local_index.ispec
-                   << "\n"
-                   << "    at GLL point (" << iz << ", " << ix << ")\n"
-                   << "    expected: (" << e[0][0] << ", " << e[0][1] << ")\n"
-                   << "    computed: (" << df(0, 0) << ", " << df(0, 1) << ")";
-          }
-        });
-  });
+  const auto gradient_host =
+      Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), gradient_view);
+
+  // Compare computed gradient against expected results
+  for (int ielement = 0; ielement < this->function.n_elements(); ++ielement) {
+    for (int iz = 0; iz < ngll; ++iz) {
+      for (int ix = 0; ix < ngll; ++ix) {
+        const auto e = expected_gradient[ielement][iz][ix];
+        const auto df =
+            Kokkos::subview(gradient_host, ielement, iz, ix, Kokkos::ALL());
+
+        // Point-wise validation of computed gradient components
+        if (!specfem::utilities::is_close(df(0), e[0][0]) ||
+            !specfem::utilities::is_close(df(1), e[0][1])) {
+          FAIL() << "Gradient mismatch for element " << ielement << "\n"
+                 << "    at GLL point (" << iz << ", " << ix << ")\n"
+                 << "    expected: (" << e[0][0] << ", " << e[0][1] << ")\n"
+                 << "    computed: (" << df(0) << ", " << df(1) << ")";
+        }
+      }
+    }
+  }
 
   SUCCEED() << "Gradient computation validation passed for all test points.";
 }

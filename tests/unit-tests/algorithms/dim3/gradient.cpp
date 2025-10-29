@@ -235,28 +235,30 @@ public:
       for (int iz = 0; iz < 5; ++iz) {
         for (int iy = 0; iy < 5; ++iy) {
           for (int ix = 0; ix < 5; ++ix) {
-            jacobian_matrix.xix(ielement, iz, iy, ix) =
+            jacobian_matrix.h_xix(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][0][0]; // ∂ξ/∂x
-            jacobian_matrix.xiy(ielement, iz, iy, ix) =
+            jacobian_matrix.h_xiy(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][0][1]; // ∂ξ/∂y
-            jacobian_matrix.xiz(ielement, iz, iy, ix) =
+            jacobian_matrix.h_xiz(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][0][2]; // ∂ξ/∂z
-            jacobian_matrix.etax(ielement, iz, iy, ix) =
+            jacobian_matrix.h_etax(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][1][0]; // ∂η/∂x
-            jacobian_matrix.etay(ielement, iz, iy, ix) =
+            jacobian_matrix.h_etay(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][1][1]; // ∂η/∂y
-            jacobian_matrix.etaz(ielement, iz, iy, ix) =
+            jacobian_matrix.h_etaz(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][1][2]; // ∂η/∂z
-            jacobian_matrix.gammax(ielement, iz, iy, ix) =
+            jacobian_matrix.h_gammax(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][2][0]; // ∂γ/∂x
-            jacobian_matrix.gammay(ielement, iz, iy, ix) =
+            jacobian_matrix.h_gammay(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][2][1]; // ∂γ/∂y
-            jacobian_matrix.gammaz(ielement, iz, iy, ix) =
+            jacobian_matrix.h_gammaz(ielement, iz, iy, ix) =
                 _jacobian[ielement][iz][iy][ix][2][2]; // ∂γ/∂z
           }
         }
       }
     }
+
+    jacobian_matrix.sync_views();
     return jacobian_matrix;
   }
 };
@@ -317,6 +319,10 @@ init_quadrature(const QuadratureInitializer3D::LAGRANGE &) {
 template <typename Initializer> struct Quadrature3D {
   std::array<std::array<type_real, 5>, 5> _quadrature;
 
+  using view_type =
+      Kokkos::View<type_real[5][5],
+                   Kokkos::DefaultHostExecutionSpace::memory_space>;
+
   /**
    * @brief Construct derivative matrix using the selected initializer tag.
    *
@@ -324,6 +330,19 @@ template <typename Initializer> struct Quadrature3D {
    */
   Quadrature3D(const Initializer &initializer)
       : _quadrature(init_quadrature(initializer)) {}
+
+  view_type quadrature() const {
+    view_type::HostMirror quadrature_view("quadrature_view");
+    for (int i = 0; i < 5; ++i) {
+      for (int j = 0; j < 5; ++j) {
+        quadrature_view(i, j) = _quadrature[i][j];
+      }
+    }
+
+    const auto d_quadrature = Kokkos::create_mirror_view_and_copy(
+        Kokkos::DefaultHostExecutionSpace(), quadrature_view);
+    return d_quadrature;
+  }
 
   /**
    * @brief Access derivative matrix entry.
@@ -447,7 +466,7 @@ template <typename Initializer> struct Function3D {
       specfem::dimension::type::dim3;
   constexpr static int components = 1; ///< Scalar field (single component)
 
-  using memory_space = Kokkos::HostSpace;
+  using memory_space = Kokkos::DefaultExecutionSpace::memory_space;
   using memory_traits = Kokkos::MemoryTraits<>;
 
   using view_type = Kokkos::View<type_real *[ngll][ngll][ngll][components],
@@ -490,7 +509,7 @@ template <typename Initializer> struct Function3D {
    * @return Kokkos View containing field data in algorithm-compatible format
    */
   view_type view() const {
-    view_type f_view("f_view", _f.size());
+    view_type::HostMirror f_view("f_view", _f.size());
     for (int ielement = 0; ielement < static_cast<int>(_f.size()); ++ielement) {
       for (int iz = 0; iz < ngll; ++iz) {
         for (int iy = 0; iy < ngll; ++iy) {
@@ -500,7 +519,11 @@ template <typename Initializer> struct Function3D {
         }
       }
     }
-    return f_view;
+
+    const auto f_device =
+        Kokkos::create_mirror_view_and_copy(memory_space(), f_view);
+
+    return f_device;
   }
 
 private:
@@ -788,11 +811,14 @@ TYPED_TEST(GradientTestFixture3D, TestGradientComputation) {
 
   // Set up chunked domain iteration for production algorithm testing
   using simd = specfem::datatype::simd<type_real, false>;
-  Kokkos::View<int *, Kokkos::HostSpace> element_indices(
+  Kokkos::View<int *, Kokkos::HostSpace> h_element_indices(
       "element_indices", this->function.n_elements());
   for (int i = 0; i < this->function.n_elements(); ++i) {
-    element_indices(i) = i;
+    h_element_indices(i) = i;
   }
+
+  const auto element_indices = Kokkos::create_mirror_view_and_copy(
+      Kokkos::DefaultHostExecutionSpace(), h_element_indices);
 
   using ParallelConfig = specfem::parallel_config::default_chunk_config<
       specfem::dimension::type::dim3, simd, Kokkos::DefaultHostExecutionSpace>;
@@ -807,7 +833,7 @@ TYPED_TEST(GradientTestFixture3D, TestGradientComputation) {
 
   using Function3DView = specfem::datatype::VectorChunkElementViewType<
       type_real, specfem::dimension::type::dim3, 1, ngll, 1, false,
-      Kokkos::HostSpace, Kokkos::MemoryTraits<> >;
+      Kokkos::DefaultExecutionSpace::memory_space, Kokkos::MemoryTraits<> >;
 
   // Execute production gradient algorithm and validate results
   specfem::execution::for_each_level(
