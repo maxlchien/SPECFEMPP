@@ -46,6 +46,9 @@ specfem::io::meshfem3d::read_3d_mesh(const std::string &database_file,
       specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_boundaries(
           param_stream, nspec, mesh.control_nodes, mpi);
 
+  mesh.tags = specfem::mesh::meshfem3d::tags<specfem::dimension::type::dim3>(
+      nspec, mesh.materials);
+
   // CPML boundaries are not supported yet
   // TODO (Rohit: PML_BOUNDARIES): Add support for PML boundaries
   specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_pml_boundaries(

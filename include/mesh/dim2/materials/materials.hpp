@@ -50,14 +50,15 @@ template <> struct materials<specfem::dimension::type::dim2> {
             specfem::element::property_tag property>
   struct material {
     int n_materials; ///< Number of elements
-    std::vector<specfem::medium::material<type, property> >
+    std::vector<specfem::medium::material<dimension, type, property> >
         element_materials; ///< Material properties
 
     material() = default;
 
-    material(const int n_materials,
-             const std::vector<specfem::medium::material<type, property> >
-                 &l_material);
+    material(
+        const int n_materials,
+        const std::vector<specfem::medium::material<dimension, type, property> >
+            &l_material);
   };
 
   int n_materials; ///< Total number of different materials
@@ -110,7 +111,7 @@ public:
    * @param index Spectral element index
    * @return std::variant Material properties
    */
-  specfem::medium::material<MediumTag, PropertyTag>
+  specfem::medium::material<dimension, MediumTag, PropertyTag>
   get_material(const int index) const {
     const auto &material_specification = this->material_index_mapping(index);
 

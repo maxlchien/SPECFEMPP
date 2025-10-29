@@ -5,6 +5,7 @@
 #include "control_nodes/control_nodes.hpp"
 #include "enumerations/interface.hpp"
 #include "materials/materials.hpp"
+#include "tags/tags.hpp"
 
 namespace specfem::mesh::meshfem3d {
 
@@ -112,6 +113,13 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    */
   specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
       adjacency_graph;
+
+  /** @brief Tags associated with each spectral element
+   *
+   * Stores the tags for each spectral element, which specify medium type,
+   * property type, and boundary conditions.
+   */
+  specfem::mesh::meshfem3d::tags<specfem::dimension::type::dim3> tags;
 
   /**
    * @brief Setup coupled interfaces in the mesh
