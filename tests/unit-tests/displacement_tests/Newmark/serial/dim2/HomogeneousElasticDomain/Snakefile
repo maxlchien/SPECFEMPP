@@ -5,14 +5,14 @@ stations = [f"S{i:04d}" for i in range(1, 21)]
 seismograms = {"BXX": ["semd", "semv", "sema"], "BXZ": ["semd", "semv", "sema"], "PRE": ["semp"]}
 
 traces_specfem2d = [
-    f"specfem2d_workdir/OUTPUT_FILES/AA.{station}.{component}.{seismogram}"
+    f"{specfem_workdir}/OUTPUT_FILES/AA.{station}.{component}.{seismogram}"
     for station in stations
     for component in seismograms.keys()
     for seismogram in seismograms[component]
 ]
 
 traces = [
-    f"traces/AA.{station}.S2.{component}.{seismogram}"
+    f"{current_workdir}/traces/AA.{station}.S2.{component}.{seismogram}"
     for station in stations
     for component in seismograms.keys()
     for seismogram in seismograms[component]
@@ -22,7 +22,7 @@ traces = [
 rule all:
     input:
         traces=traces,
-        trace_list="traces/trace_list.txt",
+        trace_list=f"{current_workdir}/traces/trace_list.txt",
     localrule: True
 
 

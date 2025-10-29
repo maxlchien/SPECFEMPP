@@ -24,3 +24,5 @@ foreach(DIM ${DIMS})
         endif()
     endforeach()
 endforeach()
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles/Snakefile.in" "${CMAKE_CURRENT_SOURCE_DIR}/Snakefile" @ONLY)
