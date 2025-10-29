@@ -1,4 +1,4 @@
-tests:
+tests2d:
   - "HomogeneousElasticDomain"
   - "HomogeneousAcousticDomain"
   - "AcousticElasticCoupledDomain"

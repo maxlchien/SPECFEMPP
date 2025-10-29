@@ -21,7 +21,9 @@ traces = [
 
 rule all:
     input:
-        traces
+        traces=traces,
+        trace_list="traces/trace_list.txt",
+    localrule: True
 
 
 rule run_solver:
@@ -36,11 +38,17 @@ rule collect_traces:
         traces=traces_specfem2d,
     output:
         traces=traces,
+        trace_list=f"{current_workdir}/traces/trace_list.txt",
     localrule: True
     run:
         import os
         os.makedirs("traces", exist_ok=True)
+
         for i in range(len(input.traces)):
             infile = input.traces[i]
             outfile = output.traces[i]
             shell(f"mv {infile} {outfile}")
+
+        with open(output.trace_list, "w") as f:
+            for trace in output.traces:
+                f.write(f"{trace[7:]}\n")

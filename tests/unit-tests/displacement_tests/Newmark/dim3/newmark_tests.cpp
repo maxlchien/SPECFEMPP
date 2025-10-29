@@ -71,7 +71,7 @@ struct TestConfig3D {
 
 std::vector<std::string>
 parse_3D_test_directories(const std::string &tests_file) {
-  YAML::Node yaml = YAML::LoadFile(tests_file)["tests"];
+  YAML::Node yaml = YAML::LoadFile(tests_file)["tests3d"];
 
   std::vector<std::string> test_names;
 

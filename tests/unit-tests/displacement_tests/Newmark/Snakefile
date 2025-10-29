@@ -1,14 +1,14 @@
 configfile: "dim2/tests.yaml"
 
+# tests = config["tests"]
+tests = ["HomogeneousElasticDomain"]
+
 rule all:
     input:
-        trace_dirs = expand("serial/dim2/{test_name}/traces",
-        test_name=config["tests"],
-        )
-
+        traces=expand("serial/dim2/{test_name}/traces/trace_list.txt", test_name=tests)
 
 # for test_name in config["tests"]:
-for test_name in ["HomogeneousElasticDomain"]:
+for test_name in tests:
     alias = f'{test_name}_'
 
     module test_name:
