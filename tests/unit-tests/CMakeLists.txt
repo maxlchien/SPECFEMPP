@@ -172,6 +172,24 @@ target_link_libraries(
 )
 
 add_executable(
+  enumerations_tests
+  enumerations/dim3/mesh_entity.cpp
+  enumerations/dim3/connections.cpp
+  enumerations/dim3/runner.cpp
+)
+
+target_link_libraries(
+  enumerations_tests
+  enumerations
+  quadrature
+  shape_functions
+  gtest_main
+  kokkos_environment
+  utilities
+  -lpthread -lm
+)
+
+add_executable(
   simd_tests
   datatypes/simd_tests.cpp
 )
@@ -431,6 +449,12 @@ add_executable(
   assembly/compute_source_array/dim2/compute_source_array_from_vector.cpp
   assembly/compute_source_array/dim2/compute_source_array_from_tensor.cpp
   assembly/compute_source_array/dim3/compute_source_array_from_vector.cpp
+
+  # New dim3 tests
+  assembly/dim3/mesh/shape_functions.cpp
+  assembly/dim3/mesh/points.cpp
+  assembly/dim3/mesh/control_nodes.cpp
+  assembly/dim3/jacobian_matrix/jacobian_matrix.cpp
 )
 
 target_compile_definitions(assembly_tests PRIVATE TEST_OUTPUT_DIR=${TEST_OUTPUT_DIR})
@@ -447,9 +471,13 @@ target_link_libraries(
   kokkos_environment
   yaml-cpp
   utilities
+  enumerations
+  shape_functions
+  quadrature
   boost
   -lpthread -lm
   gtest_main
+  ${BOOST_LIBS}
 )
 
 add_executable(
@@ -626,12 +654,14 @@ add_executable(
   compute_coupling_tests
   compute_coupling/acoustic_elastic.cpp
   compute_coupling/elastic_acoustic.cpp
+  compute_coupling/nonconforming.cpp
 )
 
 target_link_libraries(
   compute_coupling_tests
   point
-  gtest_main
+  gtest
+  kokkos_environment
   Kokkos::kokkos
 )
 
@@ -830,6 +860,7 @@ if(NOT MPI_PARALLEL)
     displacement_newmark_2d_tests
     displacement_newmark_3d_tests
     fortranio_test
+    enumerations_tests
     gll_tests
     interpolate_function
     io_framework_tests
@@ -890,3 +921,7 @@ if(NOT MPI_PARALLEL)
   # gtest_discover_tests(seismogram_elastic_tests)
   # gtest_discover_tests(seismogram_acoustic_tests)
 endif()
+
+
+add_subdirectory(data/dim2/ncmarked_conforming_grid_curved/provenance)
+add_subdirectory(data/dim2/ncmarked_conforming_grid_flat/provenance)
