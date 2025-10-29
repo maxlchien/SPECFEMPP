@@ -37,8 +37,7 @@ KOKKOS_INLINE_FUNCTION void impl_load(
                 "Calling team must have a host execution space");
 
   specfem::execution::for_each_level(
-      specfem::execution::TeamThreadMDRangeIterator<MemberType, NGLL, NGLL>(
-          team),
+      specfem::execution::TeamThreadMDRangeIterator(team, NGLL, NGLL),
       [&](const auto index) {
         int iz = index(0);
         int ix = index(1);
