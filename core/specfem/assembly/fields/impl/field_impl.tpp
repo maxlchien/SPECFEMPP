@@ -79,9 +79,9 @@ void assign_assembly_index_mapping<specfem::dimension::type::dim3>(
   int count = 0;
 
   for (int ispec = 0; ispec < nspec; ispec++) {
-    for (int ix = 0; ix < ngllx; ix++) {
+    for (int iz = 0; iz < ngllz; iz++) {
       for (int iy = 0; iy < nglly; iy++) {
-        for (int iz = 0; iz < ngllz; iz++) {
+          for (int ix = 0; ix < ngllx; ix++) {
           const auto medium = element_types.get_medium_tag(ispec);
           if (medium == MediumTag) {
             const int global_index = index_mapping(ispec, iz, iy, ix);

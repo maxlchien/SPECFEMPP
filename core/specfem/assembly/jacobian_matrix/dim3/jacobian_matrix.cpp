@@ -43,52 +43,53 @@ specfem::assembly::jacobian_matrix<specfem::dimension::type::dim3>::
 
   // Initialize the Kokkos view with single values
   Kokkos::deep_copy(h_xix, mesh_jacobian.xix_regular);
-  Kokkos::deep_copy(h_xiy, mesh_jacobian.xix_regular);
-  Kokkos::deep_copy(h_xiz, mesh_jacobian.xix_regular);
-  Kokkos::deep_copy(h_etax, mesh_jacobian.xix_regular);
+  Kokkos::deep_copy(h_xiy, 0.0);
+  Kokkos::deep_copy(h_xiz, 0.0);
+  Kokkos::deep_copy(h_etax, 0.0);
   Kokkos::deep_copy(h_etay, mesh_jacobian.xix_regular);
-  Kokkos::deep_copy(h_etaz, mesh_jacobian.xix_regular);
-  Kokkos::deep_copy(h_gammax, mesh_jacobian.xix_regular);
-  Kokkos::deep_copy(h_gammay, mesh_jacobian.xix_regular);
+  Kokkos::deep_copy(h_etaz, 0.0);
+  Kokkos::deep_copy(h_gammax, 0.0);
+  Kokkos::deep_copy(h_gammay, 0.0);
   Kokkos::deep_copy(h_gammaz, mesh_jacobian.xix_regular);
   Kokkos::deep_copy(h_jacobian, mesh_jacobian.jacobian_regular);
 
   // Overwrite irregular elements
   if (mesh_jacobian.nspec_irregular > 0) {
 
-    int irregular_element_counter = 0;
-
     for (int ispec = 0; ispec < nspec; ispec++) {
       // if element number is irregular
-      if (mesh_jacobian.irregular_element_number(ispec)) {
+      if (mesh_jacobian.irregular_element_number(ispec) != 0) {
+
+        // irregular_element_number is stored starting from 1 and with 0's
+        // for regular elements
+        int ispec_irregular = mesh_jacobian.irregular_element_number(ispec) - 1;
 
         for (int iz = 0; iz < mesh_jacobian.ngllz; iz++) {
           for (int iy = 0; iy < mesh_jacobian.nglly; iy++) {
             for (int ix = 0; ix < mesh_jacobian.ngllx; ix++) {
               h_xix(ispec, iz, iy, ix) =
-                  mesh_jacobian.xix(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.xix(ispec_irregular, iz, iy, ix);
               h_xiy(ispec, iz, iy, ix) =
-                  mesh_jacobian.xiy(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.xiy(ispec_irregular, iz, iy, ix);
               h_xiz(ispec, iz, iy, ix) =
-                  mesh_jacobian.xiz(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.xiz(ispec_irregular, iz, iy, ix);
               h_etax(ispec, iz, iy, ix) =
-                  mesh_jacobian.etax(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.etax(ispec_irregular, iz, iy, ix);
               h_etay(ispec, iz, iy, ix) =
-                  mesh_jacobian.etay(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.etay(ispec_irregular, iz, iy, ix);
               h_etaz(ispec, iz, iy, ix) =
-                  mesh_jacobian.etaz(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.etaz(ispec_irregular, iz, iy, ix);
               h_gammax(ispec, iz, iy, ix) =
-                  mesh_jacobian.gammax(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.gammax(ispec_irregular, iz, iy, ix);
               h_gammay(ispec, iz, iy, ix) =
-                  mesh_jacobian.gammay(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.gammay(ispec_irregular, iz, iy, ix);
               h_gammaz(ispec, iz, iy, ix) =
-                  mesh_jacobian.gammaz(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.gammaz(ispec_irregular, iz, iy, ix);
               h_jacobian(ispec, iz, iy, ix) =
-                  mesh_jacobian.jacobian(irregular_element_counter, iz, iy, ix);
+                  mesh_jacobian.jacobian(ispec_irregular, iz, iy, ix);
             }
           }
         }
-        irregular_element_counter++;
       }
     }
   }
