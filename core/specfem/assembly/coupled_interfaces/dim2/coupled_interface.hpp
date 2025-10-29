@@ -153,7 +153,7 @@ public:
 
     // Unreachable code - satisfy compiler return requirements
 
-#ifdef _MSC_VER
+#if __MSVC__
 #pragma warning(push)
 #pragma warning(disable : C4172)
 #else
@@ -161,7 +161,7 @@ public:
 #pragma GCC diagnostic ignored "-Wreturn-local-addr"
 #endif
     return {};
-#ifdef _MSC_VER
+#if __MSVC__
 #pragma warning(pop)
 #else
 #pragma GCC diagnostic pop

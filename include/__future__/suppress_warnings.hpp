@@ -6,7 +6,7 @@
 #define STRINGIFY(x) #x
 #endif
 
-#ifdef _MSC_VER
+#if __MSVC__
 // mscv (microsoft)
 // this is untested.
 
@@ -61,7 +61,7 @@ namespace specfem::__future__ {
 
 template <typename ConstructedType>
 inline ConstructedType SUPPRESS_WARNING_TEMPORARY_REF_BLANK_CONSTRUCTION() {
-#ifdef _MSC_VER
+#if __MSVC__
 #pragma warning(push)
 #pragma warning(disable : C4172)
 #else
@@ -69,7 +69,7 @@ inline ConstructedType SUPPRESS_WARNING_TEMPORARY_REF_BLANK_CONSTRUCTION() {
 #pragma GCC diagnostic ignored "-Wreturn-local-addr"
 #endif
   return {};
-#ifdef _MSC_VER
+#if __MSVC__
 #pragma warning(pop)
 #else
 #pragma GCC diagnostic pop
