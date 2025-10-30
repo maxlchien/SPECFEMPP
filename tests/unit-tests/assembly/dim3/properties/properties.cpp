@@ -210,8 +210,8 @@ struct ExpectedProperties3D {
                 specfem::point::properties<_dimension_tag_, _medium_tag_,
                                            _property_tag_, false>
                     prop_accessor;
-                specfem::assembly::load_on_device(index, properties,
-                                                  prop_accessor);
+                specfem::assembly::load_on_host(index, properties,
+                                                prop_accessor);
                 return prop_accessor;
               }();
 
