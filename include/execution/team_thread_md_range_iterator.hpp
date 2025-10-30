@@ -6,23 +6,6 @@
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
-// template <typename ExectutionSpace, typename Enable = void>
-// class is_host_space;
-
-// #if defined(KOKKOS_ENABLE_SERIAL)
-// template <>
-// class is_host_space<Kokkos::Serial> {
-// constexpr static bool value = true;
-// };
-// #endif
-
-// #if defined(KOKKOS_ENABLE_OPENMP)
-// template <>
-// class is_host_space<Kokkos::OpenMP> {
-// constexpr static bool value = true;
-// };
-// #endif
-
 namespace specfem {
 namespace execution {
 /**
@@ -119,8 +102,8 @@ public:
 #endif
 
   template <typename... Indices>
-  constexpr TeamThreadMDRangeIterator(const TeamMemberType &team,
-                                      Indices... indices)
+  KOKKOS_INLINE_FUNCTION constexpr
+  TeamThreadMDRangeIterator(const TeamMemberType &team, Indices... indices)
       : base_type(team,
                   [&]() {
                     size_t product = 1;
