@@ -217,6 +217,7 @@ add_library(
         src/io/sources/dim3/read_sources.cpp
         src/io/receivers/dim2/read_receivers.cpp
         src/io/receivers/dim3/read_receivers.cpp
+        src/io/seismogram/impl/channel_generator.cpp
         # Fortran 2D part
         src/io/mesh/impl/fortran/dim2/mesh.cpp
         src/io/mesh/impl/fortran/dim2/read_boundaries.cpp
