@@ -91,7 +91,7 @@ void execute(const YAML::Node parameter_dict, const YAML::Node default_dict,
   auto [sources, t0] =
       specfem::io::read_3d_sources(setup.get_sources(), nsteps, setup.get_t0(),
                                    setup.get_dt(), simulation_type);
-  setup.update_t0(0.0); // Update t0 in case it was changed
+  setup.update_t0(t0); // Update t0 in case it was changed
 
   mpi->cout("Source Information:");
   mpi->cout("-------------------------------");

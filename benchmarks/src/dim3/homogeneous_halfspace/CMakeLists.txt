@@ -21,12 +21,21 @@ file(
   DESTINATION ${CURRENT_BENCHMARK_BUILD_DIR}
 )
 
+file(
+  CREATE_LINK
+    ${CMAKE_CURRENT_SOURCE_DIR}/reference_seismograms
+    ${CURRENT_BENCHMARK_BUILD_DIR}/reference_seismograms
+    SYMBOLIC
+)
+
 # Configure files directly into the cmake benchmarks_build!
 configure_file(CMakeFiles/Mesh_Par_file.in ${CURRENT_BENCHMARK_BUILD_DIR}/DATA/meshfem3D_files/Mesh_Par_file)
 configure_file(CMakeFiles/interfaces.txt.in ${CURRENT_BENCHMARK_BUILD_DIR}/DATA/meshfem3D_files/interfaces.txt)
 configure_file(CMakeFiles/Par_File.in ${CURRENT_BENCHMARK_BUILD_DIR}/DATA/Par_File)
 configure_file(CMakeFiles/specfem_config.yaml.in ${CURRENT_BENCHMARK_BUILD_DIR}/specfem_config.yaml)
+configure_file(CMakeFiles/Snakefile.in ${CURRENT_BENCHMARK_BUILD_DIR}/Snakefile)
 
 # Mkdir CAN BE REMOVED ONCE WE HAVE A SNAKEFILE WITH FULL EXAMPLE
-file(MAKE_DIRECTORY ${CURRENT_BENCHMARK_BUILD_DIR}/OUTPUT_FILES/DATABASES_MPI)
+file(MAKE_DIRECTORY ${CURRENT_BENCHMARK_BUILD_DIR}/OUTPUT_FILES/DATABASES)
 file(MAKE_DIRECTORY ${CURRENT_BENCHMARK_BUILD_DIR}/OUTPUT_FILES/results)
+file(MAKE_DIRECTORY ${CURRENT_BENCHMARK_BUILD_DIR}/OUTPUT_FILES/vtk)
