@@ -66,12 +66,10 @@ public:
    * @param i Linear index
    * @return index_type 2D / 3D coordinates
    */
-  template <
-      typename T = TeamMemberType,
-      std::enable_if_t<
-          std::is_same_v<typename TeamMemberType::execution_space::memory_space,
-                         Kokkos::HostSpace>,
-          int> = 0>
+  template <typename T = TeamMemberType,
+            std::enable_if_t<std::is_same_v<T::execution_space::memory_space,
+                                            Kokkos::HostSpace>,
+                             int> = 0>
   KOKKOS_INLINE_FUNCTION const index_type operator()(const int &i) const {
     index_type result;
     result(0) = i % extents_[0];
@@ -99,10 +97,9 @@ private:
 public:
   template <
       typename T = TeamMemberType,
-      std::enable_if_t<
-          std::is_same_v<typename TeamMemberType::execution_space::memory_space,
-                         device_memory_space>,
-          int> = 0>
+      std::enable_if_t<std::is_same_v<typename T::execution_space::memory_space,
+                                      device_memory_space>,
+                       int> = 0>
   KOKKOS_INLINE_FUNCTION const index_type operator()(const int &i) const {
     index_type result;
     result(rank - 1) = i % extents_[rank - 1];
