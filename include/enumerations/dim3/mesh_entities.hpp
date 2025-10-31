@@ -296,14 +296,9 @@ template <> struct edge<specfem::dimension::type::dim3> {
  */
 template <specfem::dimension::type Dimension> struct element;
 
-/**
- * @brief Mesh element structure for 3D hexahedral elements (Specialization)
- *
- * Represents a 3D hexahedral spectral element with Gauss-Lobatto-Legendre
- * quadrature points. This structure defines the polynomial order and
- * discretization properties of the element.
- */
-template <> struct element<specfem::dimension::type::dim3> {
+template <specfem::dimension::type Dimension> struct element_grid;
+
+template <> struct element_grid<specfem::dimension::type::dim3> {
 
 public:
   int ngllz;  ///< Number of Gauss-Lobatto-Legendre points in the z-direction
@@ -317,7 +312,7 @@ public:
   /**
    * @brief Default constructor for the element struct
    */
-  element() = default;
+  element_grid() = default;
 
   /**
    * @brief Constructs an element entity given the number of
@@ -325,7 +320,7 @@ public:
    *
    * @param ngll The number of Gauss-Lobatto-Legendre points
    */
-  element(const int ngll)
+  element_grid(const int ngll)
       : ngllx(ngll), nglly(ngll), ngllz(ngll), orderz(ngll - 1),
         ordery(nglly - 1), orderx(ngllx - 1), size(ngll * ngll * ngll) {};
 
@@ -342,7 +337,19 @@ public:
    * @note Currently requires identical GLL points in all dimensions for
    * stability
    */
-  element(const int ngllz, const int nglly, const int ngllx);
+  element_grid(const int ngllz, const int nglly, const int ngllx)
+      : ngllz(ngllz), nglly(nglly), ngllx(ngllx), orderz(ngllz - 1),
+        ordery(nglly - 1), orderx(ngllx - 1), size(ngllz * nglly * ngllx) {
+    if (ngllz < 2 || nglly < 2 || ngllx < 2) {
+      throw std::runtime_error(
+          "ngllz, nglly, and ngllx must be at least 2 to define a 3D element");
+    }
+
+    if (ngllz != nglly || ngllz != ngllx) {
+      throw std::runtime_error(
+          "ngllz, nglly, and ngllx must be equal for a cubic 3D element");
+    }
+  }
 
   /**
    * @brief Checks if the element is consistent across dimensions against a
@@ -365,6 +372,47 @@ public:
    * @return true If any dimension does not match
    */
   bool operator!=(const int ngll) const { return !(*this == ngll); }
+};
+
+/**
+ * @brief Mesh element structure for 3D hexahedral elements (Specialization)
+ *
+ * Represents a 3D hexahedral spectral element with Gauss-Lobatto-Legendre
+ * quadrature points. This structure defines the polynomial order and
+ * discretization properties of the element.
+ */
+template <>
+struct element<specfem::dimension::type::dim3>
+    : element_grid<specfem::dimension::type::dim3> {
+
+public:
+  /**
+   * @brief Default constructor for the element struct
+   */
+  element() = default;
+
+  /**
+   * @brief Constructs an element entity given the number of
+   * Gauss-Lobatto-Legendre points
+   *
+   * @param ngll The number of Gauss-Lobatto-Legendre points
+   */
+  element(const int ngll);
+
+  /**
+   * @brief Constructs an element entity given the number of
+   * Gauss-Lobatto-Legendre points in each dimension
+   *
+   * @param ngllz The number of Gauss-Lobatto-Legendre points in z-direction
+   * @param nglly The number of Gauss-Lobatto-Legendre points in y-direction
+   * @param ngllx The number of Gauss-Lobatto-Legendre points in x-direction
+   *
+   * @throws std::invalid_argument if GLL points differ between dimensions
+   *
+   * @note Currently requires identical GLL points in all dimensions for
+   * stability
+   */
+  element(const int ngllz, const int nglly, const int ngllx);
 
   /**
    * @brief Get the total number of GLL points on a given mesh entity

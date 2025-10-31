@@ -348,7 +348,7 @@ public:
    */
   KOKKOS_INLINE_FUNCTION ChunkElementIterator(
       const TeamMemberType &team, const ViewType indices,
-      const specfem::mesh_entity::element<dimension_tag> &element_grid)
+      const specfem::mesh_entity::element_grid<dimension_tag> &element_grid)
       : indices(indices), element_grid(element_grid),
         num_elements((indices.extent(0) / simd_size) +
                      ((indices.extent(0) % simd_size) != 0)),
@@ -359,8 +359,9 @@ public:
 private:
   ViewType indices; ///< View of indices of elements within this chunk
   int num_elements; ///< Number of elements in the chunk, adjusted for SIMD
-  specfem::mesh_entity::element<dimension_tag> element_grid; ///< Element grid
-                                                             ///< information
+  specfem::mesh_entity::element_grid<dimension_tag>
+      element_grid; ///< Element grid
+                    ///< information
 };
 
 /**
@@ -432,7 +433,7 @@ public:
   KOKKOS_INLINE_FUNCTION
   ChunkElementIndex(
       const ViewType indices,
-      const specfem::mesh_entity::element<DimensionTag> &element_grid,
+      const specfem::mesh_entity::element_grid<DimensionTag> &element_grid,
       const TeamMemberType &kokkos_index)
       : indices(indices), element_grid(element_grid),
         kokkos_index(kokkos_index),
@@ -454,9 +455,10 @@ public:
   }
 
 private:
-  ViewType indices;                                         ///< View of indices
-  specfem::mesh_entity::element<DimensionTag> element_grid; ///< Element grid
-                                                            ///< information
+  ViewType indices; ///< View of indices
+  specfem::mesh_entity::element_grid<DimensionTag>
+      element_grid;            ///< Element grid
+                               ///< information
   TeamMemberType kokkos_index; ///< Kokkos index type
   iterator_type iterator;      ///< Iterator for iterating over the elements
                                ///< in the chunk.
@@ -518,7 +520,7 @@ public:
    */
   ChunkedDomainIterator(
       const ViewType indices,
-      const specfem::mesh_entity::element<DimensionTag> &element_grid)
+      const specfem::mesh_entity::element_grid<DimensionTag> &element_grid)
       : indices(indices), element_grid(element_grid),
         base_type(((indices.extent(0) / (chunk_size * simd_size)) +
                    ((indices.extent(0) % (chunk_size * simd_size)) != 0)),
@@ -535,7 +537,7 @@ public:
    */
   ChunkedDomainIterator(
       const ParallelConfig, const ViewType indices,
-      const specfem::mesh_entity::element<DimensionTag> &element_grid)
+      const specfem::mesh_entity::element_grid<DimensionTag> &element_grid)
       : ChunkedDomainIterator(indices, element_grid) {}
 
   /**
@@ -578,20 +580,21 @@ public:
 
 protected:
   ViewType indices; ///< View of indices of elements within this iterator
-  specfem::mesh_entity::element<DimensionTag> element_grid; ///< Element grid
-                                                            ///< information
+  specfem::mesh_entity::element_grid<DimensionTag>
+      element_grid; ///< Element grid
+                    ///< information
 };
 
 // Template argument deduction guides
 template <typename ParallelConfig, typename ViewType,
           specfem::dimension::type DimensionTag>
 ChunkedDomainIterator(ParallelConfig, ViewType,
-                      const specfem::mesh_entity::element<DimensionTag> &)
+                      const specfem::mesh_entity::element_grid<DimensionTag> &)
     -> ChunkedDomainIterator<DimensionTag, ParallelConfig, ViewType>;
 
 template <typename ViewType, specfem::dimension::type DimensionTag>
 ChunkedDomainIterator(ViewType,
-                      const specfem::mesh_entity::element<DimensionTag> &)
+                      const specfem::mesh_entity::element_grid<DimensionTag> &)
     -> ChunkedDomainIterator<
         DimensionTag,
         decltype(std::declval<typename ViewType::execution_space>()), ViewType>;

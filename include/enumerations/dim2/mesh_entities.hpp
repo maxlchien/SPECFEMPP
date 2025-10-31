@@ -157,7 +157,7 @@ template <> struct edge<specfem::dimension::type::dim2> {
 /**
  * @brief Mesh element structure for 2D elements (Specialization)
  */
-template <> struct element<specfem::dimension::type::dim2> {
+template <> struct element_grid<specfem::dimension::type::dim2> {
 
 public:
   int ngllz;  ///< Number of Gauss-Lobatto-Legendre points in the z-direction
@@ -169,7 +169,7 @@ public:
   /**
    * @brief Default constructor for the element struct
    */
-  element() = default;
+  element_grid() = default;
 
   /**
    * @brief Constructs an element entity given the number of
@@ -177,7 +177,7 @@ public:
    *
    * @param ngll The number of Gauss-Lobatto-Legendre points
    */
-  element(const int ngll)
+  element_grid(const int ngll)
       : ngllz(ngll), ngllx(ngll), orderz(ngll - 1), orderx(ngll - 1),
         size(ngll * ngll) {}
 
@@ -187,7 +187,7 @@ public:
    *
    * @param ngll The number of Gauss-Lobatto-Legendre points
    */
-  element(const int ngllz, const int ngllx)
+  element_grid(const int ngllz, const int ngllx)
       : ngllz(ngllz), ngllx(ngllx), orderz(ngllz - 1), orderx(ngllx - 1),
         size(ngllz * ngllx) {
     if (ngllz != ngllx) {

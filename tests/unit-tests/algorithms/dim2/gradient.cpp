@@ -599,7 +599,7 @@ execute(const Jacobian &jacobian_matrix, const Quadrature2D &quadrature,
                                              1, 1, 1, simd,
                                              Kokkos::DefaultExecutionSpace>;
 
-  const specfem::mesh_entity::element element_grid(ngll, ngll);
+  const specfem::mesh_entity::element_grid element_grid(ngll, ngll);
 
   const specfem::execution::ChunkedDomainIterator chunk(
       ParallelConfig(), element_indices, element_grid);
