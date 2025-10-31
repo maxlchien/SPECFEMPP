@@ -33,14 +33,13 @@ namespace medium {
  * @see specfem::dimension::type::dim2
  * @see specfem::medium::material
  */
-template <specfem::dimension::type DimensionTag,
-          specfem::element::medium_tag MediumTag>
-struct material<DimensionTag, MediumTag,
+template <specfem::element::medium_tag MediumTag>
+struct material<specfem::dimension::type::dim2, MediumTag,
                 specfem::element::property_tag::anisotropic>
     : specfem::element::is_elastic<MediumTag> {
 public:
   constexpr static auto dimension_tag =
-      DimensionTag;                             ///< Dimension of the material
+      specfem::dimension::type::dim2;           ///< Dimension of the material
   constexpr static auto medium_tag = MediumTag; ///< Medium tag
   constexpr static auto property_tag =
       specfem::element::property_tag::anisotropic; ///< Property tag
