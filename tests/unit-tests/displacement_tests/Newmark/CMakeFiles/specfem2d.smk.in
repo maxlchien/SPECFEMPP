@@ -9,19 +9,15 @@ rule specfem2d_setup:
     input:
         provenance_dir=f"{current_workdir}/provenance",
     output:
-        specfem_exec=f"{specfem_workdir}/bin/xspecfem2D",
-        meshfem_exec=f"{specfem_workdir}/bin/xmeshfem2D",
         par_file=f"{specfem_workdir}/DATA/Par_file",
         source=f"{specfem_workdir}/DATA/SOURCE",
         topography=f"{specfem_workdir}/DATA/topography.dat",
     localrule: True
     shell:
         f"""
-            ln -sf $SPECFEM2D_BINDIR/xspecfem2D {output.specfem_exec}
-            ln -sf $SPECFEM2D_BINDIR/xmeshfem2D {output.meshfem_exec}
-            cp {input.provenance_dir}/Par_file {output.par_file}
-            cp {input.provenance_dir}/SOURCE {output.source}
-            cp {input.provenance_dir}/topography.dat {output.topography}
+            cp {current_workdir}/provenance/Par_file {output.par_file}
+            cp {current_workdir}/provenance/SOURCE {output.source}
+            cp {current_workdir}/provenance/topography.dat {output.topography}
         """
 
 
@@ -34,8 +30,8 @@ rule specfem2d_run:
     shell:
         f"""
             cd {specfem_workdir}
-            {specfem_workdir}/bin/xmeshfem2D > {output.mesher}
-            {specfem_workdir}/bin/xspecfem2D > {output.solver}
+            $SPECFEM2D_BINDIR/xmeshfem2D > {output.mesher}
+            $SPECFEM2D_BINDIR/xspecfem2D > {output.solver}
         """
 
 
