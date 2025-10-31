@@ -416,8 +416,7 @@ TEST_P(CoupledElements, FaceConnections) {
 TEST_P(CoupledElements, EdgeConnections) {
   const auto &config = GetParam();
   // Create connection mapping between the two elements
-  specfem::mesh_entity::element<specfem::dimension::type::dim3> mapping(5, 5,
-                                                                        5);
+  specfem::mesh_entity::element mapping(5, 5, 5);
 
   specfem::connections::connection_mapping<specfem::dimension::type::dim3>
       connection(5, 5, 5, element1.control_nodes, element2.control_nodes);
@@ -457,8 +456,7 @@ TEST_P(CoupledElements, EdgeConnections) {
 TEST_P(CoupledElements, NodeConnections) {
   const auto &config = GetParam();
   // Create connection mapping between the two elements
-  specfem::mesh_entity::element<specfem::dimension::type::dim3> mapping(5, 5,
-                                                                        5);
+  specfem::mesh_entity::element mapping(5, 5, 5);
 
   specfem::connections::connection_mapping<specfem::dimension::type::dim3>
       connection(5, 5, 5, element1.control_nodes, element2.control_nodes);

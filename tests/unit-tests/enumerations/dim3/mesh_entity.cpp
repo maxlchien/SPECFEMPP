@@ -421,8 +421,7 @@ struct Element8Node {
  */
 TEST(MeshEntity3D, ConnectionsPerNode) {
 
-  specfem::mesh_entity::element<specfem::dimension::type::dim3> element(
-      5, 5, 5); // ngllz, nglly, ngllx
+  specfem::mesh_entity::element element(5, 5, 5); // ngllz, nglly, ngllx
 
   for (const auto face : specfem::mesh_entity::dim3::faces) {
     const int npoints = element.number_of_points_on_orientation(face);
@@ -551,7 +550,7 @@ protected:
   specfem::mesh_entity_test::Element8Node element;
 
   /** @brief 3D mesh entity connection mapping */
-  specfem::mesh_entity::element<specfem::dimension::type::dim3> mapping;
+  specfem::mesh_entity::element mapping;
 };
 
 /** @brief Alias for wildcard coordinate type */
