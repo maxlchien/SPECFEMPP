@@ -2,4 +2,4 @@ serial/dim2/*/specfem2d_workdir
 serial/dim3/*/specfem3d_workdir
 serial/*/*/*.smk
 .snakemake_timestamp
-Snakefile
+paths.smk

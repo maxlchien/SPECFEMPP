@@ -1,6 +1,5 @@
 include: "specfem2d.smk"
 
-
 stations = [f"S{i:04d}" for i in range(1, 21)]
 seismograms = {"BXX": ["semd", "semv", "sema"], "BXZ": ["semd", "semv", "sema"], "PRE": ["semp"]}
 
@@ -14,13 +13,7 @@ traces = [
 
 rule all:
     input:
-        traces=traces,
-        trace_list=rules.specfem2d_move_traces.output.trace_list,
-    localrule: True
-
-
-rule check_traces:
-    input:
-        rules.specfem2d_move_traces.output.trace_list,
+        trace_list_file,
     output:
         traces=traces,
+    localrule: True

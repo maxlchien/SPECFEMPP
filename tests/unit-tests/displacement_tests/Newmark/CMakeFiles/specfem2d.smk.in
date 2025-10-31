@@ -4,59 +4,81 @@ envvars:
 current_workdir = "@CMAKE_CURRENT_SOURCE_DIR@"
 specfem_workdir = "@CMAKE_CURRENT_SOURCE_DIR@/specfem2d_workdir"
 
+# Only create rules for setup, mesher, and solver if the solver output does not already exist
+# This avoids rerunning SPECFEM2D due to snakemake's source tracking
+solver_output = f"{specfem_workdir}/OUTPUT_FILES/output_solver.txt"
 
-rule specfem2d_setup:
-    input:
-        provenance_dir=f"{current_workdir}/provenance",
-    output:
-        par_file=f"{specfem_workdir}/DATA/Par_file",
-        source=f"{specfem_workdir}/DATA/SOURCE",
-        topography=f"{specfem_workdir}/DATA/topography.dat",
-    localrule: True
-    shell:
-        f"""
-            cp {current_workdir}/provenance/Par_file {output.par_file}
-            cp {current_workdir}/provenance/SOURCE {output.source}
-            cp {current_workdir}/provenance/topography.dat {output.topography}
-        """
-
-
-rule specfem2d_run:
-    input:
-        rules.specfem2d_setup.output
-    output:
-        mesher=f"{specfem_workdir}/OUTPUT_FILES/output_mesher.txt",
-        solver=f"{specfem_workdir}/OUTPUT_FILES/output_solver.txt",
-    shell:
-        f"""
-            cd {specfem_workdir}
-            $SPECFEM2D_BINDIR/xmeshfem2D > {output.mesher}
-            $SPECFEM2D_BINDIR/xspecfem2D > {output.solver}
-        """
+if not Path(solver_output).exists():
+    rule specfem2d_setup:
+        input:
+            provenance_dir=f"{current_workdir}/provenance",
+        output:
+            par_file=f"{specfem_workdir}/DATA/Par_file",
+            source=f"{specfem_workdir}/DATA/SOURCE",
+            topography=f"{specfem_workdir}/DATA/topography.dat",
+        localrule: True
+        shell:
+            f"""
+                ln -sf {current_workdir}/provenance/Par_file {output.par_file}
+                ln -sf {current_workdir}/provenance/SOURCE {output.source}
+                ln -sf {current_workdir}/provenance/topography.dat {output.topography}
+            """
 
 
-rule specfem2d_move_traces:
-    input:
-        solver=rules.specfem2d_run.output.solver,
-    output:
-        trace_list=f"{current_workdir}/traces/trace_list.txt",
-    run:
-        import os
-        os.makedirs(f"{current_workdir}/traces", exist_ok=True)
+    rule specfem2d_mesher:
+        input:
+            rules.specfem2d_setup.output.par_file,
+        output:
+            database=f"{specfem_workdir}/OUTPUT_FILES/Database00000.bin",
+            mesher=f"{specfem_workdir}/OUTPUT_FILES/output_mesher.txt",
+            stations=f"{specfem_workdir}/DATA/STATIONS",
+        shell:
+            f"""
+                cd {specfem_workdir}
+                $SPECFEM2D_BINDIR/xmeshfem2D > {output.mesher}
+            """
 
-        trace_list = []
 
-        for trace_file in os.listdir(f"{specfem_workdir}/OUTPUT_FILES/"):
-            trace_file_split = trace_file.split(".")
-            if len(trace_file_split) == 4 and trace_file_split[-1].startswith("sem"):
-                trace_file_out = ".".join([trace_file_split[0], trace_file_split[1], "S2", trace_file_split[2], trace_file_split[3]])
-                trace_list.append(trace_file_out + "\n")
-                infile = os.path.join(f"{specfem_workdir}/OUTPUT_FILES/", trace_file)
-                outfile = os.path.join(f"{current_workdir}/traces/", trace_file_out)
-                shell(f"mv {infile} {outfile}")
+    rule specfem2d_solver:
+        input:
+            rules.specfem2d_setup.output,
+            rules.specfem2d_mesher.output,
+        output:
+            solver=solver_output,
+        shell:
+            f"""
+                cd {specfem_workdir}
+                $SPECFEM2D_BINDIR/xspecfem2D > {output.solver}
+            """
 
-        with open(output.trace_list, "w") as f:
-            f.writelines(trace_list)
+
+# Move traces from SPECFEM2D output to current working directory and create trace list
+# Only create this rule if the trace list does not already exist to avoid rerunning from rules in Newark folder
+trace_list_file=f"{current_workdir}/traces/trace_list.txt"
+
+if not Path(trace_list_file).exists():
+    rule specfem2d_move_traces:
+        input:
+            solver_output,
+        output:
+            trace_list_file,
+        run:
+            import os
+            os.makedirs(f"{current_workdir}/traces", exist_ok=True)
+
+            trace_list = []
+
+            for trace_file in os.listdir(f"{specfem_workdir}/OUTPUT_FILES/"):
+                trace_file_split = trace_file.split(".")
+                if len(trace_file_split) == 4 and trace_file_split[-1].startswith("sem"):
+                    trace_file_out = ".".join([trace_file_split[0], trace_file_split[1], "S2", trace_file_split[2], trace_file_split[3]])
+                    trace_list.append(trace_file_out + "\n")
+                    infile = os.path.join(f"{specfem_workdir}/OUTPUT_FILES/", trace_file)
+                    outfile = os.path.join(f"{current_workdir}/traces/", trace_file_out)
+                    shell(f"mv {infile} {outfile}")
+
+            with open(trace_list_file, "w") as f:
+                f.writelines(trace_list)
 
 
 rule clean:
