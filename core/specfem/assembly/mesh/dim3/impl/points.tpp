@@ -128,7 +128,7 @@ specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
   // Create a filtered graph view
   const auto fg = boost::make_filtered_graph(graph, filter);
 
-  const auto mapping = specfem::mesh_entity::element<specfem::dimension::type::dim3>(ngllz, nglly, ngllx);
+  const auto mapping = specfem::mesh_entity::element(ngllz, nglly, ngllx);
 
   // Iterate over all faces
   for (int ichunk = 0; ichunk < nspec; ichunk += chunk_size) {

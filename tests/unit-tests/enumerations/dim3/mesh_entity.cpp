@@ -550,7 +550,7 @@ protected:
   specfem::mesh_entity_test::Element8Node element;
 
   /** @brief 3D mesh entity connection mapping */
-  specfem::mesh_entity::element mapping;
+  specfem::mesh_entity::element<specfem::dimension::type::dim3> mapping;
 };
 
 /** @brief Alias for wildcard coordinate type */

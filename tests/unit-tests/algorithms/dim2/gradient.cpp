@@ -369,7 +369,9 @@ auto init_function(const FunctionInitializer2D::RANDOM &) {
   for (int icomp = 0; icomp < 1; ++icomp) {
     for (int iz = 0; iz < 5; ++iz) {
       for (int ix = 0; ix < 5; ++ix) {
-        _f[icomp][iz][ix] = static_cast<type_real>(rand()) / RAND_MAX;
+        _f[icomp][iz][ix] =
+            static_cast<type_real>(rand()) /
+            static_cast<type_real>(RAND_MAX); // Random value in [0,1]
       }
     }
   }
