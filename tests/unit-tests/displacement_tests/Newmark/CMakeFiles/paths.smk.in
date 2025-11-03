@@ -1,1 +1,2 @@
 current_workdir = "@CMAKE_CURRENT_SOURCE_DIR@"
+specfem_bindir = "@CMAKE_BINARY_DIR@/bin"

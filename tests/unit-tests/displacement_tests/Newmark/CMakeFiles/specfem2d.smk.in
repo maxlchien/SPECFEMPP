@@ -2,7 +2,7 @@ envvars:
     "SPECFEM2D_BINDIR"
 
 current_workdir = "@CMAKE_CURRENT_SOURCE_DIR@"
-
+specfem_bindir = "@CMAKE_BINARY_DIR@/bin"
 
 rule specfem2d_setup:
     input:
@@ -35,6 +35,30 @@ rule specfem2d_mesher:
         """
             cd {input.workdir}
             $SPECFEM2D_BINDIR/xmeshfem2D > {output.mesher}
+        """
+
+
+rule specfempp_mesher:
+    input:
+        setup=rules.specfem2d_setup.output,
+        workdir=rules.specfem2d_setup.output.workdir,
+        meshfem_bin=f"{specfem_bindir}/xmeshfem2D",
+    output:
+        database=f"{current_workdir}/specfem2d_workdir/OUTPUT_FILES/database.bin",
+    shell:
+        """
+            cd {input.workdir}/DATA
+            {input.meshfem_bin} -p Par_file
+        """
+
+rule specfempp_move_database:
+    input:
+        database=rules.specfempp_mesher.output.database,
+    output:
+        database=f"{current_workdir}/database.bin",
+    shell:
+        """
+            mv {input.database} {output.database}
         """
 
 
