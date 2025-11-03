@@ -242,8 +242,8 @@ public:
                             : simd_size;
     int ispec = indices(ielement);
     int xz = i / num_elements;
-    const int iz = xz / element_grid.ngllz;
-    const int ix = xz % element_grid.ngllz;
+    const int iz = xz / element_grid.ngllx;
+    const int ix = xz % element_grid.ngllx;
 #else
     const int ngll_total = element_grid.ngllz * element_grid.ngllx;
     const int ix = i % element_grid.ngllx;

@@ -83,6 +83,17 @@ struct IDENTITY {};    ///< Identity Jacobian (no geometric transformation)
 struct TWO_ELEMENT {}; ///< Multi-element mesh with scaled transformations
 } // namespace JacobianInitializer3D
 
+struct lagrange_derivative3D {
+  using memory_space = Kokkos::DefaultExecutionSpace::memory_space;
+  using view_type = Kokkos::View<type_real[5][5], memory_space>;
+  view_type xi;
+  view_type eta;
+  view_type gamma;
+
+  KOKKOS_FUNCTION lagrange_derivative3D(const view_type &view)
+      : xi(view), eta(view), gamma(view) {}
+};
+
 /**
  * @brief Initialize identity Jacobian matrix for single-element test cases.
  *
@@ -331,7 +342,7 @@ template <typename Initializer> struct Quadrature3D {
   Quadrature3D(const Initializer &initializer)
       : _quadrature(init_quadrature(initializer)) {}
 
-  view_type quadrature() const {
+  lagrange_derivative3D quadrature() const {
     view_type::HostMirror quadrature_view("quadrature_view");
     for (int i = 0; i < 5; ++i) {
       for (int j = 0; j < 5; ++j) {
@@ -341,7 +352,9 @@ template <typename Initializer> struct Quadrature3D {
 
     const auto d_quadrature =
         Kokkos::create_mirror_view_and_copy(memory_space(), quadrature_view);
-    return d_quadrature;
+
+    const lagrange_derivative3D lagrange_deriv(d_quadrature);
+    return lagrange_deriv;
   }
 
   /**
