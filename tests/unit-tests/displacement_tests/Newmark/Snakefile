@@ -1,0 +1,28 @@
+include: "paths.smk"
+
+configfile: "dim2/tests.yaml"
+
+# tests = config["tests"]
+tests = ["HomogeneousElasticDomain"]
+
+rule all:
+    input:
+        traces=expand(current_workdir + "/serial/dim2/{test_name}/traces/trace_list.txt", test_name=tests)
+
+# for test_name in config["tests"]:
+for test_name in tests:
+    alias = f'{test_name}_'
+
+    module:
+        name: test_name
+        snakefile: f"serial/dim2/{test_name}/Snakefile"
+
+    use rule * from test_name as alias*
+
+rule clean:
+    shell:
+        """
+        rm -rf serial/dim2/*/specfem2d_workdir
+        rm -rf serial/dim3/*/specfem3d_workdir
+        rm -rf serial/*/*/traces
+        """

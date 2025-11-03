@@ -832,6 +832,8 @@ target_link_libraries(
 # )
 
 
+# Include displacement test subdirectories
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/displacement_tests/Newmark)
 
 
 # Link to gtest only if MPI is disabled
@@ -890,7 +892,6 @@ if(NOT MPI_PARALLEL)
     assembly
     assembly_mesh
     data
-    displacement_tests
     domain
     fortran_io
     io
