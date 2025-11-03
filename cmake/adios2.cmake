@@ -83,8 +83,11 @@ if (SPECFEM_ENABLE_ADIOS2)
     message(STATUS "ADIOS2 downloaded and configured.")
 
     # Create alias target for modern CMake usage
+    # When built from source, adios2::adios2 target is available
     if(NOT TARGET adios2)
-        add_library(adios2 ALIAS adios2::adios2)
+        if(TARGET adios2::adios2)
+            add_library(adios2 ALIAS adios2::adios2)
+        endif()
     endif()
 
     unset(BUILD_TESTING)
@@ -96,8 +99,13 @@ if (SPECFEM_ENABLE_ADIOS2)
     message(STATUS "Using system-wide ADIOS2")
 
     # Create alias target for modern CMake usage with system ADIOS2
+    # System ADIOS2 typically provides adios2::adios2 target
     if(NOT TARGET adios2)
-        add_library(adios2 ALIAS adios2::adios2)
+        if(TARGET adios2::adios2)
+            add_library(adios2 ALIAS adios2::adios2)
+        else()
+            message(WARNING "ADIOS2 found but adios2::adios2 target not available. This may cause linking issues.")
+        endif()
     endif()
   else()
     message(STATUS "ADIOS2 not found.")
