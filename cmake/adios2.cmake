@@ -19,13 +19,9 @@ if (SPECFEM_ENABLE_ADIOS2)
 
     message(STATUS "Installing ADIOS2 from GitHub release...")
 
-    if (CMAKE_VERSION VERSION_GREATER "3.30.0")
-    # For CMake versions > 3.30, we need to use Set the policy)
-      if (CMAKE_VERSION VERSION_LESS "3.28.0")
-        cmake_policy(SET CMP0169 OLD)
-      else()
-        cmake_policy(SET CMP0169 NEW)
-      endif()
+    # For CMake versions >= 3.28, set the CMP0169 policy
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.28.0")
+      cmake_policy(SET CMP0169 NEW)
     endif()
 
     set(ADIOS2_VERSION 2.10.2)
@@ -100,9 +96,6 @@ if (SPECFEM_ENABLE_ADIOS2)
     if(NOT TARGET adios2)
         add_library(adios2 ALIAS adios2::adios2)
     endif()
-  else ()
-    message(STATUS "ADIOS2 not found.")
-    set(SPECFEM_ENABLE_ADIOS2 OFF CACHE BOOL "Disable ADIOS2 support" FORCE)
   endif()
 
   # Pop the indentation for ADIOS2 messages
