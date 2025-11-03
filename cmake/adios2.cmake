@@ -96,6 +96,9 @@ if (SPECFEM_ENABLE_ADIOS2)
     if(NOT TARGET adios2)
         add_library(adios2 ALIAS adios2::adios2)
     endif()
+  else()
+    message(STATUS "ADIOS2 not found.")
+    set(SPECFEM_ENABLE_ADIOS2 OFF CACHE BOOL "Disable ADIOS2 support" FORCE)
   endif()
 
   # Pop the indentation for ADIOS2 messages
