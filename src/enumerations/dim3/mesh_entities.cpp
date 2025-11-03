@@ -191,20 +191,12 @@ const std::string specfem::mesh_entity::dim3::to_string(
 }
 
 specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
+    const int ngll)
+    : element(ngll, ngll, ngll) {}
+
+specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
     const int ngllz, const int nglly, const int ngllx)
-    : ngllz(ngllz), nglly(nglly), ngllx(ngllx), orderz(ngllz - 1),
-      ordery(nglly - 1), orderx(ngllx - 1), size(ngllz * nglly * ngllx),
-      ngll2d(ngllx * nglly), ngll(ngllx) {
-
-  if (ngllz < 2 || nglly < 2 || ngllx < 2) {
-    throw std::runtime_error(
-        "ngllz, nglly, and ngllx must be at least 2 to define a 3D element");
-  }
-
-  if (ngllz != nglly || ngllz != ngllx) {
-    throw std::runtime_error(
-        "ngllz, nglly, and ngllx must be equal for a cubic 3D element");
-  }
+    : element_grid(ngllz, nglly, ngllx), ngll2d(ngllz * ngllx), ngll(ngllz) {
 
   // Initialize edge coordinates
   // xmin = left, xmax = right

@@ -419,7 +419,8 @@ auto init_function(const FunctionInitializer3D::RANDOM &) {
     for (int iz = 0; iz < 5; ++iz) {
       for (int iy = 0; iy < 5; ++iy) {
         for (int ix = 0; ix < 5; ++ix) {
-          _f[icomp][iz][iy][ix] = static_cast<type_real>(rand()) / RAND_MAX;
+          _f[icomp][iz][iy][ix] =
+              static_cast<type_real>(rand()) / static_cast<type_real>(RAND_MAX);
         }
       }
     }
@@ -682,7 +683,7 @@ execute(const Jacobian &jacobian_matrix, const Quadrature3D &quadrature,
                                              1, 1, 1, simd,
                                              Kokkos::DefaultExecutionSpace>;
 
-  const specfem::mesh_entity::element element_grid(ngll, ngll, ngll);
+  const specfem::mesh_entity::element_grid element_grid(ngll, ngll, ngll);
 
   const specfem::execution::ChunkedDomainIterator chunk(
       ParallelConfig(), element_indices, element_grid);

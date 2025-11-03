@@ -103,7 +103,7 @@ public:
   MappedChunkElementIterator(
       const TeamMemberType &team, const ViewType indices,
       const ViewType mapping,
-      const specfem::mesh_entity::element<DimensionTag> &element_grid)
+      const specfem::mesh_entity::element_grid<DimensionTag> &element_grid)
       : base_type(team, indices, element_grid), mapping(mapping) {}
 
 private:
@@ -138,7 +138,7 @@ public:
   KOKKOS_INLINE_FUNCTION
   MappedChunkElementIndex(
       const ViewType indices, const ViewType mapping,
-      const specfem::mesh_entity::element<DimensionTag> &element_grid,
+      const specfem::mesh_entity::element_grid<DimensionTag> &element_grid,
       const TeamMemberType &kokkos_index)
       : base_type(indices, element_grid, kokkos_index), mapping(mapping),
         iterator(kokkos_index, indices, mapping, element_grid) {}
@@ -171,12 +171,12 @@ public:
 
   MappedChunkedDomainIterator(
       const ViewType indices, const ViewType mapping,
-      const specfem::mesh_entity::element<DimensionTag> &element_grid)
+      const specfem::mesh_entity::element_grid<DimensionTag> &element_grid)
       : base_type(indices, element_grid), mapping(mapping) {}
 
   MappedChunkedDomainIterator(
       const ParallelConfig, const ViewType indices, const ViewType mapping,
-      const specfem::mesh_entity::element<DimensionTag> &element_grid)
+      const specfem::mesh_entity::element_grid<DimensionTag> &element_grid)
       : MappedChunkedDomainIterator(indices, mapping, element_grid) {}
 
   KOKKOS_INLINE_FUNCTION
@@ -207,13 +207,15 @@ private:
 // Template argument deduction guides
 template <typename ParallelConfig, typename ViewType,
           specfem::dimension::type DimensionTag>
-MappedChunkedDomainIterator(ParallelConfig, ViewType, ViewType,
-                            const specfem::mesh_entity::element<DimensionTag> &)
+MappedChunkedDomainIterator(
+    ParallelConfig, ViewType, ViewType,
+    const specfem::mesh_entity::element_grid<DimensionTag> &)
     -> MappedChunkedDomainIterator<DimensionTag, ParallelConfig, ViewType>;
 
 template <typename ViewType, specfem::dimension::type DimensionTag>
-MappedChunkedDomainIterator(ViewType, ViewType,
-                            const specfem::mesh_entity::element<DimensionTag> &)
+MappedChunkedDomainIterator(
+    ViewType, ViewType,
+    const specfem::mesh_entity::element_grid<DimensionTag> &)
     -> MappedChunkedDomainIterator<
         DimensionTag,
         decltype(std::declval<typename ViewType::execution_space>()), ViewType>;
