@@ -729,6 +729,20 @@ target_link_libraries(
   -lpthread -lm
 )
 
+add_executable(
+  source_time_function_tests
+  source_time_function/source_time_function_tests.cpp
+)
+
+target_link_libraries(
+  source_time_function_tests
+  source_time_function
+  Kokkos::kokkos
+  yaml-cpp
+  gtest_main
+  kokkos_environment
+)
+
 # # add_executable(
 # #   source_location_tests
 # #   source/source_location_tests.cpp
@@ -906,6 +920,7 @@ if(NOT MPI_PARALLEL)
     simd_tests
     source_class_tests
     source_tests
+    source_time_function_tests
     stress_tests
     test_mesh_utilities_mapping_2d
     test_mesh_utilities_mapping_3d
