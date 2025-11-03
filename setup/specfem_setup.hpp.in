@@ -21,10 +21,3 @@ constexpr int NLANES = 1;
 constexpr Kokkos::AUTO_t NTHREADS = Kokkos::AUTO;
 constexpr int NLANES = 1;
 #endif
-
-KOKKOS_INLINE_FUNCTION void sub2ind(const int xz, const int ngllx, int &iz,
-                                    int &ix) {
-  iz = xz / ngllx;
-  ix = xz - iz * ngllx;
-  return;
-}
