@@ -83,13 +83,6 @@ public:
   template <typename MemberType>
   KOKKOS_INLINE_FUNCTION nonconforming_transfer_function(const MemberType &team)
       : transfer_function_self(team.team_scratch(0)) {}
-
-  /**
-   * @brief Get the amount memory in bytes required for shared memory
-   *
-   * @return int Amount of shared memory in bytes
-   */
-  constexpr static int shmem_size() { return TransferViewType::shmem_size(); }
 };
 
 template <int NQuadIntersection, bool UseSIMD>
@@ -144,13 +137,6 @@ public:
   template <typename MemberType>
   KOKKOS_INLINE_FUNCTION nonconforming_transfer_function(const MemberType &team)
       : transfer_function_coupled(team.team_scratch(0)) {}
-
-  /**
-   * @brief Get the amount memory in bytes required for shared memory
-   *
-   * @return int Amount of shared memory in bytes
-   */
-  constexpr static int shmem_size() { return TransferViewType::shmem_size(); }
 };
 
 } // namespace impl
