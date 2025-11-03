@@ -85,7 +85,6 @@ transfer(const IndexType &chunk_edge_index,
 
   constexpr int ncomp =
       specfem::element::attributes<dimension_tag, edge_medium_tag>::components;
-  const auto &transfer_function = interface_data.get_transfer_function();
 
   Kokkos::parallel_for(
       Kokkos::TeamThreadRange(
@@ -108,7 +107,8 @@ transfer(const IndexType &chunk_edge_index,
                ipoint_edge++) {
             intersection_point_view(icomp) +=
                 coupled_field(iedge, ipoint_edge, icomp) *
-                transfer_function(iedge, ipoint_edge, ipoint_intersection);
+                interface_data.transfer_function(iedge, ipoint_edge,
+                                                 ipoint_intersection);
           }
         }
 
