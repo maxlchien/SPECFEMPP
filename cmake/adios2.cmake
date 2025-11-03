@@ -60,9 +60,11 @@ if (SPECFEM_ENABLE_ADIOS2)
         endif()
     else()
         # For CMake versions >= 3.28, EXCLUDE_FROM_ALL is supported in FetchContent_Declare
-        # Use the new FetchContent_MakeAvailable pattern
+        # This allows using FetchContent_MakeAvailable with EXCLUDE_FROM_ALL
         
-        # For CMake >= 3.30, set policy to prefer FetchContent_MakeAvailable
+        # For CMake >= 3.30, set policy CMP0169 to NEW to prefer FetchContent_MakeAvailable
+        # over the deprecated FetchContent_Populate pattern. Since we use FetchContent_MakeAvailable
+        # in this branch, setting the policy explicitly ensures no deprecation warnings.
         if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.30.0")
           cmake_policy(SET CMP0169 NEW)
         endif()
