@@ -19,11 +19,6 @@ if (SPECFEM_ENABLE_ADIOS2)
 
     message(STATUS "Installing ADIOS2 from GitHub release...")
 
-    # For CMake versions >= 3.28, set the CMP0169 policy
-    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.28.0")
-      cmake_policy(SET CMP0169 NEW)
-    endif()
-
     set(ADIOS2_VERSION 2.10.2)
     message(STATUS "Downloading and extracting ADIOS2 (${ADIOS2_VERSION}) library sources. This will take <1 min.")
     include(FetchContent)
@@ -48,6 +43,7 @@ if (SPECFEM_ENABLE_ADIOS2)
 
     if (CMAKE_VERSION VERSION_LESS "3.28.0")
         # For CMake versions < 3.28, EXCLUDE_FROM_ALL is not supported in FetchContent_Declare
+        # Use the old FetchContent_Populate pattern
         FetchContent_Declare(
             ADIOS2
             URL ${ADIOS2_URL}
@@ -64,6 +60,13 @@ if (SPECFEM_ENABLE_ADIOS2)
         endif()
     else()
         # For CMake versions >= 3.28, EXCLUDE_FROM_ALL is supported in FetchContent_Declare
+        # Use the new FetchContent_MakeAvailable pattern
+        
+        # For CMake >= 3.30, set policy to prefer FetchContent_MakeAvailable
+        if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.30.0")
+          cmake_policy(SET CMP0169 NEW)
+        endif()
+        
         FetchContent_Declare(
             ADIOS2
             URL ${ADIOS2_URL}
