@@ -59,11 +59,16 @@ template <specfem::dimension::type DimensionTag> struct mesh;
  */
 template <> struct mesh<specfem::dimension::type::dim3> {
 
+  constexpr static auto dimension_tag =
+      specfem::dimension::type::dim3; ///< Dimension tag
+
   /**
    * @brief Number of spectral elements in the mesh
    *
    */
   int nspec;
+
+  specfem::mesh_entity::element<dimension_tag> element_grid;
 
   /**
    * @brief Control node geometric data container
@@ -75,8 +80,7 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    *
    * @see specfem::mesh::meshfem3d::ControlNodes
    */
-  specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
-      control_nodes;
+  specfem::mesh::meshfem3d::ControlNodes<dimension_tag> control_nodes;
 
   /**
    * @brief Material properties database
@@ -88,7 +92,7 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    *
    * @see specfem::mesh::meshfem3d::Materials
    */
-  specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> materials;
+  specfem::mesh::meshfem3d::Materials<dimension_tag> materials;
 
   /**
    * @brief Absorbing boundary condition specifications
@@ -100,8 +104,7 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    *
    * @see specfem::mesh::meshfem3d::Boundaries
    */
-  specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>
-      boundaries;
+  specfem::mesh::meshfem3d::Boundaries<dimension_tag> boundaries;
 
   /**
    * @brief Element adjacency graph
@@ -111,15 +114,14 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    *
    * @see specfem::mesh::meshfem3d::adjacency_graph
    */
-  specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
-      adjacency_graph;
+  specfem::mesh::meshfem3d::adjacency_graph<dimension_tag> adjacency_graph;
 
   /** @brief Tags associated with each spectral element
    *
    * Stores the tags for each spectral element, which specify medium type,
    * property type, and boundary conditions.
    */
-  specfem::mesh::meshfem3d::tags<specfem::dimension::type::dim3> tags;
+  specfem::mesh::meshfem3d::tags<dimension_tag> tags;
 
   /**
    * @brief Setup coupled interfaces in the mesh

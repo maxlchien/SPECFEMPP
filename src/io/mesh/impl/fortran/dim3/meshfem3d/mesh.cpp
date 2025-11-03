@@ -35,10 +35,13 @@ specfem::io::meshfem3d::read_3d_mesh(const std::string &database_file,
   mesh.control_nodes =
       specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_control_nodes(
           param_stream, mpi);
-  const auto [nspec, control_node_index, materials] =
+  const auto [nspec, ngllz, nglly, ngllx, control_node_index, materials] =
       specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
           param_stream, mesh.control_nodes.ngnod, mpi);
   mesh.nspec = nspec;
+  mesh.element_grid.ngllz = ngllz;
+  mesh.element_grid.nglly = nglly;
+  mesh.element_grid.ngllx = ngllx;
   mesh.control_nodes.nspec = nspec;
   mesh.control_nodes.control_node_index = control_node_index;
   mesh.materials = materials;

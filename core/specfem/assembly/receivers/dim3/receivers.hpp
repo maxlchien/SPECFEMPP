@@ -81,6 +81,17 @@ public:
       const specfem::mesh::tags<dimension_tag> &tags,
       const specfem::assembly::element_types<dimension_tag> &element_types);
 
+  receivers(
+      const int max_sig_step, const type_real dt, const type_real t0,
+      const int nsteps_between_samples,
+      const std::vector<
+          std::shared_ptr<specfem::receivers::receiver<dimension_tag> > >
+          &receivers,
+      const std::vector<specfem::wavefield::type> &stypes,
+      const specfem::assembly::mesh<dimension_tag> &mesh,
+      const specfem::mesh::meshfem3d::tags<dimension_tag> &tags,
+      const specfem::assembly::element_types<dimension_tag> &element_types);
+
   /**
    * @brief Get the spectral element indices in which the receivers are located
    * on the device
