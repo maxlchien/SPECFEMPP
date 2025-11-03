@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # SPECFEM options
 option(SPECFEM_ENABLE_ADIOS2 "Enable ADIOS2 I/O in SPECFEM++" OFF)
+option(SPECFEM_ENABLE_ADIOS2_FORCE_INSTALL "Force install ADIOS2 dependency if SPECFEM_ENABLE_ADIOS2 is ON even if system ADIOS2 is found" OFF)
 option(SPECFEM_ENABLE_HDF5 "Enable HDF5 I/O in SPECFEM++" OFF)
 option(SPECFEM_ENABLE_HDF5_FORCE_INSTALL "Force install HDF5 dependency if SPECFEM_ENABLE_HDF5 is ON even if system HDF5 is found" OFF)
 option(SPECFEM_ENABLE_NPZ "Enable NPZ I/O in SPECFEM++" OFF)
