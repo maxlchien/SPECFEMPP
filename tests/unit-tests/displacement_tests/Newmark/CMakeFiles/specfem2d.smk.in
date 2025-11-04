@@ -109,4 +109,5 @@ rule clean:
         """
             rm -rf {current_workdir}/specfem2d_workdir
             rm -rf {current_workdir}/traces
+            rm -f {current_workdir}/database.bin
         """
