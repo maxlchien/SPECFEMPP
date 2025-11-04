@@ -342,7 +342,5 @@ specfem::connections::connection_mapping<specfem::dimension::type::dim3>::
                                        to)))
     throw std::runtime_error("Both entities must be corners for this mapping.");
 
-  return specfem::mesh_entity::element<specfem::dimension::type::dim3>(
-             ngllz, nglly, ngllx)
-      .map_coordinates(to);
+  return specfem::mesh_entity::element(ngllz, nglly, ngllx).map_coordinates(to);
 }

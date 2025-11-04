@@ -586,6 +586,29 @@ target_link_libraries(
 )
 
 add_executable(
+  gradient_tests
+  algorithms/dim2/gradient.cpp
+  algorithms/dim3/gradient.cpp
+)
+
+target_link_libraries(
+  gradient_tests
+  quadrature
+  algorithms
+  kokkos_environment
+  gtest_main
+  Kokkos::kokkos
+  mpi_environment
+  assembly
+  quadrature
+  utilities
+  -lpthread -lm
+)
+
+# Turn unity build off for gradient_tests
+set_target_properties(gradient_tests PROPERTIES UNITY_BUILD OFF)
+
+add_executable(
   policies_tests
   policies/policies.cpp
 )
@@ -659,12 +682,14 @@ add_executable(
   compute_coupling_tests
   compute_coupling/acoustic_elastic.cpp
   compute_coupling/elastic_acoustic.cpp
+  compute_coupling/nonconforming.cpp
 )
 
 target_link_libraries(
   compute_coupling_tests
   point
-  gtest_main
+  gtest
+  kokkos_environment
   Kokkos::kokkos
 )
 
@@ -873,6 +898,7 @@ if(NOT MPI_PARALLEL)
     lagrange_tests
     locate_point_fixture_2d
     locate_point_fixture_3d
+    gradient_tests
     mass_matrix_tests
     compute_coupling_tests
     mesh_dim2_tests
@@ -924,3 +950,7 @@ if(NOT MPI_PARALLEL)
   # gtest_discover_tests(seismogram_elastic_tests)
   # gtest_discover_tests(seismogram_acoustic_tests)
 endif()
+
+
+add_subdirectory(data/dim2/ncmarked_conforming_grid_curved/provenance)
+add_subdirectory(data/dim2/ncmarked_conforming_grid_flat/provenance)
