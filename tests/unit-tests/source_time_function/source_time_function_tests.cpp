@@ -1,8 +1,4 @@
-#include "source_time_function/dgaussian.hpp"
-#include "source_time_function/dirac.hpp"
-#include "source_time_function/external.hpp"
-#include "source_time_function/ricker.hpp"
-#include "source_time_function/source_time_function.hpp"
+#include "source_time_function/interface.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
 #include <Kokkos_Core.hpp>
@@ -59,6 +55,30 @@ inline type_real compute_expected_d4gaussian(type_real t, type_real f0,
   return factor *
          (-2.0 * a * (3.0 - 12.0 * a * t * t + 4.0 * a * a * t * t * t * t) *
           std::exp(-a * t * t));
+}
+
+inline type_real compute_expected_gaussian_hdur(type_real t, type_real hdur,
+                                                type_real factor) {
+  type_real a = 1.0 / (hdur * hdur);
+  return factor * (std::exp(-a * t * t) / (std::sqrt(pi) * hdur));
+}
+
+inline type_real compute_expected_d1gaussian_hdur(type_real t, type_real hdur,
+                                                  type_real factor) {
+  type_real a = 1.0 / (hdur * hdur);
+  return factor * (-2.0 * a * t * compute_expected_gaussian_hdur(t, hdur, 1.0));
+}
+
+inline type_real compute_expected_d2gaussian_hdur(type_real t, type_real hdur,
+                                                  type_real factor) {
+  type_real a = 1.0 / (hdur * hdur);
+  return factor * (2.0 * a * (-1.0 + 2.0 * a * t * t) *
+                   compute_expected_gaussian_hdur(t, hdur, 1.0));
+}
+
+inline type_real compute_expected_heaviside(type_real t, type_real hdur,
+                                            type_real factor) {
+  return factor * 0.5 * (1.0 + std::erf(t / hdur));
 }
 } // namespace
 
@@ -155,10 +175,81 @@ template <> struct STFTraits<specfem::forcing_function::Dirac> {
   }
 };
 
+// Heaviside traits
+template <> struct STFTraits<specfem::forcing_function::Heaviside> {
+  using STFType = specfem::forcing_function::Heaviside;
+
+  static constexpr const char *name = "Heaviside";
+  static constexpr type_real default_f0 = 0.1; // hdur value
+  static constexpr type_real default_tshift = 0.0;
+  static constexpr type_real default_factor = 1.0;
+  static constexpr bool default_use_trick = false;
+  static constexpr int default_nsteps = 100;
+  static constexpr type_real default_dt = 0.001;
+
+  static std::unique_ptr<STFType> create(int nsteps, type_real dt,
+                                         type_real hdur, type_real tshift,
+                                         type_real factor, bool use_trick) {
+    return std::make_unique<STFType>(nsteps, dt, hdur, tshift, factor,
+                                     use_trick);
+  }
+
+  // Compute expected value at time t (after applying tshift)
+  // Note: parameter is named f0 for template compatibility, but it's hdur
+  static type_real compute_expected(type_real t, type_real hdur,
+                                    type_real tshift, type_real factor,
+                                    bool use_trick) {
+    type_real t_eff = t - tshift;
+    // Note: hdur needs to be adjusted by SOURCE_DECAY_MIMIC_TRIANGLE
+    type_real hdur_adjusted = hdur / 1.62800; // SOURCE_DECAY_MIMIC_TRIANGLE
+    if (use_trick) {
+      return compute_expected_d2gaussian_hdur(t_eff, hdur_adjusted, factor);
+    } else {
+      return compute_expected_heaviside(t_eff, hdur_adjusted, factor);
+    }
+  }
+};
+
+// GaussianHdur traits
+template <> struct STFTraits<specfem::forcing_function::GaussianHdur> {
+  using STFType = specfem::forcing_function::GaussianHdur;
+
+  static constexpr const char *name = "GaussianHdur";
+  static constexpr type_real default_f0 = 0.1; // hdur value
+  static constexpr type_real default_tshift = 0.0;
+  static constexpr type_real default_factor = 1.0;
+  static constexpr bool default_use_trick = false;
+  static constexpr int default_nsteps = 100;
+  static constexpr type_real default_dt = 0.001;
+
+  static std::unique_ptr<STFType> create(int nsteps, type_real dt,
+                                         type_real hdur, type_real tshift,
+                                         type_real factor, bool use_trick) {
+    return std::make_unique<STFType>(nsteps, dt, hdur, tshift, factor,
+                                     use_trick);
+  }
+
+  // Compute expected value at time t (after applying tshift)
+  // Note: parameter is named f0 for template compatibility, but it's hdur
+  static type_real compute_expected(type_real t, type_real hdur,
+                                    type_real tshift, type_real factor,
+                                    bool use_trick) {
+    type_real t_eff = t - tshift;
+    // Note: hdur needs to be adjusted by SOURCE_DECAY_MIMIC_TRIANGLE
+    type_real hdur_adjusted = hdur / 1.62800; // SOURCE_DECAY_MIMIC_TRIANGLE
+    if (use_trick) {
+      return compute_expected_d2gaussian_hdur(t_eff, hdur_adjusted, factor);
+    } else {
+      return compute_expected_gaussian_hdur(t_eff, hdur_adjusted, factor);
+    }
+  }
+};
+
 // Type list for typed tests (excluding external as it has different interface)
-using AnalyticSTFTypes = ::testing::Types<specfem::forcing_function::Ricker,
-                                          specfem::forcing_function::dGaussian,
-                                          specfem::forcing_function::Dirac>;
+using AnalyticSTFTypes = ::testing::Types<
+    specfem::forcing_function::Ricker, specfem::forcing_function::dGaussian,
+    specfem::forcing_function::Dirac, specfem::forcing_function::Heaviside,
+    specfem::forcing_function::GaussianHdur>;
 
 // Typed test fixture
 template <typename T> class AnalyticSTFTest : public SourceTimeFunctionSetup {

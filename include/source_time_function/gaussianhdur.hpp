@@ -9,23 +9,23 @@
 
 namespace specfem {
 namespace forcing_function {
-class Dirac : public stf {
+class GaussianHdur : public stf {
 
 public:
   /**
-   * @brief Contruct a Dirac source time function object
+   * @brief Construct a Gaussian source time function object
    *
-   * @param f0 frequency f0
+   * @param hdur half duration
    * @param tshift tshift value
    * @param factor factor to scale source time function
    * @param use_trick_for_better_pressure
    */
-  Dirac(const int nsteps, const type_real dt, const type_real f0,
-        const type_real tshift, const type_real factor,
-        const bool use_trick_for_better_pressure);
+  GaussianHdur(const int nsteps, const type_real dt, const type_real hdur,
+               const type_real tshift, const type_real factor,
+               const bool use_trick_for_better_pressure);
 
-  Dirac(YAML::Node &Dirac, const int nsteps, const type_real dt,
-        const bool use_trick_for_better_pressure);
+  GaussianHdur(YAML::Node &GaussianNode, const int nsteps, const type_real dt,
+               const bool use_trick_for_better_pressure);
 
   /**
    * @brief compute the value of stf at time t
@@ -57,7 +57,7 @@ public:
 
   type_real get_dt() const { return this->dt_; }
   type_real get_factor() const { return this->factor_; }
-  type_real get_f0() const { return this->f0_; }
+  type_real get_hdur() const { return this->hdur_; }
   int get_nsteps() const { return this->nsteps_; }
   bool get_use_trick_for_better_pressure() const {
     return this->use_trick_for_better_pressure_;
@@ -69,7 +69,7 @@ public:
 
 private:
   int nsteps_;                         /// number of time steps
-  type_real f0_;                       ///< frequence f0
+  type_real hdur_;                     ///< half duration
   type_real tshift_;                   ///< value of tshift
   type_real t0_;                       ///< t0 value
   type_real factor_;                   ///< scaling factor

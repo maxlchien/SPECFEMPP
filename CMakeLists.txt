@@ -428,6 +428,9 @@ add_library(
         src/source_time_function/dgaussian.cpp
         src/source_time_function/ricker.cpp
         src/source_time_function/external.cpp
+        src/source_time_function/gaussian.cpp
+        src/source_time_function/gaussianhdur.cpp
+        src/source_time_function/heaviside.cpp
 )
 
 target_link_libraries(

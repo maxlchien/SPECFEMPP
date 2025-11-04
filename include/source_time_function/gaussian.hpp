@@ -9,23 +9,23 @@
 
 namespace specfem {
 namespace forcing_function {
-class Dirac : public stf {
+class Gaussian : public stf {
 
 public:
   /**
-   * @brief Contruct a Dirac source time function object
+   * @brief Construct a Gaussian source time function object
    *
    * @param f0 frequency f0
    * @param tshift tshift value
    * @param factor factor to scale source time function
    * @param use_trick_for_better_pressure
    */
-  Dirac(const int nsteps, const type_real dt, const type_real f0,
-        const type_real tshift, const type_real factor,
-        const bool use_trick_for_better_pressure);
+  Gaussian(const int nsteps, const type_real dt, const type_real f0,
+           const type_real tshift, const type_real factor,
+           const bool use_trick_for_better_pressure);
 
-  Dirac(YAML::Node &Dirac, const int nsteps, const type_real dt,
-        const bool use_trick_for_better_pressure);
+  Gaussian(YAML::Node &GaussianNode, const int nsteps, const type_real dt,
+           const bool use_trick_for_better_pressure);
 
   /**
    * @brief compute the value of stf at time t
