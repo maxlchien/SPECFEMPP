@@ -22,6 +22,7 @@ option(SPECFEM_INSTALL "Creates clean executable directory. Location Controlled 
 option(SPECFEM_ENABLE_DOUBLE_PRECISION "Enable double precision" OFF)
 option(SPECFEM_BUILD_BENCHMARKS "Benchmarks included" ON)
 option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" ON)
+option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tests" OFF)
 
 # set(CMAKE_BUILD_TYPE Release)
 set(CHUNK_SIZE 32)

@@ -5,7 +5,6 @@
 #include "boundary_conditions/boundary_conditions.hpp"
 #include "boundary_conditions/boundary_conditions.tpp"
 #include "datatypes/simd.hpp"
-#include "element/quadrature.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
@@ -17,9 +16,10 @@
 #include "medium/compute_damping_force.hpp"
 #include "medium/compute_stress.hpp"
 #include "parallel_configuration/chunk_config.hpp"
+#include "quadrature/lagrange_derivative.hpp"
 #include "specfem/assembly.hpp"
-#include "specfem/point.hpp"
 #include "specfem/chunk_element.hpp"
+#include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
 template <specfem::dimension::type DimensionTag,
@@ -28,13 +28,14 @@ template <specfem::dimension::type DimensionTag,
           specfem::element::property_tag PropertyTag,
           specfem::element::boundary_tag BoundaryTag>
 int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
-    const specfem::assembly::assembly<DimensionTag> &assembly, const int &istep) {
+    const specfem::assembly::assembly<DimensionTag> &assembly,
+    const int &istep) {
 
   constexpr auto medium_tag = MediumTag;
   constexpr auto property_tag = PropertyTag;
   constexpr auto boundary_tag = BoundaryTag;
   constexpr auto wavefield = WavefieldType;
-  constexpr auto dimension = DimensionTag;
+  constexpr auto dimension_tag = DimensionTag;
   constexpr int ngll = NGLL;
 
   const auto elements = assembly.element_types.get_elements_on_device(
@@ -52,8 +53,9 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
 
   // Check if the number of GLL points in the mesh elements matches the template
   if (element_grid != NGLL) {
-    throw std::runtime_error("The number of GLL points in the mesh elements must match "
-                             "the template parameter NGLL.");
+    throw std::runtime_error(
+        "The number of GLL points in the mesh elements must match "
+        "the template parameter NGLL.");
   }
 
   // Alias some assembly members for easier acces
@@ -75,41 +77,42 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
 
   using simd = specfem::datatype::simd<type_real, using_simd>;
   using parallel_config = specfem::parallel_config::default_chunk_config<
-      dimension, simd, Kokkos::DefaultExecutionSpace>;
+      dimension_tag, simd, Kokkos::DefaultExecutionSpace>;
 
   using ChunkElementFieldType = specfem::chunk_element::displacement<
-        parallel_config::chunk_size, ngll, dimension, medium_tag, using_simd>;
+      parallel_config::chunk_size, ngll, dimension_tag, medium_tag, using_simd>;
   using ChunkStressIntegrandType = specfem::chunk_element::stress_integrand<
-      parallel_config::chunk_size, ngll, dimension, medium_tag,
+      parallel_config::chunk_size, ngll, dimension_tag, medium_tag,
       specfem::kokkos::DevScratchSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>,
       using_simd>;
-  using ElementQuadratureType = specfem::element::quadrature<
-      ngll, dimension, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, true>;
+  using ElementQuadratureType = specfem::quadrature::lagrange_derivative<
+      ngll, dimension_tag, specfem::kokkos::DevScratchSpace,
+      Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
   using PointBoundaryType =
-      specfem::point::boundary<boundary_tag, dimension, using_simd>;
+      specfem::point::boundary<boundary_tag, dimension_tag, using_simd>;
   using PointDisplacementType =
-      specfem::point::displacement<dimension, medium_tag, using_simd>;
+      specfem::point::displacement<dimension_tag, medium_tag, using_simd>;
   using PointVelocityType =
-      specfem::point::velocity<dimension, medium_tag, using_simd>;
+      specfem::point::velocity<dimension_tag, medium_tag, using_simd>;
   using PointAccelerationType =
-      specfem::point::acceleration<dimension, medium_tag, using_simd>;
+      specfem::point::acceleration<dimension_tag, medium_tag, using_simd>;
   using PointJacobianMatrixType =
-      specfem::point::jacobian_matrix<dimension, true, using_simd>;
+      specfem::point::jacobian_matrix<dimension_tag, true, using_simd>;
   using PointPropertyType =
-      specfem::point::properties<dimension, medium_tag, property_tag,
+      specfem::point::properties<dimension_tag, medium_tag, property_tag,
                                  using_simd>;
   using PointFieldDerivativesType =
-      specfem::point::field_derivatives<dimension, medium_tag, using_simd>;
+      specfem::point::field_derivatives<dimension_tag, medium_tag, using_simd>;
 
-  const auto wgll = mesh.weights;
+  using PointWeightsType = specfem::point::weights<dimension_tag>;
 
   int scratch_size = ChunkElementFieldType::shmem_size() +
                      ChunkStressIntegrandType::shmem_size() +
                      ElementQuadratureType::shmem_size();
 
-  specfem::execution::ChunkedDomainIterator chunk(parallel_config(), elements, element_grid);
+  specfem::execution::ChunkedDomainIterator chunk(parallel_config(), elements,
+                                                  element_grid);
 
   Kokkos::Profiling::pushRegion("Compute Stiffness Interaction");
 
@@ -120,7 +123,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
     specfem::execution::for_all(
         "specfem::kokkos_kernels::compute_stiffness_interaction", chunk,
         KOKKOS_LAMBDA(
-            const specfem::point::index<dimension, using_simd> &index) {
+            const specfem::point::index<dimension_tag, using_simd> &index) {
           PointAccelerationType acceleration;
           specfem::assembly::load_on_device(istep, index, boundary_values,
                                             acceleration);
@@ -132,20 +135,20 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
     specfem::execution::for_each_level(
         "specfem::kokkos_kernels::compute_stiffness_interaction",
         chunk.set_scratch_size(0, Kokkos::PerTeam(scratch_size)),
-        KOKKOS_LAMBDA(const typename decltype(chunk)::index_type &chunk_iterator_index) {
+        KOKKOS_LAMBDA(
+            const typename decltype(chunk)::index_type &chunk_iterator_index) {
           const auto &chunk_index = chunk_iterator_index.get_index();
           const auto team = chunk_index.get_policy_index();
           ChunkElementFieldType element_field(team.team_scratch(0));
-          ElementQuadratureType element_quadrature(team);
+          ElementQuadratureType lagrange_derivative(team);
           ChunkStressIntegrandType stress_integrand(team);
-          specfem::assembly::load_on_device(team, mesh, element_quadrature);
+          specfem::assembly::load_on_device(team, mesh, lagrange_derivative);
           specfem::assembly::load_on_device(chunk_index, field, element_field);
 
           team.team_barrier();
 
           specfem::algorithms::gradient(
-              chunk_index, jacobian_matrix, element_quadrature.hprime_gll,
-              element_field,
+              chunk_index, jacobian_matrix, lagrange_derivative, element_field,
               [&](const auto &iterator_index,
                   const typename PointFieldDerivativesType::value_type &du) {
                 const auto &index = iterator_index.get_index();
@@ -170,14 +173,15 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
                 specfem::medium::compute_cosserat_stress(
                     point_property, point_displacement, point_stress);
 
-                stress_integrand.F(local_index) = point_stress * point_jacobian_matrix;
+                stress_integrand.F(local_index) =
+                    point_stress * point_jacobian_matrix;
               });
 
           team.team_barrier();
 
           specfem::algorithms::divergence(
-              chunk_index, jacobian_matrix, wgll,
-              element_quadrature.hprime_wgll, stress_integrand.F,
+              chunk_index, jacobian_matrix, mesh.weights, lagrange_derivative,
+              stress_integrand.F,
               [&](const auto &iterator_index,
                   const typename PointAccelerationType::value_type &result) {
                 const auto &index = iterator_index.get_index();
@@ -197,15 +201,19 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
                 specfem::assembly::load_on_device(index, boundaries,
                                                   point_boundary);
 
-                specfem::point::jacobian_matrix<dimension, true, using_simd>
+                PointWeightsType point_weights;
+                specfem::assembly::load_on_device(index, mesh.weights,
+                                                  point_weights);
+
+                specfem::point::jacobian_matrix<dimension_tag, true, using_simd>
                     point_jacobian_matrix;
 
                 specfem::assembly::load_on_device(index, jacobian_matrix,
                                                   point_jacobian_matrix);
 
                 // Computing the integration factor
-                const auto factor = wgll(index.iz) * wgll(index.ix) *
-                                    point_jacobian_matrix.jacobian;
+                const auto factor =
+                    point_weights.product() * point_jacobian_matrix.jacobian;
 
                 specfem::medium::compute_damping_force(factor, point_property,
                                                        velocity, acceleration);
@@ -213,8 +221,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
                 // Compute the couple stress from the stress integrand
                 specfem::medium::compute_couple_stress(
                     point_jacobian_matrix, point_property, factor,
-                    stress_integrand.F(local_index),
-                    acceleration);
+                    stress_integrand.F(local_index), acceleration);
 
                 // Apply boundary conditions
                 specfem::boundary_conditions::apply_boundary_conditions(
