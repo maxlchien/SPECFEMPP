@@ -20,6 +20,7 @@ option(SPECFEM_INSTALL "Creates clean executable directory. Location Controlled 
 option(SPECFEM_ENABLE_DOUBLE_PRECISION "Enable double precision" OFF)
 option(SPECFEM_BUILD_BENCHMARKS "Benchmarks included" ON)
 option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" ON)
+option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tests" OFF)
 
 # set(CMAKE_BUILD_TYPE Release)
 set(CHUNK_SIZE 32)
@@ -100,6 +101,16 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
 else(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
     set(__INTEL_LLVM__ FALSE)
     message(STATUS "IntelLLVM not detected -- setting __INTEL_LLVM__ FALSE")
+endif()
+
+# Check if Windows
+# https://cmake.org/cmake/help/latest/variable/MSVC.html
+if(MSVC)
+    set(__MSVC__ TRUE)
+    message(STATUS "MSVC detected -- setting __MSVC__ TRUE")
+else(MSVC)
+    set(__MSVC__ FALSE)
+    message(STATUS "MSVC not detected -- setting __MSVC__ FALSE")
 endif()
 
 # Install Kokkos as a dependency
@@ -267,8 +278,10 @@ add_library(
         enumerations
         src/enumerations/medium.cpp
         src/enumerations/wavefield.cpp
-        src/enumerations/connections.cpp
-        src/enumerations/mesh_entities.cpp
+        src/enumerations/dim2/connections.cpp
+        src/enumerations/dim3/connections.cpp
+        src/enumerations/dim3/mesh_entities.cpp
+        src/enumerations/dim2/mesh_entities.cpp
         src/enumerations/coupled_interface.cpp
 )
 
@@ -446,6 +459,10 @@ set_target_properties(kokkos_kernels PROPERTIES
         UNITY_BUILD $<NOT:$<BOOL:${__APPLE__}>>
         UNITY_BUILD_BATCH_SIZE $<IF:$<BOOL:${__APPLE__}>,0,4>
 )
+
+if(__MSVC__)
+target_compile_definitions(kokkos_kernels PRIVATE __MSVC__)
+endif(__MSVC__)
 
 target_link_libraries(
         kokkos_kernels

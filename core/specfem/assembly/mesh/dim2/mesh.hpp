@@ -8,7 +8,6 @@
 #include "mesh/mesh.hpp"
 #include "quadrature/interface.hpp"
 #include "specfem/assembly/mesh/impl/quadrature.hpp"
-#include "specfem/element.hpp"
 #include "specfem/point.hpp"
 #include "specfem_setup.hpp"
 #include <vector>
@@ -40,8 +39,10 @@ public:
                                       ///< elements
   int ngnod;                          ///< Number of control
                                       ///< nodes
-  specfem::mesh_entity::element<dimension_tag> element_grid; ///< Element number
-                                                             ///< of GLL points
+  specfem::mesh_entity::element_grid<dimension_tag> element_grid; ///< Element
+                                                                  ///< number of
+                                                                  ///< GLL
+                                                                  ///< points
 
   mesh() = default;
 

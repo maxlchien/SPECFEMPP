@@ -4,7 +4,7 @@
 #include "specfem/chunk_element.hpp"
 #include "compute_seismogram.hpp"
 #include "datatypes/simd.hpp"
-#include "specfem/element.hpp"
+#include "quadrature/lagrange_derivative.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
@@ -85,9 +85,9 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
   using ChunkAccelerationType =
       specfem::chunk_element::acceleration<parallel_config::chunk_size, ngll,
                                            dimension_tag, medium_tag, using_simd>;
-  using ElementQuadratureType = specfem::element::quadrature<
+  using ElementQuadratureType = specfem::quadrature::lagrange_derivative<
       ngll, dimension_tag, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
 
   using ViewType = std::conditional_t<
       dimension_tag == specfem::dimension::type::dim2,
@@ -134,19 +134,19 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
           ChunkDisplacementType displacement(team.team_scratch(0));
           ChunkVelocityType velocity(team.team_scratch(0));
           ChunkAccelerationType acceleration(team.team_scratch(0));
-          ElementQuadratureType element_quadrature(team);
+          ElementQuadratureType lagrange_derivative(team);
           ViewType wavefield(team.team_scratch(0));
           ViewType lagrange_interpolant(team.team_scratch(0));
           ResultsViewType seismogram_components(team.team_scratch(0));
 
-          specfem::assembly::load_on_device(team, mesh, element_quadrature);
+          specfem::assembly::load_on_device(team, mesh, lagrange_derivative);
 
           specfem::assembly::load_on_device(chunk_index, field, displacement,
                                             velocity, acceleration);
           team.team_barrier();
 
           specfem::medium::compute_wavefield<dimension_tag, medium_tag, property_tag>(
-              chunk_index, assembly, element_quadrature, displacement, velocity,
+              chunk_index, assembly, lagrange_derivative, displacement, velocity,
               acceleration, wavefield_type, wavefield);
 
           specfem::assembly::load_on_device(chunk_index, receivers,

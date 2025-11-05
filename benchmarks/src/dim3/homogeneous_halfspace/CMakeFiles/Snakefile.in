@@ -12,7 +12,7 @@ rule all:
             network_name=["DB"],
             component=["BXX", "BXY", "BXZ"],
         ),
-        vtk_file="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/vtk/wavefield.vtkhdf",
+        # vtk_file="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/vtk/wavefield.vtkhdf",
     localrule: True
 
 
@@ -56,7 +56,7 @@ rule run_solver:
         config="@CURRENT_BENCHMARK_BUILD_DIR@/specfem_config.yaml",
     output:
         traces=rules.all.input.traces,
-        vtk_file=rules.all.input.vtk_file,
+        # vtk_file=rules.all.input.vtk_file,
         log="@CURRENT_BENCHMARK_BUILD_DIR@/output.log",
     resources:
         nodes=1,
@@ -71,6 +71,7 @@ rule run_solver:
             # module load boost/1.73.0
             export KOKKOS_TOOLS_LIBS={params.KOKKOS_TOOLS_LIBS}
             mkdir -p @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results
+            mkdir -p @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/vtk
             echo "Hostname: $(hostname)" > {output.log}
             {SPECFEM_BIN} -p {input.config} >> {output.log}
         """
@@ -93,4 +94,5 @@ rule clean:
     shell:
         """
             rm -rf @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES
+            rm -f @CURRENT_BENCHMARK_BUILD_DIR@/output.log
         """

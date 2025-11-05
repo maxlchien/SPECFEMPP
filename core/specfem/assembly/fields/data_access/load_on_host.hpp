@@ -10,6 +10,7 @@
 namespace specfem::assembly {
 
 namespace fields_impl {
+
 template <typename IndexType, typename ContainerType, typename... AccessorTypes,
           typename std::enable_if_t<
               ((specfem::data_access::is_assembly_index<IndexType>::value) &&
@@ -60,7 +61,7 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_host(const IndexType &index,
 } // namespace fields_impl
 
 /**
- * @brief Loads field data on the device at the specified index into the given
+ * @brief Loads field data on the host at the specified index into the given
  * accessors.
  *
  * @ingroup FieldDataAccess

@@ -3,6 +3,7 @@
 #include "enumerations/interface.hpp"
 #include "specfem/data_access.hpp"
 #include "specfem_setup.hpp"
+#include "utilities/utilities.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
@@ -118,6 +119,14 @@ public:
   // operator*
   KOKKOS_FUNCTION jacobian_matrix operator*(const type_real &rhs) {
     return { xix * rhs, gammax * rhs, xiz * rhs, gammaz * rhs };
+  }
+
+  // operator==
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (specfem::utilities::is_close(this->xix, rhs.xix)) &&
+           (specfem::utilities::is_close(this->gammax, rhs.gammax)) &&
+           (specfem::utilities::is_close(this->xiz, rhs.xiz)) &&
+           (specfem::utilities::is_close(this->gammaz, rhs.gammaz));
   }
 };
 
@@ -264,6 +273,19 @@ public:
     return { xix * rhs,    etax * rhs, gammax * rhs, xiy * rhs,   etay * rhs,
              gammay * rhs, xiz * rhs,  etaz * rhs,   gammaz * rhs };
   }
+
+  // operator==
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (specfem::utilities::is_close(this->xix, rhs.xix)) &&
+           (specfem::utilities::is_close(this->etax, rhs.etax)) &&
+           (specfem::utilities::is_close(this->gammax, rhs.gammax)) &&
+           (specfem::utilities::is_close(this->xiy, rhs.xiy)) &&
+           (specfem::utilities::is_close(this->etay, rhs.etay)) &&
+           (specfem::utilities::is_close(this->gammay, rhs.gammay)) &&
+           (specfem::utilities::is_close(this->xiz, rhs.xiz)) &&
+           (specfem::utilities::is_close(this->etaz, rhs.etaz)) &&
+           (specfem::utilities::is_close(this->gammaz, rhs.gammaz));
+  }
 };
 
 // operator*
@@ -391,6 +413,11 @@ public:
   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
   compute_normal(const specfem::mesh_entity::dim2::type &type) const;
   ///@}
+
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (static_cast<base_type>(*this) == static_cast<base_type>(rhs)) &&
+           (specfem::utilities::is_close(this->jacobian, rhs.jacobian));
+  }
 
 private:
   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
@@ -526,6 +553,12 @@ public:
   // operator*
   KOKKOS_FUNCTION jacobian_matrix operator*(const type_real &rhs) = delete;
 
+  // operator==
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (static_cast<base_type>(*this) == static_cast<base_type>(rhs)) &&
+           (specfem::utilities::is_close(this->jacobian, rhs.jacobian));
+  }
+
   /**
    * @name Member functions
    *
@@ -539,12 +572,11 @@ public:
    * @return specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
    * Normal vector
    */
-  KOKKOS_FUNCTION specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
   compute_normal(const specfem::mesh_entity::dim3::type &type) const;
   ///@}
 
 private:
-  KOKKOS_INLINE_FUNCTION
   specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
   impl_compute_normal_bottom() const {
     return { static_cast<value_type>(static_cast<type_real>(-1.0) *
@@ -555,7 +587,6 @@ private:
                                      this->gammaz * this->jacobian) };
   };
 
-  KOKKOS_INLINE_FUNCTION
   specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
   impl_compute_normal_top() const {
     return { static_cast<value_type>(this->gammax * this->jacobian),
@@ -563,7 +594,6 @@ private:
              static_cast<value_type>(this->gammaz * this->jacobian) };
   };
 
-  KOKKOS_INLINE_FUNCTION
   specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
   impl_compute_normal_left() const {
     return { static_cast<value_type>(static_cast<type_real>(-1.0) * this->xix *
@@ -574,7 +604,6 @@ private:
                                      this->jacobian) };
   };
 
-  KOKKOS_INLINE_FUNCTION
   specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
   impl_compute_normal_right() const {
     return { static_cast<value_type>(this->xix * this->jacobian),
@@ -582,7 +611,6 @@ private:
              static_cast<value_type>(this->xiz * this->jacobian) };
   };
 
-  KOKKOS_INLINE_FUNCTION
   specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
   impl_compute_normal_front() const {
     return { static_cast<value_type>(this->etax * this->jacobian),
@@ -590,7 +618,6 @@ private:
              static_cast<value_type>(this->etaz * this->jacobian) };
   };
 
-  KOKKOS_INLINE_FUNCTION
   specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
   impl_compute_normal_back() const {
     return { static_cast<value_type>(static_cast<type_real>(-1.0) * this->etax *

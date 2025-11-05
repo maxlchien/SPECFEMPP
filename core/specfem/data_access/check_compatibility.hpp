@@ -21,9 +21,8 @@ public:
   static_assert(check_data_class, "Data classes do not match");
   static_assert(specfem::data_access::is_container<ContainerType>::value,
                 "ContainerType is not a container");
-
-  static_assert(specfem::data_access::is_point<AccessorType>::value,
-                "PointType is not an accessor");
+  static_assert(AccessorType::accessor_type == IndexType::accessor_type,
+                "AccessorType and IndexType have incompatible accessors");
 };
 
 template <typename T, typename = void>
@@ -142,14 +141,6 @@ template <typename T>
 struct is_assembly_index<
     T, std::enable_if_t<T::data_class ==
                         specfem::data_access::DataClassType::assembly_index> >
-    : std::true_type {};
-
-template <typename T, typename = void> struct is_gll_index : std::false_type {};
-
-template <typename T>
-struct is_gll_index<
-    T, std::enable_if_t<T::data_class ==
-                        specfem::data_access::DataClassType::gll_index> >
     : std::true_type {};
 
 template <typename T, typename = void>
