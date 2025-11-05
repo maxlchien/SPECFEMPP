@@ -17,40 +17,40 @@ namespace specfem::chunk_edge {
  * @tparam BoundaryTag Boundary condition type
  * @tparam MemorySpace Memory space for data storage.
  * @tparam MemoryTraits Memory traits for data storage.
- * @tparam UseSIMD Flag to indicate if SIMD should be used.
  */
 template <int NumberElements, int NQuadIntersection,
           specfem::dimension::type DimensionTag,
           specfem::connections::type ConnectionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, typename MemorySpace,
-          typename MemoryTraits, bool UseSIMD>
+          typename MemoryTraits>
 struct nonconforming_intersection_factor;
 
 template <int NumberElements, int NQuadIntersection,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, typename MemorySpace,
-          typename MemoryTraits, bool UseSIMD>
+          typename MemoryTraits>
 struct nonconforming_intersection_factor<
     NumberElements, NQuadIntersection, specfem::dimension::type::dim2,
     specfem::connections::type::nonconforming, InterfaceTag, BoundaryTag,
-    MemorySpace, MemoryTraits, UseSIMD>
+    MemorySpace, MemoryTraits>
     : public specfem::data_access::Accessor<
           specfem::data_access::AccessorType::chunk_edge,
           specfem::data_access::DataClassType::coupled_interface,
           specfem::dimension::type::dim2, false>,
       public impl::nonconforming_intersection_factor<
           NumberElements, NQuadIntersection, specfem::dimension::type::dim2,
-          MemorySpace, MemoryTraits, UseSIMD> {
+          MemorySpace, MemoryTraits> {
 private:
   /** @brief Base accessor type alias */
   using base_type = specfem::data_access::Accessor<
       specfem::data_access::AccessorType::chunk_edge,
       specfem::data_access::DataClassType::coupled_interface,
       specfem::dimension::type::dim2, false>;
-  using impl_type = impl::nonconforming_intersection_factor<
-      NumberElements, NQuadIntersection, specfem::dimension::type::dim2,
-      MemorySpace, MemoryTraits, UseSIMD>;
+  using impl_type =
+      impl::nonconforming_intersection_factor<NumberElements, NQuadIntersection,
+                                              specfem::dimension::type::dim2,
+                                              MemorySpace, MemoryTraits>;
 
 public:
   static constexpr auto interface_tag = InterfaceTag;

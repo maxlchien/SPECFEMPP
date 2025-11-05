@@ -26,16 +26,16 @@ namespace impl {
  * @tparam ConnectionTag Connection type (strongly/weakly conforming)
  * @tparam InterfaceTag Interface type (elastic-acoustic, acoustic-elastic)
  * @tparam BoundaryTag Boundary condition type
- * @tparam UseSIMD Flag to indicate if SIMD should be used.
  */
 template <bool IsSelf, int NQuadIntersection,
-          specfem::dimension::type DimensionTag, bool UseSIMD>
+          specfem::dimension::type DimensionTag>
 struct nonconforming_transfer_function;
 
-template <int NQuadIntersection, bool UseSIMD>
-struct nonconforming_transfer_function<
-    true, NQuadIntersection, specfem::dimension::type::dim2, UseSIMD> {
+template <int NQuadIntersection>
+struct nonconforming_transfer_function<true, NQuadIntersection,
+                                       specfem::dimension::type::dim2> {
 private:
+  static constexpr bool UseSIMD = false;
   /**
    * @name Typedefs
    *
@@ -73,10 +73,11 @@ public:
   nonconforming_transfer_function() = default;
 };
 
-template <int NQuadIntersection, bool UseSIMD>
-struct nonconforming_transfer_function<
-    false, NQuadIntersection, specfem::dimension::type::dim2, UseSIMD> {
+template <int NQuadIntersection>
+struct nonconforming_transfer_function<false, NQuadIntersection,
+                                       specfem::dimension::type::dim2> {
 private:
+  static constexpr bool UseSIMD = false;
   /**
    * @name Typedefs
    *

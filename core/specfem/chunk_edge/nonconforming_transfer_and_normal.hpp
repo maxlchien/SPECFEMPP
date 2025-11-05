@@ -27,27 +27,27 @@ template <bool IsSelf, int NumberElements, int NQuadElement,
           specfem::connections::type ConnectionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, typename MemorySpace,
-          typename MemoryTraits, bool UseSIMD>
+          typename MemoryTraits>
 struct nonconforming_transfer_and_normal;
 
 template <bool IsSelf, int NumberElements, int NQuadElement,
           int NQuadIntersection, specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, typename MemorySpace,
-          typename MemoryTraits, bool UseSIMD>
+          typename MemoryTraits>
 struct nonconforming_transfer_and_normal<
     IsSelf, NumberElements, NQuadElement, NQuadIntersection,
     specfem::dimension::type::dim2, specfem::connections::type::nonconforming,
-    InterfaceTag, BoundaryTag, MemorySpace, MemoryTraits, UseSIMD>
+    InterfaceTag, BoundaryTag, MemorySpace, MemoryTraits>
     : public specfem::data_access::Accessor<
           specfem::data_access::AccessorType::chunk_edge,
           specfem::data_access::DataClassType::coupled_interface,
           specfem::dimension::type::dim2, false>,
       public impl::nonconforming_transfer_function<
           IsSelf, NumberElements, NQuadElement, NQuadIntersection,
-          specfem::dimension::type::dim2, MemorySpace, MemoryTraits, UseSIMD>,
+          specfem::dimension::type::dim2, MemorySpace, MemoryTraits>,
       public impl::nonconforming_intersection_normal<
           NumberElements, NQuadIntersection, specfem::dimension::type::dim2,
-          MemorySpace, MemoryTraits, UseSIMD> {
+          MemorySpace, MemoryTraits> {
 private:
   /** @brief Base accessor type alias */
   using base_type = specfem::data_access::Accessor<
@@ -56,10 +56,11 @@ private:
       specfem::dimension::type::dim2, false>;
   using impl_type_transfer = impl::nonconforming_transfer_function<
       IsSelf, NumberElements, NQuadElement, NQuadIntersection,
-      specfem::dimension::type::dim2, MemorySpace, MemoryTraits, UseSIMD>;
-  using impl_normal_type = impl::nonconforming_intersection_normal<
-      NumberElements, NQuadIntersection, specfem::dimension::type::dim2,
-      MemorySpace, MemoryTraits, UseSIMD>;
+      specfem::dimension::type::dim2, MemorySpace, MemoryTraits>;
+  using impl_normal_type =
+      impl::nonconforming_intersection_normal<NumberElements, NQuadIntersection,
+                                              specfem::dimension::type::dim2,
+                                              MemorySpace, MemoryTraits>;
 
 public:
   static constexpr auto interface_tag = InterfaceTag;

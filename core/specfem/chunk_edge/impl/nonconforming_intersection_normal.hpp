@@ -32,15 +32,16 @@ namespace impl {
  */
 template <int NumberElements, int NQuadIntersection,
           specfem::dimension::type DimensionTag, typename MemorySpace,
-          typename MemoryTraits, bool UseSIMD>
+          typename MemoryTraits>
 struct nonconforming_intersection_normal;
 
 template <int NumberElements, int NQuadIntersection, typename MemorySpace,
-          typename MemoryTraits, bool UseSIMD>
+          typename MemoryTraits>
 struct nonconforming_intersection_normal<NumberElements, NQuadIntersection,
                                          specfem::dimension::type::dim2,
-                                         MemorySpace, MemoryTraits, UseSIMD> {
+                                         MemorySpace, MemoryTraits> {
 private:
+  static constexpr bool UseSIMD = false;
   /**
    * @name Typedefs
    *
