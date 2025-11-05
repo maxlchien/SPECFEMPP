@@ -5,7 +5,7 @@
 #include <type_traits>
 
 namespace specfem::data_access {
-enum class AccessorType { point, chunk_element, chunk_edge };
+enum class AccessorType { point, element, chunk_element, chunk_edge };
 
 template <specfem::data_access::AccessorType AccessorType,
           specfem::data_access::DataClassType DataClass,
@@ -24,4 +24,5 @@ struct is_accessor<
 
 #include "accessor/chunk_edge.hpp"
 #include "accessor/chunk_element.hpp"
+#include "accessor/element.hpp"
 #include "accessor/point_accessor.hpp"
