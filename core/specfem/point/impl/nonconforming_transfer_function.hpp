@@ -71,17 +71,6 @@ public:
 
   KOKKOS_INLINE_FUNCTION
   nonconforming_transfer_function() = default;
-
-  /**
-   * @brief Constructor that initializes data views in Scratch
-   * Memory.
-   *
-   * @tparam MemberType Kokos team member type.
-   * @param team Kokkos team member.
-   */
-  template <typename MemberType>
-  KOKKOS_INLINE_FUNCTION nonconforming_transfer_function(const MemberType &team)
-      : transfer_function_self(team.team_scratch(0)) {}
 };
 
 template <int NQuadIntersection, bool UseSIMD>
@@ -123,17 +112,6 @@ public:
 
   KOKKOS_INLINE_FUNCTION
   nonconforming_transfer_function() = default;
-
-  /**
-   * @brief Constructor that initializes data views in Scratch
-   * Memory.
-   *
-   * @tparam MemberType Kokos team member type.
-   * @param team Kokkos team member.
-   */
-  template <typename MemberType>
-  KOKKOS_INLINE_FUNCTION nonconforming_transfer_function(const MemberType &team)
-      : transfer_function_coupled(team.team_scratch(0)) {}
 };
 
 } // namespace impl
