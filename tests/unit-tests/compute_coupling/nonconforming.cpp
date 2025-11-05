@@ -131,14 +131,14 @@ struct EdgeToInterfaceParams : EdgeToInterfaceParamsBase {
             specfem::connections::type::nonconforming, interface_tag,
             specfem::element::boundary_tag::none,
             specfem::kokkos::DevScratchSpace,
-            Kokkos::MemoryTraits<Kokkos::Unmanaged>, false>;
+            Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
     using CoupledTransferType =
         specfem::chunk_edge::nonconforming_transfer_function<
             false, num_edges, nquad_edge, nquad_intersection, dimension_tag,
             specfem::connections::type::nonconforming, interface_tag,
             specfem::element::boundary_tag::none,
             specfem::kokkos::DevScratchSpace,
-            Kokkos::MemoryTraits<Kokkos::Unmanaged>, false>;
+            Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
     constexpr auto self_medium =
         specfem::interface::attributes<dimension_tag,
