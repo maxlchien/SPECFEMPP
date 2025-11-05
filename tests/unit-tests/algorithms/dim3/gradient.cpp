@@ -83,6 +83,17 @@ struct IDENTITY {};    ///< Identity Jacobian (no geometric transformation)
 struct TWO_ELEMENT {}; ///< Multi-element mesh with scaled transformations
 } // namespace JacobianInitializer3D
 
+struct lagrange_derivative3D {
+  using memory_space = Kokkos::DefaultExecutionSpace::memory_space;
+  using view_type = Kokkos::View<type_real[5][5], memory_space>;
+  view_type xi;
+  view_type eta;
+  view_type gamma;
+
+  KOKKOS_FUNCTION lagrange_derivative3D(const view_type &view)
+      : xi(view), eta(view), gamma(view) {}
+};
+
 /**
  * @brief Initialize identity Jacobian matrix for single-element test cases.
  *
@@ -331,7 +342,7 @@ template <typename Initializer> struct Quadrature3D {
   Quadrature3D(const Initializer &initializer)
       : _quadrature(init_quadrature(initializer)) {}
 
-  view_type quadrature() const {
+  lagrange_derivative3D quadrature() const {
     view_type::HostMirror quadrature_view("quadrature_view");
     for (int i = 0; i < 5; ++i) {
       for (int j = 0; j < 5; ++j) {
@@ -341,7 +352,9 @@ template <typename Initializer> struct Quadrature3D {
 
     const auto d_quadrature =
         Kokkos::create_mirror_view_and_copy(memory_space(), quadrature_view);
-    return d_quadrature;
+
+    const lagrange_derivative3D lagrange_deriv(d_quadrature);
+    return lagrange_deriv;
   }
 
   /**
@@ -419,7 +432,8 @@ auto init_function(const FunctionInitializer3D::RANDOM &) {
     for (int iz = 0; iz < 5; ++iz) {
       for (int iy = 0; iy < 5; ++iy) {
         for (int ix = 0; ix < 5; ++ix) {
-          _f[icomp][iz][iy][ix] = static_cast<type_real>(rand()) / RAND_MAX;
+          _f[icomp][iz][iy][ix] =
+              static_cast<type_real>(rand()) / static_cast<type_real>(RAND_MAX);
         }
       }
     }
@@ -682,7 +696,7 @@ execute(const Jacobian &jacobian_matrix, const Quadrature3D &quadrature,
                                              1, 1, 1, simd,
                                              Kokkos::DefaultExecutionSpace>;
 
-  const specfem::mesh_entity::element element_grid(ngll, ngll, ngll);
+  const specfem::mesh_entity::element_grid element_grid(ngll, ngll, ngll);
 
   const specfem::execution::ChunkedDomainIterator chunk(
       ParallelConfig(), element_indices, element_grid);
