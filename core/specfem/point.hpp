@@ -19,6 +19,7 @@
 #include "point/stress.hpp"
 #include "point/stress_integrand.hpp"
 #include "point/velocity.hpp"
+#include "point/weights.hpp"
 
 /**
  * @namespace specfem::point

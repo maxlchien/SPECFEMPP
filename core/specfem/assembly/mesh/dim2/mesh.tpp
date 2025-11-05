@@ -128,8 +128,7 @@ specfem::assembly::mesh<specfem::dimension::type::dim2>::mesh(
   // struct
   ngnod = control_nodes_in.ngnod;
 
-  this->element_grid = specfem::mesh_entity::element<
-      specfem::dimension::type::dim2>(ngllz, ngllx);
+  this->element_grid = specfem::mesh_entity::element_grid(ngllz, ngllx);
 
   auto &mapping =
       static_cast<specfem::assembly::mesh_impl::mesh_to_compute_mapping<
