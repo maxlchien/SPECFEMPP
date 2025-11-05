@@ -184,7 +184,7 @@ rec_normal_to_surface           = .false.        # base anglerec normal to surfa
 # first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
 nrec                            = 11            # number of receivers
 xdeb                            = 1450.d0        # first receiver x in meters
-zdeb                            = 2400   # first receiver z in meters
+zdeb                            = 2200   # first receiver z in meters
 xfin                            = 1575.d0        # last receiver x in meters (ignored if only one receiver)
 zfin                            = 3400   # last receiver z in meters (ignored if only one receiver)
 record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface
