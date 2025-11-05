@@ -21,7 +21,7 @@ KOKKOS_FORCEINLINE_FUNCTION auto element_gradient(
     const specfem::point::jacobian_matrix<specfem::dimension::type::dim2, false,
                                           VectorFieldType::using_simd>
         &point_jacobian_matrix,
-    const QuadratureType &quadrature,
+    const QuadratureType &lagrange_derivative,
     typename VectorFieldType::simd::datatype (
         &df_dxi)[VectorFieldType::components],
     typename VectorFieldType::simd::datatype (
@@ -39,9 +39,10 @@ KOKKOS_FORCEINLINE_FUNCTION auto element_gradient(
 
   for (int l = 0; l < ngll; ++l) {
     for (int icomponent = 0; icomponent < components; ++icomponent) {
-      df_dxi[icomponent] += quadrature(ix, l) * f(ielement, iz, l, icomponent);
+      df_dxi[icomponent] +=
+          lagrange_derivative.xi(ix, l) * f(ielement, iz, l, icomponent);
       df_dgamma[icomponent] +=
-          quadrature(iz, l) * f(ielement, l, ix, icomponent);
+          lagrange_derivative.gamma(iz, l) * f(ielement, l, ix, icomponent);
     }
   }
 
@@ -67,7 +68,7 @@ KOKKOS_FORCEINLINE_FUNCTION auto element_gradient(
     const specfem::point::jacobian_matrix<specfem::dimension::type::dim3, false,
                                           VectorFieldType::using_simd>
         &point_jacobian_matrix,
-    const QuadratureType &quadrature,
+    const QuadratureType &lagrange_derivative,
     typename VectorFieldType::simd::datatype (
         &df_dxi)[VectorFieldType::components],
     typename VectorFieldType::simd::datatype (
@@ -89,11 +90,11 @@ KOKKOS_FORCEINLINE_FUNCTION auto element_gradient(
   for (int l = 0; l < ngll; ++l) {
     for (int icomponent = 0; icomponent < components; ++icomponent) {
       df_dxi[icomponent] +=
-          quadrature(ix, l) * f(ielement, iz, iy, l, icomponent);
+          lagrange_derivative.xi(ix, l) * f(ielement, iz, iy, l, icomponent);
       df_deta[icomponent] +=
-          quadrature(iy, l) * f(ielement, iz, l, ix, icomponent);
+          lagrange_derivative.eta(iy, l) * f(ielement, iz, l, ix, icomponent);
       df_dgamma[icomponent] +=
-          quadrature(iz, l) * f(ielement, l, iy, ix, icomponent);
+          lagrange_derivative.gamma(iz, l) * f(ielement, l, iy, ix, icomponent);
     }
   }
 
@@ -177,6 +178,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
       chunk_index.get_iterator(),
       [&](const typename ChunkIndexType::iterator_type::index_type
               &iterator_index) {
+        const auto index = iterator_index.get_index();
         const auto local_index = iterator_index.get_local_index();
         datatype df_dxi[components] = { 0.0 };
         datatype df_dgamma[components] = { 0.0 };
@@ -184,7 +186,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
                                         using_simd>
             point_jacobian_matrix;
 
-        specfem::assembly::load_on_device(local_index, jacobian_matrix,
+        specfem::assembly::load_on_device(index, jacobian_matrix,
                                           point_jacobian_matrix);
 
         const auto df =
@@ -418,6 +420,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
       [&](const typename ChunkIndexType::iterator_type::index_type
               &iterator_index) {
         const auto local_index = iterator_index.get_local_index();
+        const auto index = iterator_index.get_index();
         datatype df_dxi[components] = { 0.0 };
         datatype df_deta[components] = { 0.0 };
         datatype df_dgamma[components] = { 0.0 };
@@ -428,7 +431,7 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
                                         using_simd>
             point_jacobian_matrix;
 
-        specfem::assembly::load_on_device(local_index, jacobian_matrix,
+        specfem::assembly::load_on_device(index, jacobian_matrix,
                                           point_jacobian_matrix);
 
         const auto df =
@@ -442,5 +445,6 @@ KOKKOS_FORCEINLINE_FUNCTION void gradient(
 
   return;
 }
+
 } // namespace algorithms
 } // namespace specfem

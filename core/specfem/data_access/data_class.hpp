@@ -5,7 +5,6 @@ enum DataClassType {
   index,
   edge_index,
   assembly_index,
-  gll_index,
   mapped_index,
   properties,
   kernels,
@@ -20,6 +19,7 @@ enum DataClassType {
   stress_integrand,
   boundary,
   coupled_interface,
-  quadrature
+  lagrange_derivative,
+  weights
 };
 } // namespace specfem::data_access

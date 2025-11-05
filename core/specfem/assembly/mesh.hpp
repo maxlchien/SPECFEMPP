@@ -32,4 +32,4 @@ template <specfem::dimension::type Dimension> struct mesh;
 #include "mesh/dim3/mesh.hpp"
 
 // Include data access implementations
-#include "mesh/impl/data_access.hpp"
+#include "mesh/data_access.hpp"

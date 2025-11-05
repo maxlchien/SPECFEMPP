@@ -17,7 +17,7 @@ template <specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, int NGLL>
 class helper<specfem::dimension::type::dim2, MediumTag, PropertyTag, NGLL> {
 public:
-  constexpr static auto dimension = specfem::dimension::type::dim2;
+  constexpr static auto dimension_tag = specfem::dimension::type::dim2;
   constexpr static auto medium_tag = MediumTag;
   constexpr static auto property_tag = PropertyTag;
   constexpr static auto ngll = NGLL;
@@ -50,32 +50,30 @@ public:
     }
 
     using ParallelConfig = specfem::parallel_config::default_chunk_config<
-        specfem::dimension::type::dim2,
-        specfem::datatype::simd<type_real, false>,
+        dimension_tag, specfem::datatype::simd<type_real, false>,
         Kokkos::DefaultExecutionSpace>;
 
     using ChunkDisplacementType = specfem::chunk_element::displacement<
-        specfem::parallel_config::chunk_size, ngll, dimension, medium_tag,
+        specfem::parallel_config::chunk_size, ngll, dimension_tag, medium_tag,
         using_simd>;
     using ChunkVelocityType =
         specfem::chunk_element::velocity<specfem::parallel_config::chunk_size,
-                                         ngll, dimension, medium_tag,
+                                         ngll, dimension_tag, medium_tag,
                                          using_simd>;
     using ChunkAccelerationType = specfem::chunk_element::acceleration<
-        specfem::parallel_config::chunk_size, ngll, dimension, medium_tag,
+        specfem::parallel_config::chunk_size, ngll, dimension_tag, medium_tag,
         using_simd>;
 
-    using QuadratureType = specfem::element::quadrature<
-        ngll, specfem::dimension::type::dim2, specfem::kokkos::DevScratchSpace,
-        Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+    using QuadratureType = specfem::quadrature::lagrange_derivative<
+        ngll, dimension_tag, specfem::kokkos::DevScratchSpace,
+        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
     using PointPropertyType =
-        specfem::point::properties<specfem::dimension::type::dim2, medium_tag,
-                                   property_tag, false>;
+        specfem::point::properties<dimension_tag, medium_tag, property_tag,
+                                   false>;
 
     using PointFieldDerivativesType =
-        specfem::point::field_derivatives<specfem::dimension::type::dim2,
-                                          medium_tag, false>;
+        specfem::point::field_derivatives<dimension_tag, medium_tag, false>;
 
     int scratch_size =
         ChunkDisplacementType::shmem_size() + ChunkVelocityType::shmem_size() +
@@ -91,12 +89,13 @@ public:
             const typename decltype(chunk)::index_type chunk_iterator_index) {
           const auto &chunk_index = chunk_iterator_index.get_index();
           const auto team = chunk_index.get_policy_index();
-          QuadratureType quadrature(team);
+          QuadratureType lagrange_derivative(team);
           ChunkDisplacementType displacement(team.team_scratch(0));
           ChunkVelocityType velocity(team.team_scratch(0));
           ChunkAccelerationType acceleration(team.team_scratch(0));
 
-          specfem::assembly::load_on_device(team, assembly.mesh, quadrature);
+          specfem::assembly::load_on_device(team, assembly.mesh,
+                                            lagrange_derivative);
 
           specfem::assembly::load_on_device(chunk_index, buffer, displacement,
                                             velocity, acceleration);
@@ -106,16 +105,17 @@ public:
               Kokkos::subview(wavefield_on_entire_grid, chunk_index.get_range(),
                               Kokkos::ALL, Kokkos::ALL, Kokkos::ALL);
 
-          specfem::medium::compute_wavefield<dimension, MediumTag, PropertyTag>(
-              chunk_index, assembly, quadrature, displacement, velocity,
-              acceleration, wavefield_type, wavefield);
+          specfem::medium::compute_wavefield<dimension_tag, MediumTag,
+                                             PropertyTag>(
+              chunk_index, assembly, lagrange_derivative, displacement,
+              velocity, acceleration, wavefield_type, wavefield);
         });
 
     return;
   }
 
 private:
-  const specfem::assembly::assembly<specfem::dimension::type::dim2> assembly;
+  const specfem::assembly::assembly<dimension_tag> assembly;
   Kokkos::View<type_real ****, Kokkos::LayoutLeft,
                Kokkos::DefaultExecutionSpace>
       wavefield_on_entire_grid;

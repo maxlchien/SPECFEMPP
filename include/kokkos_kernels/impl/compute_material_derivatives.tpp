@@ -59,9 +59,9 @@ void specfem::kokkos_kernels::impl::compute_material_derivatives(
                                            NGLL, DimensionTag, MediumTag,
                                            using_simd>;
 
-  using ElementQuadratureType = specfem::element::quadrature<
+  using ElementQuadratureType = specfem::quadrature::lagrange_derivative<
       NGLL, DimensionTag, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
 
   using PointDisplacementType =
       specfem::point::displacement<DimensionTag, MediumTag, using_simd>;
@@ -92,8 +92,8 @@ void specfem::kokkos_kernels::impl::compute_material_derivatives(
         const auto team = chunk_index.get_policy_index();
         ChunkElementFieldType adjoint_element_field(team.team_scratch(0));
         ChunkElementFieldType backward_element_field(team.team_scratch(0));
-        ElementQuadratureType quadrature_element(team);
-        specfem::assembly::load_on_device(team, mesh, quadrature_element);
+        ElementQuadratureType lagrange_derivative(team);
+        specfem::assembly::load_on_device(team, mesh, lagrange_derivative);
 
         // Load the element index
         specfem::assembly::load_on_device(chunk_index, adjoint_field,
@@ -109,7 +109,7 @@ void specfem::kokkos_kernels::impl::compute_material_derivatives(
         // which is applied to gradient result for every quadrature point
 
         specfem::algorithms::gradient(
-            chunk_index, jacobian_matrix, quadrature_element.hprime_gll,
+            chunk_index, jacobian_matrix, lagrange_derivative,
             adjoint_element_field, backward_element_field,
             [&](const auto &iterator_index,
                 const typename PointFieldDerivativesType::value_type &df,

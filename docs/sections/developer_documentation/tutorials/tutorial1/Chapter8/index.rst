@@ -178,7 +178,7 @@ Next, lets implement ``compute_stiffness_interaction`` kernel.
 
                     algorithms::gradient(
                         team, iterator, jacobian_matrix,
-                        element_quadrature.hprime_gll, element_field.displacement,
+                        element_quadrature, element_field.displacement,
                         [&](const index_type &index,
                             const field_derivatives &du) {
 
@@ -203,7 +203,7 @@ Next, lets implement ``compute_stiffness_interaction`` kernel.
 
                     // Compute the divergence term
                     algorithms::divergence(
-                        team, iterator, jacobian_matrix, element_quadrature.hprime_gll,
+                        team, iterator, jacobian_matrix, element_quadrature,
                         [&](const index_type &index,
                             const ScalarViewType &result) {
 
