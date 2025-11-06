@@ -57,7 +57,6 @@
 #pragma once
 
 #include "chunked_edge_iterator.hpp"
-#include "macros.hpp"
 #include "policy.hpp"
 #include "specfem/point.hpp"
 #include "void_iterator.hpp"

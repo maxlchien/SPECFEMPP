@@ -489,15 +489,6 @@ target_link_libraries(
   ${BOOST_LIBS}
 )
 
-target_compile_definitions(
-        assembly_tests
-        PUBLIC
-        $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
-        $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
-        $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
-        $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
-)
-
 add_executable(
   assembly_receivers_tests
   assembly/receivers/receivers_tests.cpp
