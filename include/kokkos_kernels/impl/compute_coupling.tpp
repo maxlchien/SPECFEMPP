@@ -174,19 +174,19 @@ void specfem::kokkos_kernels::impl::compute_coupling(
           parallel_config::chunk_size, NGLL, NQuad_intersection, dimension_tag,
           connection_tag, interface_tag, boundary_tag,
           specfem::kokkos::DevScratchSpace,
-          Kokkos::MemoryTraits<Kokkos::Unmanaged>, using_simd>;
+          Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
   using CoupledTransferFunctionType =
       typename specfem::chunk_edge::nonconforming_transfer_and_normal<
           false, parallel_config::chunk_size, NGLL, NQuad_intersection,
           dimension_tag, connection_tag, interface_tag, boundary_tag,
           specfem::kokkos::DevScratchSpace,
-          Kokkos::MemoryTraits<Kokkos::Unmanaged>, using_simd>;
+          Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
   using IntersectionFactorType =
       typename specfem::chunk_edge::nonconforming_intersection_factor<
           parallel_config::chunk_size, NQuad_intersection,
           dimension_tag, connection_tag, interface_tag, boundary_tag,
           specfem::kokkos::DevScratchSpace,
-          Kokkos::MemoryTraits<Kokkos::Unmanaged>, using_simd>;
+          Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
 
   using InterfaceFieldViewType = specfem::datatype::VectorChunkEdgeViewType<
       type_real, dimension_tag, parallel_config::chunk_size,

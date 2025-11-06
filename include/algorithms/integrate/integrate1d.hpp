@@ -51,10 +51,7 @@ KOKKOS_FUNCTION void integrate_fieldtilde_1d(
           true, ChunkEdgeWeightJacobianType::n_quad_intersection, dimension_tag,
           ChunkEdgeWeightJacobianType::connection_tag,
           ChunkEdgeWeightJacobianType::interface_tag,
-          ChunkEdgeWeightJacobianType::boundary_tag,
-          specfem::kokkos::DevScratchSpace,
-          Kokkos::MemoryTraits<Kokkos::Unmanaged>,
-          IntersectionFieldViewType::using_simd>;
+          ChunkEdgeWeightJacobianType::boundary_tag>;
 
   // an is_invocable static check here prevents autos
 
