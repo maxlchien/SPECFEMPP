@@ -64,7 +64,6 @@ public:
    * enabled.
    */
   TransferViewType transfer_function_self;
-  TransferViewType &transfer_function = transfer_function_self;
   /**
    * @brief Constructs coupled interface point with geometric data
    *
@@ -125,7 +124,6 @@ public:
    * enabled.
    */
   TransferViewType transfer_function_coupled;
-  TransferViewType &transfer_function = transfer_function_coupled;
 
   /**
    * @brief Constructs coupled interface point with geometric data
