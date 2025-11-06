@@ -32,6 +32,10 @@ To build with CUDA support:
 The binaries built with and without CUDA will be generated in the ``bin/release`` and ``bin/release-cuda`` directories, respectively.
 When running SPECFEM++, make sure you are using the correct binary for your chosen preset. You can either export the appropriate directory to your ``PATH`` environment variable, or run the executable by specifying its full path (e.g., ``<SPECFEMPP_DIR>/bin/release/specfem2d`` or ``<SPECFEMPP_DIR>/bin/release-cuda/specfem2d``).
 
+.. note::
+
+    SPECFEM++ presets use CMake's Unity build feature to speed up compilation times. However, this can lead to increased memory usage during the build process. In some cases, especially on systems with limited RAM, you may encounter out-of-memory errors during compilation. If this happens, you can reduce the unity build batch size by passing ``-D SPECFEM_UNITY_BUILD_BATCH_SIZE=<smaller_number>`` (for example, ``-D SPECFEM_UNITY_BUILD_BATCH_SIZE=4``) when invoking CMake with the preset. This will reduce memory consumption.
+
 Customizing Presets
 -------------------
 

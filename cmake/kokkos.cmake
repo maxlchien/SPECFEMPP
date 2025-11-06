@@ -1,5 +1,11 @@
 
 
+if (DEFINED Kokkos_ROOT)
+    message(STATUS "Using user-defined Kokkos root: ${Kokkos_ROOT}")
+    find_package(Kokkos REQUIRED PATHS ${Kokkos_ROOT} NO_DEFAULT_PATH)
+    return()
+endif()
+
 message(STATUS "Configuring Kokkos library...")
 
 # Prepend the CMAKE_MESSAGE_INDENT variable to ensure proper indentation in messages
