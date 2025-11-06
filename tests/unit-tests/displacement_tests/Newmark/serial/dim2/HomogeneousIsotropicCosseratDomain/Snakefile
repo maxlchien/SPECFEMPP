@@ -3,13 +3,28 @@ include: "../../../meshfem2d.smk"
 
 rule all:
     input:
+        trace_list="<cwd>/traces/trace_list.txt",
         database="<cwd>/database.bin",
     localrule: True
+
+
+rule link_traces:
+    input:
+        trace_list="<cwd>/traces_fd/trace_list.txt",
+    output:
+        trace_list="<cwd>/traces/trace_list.txt",
+    localrule: True,
+    shell:
+        """
+        rm -rf traces
+        ln -s traces_fd $(dirname {output.trace_list})
+        """
 
 
 rule clean:
     localrule: True,
     shell:
         """
+        rm -rf traces
         rm -f database.bin
         """
