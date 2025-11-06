@@ -242,7 +242,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
 
         team.team_barrier();
 
-        specfem::algorithms::integrate_fieldtilde_1d(
+        specfem::algorithms::coupling_integral(
             assembly, self_chunk_index, interface_field, intersection_factor, [&](
                 const auto& self_index, SelfFieldType& self_field){
 

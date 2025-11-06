@@ -31,12 +31,12 @@ namespace specfem::algorithms {
 template <specfem::dimension::type dimension_tag, typename IndexType,
           typename IntersectionFieldViewType,
           typename ChunkEdgeWeightJacobianType, typename CallableType>
-KOKKOS_FUNCTION void integrate_fieldtilde_1d(
-    const specfem::assembly::assembly<dimension_tag> &assembly,
-    const IndexType &chunk_index,
-    const IntersectionFieldViewType &intersection_field,
-    const ChunkEdgeWeightJacobianType &weight_jacobian,
-    const CallableType &callback) {
+KOKKOS_FUNCTION void
+coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
+                  const IndexType &chunk_index,
+                  const IntersectionFieldViewType &intersection_field,
+                  const ChunkEdgeWeightJacobianType &weight_jacobian,
+                  const CallableType &callback) {
 
   constexpr auto self_medium_tag = specfem::interface::attributes<
       dimension_tag, ChunkEdgeWeightJacobianType::interface_tag>::self_medium();
@@ -75,17 +75,23 @@ KOKKOS_FUNCTION void integrate_fieldtilde_1d(
                                           transfer_function_self);
 
         PointFieldType result;
+#if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
 #pragma unroll
+#endif
         for (int icomp = 0; icomp < ncomp; icomp++) {
           result(icomp) = 0;
         }
         const int &iedge = self_index.iedge;
         const int &ipoint = self_index.ipoint;
 
+#if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
 #pragma unroll
+#endif
         for (int iquad = 0; iquad < nquad_intersection; iquad++) {
 
+#if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
 #pragma unroll
+#endif
           for (int icomp = 0; icomp < ncomp; icomp++) {
             result(icomp) +=
                 intersection_field(iedge, iquad, icomp) *
