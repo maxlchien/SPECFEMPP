@@ -7,6 +7,8 @@
 #include "specfem/assembly/boundary_values.hpp"
 #include "specfem/assembly/compute_source_array.hpp"
 #include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/edge_types.hpp"
+#include "specfem/assembly/element_types.hpp"
 #include "specfem/assembly/fields.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/kernels.hpp"
@@ -17,17 +19,9 @@
 #include "specfem/receivers.hpp"
 #include "specfem/source.hpp"
 
-/**
- * @brief Assembly namespace defines data structures used to store data related
- * to finite element assembly.
- *
- * The data is organized in a manner that makes it effiecient to access when
- * computing finite element compute kernels.
- *
- */
 namespace specfem::assembly {
 /**
- * @brief Finite element assembly data
+ * @brief Specialization of the assembly class for 2D finite element problems
  *
  */
 template <> struct assembly<specfem::dimension::type::dim2> {
@@ -41,6 +35,8 @@ template <> struct assembly<specfem::dimension::type::dim2> {
                                                                  ///< every
                                                                  ///< spectral
                                                                  ///< element
+
+  specfem::assembly::edge_types<dimension_tag> edge_types;
   specfem::assembly::jacobian_matrix<dimension_tag>
       jacobian_matrix;                                     ///< Partial
                                                            ///< derivatives
@@ -57,10 +53,8 @@ template <> struct assembly<specfem::dimension::type::dim2> {
   specfem::assembly::boundaries<dimension_tag> boundaries; ///< Boundary
                                                            ///< conditions
   specfem::assembly::coupled_interfaces<dimension_tag>
-      coupled_interfaces;                          ///< Coupled
-                                                   ///< interfaces
-                                                   ///< between 2
-                                                   ///< mediums
+      coupled_interfaces; ///< Coupled interfaces between 2 mediums (new
+                          ///< implementation)
   specfem::assembly::fields<dimension_tag> fields; ///< Displacement, velocity,
                                                    ///< and acceleration fields
   specfem::assembly::boundary_values<dimension_tag>

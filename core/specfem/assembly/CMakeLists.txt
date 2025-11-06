@@ -16,7 +16,13 @@ target_link_libraries(
         specfem::receivers
         shape_functions
         Kokkos::kokkos
+        enumerations
         ${BOOST_LIBS}
+)
+
+set_target_properties(assembly PROPERTIES
+    UNITY_BUILD $<NOT:$<BOOL:${__INTEL_LLVM__}>>
+    UNITY_BUILD_BATCH_SIZE $<IF:$<BOOL:${__INTEL_LLVM__}>,0,8>
 )
 
 

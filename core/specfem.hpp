@@ -12,7 +12,6 @@
  *   specfem 2d -p config.yaml
  *   specfem 3d -p config.yaml
  */
-#include "enumerations/dimension.hpp"
 #include <boost/program_options.hpp>
 
 /**

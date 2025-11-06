@@ -3,6 +3,7 @@
 #include "enumerations/interface.hpp"
 #include "specfem/data_access.hpp"
 #include "specfem_setup.hpp"
+#include "utilities/utilities.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
@@ -64,7 +65,10 @@ public:
    *
    */
   KOKKOS_FUNCTION
-  jacobian_matrix() = default;
+  jacobian_matrix() {
+    this->init();
+    return;
+  }
 
   /**
    * @brief Constructor with values
@@ -115,6 +119,14 @@ public:
   // operator*
   KOKKOS_FUNCTION jacobian_matrix operator*(const type_real &rhs) {
     return { xix * rhs, gammax * rhs, xiz * rhs, gammaz * rhs };
+  }
+
+  // operator==
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (specfem::utilities::is_close(this->xix, rhs.xix)) &&
+           (specfem::utilities::is_close(this->gammax, rhs.gammax)) &&
+           (specfem::utilities::is_close(this->xiz, rhs.xiz)) &&
+           (specfem::utilities::is_close(this->gammaz, rhs.gammaz));
   }
 };
 
@@ -183,7 +195,10 @@ public:
    *
    */
   KOKKOS_FUNCTION
-  jacobian_matrix() = default;
+  jacobian_matrix() {
+    this->init();
+    return;
+  }
 
   /**
    * @brief Constructor with values
@@ -258,6 +273,19 @@ public:
     return { xix * rhs,    etax * rhs, gammax * rhs, xiy * rhs,   etay * rhs,
              gammay * rhs, xiz * rhs,  etaz * rhs,   gammaz * rhs };
   }
+
+  // operator==
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (specfem::utilities::is_close(this->xix, rhs.xix)) &&
+           (specfem::utilities::is_close(this->etax, rhs.etax)) &&
+           (specfem::utilities::is_close(this->gammax, rhs.gammax)) &&
+           (specfem::utilities::is_close(this->xiy, rhs.xiy)) &&
+           (specfem::utilities::is_close(this->etay, rhs.etay)) &&
+           (specfem::utilities::is_close(this->gammay, rhs.gammay)) &&
+           (specfem::utilities::is_close(this->xiz, rhs.xiz)) &&
+           (specfem::utilities::is_close(this->etaz, rhs.etaz)) &&
+           (specfem::utilities::is_close(this->gammaz, rhs.gammaz));
+  }
 };
 
 // operator*
@@ -314,7 +342,10 @@ public:
    *
    */
   KOKKOS_FUNCTION
-  jacobian_matrix() = default;
+  jacobian_matrix() {
+    this->init();
+    return;
+  }
 
   /**
    * @brief Constructor with values
@@ -380,8 +411,13 @@ public:
    * Normal vector
    */
   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
-  compute_normal(const specfem::enums::edge::type &type) const;
+  compute_normal(const specfem::mesh_entity::dim2::type &type) const;
   ///@}
+
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (static_cast<base_type>(*this) == static_cast<base_type>(rhs)) &&
+           (specfem::utilities::is_close(this->jacobian, rhs.jacobian));
+  }
 
 private:
   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
@@ -450,7 +486,10 @@ public:
    *
    */
   KOKKOS_FUNCTION
-  jacobian_matrix() = default;
+  jacobian_matrix() {
+    this->init();
+    return;
+  }
 
   /**
    * @brief Constructor with values
@@ -514,6 +553,12 @@ public:
   // operator*
   KOKKOS_FUNCTION jacobian_matrix operator*(const type_real &rhs) = delete;
 
+  // operator==
+  KOKKOS_FUNCTION bool operator==(const jacobian_matrix &rhs) const {
+    return (static_cast<base_type>(*this) == static_cast<base_type>(rhs)) &&
+           (specfem::utilities::is_close(this->jacobian, rhs.jacobian));
+  }
+
   /**
    * @name Member functions
    *
@@ -569,3 +614,15 @@ public:
 
 } // namespace point
 } // namespace specfem
+
+namespace Kokkos { // reduction identity must be defined in Kokkos namespace
+template <typename T> struct reduction_identity {
+  KOKKOS_FORCEINLINE_FUNCTION static std::enable_if_t<
+      ((specfem::data_access::is_point<T>::value) &&
+       (specfem::data_access::is_jacobian_matrix<T>::value)),
+      T>
+  sum() {
+    return T();
+  }
+};
+} // namespace Kokkos

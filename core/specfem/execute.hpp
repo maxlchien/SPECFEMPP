@@ -1,28 +1,23 @@
 #pragma once
-
-#include "specfem/assembly.hpp"
-// #include "coupled_interface/interface.hpp"
-// #include "domain/interface.hpp"
-#include "enumerations/dimension.hpp"
-#include "io/interface.hpp"
-#include "kokkos_abstractions.h"
-#include "mesh/mesh.hpp"
-#include "parameter_parser/interface.hpp"
-#include "solver/solver.hpp"
-#include "specfem/receivers.hpp"
-#include "specfem/source.hpp"
-#include "specfem_mpi/interface.hpp"
-#include "specfem_setup.hpp"
-#include "timescheme/timescheme.hpp"
-#include "yaml-cpp/yaml.h"
-#include <Kokkos_Core.hpp>
-#include <boost/program_options.hpp>
+/**
+ * @file execute.hpp
+ * @brief Unified SPECFEM++ execution interface
+ *
+ * This header defines the unified execution function for SPECFEM++ simulations,
+ * supporting both 2D and 3D simulations through dimension-templated execution.
+ *
+ * The execute function initializes and runs the simulation based on the
+ * provided parameters and periodic tasks.
+ */
+#include "enumerations/interface.hpp"
+#include "specfem/periodic_tasks.hpp"
 #include <chrono>
 #include <ctime>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <yaml-cpp/yaml.h>
 
 // Legacy execute function (currently used by existing code)
 void execute(

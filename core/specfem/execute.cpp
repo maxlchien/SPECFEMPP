@@ -1,5 +1,23 @@
 #include "execute.hpp"
 
+#include "enumerations/dimension.hpp"
+#include "io/interface.hpp"
+#include "kokkos_abstractions.h"
+#include "mesh/mesh.hpp"
+#include "parameter_parser/interface.hpp"
+#include "solver/solver.hpp"
+#include "specfem/assembly.hpp"
+#include "specfem/receivers.hpp"
+#include "specfem/source.hpp"
+#include "specfem/timescheme.hpp"
+#include "specfem_mpi/interface.hpp"
+#include "specfem_setup.hpp"
+#include "yaml-cpp/yaml.h"
+#include <Kokkos_Core.hpp>
+#include <boost/program_options.hpp>
+
+#include <sstream>
+
 std::string
 print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
                   std::chrono::duration<double> solver_time) {
@@ -59,7 +77,7 @@ void execute(
 
   const auto stations_node = setup.get_stations();
   const auto angle = setup.get_receiver_angle();
-  auto receivers = specfem::io::read_receivers(stations_node, angle);
+  auto receivers = specfem::io::read_2d_receivers(stations_node, angle);
 
   mpi->cout("Source Information:");
   mpi->cout("-------------------------------");
@@ -85,32 +103,32 @@ void execute(
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
-  //                   Instantiate Timescheme
-  // --------------------------------------------------------------
-  const auto time_scheme = setup.instantiate_timescheme();
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
-
-  const int max_seismogram_time_step = time_scheme->get_max_seismogram_step();
-
-  const int nstep_between_samples = time_scheme->get_nstep_between_samples();
-  // --------------------------------------------------------------
-
-  // --------------------------------------------------------------
   //                   Generate Assembly
   // --------------------------------------------------------------
   const type_real dt = setup.get_dt();
+  const int max_seismogram_time_step = setup.get_max_seismogram_step();
+  const int nstep_between_samples = setup.get_nstep_between_samples();
   specfem::assembly::assembly<specfem::dimension::type::dim2> assembly(
       mesh, quadrature, sources, receivers, setup.get_seismogram_types(),
       setup.get_t0(), dt, nsteps, max_seismogram_time_step,
       nstep_between_samples, setup.get_simulation_type(),
       setup.allocate_boundary_values(), setup.instantiate_property_reader());
-  time_scheme->link_assembly(assembly);
-  // --------------------------------------------------------------
 
   if (mpi->main_proc()) {
     mpi->cout(assembly.print());
   }
+
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Instantiate Timescheme
+  // --------------------------------------------------------------
+  const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
+
+  if (mpi->main_proc())
+    std::cout << *time_scheme << std::endl;
+
+  // --------------------------------------------------------------
 
   // --------------------------------------------------------------
   //               Write properties
@@ -155,7 +173,7 @@ void execute(
   //                   Instantiate plotter
   // --------------------------------------------------------------
   const auto wavefield_plotter =
-      setup.instantiate_wavefield_plotter(assembly, mpi);
+      setup.instantiate_wavefield_plotter(assembly, dt, mpi);
   if (wavefield_plotter) {
     tasks.push_back(wavefield_plotter);
   }

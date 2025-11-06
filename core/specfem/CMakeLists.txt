@@ -5,6 +5,9 @@ add_subdirectory(receivers)
 add_subdirectory(shape_functions)
 add_subdirectory(source)
 add_subdirectory(jacobian)
+add_subdirectory(timescheme)
+add_subdirectory(periodic_tasks)
+
 
 # Core library - singleton for managing initialization/finalization
 add_library(specfem_core STATIC core.cpp)
@@ -38,7 +41,6 @@ target_link_libraries(specfem_execute
         writer
         periodic_tasks
         reader
-        coupled_interface
         kokkos_kernels
         solver
         ${BOOST_LIBS}

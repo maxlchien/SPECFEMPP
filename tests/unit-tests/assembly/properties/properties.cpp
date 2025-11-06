@@ -37,7 +37,7 @@ set_property_value(
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<using_simd, Kokkos::DefaultHostExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
@@ -68,7 +68,7 @@ check_property_value(
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<using_simd, Kokkos::DefaultHostExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
@@ -124,7 +124,7 @@ check_property_value(
   constexpr auto dimension = specfem::dimension::type::dim2;
 
   const int nspec = assembly.mesh.nspec;
-  const int ngll = assembly.mesh.ngllx;
+  const int ngll = assembly.mesh.element_grid.ngllx;
   const auto &properties = assembly.properties;
 
   using PointType =
@@ -136,7 +136,7 @@ check_property_value(
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<using_simd, Kokkos::DefaultExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
@@ -159,7 +159,7 @@ check_property_value(
       Kokkos::DefaultHostExecutionSpace(), elements);
   specfem::execution::ChunkedDomainIterator host_policy(
       ParallelConfig<using_simd, Kokkos::DefaultHostExecutionSpace>(),
-      host_elements, assembly.mesh.ngllz, assembly.mesh.ngllx);
+      host_elements, assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", host_policy,
@@ -208,7 +208,7 @@ void check_compute_to_mesh(
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<false, Kokkos::DefaultHostExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
@@ -242,7 +242,7 @@ void check_compute_to_mesh(
       });
 }
 
-TEST_F(ASSEMBLY, properties_access_functions) {
+TEST_F(Assembly2D, properties_access_functions) {
   for (auto parameters : *this) {
     auto Test = std::get<0>(parameters);
     auto mesh = std::get<1>(parameters);
@@ -320,7 +320,7 @@ TEST_F(ASSEMBLY, properties_access_functions) {
   }
 }
 
-TEST_F(ASSEMBLY, properties_construction) {
+TEST_F(Assembly2D, properties_construction) {
   for (auto parameters : *this) {
     auto Test = std::get<0>(parameters);
     auto mesh = std::get<1>(parameters);
@@ -354,7 +354,7 @@ TEST_F(ASSEMBLY, properties_construction) {
   }
 }
 
-TEST_F(ASSEMBLY, properties_io_routines) {
+TEST_F(Assembly2D, properties_io_routines) {
   for (auto parameters : *this) {
     auto Test = std::get<0>(parameters);
     auto mesh = std::get<1>(parameters);

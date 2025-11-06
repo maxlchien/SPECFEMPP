@@ -11,7 +11,7 @@ specfem::mesh::acoustic_free_surface<specfem::dimension::type::dim2>::
         "specfem::mesh::acoustic_free_surface::index_mapping",
         nelem_acoustic_surface);
     this->type =
-        Kokkos::View<specfem::enums::boundaries::type *, Kokkos::HostSpace>(
+        Kokkos::View<specfem::mesh_entity::dim2::type *, Kokkos::HostSpace>(
             "specfem::mesh::acoustic_free_surface::type",
             nelem_acoustic_surface);
   }

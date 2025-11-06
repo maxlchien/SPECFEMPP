@@ -32,8 +32,15 @@ void specfem::kokkos_kernels::impl::compute_source_interaction(
       assembly.sources.get_sources_on_device(MediumTag, PropertyTag,
                                              BoundaryTag, WavefieldType);
 
-  const int ngllz = assembly.mesh.ngllz;
-  const int ngllx = assembly.mesh.ngllx;
+  // Get the element grid (ngllx, ngllz)
+  const auto &element_grid = assembly.mesh.element_grid;
+
+  // Check if the number of GLL points in the mesh elements matches the template
+  // parameter NGLL
+  if (element_grid != NGLL) {
+    throw std::runtime_error("The number of GLL points in the mesh elements must match "
+                             "the template parameter NGLL.");
+  }
 
   auto &sources = assembly.sources;
 
@@ -72,7 +79,9 @@ void specfem::kokkos_kernels::impl::compute_source_interaction(
                                              Kokkos::DefaultExecutionSpace>;
 
   specfem::execution::MappedChunkedDomainIterator mapped_policy(
-      ParallelConfig(), element_indices, source_indices, ngllz, ngllx);
+      ParallelConfig(), element_indices, source_indices, element_grid);
+
+  Kokkos::Profiling::pushRegion("Compute Source Interaction");
 
   specfem::execution::for_all(
       "specfem::kokkos_kernels::compute_source_interaction", mapped_policy,
@@ -89,4 +98,6 @@ void specfem::kokkos_kernels::impl::compute_source_interaction(
 
         specfem::assembly::atomic_add_on_device(mapped_index, field, acceleration);
       });
+
+  Kokkos::Profiling::popRegion();
 }

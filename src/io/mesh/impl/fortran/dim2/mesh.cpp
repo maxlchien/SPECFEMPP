@@ -3,13 +3,14 @@
 #include "enumerations/interface.hpp"
 #include "io/fortranio/interface.hpp"
 #include "io/interface.hpp"
+#include "io/mesh/impl/fortran/dim2/read_adjacency_graph.hpp"
 #include "io/mesh/impl/fortran/dim2/read_boundaries.hpp"
 #include "io/mesh/impl/fortran/dim2/read_elements.hpp"
 #include "io/mesh/impl/fortran/dim2/read_interfaces.hpp"
 #include "io/mesh/impl/fortran/dim2/read_material_properties.hpp"
 #include "io/mesh/impl/fortran/dim2/read_mesh_database.hpp"
 #include "io/mesh/impl/fortran/dim2/read_parameters.hpp"
-#include "io/mesh/impl/fortran/dim3/interface.hpp"
+#include "io/mesh/impl/fortran/dim3/generate_database/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "medium/material.hpp"
 #include "specfem_mpi/interface.hpp"
@@ -24,7 +25,8 @@
 #include <vector>
 
 specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
-    const std::string &filename, const specfem::enums::elastic_wave elastic_wave,
+    const std::string &filename,
+    const specfem::enums::elastic_wave elastic_wave,
     const specfem::enums::electromagnetic_wave electromagnetic_wave,
     const specfem::MPI::MPI *mpi) {
 
@@ -115,7 +117,8 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
         specfem::io::mesh::impl::fortran::dim2::read_coupled_interfaces(
             stream, mesh.parameters.num_fluid_solid_edges,
             mesh.parameters.num_fluid_poro_edges,
-            mesh.parameters.num_solid_poro_edges, mpi);
+            mesh.parameters.num_solid_poro_edges, mesh.control_nodes.knods,
+            mpi);
   } catch (std::runtime_error &e) {
     throw;
   }
@@ -132,6 +135,14 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
     mesh.axial_nodes =
         specfem::io::mesh::impl::fortran::dim2::read_axial_elements(
             stream, mesh.parameters.nelem_on_the_axis, mesh.nspec, mpi);
+  } catch (std::runtime_error &e) {
+    throw;
+  }
+
+  try {
+    mesh.adjacency_graph =
+        specfem::io::mesh::impl::fortran::dim2::read_adjacency_graph(mesh.nspec,
+                                                                     stream);
   } catch (std::runtime_error &e) {
     throw;
   }
@@ -190,6 +201,8 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
 
   mesh.tags = specfem::mesh::tags<specfem::dimension::type::dim2>(
       mesh.materials, mesh.boundaries);
+
+  mesh.check_consistency();
 
   return mesh;
 }

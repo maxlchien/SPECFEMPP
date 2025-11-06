@@ -33,14 +33,11 @@ public:
       specfem::dimension::type::dim3; ///< Dimension
   int nspec;                          ///< Number of spectral
                                       ///< elements
-  int ngllz;                          ///< Number of quadrature
-                                      ///< points in z dimension
-  int nglly;                          ///< Number of quadrature
-                                      ///< points in y dimension
-  int ngllx;                          ///< Number of quadrature
-                                      ///< points in x dimension
   int ngnod;                          ///< Number of control
                                       ///< nodes
+
+  specfem::mesh_entity::element<dimension_tag> element_grid; ///< Element number
+                                                             ///< of GLL points
 
   mesh() = default;
 
@@ -48,6 +45,14 @@ public:
        const specfem::mesh::coordinates<dimension_tag> &coordinates,
        const specfem::mesh::mapping<dimension_tag> &mapping,
        const specfem::mesh::control_nodes<dimension_tag> &control_nodes,
+       const specfem::quadrature::quadratures &quadrature);
+
+  mesh(const int nspec, const int ngnod, const int ngllz, const int nglly,
+       const int ngllx,
+       const specfem::mesh::meshfem3d::adjacency_graph<dimension_tag>
+           &adjacency_graph,
+       const specfem::mesh::meshfem3d::ControlNodes<dimension_tag>
+           &control_nodes,
        const specfem::quadrature::quadratures &quadrature);
 };
 

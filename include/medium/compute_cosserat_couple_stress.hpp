@@ -55,7 +55,7 @@ assert_types(const std::integral_constant<bool, true>) {
 
   // Check the PointStressIntegrandViewType, which is a kokkos view for its
   //  extent
-  static_assert(PointStressIntegrandViewType::rank == 2,
+  static_assert(PointStressIntegrandViewType::rank() == 2,
                 "PointStressIntegrandViewType must be a 2D view");
   static_assert(
       PointStressIntegrandViewType::static_extent(0) ==
@@ -138,9 +138,10 @@ KOKKOS_INLINE_FUNCTION void impl_compute_cosserat_couple_stress(
  * specfem::point::field
  * @tparam PointAccelerationType Acceleration at the quadrature point
  * specfem::point::field
- * @param factor Prefactor for the damping term ($wx * wz * jacobian)
+ * @param PointJacobianMatrixType Jacobian matrix at the quadrature point
  * @param point_properties Material properties at the quadrature point
- * @param velocity Velocity at the quadrature point
+ * @param factor Prefactor for the damping term ($wx * wz * jacobian)
+ * @param F Stress integrand at the quadrature point
  * @param acceleration Acceleration at the quadrature point
  */
 template <typename T, typename PointJacobianMatrixType,

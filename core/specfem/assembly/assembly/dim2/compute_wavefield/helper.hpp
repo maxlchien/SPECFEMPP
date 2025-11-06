@@ -27,7 +27,8 @@ public:
                       Kokkos::DefaultExecutionSpace>
              wavefield_on_entire_grid)
       : assembly(assembly), wavefield_on_entire_grid(wavefield_on_entire_grid) {
-    if (assembly.mesh.ngllz != ngll || assembly.mesh.ngllx != ngll) {
+    const auto &element_grid = assembly.mesh.element_grid;
+    if (element_grid != ngll) {
       throw std::runtime_error("Number of quadrature points not supported");
     }
   }
@@ -35,8 +36,8 @@ public:
   void operator()(const specfem::wavefield::type wavefield_type) {
     const auto buffer = assembly.fields.buffer;
 
-    const int ngllz = assembly.mesh.ngllz;
-    const int ngllx = assembly.mesh.ngllx;
+    // Get the element grid (ngllx, ngllz)
+    const auto &element_grid = assembly.mesh.element_grid;
 
     const auto elements =
         assembly.element_types.get_elements_on_device(medium_tag, property_tag);
@@ -63,9 +64,9 @@ public:
         specfem::parallel_config::chunk_size, ngll, dimension, medium_tag,
         using_simd>;
 
-    using QuadratureType = specfem::element::quadrature<
+    using QuadratureType = specfem::quadrature::lagrange_derivative<
         ngll, specfem::dimension::type::dim2, specfem::kokkos::DevScratchSpace,
-        Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+        Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
     using PointPropertyType =
         specfem::point::properties<specfem::dimension::type::dim2, medium_tag,
@@ -80,7 +81,7 @@ public:
         ChunkAccelerationType::shmem_size() + QuadratureType::shmem_size();
 
     specfem::execution::ChunkedDomainIterator chunk(ParallelConfig(), elements,
-                                                    ngllz, ngllx);
+                                                    element_grid);
 
     specfem::execution::for_each_level(
         "specfem::assembly::assembly::compute_wavefield",
@@ -89,12 +90,13 @@ public:
             const typename decltype(chunk)::index_type chunk_iterator_index) {
           const auto &chunk_index = chunk_iterator_index.get_index();
           const auto team = chunk_index.get_policy_index();
-          QuadratureType quadrature(team);
+          QuadratureType lagrange_derivative(team);
           ChunkDisplacementType displacement(team.team_scratch(0));
           ChunkVelocityType velocity(team.team_scratch(0));
           ChunkAccelerationType acceleration(team.team_scratch(0));
 
-          specfem::assembly::load_on_device(team, assembly.mesh, quadrature);
+          specfem::assembly::load_on_device(team, assembly.mesh,
+                                            lagrange_derivative);
 
           specfem::assembly::load_on_device(chunk_index, buffer, displacement,
                                             velocity, acceleration);
@@ -105,8 +107,8 @@ public:
                               Kokkos::ALL, Kokkos::ALL, Kokkos::ALL);
 
           specfem::medium::compute_wavefield<MediumTag, PropertyTag>(
-              chunk_index, assembly, quadrature, displacement, velocity,
-              acceleration, wavefield_type, wavefield);
+              chunk_index, assembly, lagrange_derivative, displacement,
+              velocity, acceleration, wavefield_type, wavefield);
         });
 
     return;

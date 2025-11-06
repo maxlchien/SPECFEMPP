@@ -4,7 +4,7 @@
 #include "specfem/chunk_element.hpp"
 #include "compute_seismogram.hpp"
 #include "datatypes/simd.hpp"
-#include "element/quadrature.hpp"
+#include "quadrature/lagrange_derivative.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
@@ -32,11 +32,20 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
   const auto [elements, receiver_indices] =
       assembly.receivers.get_indices_on_device(medium_tag, property_tag);
 
-  const int ngllz = assembly.mesh.ngllz;
-  const int ngllx = assembly.mesh.ngllx;
+  // Get the element grid (ngllx, ngllz)
+  const auto &element_grid = assembly.mesh.element_grid;
 
+  // Check if the number of GLL points in the mesh elements matches the template
+  // parameter NGLL
+  if (element_grid != ngll) {
+    throw std::runtime_error("The number of GLL points in z and x must match "
+                             "the template parameter NGLL.");
+  }
+
+  // Get the number of elements and receivers that match the specified tags
   const int nreceivers = receiver_indices.extent(0);
 
+  // return if there are no receivers with this tag combination
   if (nreceivers == 0)
     return;
 
@@ -49,11 +58,6 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
   const auto field =
       assembly.fields
           .template get_simulation_field<wavefield_simulation_field>();
-
-  if (ngllz != ngll || ngllx != ngll) {
-    throw std::runtime_error("The number of GLL points in z and x must match "
-                             "the template parameter NGLL.");
-  }
 
   constexpr bool using_simd = false;
 
@@ -81,9 +85,9 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
   using ChunkAccelerationType =
       specfem::chunk_element::acceleration<parallel_config::chunk_size, ngll,
                                            dimension, medium_tag, using_simd>;
-  using ElementQuadratureType = specfem::element::quadrature<
+  using ElementQuadratureType = specfem::quadrature::lagrange_derivative<
       ngll, dimension, specfem::kokkos::DevScratchSpace,
-      Kokkos::MemoryTraits<Kokkos::Unmanaged>, true, false>;
+      Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
   using ViewType = Kokkos::View<type_real[ParallelConfig::chunk_size][ngll][ngll][2],
                                Kokkos::LayoutLeft,
                                specfem::kokkos::DevScratchSpace,
@@ -102,7 +106,9 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
   receivers.set_seismogram_step(isig_step);
 
   specfem::execution::MappedChunkedDomainIterator chunk(
-      ParallelConfig(), elements, receiver_indices, ngllz, ngllx);
+      ParallelConfig(), elements, receiver_indices, element_grid);
+
+  Kokkos::Profiling::pushRegion("Compute Seismograms");
 
   for (int iseis = 0; iseis < nseismograms; ++iseis) {
 
@@ -118,19 +124,19 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
           ChunkDisplacementType displacement(team.team_scratch(0));
           ChunkVelocityType velocity(team.team_scratch(0));
           ChunkAccelerationType acceleration(team.team_scratch(0));
-          ElementQuadratureType element_quadrature(team);
+          ElementQuadratureType lagrange_derivative(team);
           ViewType wavefield(team.team_scratch(0));
           ViewType lagrange_interpolant(team.team_scratch(0));
           ResultsViewType seismogram_components(team.team_scratch(0));
 
-          specfem::assembly::load_on_device(team, mesh, element_quadrature);
+          specfem::assembly::load_on_device(team, mesh, lagrange_derivative);
 
           specfem::assembly::load_on_device(chunk_index, field, displacement,
                                             velocity, acceleration);
           team.team_barrier();
 
           specfem::medium::compute_wavefield<medium_tag, property_tag>(
-              chunk_index, assembly, element_quadrature, displacement, velocity,
+              chunk_index, assembly, lagrange_derivative, displacement, velocity,
               acceleration, wavefield_type, wavefield);
 
           specfem::assembly::load_on_device(chunk_index, receivers,
@@ -146,6 +152,8 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
                                              receivers);
         });
   }
+
+  Kokkos::Profiling::popRegion();
 
   return;
 }

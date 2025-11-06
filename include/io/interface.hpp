@@ -41,6 +41,29 @@ read_3d_mesh(const std::string &mesh_parameters_file,
              const std::string &mesh_databases_file,
              const specfem::MPI::MPI *mpi);
 
+namespace meshfem3d {
+/**
+ * @brief Construct a 3D mesh object from MESHFEM3D Fortran binary database file
+ *
+ * @param database_file MESHFEM3D database file
+ * @param mpi pointer to MPI object to manage communication
+ * @return specfem::mesh::mesh<specfem::dimension::type::dim3>
+ *         Specfem mesh object for dimension type dim3
+ *
+ * @code
+ * // Read 3D mesh from MESHFEM3D database file
+ * auto mesh = specfem::io::meshfem3d::read_3d_mesh("DATABASES_MPI", mpi);
+ * @endcode
+ */
+specfem::mesh::meshfem3d::mesh<specfem::dimension::type::dim3>
+read_3d_mesh(const std::string &database_file, const specfem::MPI::MPI *mpi);
+} // namespace meshfem3d
+
+// namespace meshfem3d {
+// specfem::mesh::meshfem3d::mesh<specfem::dimension::type::dim3>
+// read_3d_mesh(const std::string &filename, const specfem::MPI::MPI *mpi);
+// } // namespace meshfem3d
+
 /**
  * @brief Read station file
  *
@@ -53,7 +76,7 @@ read_3d_mesh(const std::string &mesh_parameters_file,
  */
 std::vector<std::shared_ptr<
     specfem::receivers::receiver<specfem::dimension::type::dim2> > >
-read_receivers(const std::string &stations_file, const type_real angle);
+read_2d_receivers(const std::string &stations_file, const type_real angle);
 
 /**
  * @overload
@@ -80,7 +103,47 @@ read_receivers(const std::string &stations_file, const type_real angle);
  */
 std::vector<std::shared_ptr<
     specfem::receivers::receiver<specfem::dimension::type::dim2> > >
-read_receivers(const YAML::Node &stations, const type_real angle);
+read_2d_receivers(const YAML::Node &stations, const type_real angle);
+
+/**
+ * @brief Read receivers file for 3D simulations
+ *
+ * Parse receiver stations file and create a vector of
+ * specfem::receiver::receiver * object
+ *
+ * @param stations_file Stations file describing receiver locations
+ * @return vector of instantiated receiver objects
+ */
+std::vector<std::shared_ptr<
+    specfem::receivers::receiver<specfem::dimension::type::dim3> > >
+read_3d_receivers(const std::string &stations_file);
+
+/**
+ * @overload
+ * @brief Read 3D receivers from YAML Node
+ *
+ * Parse receiver stations file and create a vector of
+ * specfem::receiver::receiver * object
+ *
+ * The receivers are defined in the YAML file as
+ *
+ * @code
+ * receivers:
+ *     stations-dict:
+ *         - network: "network_name"
+ *           station: "station_name"
+ *           x: x_coordinate
+ *           y: y_coordinate
+ *           z: z_coordinate
+ *         - <next station>
+ * @endcode
+ *
+ * @param stations YAML node containing receiver locations
+ * @return vector of instantiated receiver objects
+ */
+std::vector<std::shared_ptr<
+    specfem::receivers::receiver<specfem::dimension::type::dim3> > >
+read_3d_receivers(const YAML::Node &stations);
 
 /**
  * @brief Read sources file written in .yml format

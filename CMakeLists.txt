@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD 17)
 option(SPECFEM_ENABLE_ADIOS2 "Enable ADIOS2 I/O in SPECFEM++" OFF)
 option(SPECFEM_ENABLE_HDF5 "Enable HDF5 I/O in SPECFEM++" OFF)
 option(SPECFEM_ENABLE_HDF5_FORCE_INSTALL "Force install HDF5 dependency if SPECFEM_ENABLE_HDF5 is ON even if system HDF5 is found" OFF)
+option(SPECFEM_ENABLE_NPZ "Enable NPZ I/O in SPECFEM++" OFF)
+option(SPECFEM_ENABLE_ZLIB_FORCE_INSTALL "Force install ZLIB dependency even if system ZLIB is found" OFF)
 option(SPECFEM_ENABLE_VTK "Enable VTK visualization in SPECFEM++" ON)
 option(SPECFEM_ENABLE_MPI "MPI enabled" OFF)
 option(SPECFEM_BUILD_TESTS "Tests included" OFF)
@@ -18,6 +20,7 @@ option(SPECFEM_INSTALL "Creates clean executable directory. Location Controlled 
 option(SPECFEM_ENABLE_DOUBLE_PRECISION "Enable double precision" OFF)
 option(SPECFEM_BUILD_BENCHMARKS "Benchmarks included" ON)
 option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" ON)
+option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tests" OFF)
 
 # set(CMAKE_BUILD_TYPE Release)
 set(CHUNK_SIZE 32)
@@ -91,6 +94,25 @@ else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     message(STATUS "macOS not detected -- setting __APPLE__ FALSE")
 endif()
 
+# Check if IntelLLVM
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
+    set(__INTEL_LLVM__ TRUE)
+    message(STATUS "IntelLLVM detected -- setting __INTEL_LLVM__ TRUE")
+else(${CMAKE_CXX_COMPILER_ID} MATCHES "IntelLLVM")
+    set(__INTEL_LLVM__ FALSE)
+    message(STATUS "IntelLLVM not detected -- setting __INTEL_LLVM__ FALSE")
+endif()
+
+# Check if Windows
+# https://cmake.org/cmake/help/latest/variable/MSVC.html
+if(MSVC)
+    set(__MSVC__ TRUE)
+    message(STATUS "MSVC detected -- setting __MSVC__ TRUE")
+else(MSVC)
+    set(__MSVC__ FALSE)
+    message(STATUS "MSVC not detected -- setting __MSVC__ FALSE")
+endif()
+
 # Install Kokkos as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/kokkos.cmake")
 
@@ -103,6 +125,9 @@ include("${CMAKE_SOURCE_DIR}/cmake/boost.cmake")
 # Find HDF5
 include("${CMAKE_SOURCE_DIR}/cmake/hdf5.cmake")
 
+# Find or install NPZ library function
+include("${CMAKE_SOURCE_DIR}/cmake/npz.cmake")
+
 # Find or install ADIOS2 library function
 include("${CMAKE_SOURCE_DIR}/cmake/adios2.cmake")
 
@@ -110,15 +135,14 @@ include("${CMAKE_SOURCE_DIR}/cmake/adios2.cmake")
 # the pugixml dependency than ADIOS2)
 include("${CMAKE_SOURCE_DIR}/cmake/vtk.cmake")
 
-
 if (SPECFEM_ENABLE_SIMD)
     message(STATUS "Enabling SIMD")
-    add_definitions(-DSPECFEM_ENABLE_SIMD)
+    add_compile_definitions(SPECFEM_ENABLE_SIMD)
 endif()
 
 if (SPECFEM_ENABLE_PROFILING)
     message(STATUS "Enabling profiling")
-    add_definitions(-DSPECFEM_ENABLE_PROFILING)
+    add_compile_definitions(SPECFEM_ENABLE_PROFILING)
 endif()
 
 if (SPECFEM_ENABLE_DOUBLE_PRECISION)
@@ -151,7 +175,6 @@ message(STATUS "INCLUDE DIRECTORIES:")
 message(STATUS "    core: ${CMAKE_CURRENT_SOURCE_DIR}/core")
 message(STATUS "    include: ${CMAKE_SOURCE_DIR}/include")
 message(STATUS "    binary: ${CMAKE_BINARY_DIR}/include")
-
 
 
 # Set loglevel to STATUS if build type is debug
@@ -197,10 +220,14 @@ target_link_libraries(
 
 add_library(
         io
+        # IO libraries
+        src/io/NPY/impl/npy_header.cpp
+        # SPECFEM IO
         src/io/fortranio/fortran_io.cpp
         src/io/sources/dim2/read_sources.cpp
         src/io/sources/dim3/read_sources.cpp
-        src/io/receivers.cpp
+        src/io/receivers/dim2/read_receivers.cpp
+        src/io/receivers/dim3/read_receivers.cpp
         # Fortran 2D part
         src/io/mesh/impl/fortran/dim2/mesh.cpp
         src/io/mesh/impl/fortran/dim2/read_boundaries.cpp
@@ -209,12 +236,21 @@ add_library(
         src/io/mesh/impl/fortran/dim2/read_mesh_database.cpp
         src/io/mesh/impl/fortran/dim2/read_interfaces.cpp
         src/io/mesh/impl/fortran/dim2/read_parameters.cpp
+        src/io/mesh/impl/fortran/dim2/read_adjacency_graph.cpp
         # Fortran 3D part
-        src/io/mesh/impl/fortran/dim3/mesh.cpp
-        src/io/mesh/impl/fortran/dim3/read_parameters.cpp
-        src/io/mesh/impl/fortran/dim3/read_coordinates.cpp
-        src/io/mesh/impl/fortran/dim3/read_jacobian_matrix.cpp
-        src/io/mesh/impl/fortran/dim3/utilities.cpp
+        src/io/mesh/impl/fortran/dim3/generate_database/mesh.cpp
+        src/io/mesh/impl/fortran/dim3/generate_database/read_parameters.cpp
+        src/io/mesh/impl/fortran/dim3/generate_database/read_coordinates.cpp
+        src/io/mesh/impl/fortran/dim3/generate_database/read_jacobian_matrix.cpp
+        src/io/mesh/impl/fortran/dim3/generate_database/utilities.cpp
+        # Fortran 3D meshfem part
+        src/io/mesh/impl/fortran/dim3/meshfem3d/mesh.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_materials.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_mpi_interfaces.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_pml_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/meshfem3d/read_adjacency_graph.cpp
 )
 
 target_link_libraries(
@@ -223,42 +259,35 @@ target_link_libraries(
         source_class
         specfem::receivers
         yaml-cpp
-        ${BOOST_LIBS}
+        boost
+        $<$<BOOL:${SPECFEM_ENABLE_NPZ}>:zlib>
+        $<$<BOOL:${SPECFEM_ENABLE_HDF5}>:hdf5>
+        $<$<BOOL:${SPECFEM_ENABLE_ADIOS2}>:adios2>
 )
 
-if (NOT SPECFEM_ENABLE_HDF5)
-    target_compile_definitions(
+target_compile_definitions(
         io
-        PUBLIC -DNO_HDF5
-    )
-else()
-    target_link_libraries(
-        io
-        ${HDF5_LIBRARIES}
-    )
-endif()
-
-if (NOT SPECFEM_ENABLE_ADIOS2)
-    target_compile_definitions(
-        io
-        PUBLIC -DNO_ADIOS2
-    )
-else()
-    target_link_libraries(
-        io
-        adios2
-    )
-endif()
+        PUBLIC
+        $<$<NOT:$<BOOL:${SPECFEM_ENABLE_NPZ}>>:-DNO_NPZ>
+        $<$<NOT:$<BOOL:${SPECFEM_ENABLE_HDF5}>>:-DNO_HDF5>
+        $<$<NOT:$<BOOL:${SPECFEM_ENABLE_ADIOS2}>>:-DNO_ADIOS2>
+)
 
 add_library(
         enumerations
         src/enumerations/medium.cpp
         src/enumerations/wavefield.cpp
+        src/enumerations/dim2/connections.cpp
+        src/enumerations/dim3/connections.cpp
+        src/enumerations/dim3/mesh_entities.cpp
+        src/enumerations/dim2/mesh_entities.cpp
+        src/enumerations/coupled_interface.cpp
 )
 
 target_link_libraries(
         enumerations
         ${BOOST_LIBS}
+        Kokkos::kokkos
 )
 
 
@@ -277,15 +306,17 @@ add_library(
         src/specfem_mpi/specfem_mpi.cpp
 )
 
+target_compile_definitions(
+        specfem_mpi
+        PUBLIC
+        $<$<BOOL:${SPECFEM_ENABLE_MPI}>:-DMPI_PARALLEL>
+)
+
 if (SPECFEM_ENABLE_MPI)
-        target_compile_definitions(
-                specfem_mpi
-                PUBLIC -DMPI_PARALLEL
-        )
-        message(STATUS "Compiling SPECFEM with MPI")
+    message(STATUS "Compiling SPECFEM with MPI")
 else()
-        message(STATUS "Compiling SPECFEM without MPI")
-endif(SPECFEM_ENABLE_MPI)
+    message(STATUS "Compiling SPECFEM without MPI")
+endif()
 
 # add_library(
 #         material_class
@@ -312,20 +343,24 @@ add_library(
         src/mesh/dim2/coupled_interfaces/interface_container.cpp
         src/mesh/dim2/coupled_interfaces/coupled_interfaces.cpp
         src/mesh/dim2/tags/tags.cpp
+        src/mesh/dim2/adjacency_graph/assert_symmetry.cpp
         # 3-D
-        src/mesh/dim3/mesh.cpp
-        src/mesh/dim3/boundaries/absorbing_boundary.cpp
-        src/mesh/dim3/boundaries/acoustic_free_surface.cpp
-        src/mesh/dim3/coupled_interfaces/coupled_interfaces.cpp
-        src/mesh/dim3/element_types/element_types.cpp
-        src/mesh/dim3/parameters/parameters.cpp
-        src/mesh/dim3/parameters/parameters.cpp
-        src/mesh/dim3/mapping/mapping.cpp
-        src/mesh/dim3/materials/materials.cpp
-        src/mesh/dim3/coordinates/coordinates.cpp
-        src/mesh/dim3/jacobian_matrix/jacobian_matrix.cpp
-        src/mesh/dim3/control_nodes/control_nodes.cpp
-        src/mesh/dim3/tags/tags.cpp
+        src/mesh/dim3/generate_database/mesh.cpp
+        src/mesh/dim3/generate_database/boundaries/absorbing_boundary.cpp
+        src/mesh/dim3/generate_database/boundaries/acoustic_free_surface.cpp
+        src/mesh/dim3/generate_database/coupled_interfaces/coupled_interfaces.cpp
+        src/mesh/dim3/generate_database/element_types/element_types.cpp
+        src/mesh/dim3/generate_database/parameters/parameters.cpp
+        src/mesh/dim3/generate_database/parameters/parameters.cpp
+        src/mesh/dim3/generate_database/mapping/mapping.cpp
+        src/mesh/dim3/generate_database/materials/materials.cpp
+        src/mesh/dim3/generate_database/coordinates/coordinates.cpp
+        src/mesh/dim3/generate_database/jacobian_matrix/jacobian_matrix.cpp
+        src/mesh/dim3/generate_database/control_nodes/control_nodes.cpp
+        src/mesh/dim3/generate_database/tags/tags.cpp
+
+        src/mesh/dim3/meshfem3d/adjacency_graph/assert_symmetry.cpp
+        src/mesh/dim3/meshfem3d/mesh.cpp
 )
 
 target_link_libraries(
@@ -407,17 +442,6 @@ target_link_libraries(
 # Disable unity build for source_time_function due to KOKKOS_INLINE_FUNCTION issues
 set_target_properties(source_time_function PROPERTIES UNITY_BUILD OFF)
 
-
-add_library(coupled_interface
-        src/coupled_interface/coupled_interface.cpp
-)
-
-target_link_libraries(
-        coupled_interface
-        Kokkos::kokkos
-        assembly
-)
-
 add_library(
         kokkos_kernels
         src/kokkos_kernels/impl/compute_mass_matrix.cpp
@@ -427,26 +451,21 @@ add_library(
         src/kokkos_kernels/impl/compute_source_interaction.cpp
         src/kokkos_kernels/impl/compute_stiffness_interaction.cpp
         src/kokkos_kernels/impl/compute_material_derivatives.cpp
+        src/kokkos_kernels/impl/compute_coupling.cpp
         src/kokkos_kernels/frechet_kernels.cpp
 )
-set_target_properties(kokkos_kernels PROPERTIES UNITY_BUILD_BATCH_SIZE 4)
+set_target_properties(kokkos_kernels PROPERTIES
+        UNITY_BUILD $<NOT:$<BOOL:${__APPLE__}>>
+        UNITY_BUILD_BATCH_SIZE $<IF:$<BOOL:${__APPLE__}>,0,4>
+)
+
+if(__MSVC__)
+target_compile_definitions(kokkos_kernels PRIVATE __MSVC__)
+endif(__MSVC__)
 
 target_link_libraries(
         kokkos_kernels
         Kokkos::kokkos
-        assembly
-)
-
-add_library(
-        timescheme
-        src/timescheme/timescheme.cpp
-        src/timescheme/newmark.cpp
-)
-
-target_link_libraries(
-        timescheme
-        Kokkos::kokkos
-        yaml-cpp
         assembly
 )
 
@@ -478,42 +497,6 @@ target_link_libraries(
         utilities
 )
 
-add_library(
-        periodic_tasks
-        src/periodic_tasks/plot_wavefield.cpp
-        src/periodic_tasks/check_signal.cpp
-        src/periodic_tasks/wavefield_writer.cpp
-        src/periodic_tasks/wavefield_reader.cpp
-)
-
-target_link_libraries(
-        periodic_tasks
-        reader
-        writer
-)
-
-if (NOT SPECFEM_ENABLE_VTK)
-        target_compile_definitions(
-                periodic_tasks
-                PUBLIC -DNO_VTK
-        )
-
-        target_link_libraries(
-                periodic_tasks
-                assembly
-        )
-else ()
-        target_link_libraries(
-                periodic_tasks
-                assembly
-                ${VTK_LIBRARIES}
-                )
-
-        # Only define the __APPLE__ compile definition if it is defined
-        if (__APPLE__)
-        target_compile_definitions(periodic_tasks PRIVATE __APPLE__)
-        endif(__APPLE__)
-endif()
 
 add_library(
         parameter_reader

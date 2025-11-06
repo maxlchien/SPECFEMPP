@@ -5,6 +5,7 @@
 #include "dim2/elastic/isotropic/wavefield.hpp"
 #include "dim2/elastic/isotropic_cosserat/wavefield.hpp"
 #include "dim2/poroelastic/isotropic/wavefield.hpp"
+#include "dim3/elastic/isotropic/wavefield.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
@@ -30,7 +31,7 @@ namespace medium {
  * @tparam ChunkFieldType Chunk field type that stores the intrinsic field
  * values specfem::chunk_element::field
  * @tparam QuadratureType The quadrature type that stores the lagrange
- * polynomial values specfem::element::quadrature
+ * polynomial values specfem::quadrature::lagrange_derivative
  * @tparam WavefieldViewType 4 dimensional Kokkos view (output)
  * @param chunk_index The chunk index that contains the spectral element indices
  * @param assembly SPECFEM++ assembly object
@@ -54,8 +55,6 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
     const specfem::wavefield::type &wavefield_component,
     WavefieldViewType wavefield_on_entire_grid) {
 
-  static_assert(QuadratureType::store_hprime_gll,
-                "quadrature type needs to store GLL points");
   static_assert(WavefieldViewType::rank() == 4,
                 "wavefield_on_entire_grid needs to be a 4D view");
 
@@ -76,10 +75,11 @@ KOKKOS_INLINE_FUNCTION auto compute_wavefield(
                     specfem::dimension::type::dim2,
                 "AccelerationFieldType dimension tag must be dim2");
 
-  static_assert(DisplacementFieldType::isChunkViewType &&
-                    VelocityFieldType::isChunkViewType &&
-                    AccelerationFieldType::isChunkViewType,
-                "All field types must be chunk view types");
+  static_assert(
+      specfem::data_access::is_chunk_element<DisplacementFieldType>::value &&
+          specfem::data_access::is_chunk_element<VelocityFieldType>::value &&
+          specfem::data_access::is_chunk_element<AccelerationFieldType>::value,
+      "All field types must be chunk view types");
 
   using dimension_dispatch =
       std::integral_constant<specfem::dimension::type,

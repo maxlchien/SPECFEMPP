@@ -1,6 +1,6 @@
 #include "constants.hpp"
-#include "periodic_tasks/check_signal.hpp"
 #include "specfem/core.hpp"
+#include "specfem/periodic_tasks.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
