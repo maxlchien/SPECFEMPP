@@ -409,6 +409,15 @@ target_link_libraries(
   -lpthread -lm
 )
 
+target_compile_definitions(
+        compute_tests
+        PUBLIC
+        $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
+        $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
+        $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
+        $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
+)
+
 add_executable(
   nonconforming_assembly_tests
   assembly/runner.cpp
@@ -478,6 +487,15 @@ target_link_libraries(
   -lpthread -lm
   gtest_main
   ${BOOST_LIBS}
+)
+
+target_compile_definitions(
+        assembly_tests
+        PUBLIC
+        $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
+        $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
+        $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
+        $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
 )
 
 add_executable(

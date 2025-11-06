@@ -1,11 +1,6 @@
 #pragma once
 
-/**
- * @brief Macro to create a constexpr array from a sequence
- * Used by medium_types(), material_systems() and element_types()
- */
-#define _MAKE_CONSTEXPR_ARRAY(seq)                                             \
-  BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_TRANSFORM(_MAKE_ARRAY, _, seq))
+#include <boost/preprocessor.hpp>
 
 /**
  * @brief Sequence transformation macros for _MAKE_CONSTEXPR_ARRAY.
@@ -27,3 +22,10 @@
                   _GET_TAG(BOOST_PP_TUPLE_ELEM(1, elem)),                      \
                   _GET_TAG(BOOST_PP_TUPLE_ELEM(2, elem)),                      \
                   _GET_TAG(BOOST_PP_TUPLE_ELEM(3, elem)))
+
+/**
+ * @brief Macro to create a constexpr array from a sequence
+ * Used by medium_types(), material_systems() and element_types()
+ */
+#define _MAKE_CONSTEXPR_ARRAY(seq)                                             \
+  BOOST_PP_SEQ_ENUM(BOOST_PP_SEQ_TRANSFORM(_MAKE_ARRAY, _, seq))

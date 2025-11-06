@@ -1,7 +1,7 @@
 #include "kokkos_kernels/impl/compute_coupling.hpp"
 #include "enumerations/interface.hpp"
-#include "enumerations/material_definitions.hpp"
 #include "kokkos_kernels/impl/compute_coupling.tpp"
+#include "specfem/macros.hpp"
 #include <type_traits>
 
 FOR_EACH_IN_PRODUCT(

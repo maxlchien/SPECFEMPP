@@ -1,9 +1,9 @@
 #include "../test_fixture/test_fixture.hpp"
 #include "datatypes/simd.hpp"
 #include "enumerations/dimension.hpp"
-#include "enumerations/material_definitions.hpp"
 #include "execution/chunked_domain_iterator.hpp"
 #include "execution/for_all.hpp"
+#include "specfem/macros.hpp"
 #include "specfem_setup.hpp"
 #include <gtest/gtest.h>
 

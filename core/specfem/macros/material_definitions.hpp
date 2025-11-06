@@ -1,8 +1,11 @@
 #pragma once
 
 #include "enum_tags.hpp"
+#include "enumerations/interface.hpp"
 #include "macros_impl/array.hpp"
 #include "macros_impl/utils.hpp"
+
+#include <boost/preprocessor.hpp>
 
 /**
  * @name Element Tag macros
