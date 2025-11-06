@@ -1,5 +1,5 @@
 #include "constants.hpp"
-#include "specfem/core.hpp"
+#include "specfem/context.hpp"
 #include "specfem/periodic_tasks.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
@@ -81,17 +81,14 @@ int main(int argc, char **argv) {
     return (parse_result == 0) ? 0 : 1; // 0 for help, 1 for error
   }
 
-  // Get the core singleton and initialize
-  auto &core = specfem::Core::instance();
-
-  if (!core.initialize(argc, argv)) {
-    std::cerr << "Failed to initialize SPECFEM++ core" << std::endl;
-    return 1;
-  }
-
+  // Use ContextGuard for automatic RAII-based initialization and cleanup
   int result = 0;
 
   try {
+    // Initialize context with RAII guard
+    specfem::ContextGuard guard(argc, argv);
+    auto &context = guard.get_context();
+
     // Extract parameters (dimension is already extracted as positional
     // argument)
     const std::string parameters_file = vm["parameters_file"].as<std::string>();
@@ -108,21 +105,16 @@ int main(int argc, char **argv) {
     tasks.push_back(signal_task);
 
     // Execute simulation with the specified dimension
-    if (!core.execute_with_dimension(dimension, parameter_dict, default_dict,
-                                     tasks)) {
+    if (!context.execute_with_dimension(dimension, parameter_dict, default_dict,
+                                        tasks)) {
       std::cerr << "Execution failed" << std::endl;
       result = 1;
     }
 
+    // Context automatically finalized when guard goes out of scope
+
   } catch (const std::exception &e) {
     std::cerr << "Error during execution: " << e.what() << std::endl;
-    result = 1;
-  }
-
-  // Finalize and cleanup
-  if (!core.finalize()) {
-    std::cerr << "Warning: Failed to properly finalize SPECFEM++ core"
-              << std::endl;
     result = 1;
   }
 

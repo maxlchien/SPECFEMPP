@@ -1,4 +1,4 @@
-#include "specfem/core.hpp"
+#include "specfem/context.hpp"
 #include "specfem/execute.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -9,9 +9,9 @@
 namespace py = pybind11;
 
 bool _initialize(py::list py_argv) {
-  auto &core = specfem::Core::instance();
+  auto &context = specfem::Context::instance();
 
-  if (core.is_initialized()) {
+  if (context.is_initialized()) {
     return false; // Already initialized
   }
 
@@ -21,14 +21,14 @@ bool _initialize(py::list py_argv) {
     args.push_back(item.cast<std::string>());
   }
 
-  return core.initialize_from_python(args);
+  return context.initialize_from_python(args);
 }
 
 bool _execute(const std::string &parameter_string,
               const std::string &default_string) {
-  auto &core = specfem::Core::instance();
+  auto &context = specfem::Context::instance();
 
-  if (!core.is_initialized()) {
+  if (!context.is_initialized()) {
     return false;
   }
 
@@ -46,14 +46,14 @@ bool _execute(const std::string &parameter_string,
     py::gil_scoped_release release;
     // For now, default to 2D execution for backward compatibility
     // Later we can add a dimension parameter to the Python interface
-    core.execute_with_dimension("2d", parameter_dict, default_dict, tasks);
+    context.execute_with_dimension("2d", parameter_dict, default_dict, tasks);
   }
   return true;
 }
 
 bool _finalize() {
-  auto &core = specfem::Core::instance();
-  return core.finalize();
+  auto &context = specfem::Context::instance();
+  return context.finalize();
 }
 
 PYBIND11_MODULE(_core, m) {

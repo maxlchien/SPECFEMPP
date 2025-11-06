@@ -9,8 +9,8 @@ add_subdirectory(timescheme)
 add_subdirectory(periodic_tasks)
 
 
-# Core library - singleton for managing initialization/finalization
-add_library(specfem_core STATIC core.cpp)
+# Core library - context manager for initialization/finalization
+add_library(specfem_core STATIC context.cpp)
 target_include_directories(specfem_core PUBLIC ${CMAKE_SOURCE_DIR}/core)
 target_link_libraries(specfem_core
     PUBLIC
