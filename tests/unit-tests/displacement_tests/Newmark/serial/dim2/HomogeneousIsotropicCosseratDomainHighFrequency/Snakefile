@@ -16,8 +16,9 @@ rule link_traces:
     localrule: True,
     shell:
         """
-        rm -rf $(dirname {output.trace_list})
-        ln -s traces_fd $(dirname {output.trace_list})
+        mkdir -p $(dirname {output.trace_list})
+        cd $(dirname {output.trace_list})
+        ln -s ../traces_fd/* .
         """
 
 
