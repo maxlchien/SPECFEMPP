@@ -1,0 +1,15 @@
+include: "../../../meshfem2d.smk"
+
+
+rule all:
+    input:
+        database="<cwd>/database.bin",
+    localrule: True
+
+
+rule clean:
+    localrule: True,
+    shell:
+        """
+        rm -f database.bin
+        """
