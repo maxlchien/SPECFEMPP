@@ -246,7 +246,7 @@ std::tuple<type_real, type_real, type_real> get_local_coordinates(
           break;
 
         if (d_min_sq < static_cast<type_real>(1e-10))
-          exit;
+          break;
       }
     }
   }

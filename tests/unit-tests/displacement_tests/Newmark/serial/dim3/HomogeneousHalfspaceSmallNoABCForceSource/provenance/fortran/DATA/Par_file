@@ -26,8 +26,8 @@ SUPPRESS_UTM_PROJECTION         = .true.
 NPROC                           = 1
 
 # time step parameters
-NSTEP                           = 250
-DT                              = 0.16
+NSTEP                           = 200
+DT                              = 0.011
 
 # set to true to use local-time stepping (LTS)
 LTS_MODE                        = .false.
@@ -228,8 +228,8 @@ NTSTEP_BETWEEN_OUTPUT_SAMPLE    = 1
 # decide if we save displacement, velocity, acceleration and/or pressure in forward runs (they can be set to true simultaneously)
 # currently pressure seismograms are implemented in acoustic (i.e. fluid) elements only
 SAVE_SEISMOGRAMS_DISPLACEMENT   = .true.
-SAVE_SEISMOGRAMS_VELOCITY       = .false.
-SAVE_SEISMOGRAMS_ACCELERATION   = .false.
+SAVE_SEISMOGRAMS_VELOCITY       = .true.
+SAVE_SEISMOGRAMS_ACCELERATION   = .true.
 SAVE_SEISMOGRAMS_PRESSURE       = .false.   # currently implemented in acoustic (i.e. fluid) elements only
 
 # option to save strain seismograms

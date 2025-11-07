@@ -2,6 +2,7 @@
 
 #include "constants.hpp"
 #include "enumerations/interface.hpp"
+#include "impl/channel_generator.hpp"
 #include "io/writer.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem_setup.hpp"
@@ -13,7 +14,7 @@ namespace io {
  * @brief Seismogram writer class to write seismogram to a file
  *
  */
-class seismogram_writer : public writer {
+class seismogram_writer : public writer, public impl::ChannelGenerator {
 
 public:
   /**
@@ -32,8 +33,8 @@ public:
       const specfem::enums::electromagnetic_wave electromagnetic_wave,
       const std::string output_folder, const type_real dt, const type_real t0,
       const int nstep_between_samples)
-      : type(type), elastic_wave(elastic_wave),
-        electromagnetic_wave(electromagnetic_wave),
+      : impl::ChannelGenerator(output_folder, dt), type(type),
+        elastic_wave(elastic_wave), electromagnetic_wave(electromagnetic_wave),
         output_folder(output_folder), dt(dt), t0(t0),
         nstep_between_samples(nstep_between_samples) {};
 
