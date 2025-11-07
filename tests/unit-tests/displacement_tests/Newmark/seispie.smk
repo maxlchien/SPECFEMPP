@@ -1,0 +1,84 @@
+include: "meshfem2d.smk"
+
+
+rule link_traces:
+    input:
+        trace_list="<cwd>/traces_fd/trace_list.txt",
+    output:
+        trace_list="<cwd>/traces/trace_list.txt",
+    localrule: True,
+    shell:
+        """
+        mkdir -p $(dirname {output.trace_list})
+        cd $(dirname {output.trace_list})
+        ln -sf ../traces_fd/* .
+        """
+
+
+rule run_seispie:
+    input:
+        config="<cwd>/provenance/seispie/config.ini",
+        model="<cwd>/provenance/seispie/generate_model.py",
+        sources="<cwd>/provenance/seispie/sources.dat",
+        stations="<cwd>/provenance/seispie/stations.dat",
+    output:
+        ry="<cwd>/provenance/seispie/output/ry_000000.npy",
+        ux="<cwd>/provenance/seispie/output/ux_000000.npy",
+        uz="<cwd>/provenance/seispie/output/uz_000000.npy",
+    localrule: True,
+    shell:
+        """
+        if [ -z "$SEISPIE_DIR" ]; then
+            echo "Error: SEISPIE_DIR environment variable is not set"
+        fi
+        cd $(dirname {input.model})
+        mkdir -p model
+        $SEISPIE_DIR/.venv/bin/python generate_model.py
+        $SEISPIE_DIR/.venv/bin/python $SEISPIE_DIR/scripts/sprun --workdir=$PWD
+        """
+
+
+rule export_traces:
+    input:
+        ry="<cwd>/provenance/seispie/output/ry_000000.npy",
+        ux="<cwd>/provenance/seispie/output/ux_000000.npy",
+        uz="<cwd>/provenance/seispie/output/uz_000000.npy",
+    output:
+        trace_list="<cwd>/traces_fd/trace_list.txt",
+    localrule: True,
+    run:
+        import numpy as np
+        cmps = {
+            "ry": ("BXY", "semr"),
+            "ux": ("BXX", "semd"),
+            "uz": ("BXZ", "semd"),
+        }
+
+        trs = []
+
+        for trace in ["ry", "ux", "uz"]:
+            trace_ref = np.load(input[trace])
+            for i in range(trace_ref.shape[0]):
+                tr = np.zeros([1000, 2])
+                tr[:, 0] = np.linspace(-0.12, 0.879,1000)
+                tr[:, 1] = trace_ref[i, ::5]
+                tr_name = f"AA.S000{i + 1}.S2.{cmps[trace][0]}.{cmps[trace][1]}"
+                np.savetxt(f"traces_fd/{tr_name}", tr)
+                trs.append(tr_name)
+
+        with open(output.trace_list, "w") as f:
+            for tr in trs:
+                f.write(f"{tr}\n")
+
+
+rule clean:
+    localrule: True,
+    shell:
+        """
+        rm -rf traces
+        rm -rf traces_fd
+        rm -f database.bin
+        rm -rf specfem2d_workdir
+        rm -rf provenance/seispie/output
+        rm -rf provenance/seispie/model
+        """
