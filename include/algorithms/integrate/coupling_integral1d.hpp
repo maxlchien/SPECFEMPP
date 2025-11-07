@@ -63,16 +63,11 @@ coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
       chunk_index.get_iterator(),
       [&](const typename IndexType::iterator_type::index_type &index) {
         const auto self_index = index.get_index();
-
-        auto self_index_with_global = self_index;
-        self_index_with_global.iedge +=
-            chunk_index.get_policy_index().league_rank() *
-            ChunkEdgeWeightJacobianType::chunk_size;
+        const auto self_index_local = index.get_local_index();
 
         SelfTransferFunctionType transfer_function_self;
-        specfem::assembly::load_on_device(self_index_with_global,
-                                          assembly.coupled_interfaces,
-                                          transfer_function_self);
+        specfem::assembly::load_on_device(
+            self_index, assembly.coupled_interfaces, transfer_function_self);
 
         PointFieldType result;
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
@@ -81,8 +76,8 @@ coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
         for (int icomp = 0; icomp < ncomp; icomp++) {
           result(icomp) = 0;
         }
-        const int &iedge = self_index.iedge;
-        const int &ipoint = self_index.ipoint;
+        const int &iedge = self_index_local.iedge;
+        const int &ipoint = self_index_local.ipoint;
 
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
 #pragma unroll
