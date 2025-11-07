@@ -72,7 +72,7 @@ public:
    * @return true If the materials have the same properties
    */
   bool operator==(
-      const material<dimension_tag, MediumTag,
+      const material<dimension_tag, medium_tag,
                      specfem::element::property_tag::isotropic_cosserat> &other)
       const {
 

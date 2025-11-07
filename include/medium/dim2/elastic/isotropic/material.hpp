@@ -95,7 +95,7 @@ public:
    * @return true If the materials have the same properties
    */
   bool operator==(
-      const material<dimension_tag, MediumTag,
+      const material<dimension_tag, medium_tag,
                      specfem::element::property_tag::isotropic> &other) const {
 
     return (std::abs(this->density - other.density) < 1e-6 &&
@@ -113,7 +113,7 @@ public:
    * @return true If the materials have different properties
    */
   bool operator!=(
-      const material<dimension_tag, MediumTag,
+      const material<dimension_tag, medium_tag,
                      specfem::element::property_tag::isotropic> &other) const {
     return !(*this == other);
   }
