@@ -75,7 +75,7 @@ public:
    * @return true If the materials have the same properties
    */
   bool operator==(
-      const material<dimension_tag, MediumTag,
+      const material<dimension_tag, medium_tags,
                      specfem::element::property_tag::isotropic> &other) const {
 
     return (std::abs(this->mu0 - other.mu0) < 1e-6 &&
