@@ -294,10 +294,12 @@ target_link_libraries(
 
 add_executable(
   mesh_dim3_tests
+  mesh/dim3/mesh.cpp
   mesh/dim3/control_nodes.cpp
   mesh/dim3/materials.cpp
   mesh/dim3/boundaries.cpp
   mesh/dim3/adjacency_graph.cpp
+  mesh/dim3/tags.cpp
   mesh/dim3/test.cpp
 )
 
@@ -455,9 +457,12 @@ add_executable(
   assembly/dim3/mesh/points.cpp
   assembly/dim3/mesh/control_nodes.cpp
   assembly/dim3/jacobian_matrix/jacobian_matrix.cpp
+  assembly/dim3/properties/properties.cpp
 )
 
+#Set unity build off
 target_compile_definitions(assembly_tests PRIVATE TEST_OUTPUT_DIR=${TEST_OUTPUT_DIR})
+set_target_properties(assembly_tests PROPERTIES UNITY_BUILD OFF)
 
 target_link_libraries(
   assembly_tests
