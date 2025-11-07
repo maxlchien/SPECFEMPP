@@ -142,12 +142,14 @@ template <typename T> bool contains(const T &list, const dim2::type &value) {
 template <> struct edge<specfem::dimension::type::dim2> {
   specfem::mesh_entity::dim2::type edge_type;
   int ispec;
+  int iedge;
   bool reverse_orientation;
 
   KOKKOS_INLINE_FUNCTION
-  edge(const int ispec, const specfem::mesh_entity::dim2::type edge_type,
+  edge(const int ispec, const int iedge,
+       const specfem::mesh_entity::dim2::type edge_type,
        const bool reverse_orientation = false)
-      : edge_type(edge_type), ispec(ispec),
+      : edge_type(edge_type), ispec(ispec), iedge(iedge),
         reverse_orientation(reverse_orientation) {}
 
   KOKKOS_INLINE_FUNCTION
