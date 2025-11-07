@@ -5,13 +5,15 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 #include "specfem/periodic_tasks.hpp"
+#include <memory>
 
 namespace py = pybind11;
 
-bool _initialize(py::list py_argv) {
-  auto &context = specfem::Context::instance();
+// Global ContextGuard to manage Context lifetime in Python
+static std::unique_ptr<specfem::ContextGuard> global_context_guard = nullptr;
 
-  if (context.is_initialized()) {
+bool _initialize(py::list py_argv) {
+  if (global_context_guard != nullptr) {
     return false; // Already initialized
   }
 
@@ -21,16 +23,21 @@ bool _initialize(py::list py_argv) {
     args.push_back(item.cast<std::string>());
   }
 
-  return context.initialize_from_python(args);
+  try {
+    global_context_guard = std::make_unique<specfem::ContextGuard>(args);
+    return true;
+  } catch (const std::exception &) {
+    return false;
+  }
 }
 
 bool _execute(const std::string &parameter_string,
               const std::string &default_string) {
-  auto &context = specfem::Context::instance();
-
-  if (!context.is_initialized()) {
+  if (global_context_guard == nullptr) {
     return false;
   }
+
+  auto &context = global_context_guard->get_context();
 
   const YAML::Node parameter_dict = YAML::Load(parameter_string);
   const YAML::Node default_dict = YAML::Load(default_string);
@@ -52,8 +59,13 @@ bool _execute(const std::string &parameter_string,
 }
 
 bool _finalize() {
-  auto &context = specfem::Context::instance();
-  return context.finalize();
+  if (global_context_guard == nullptr) {
+    return false;
+  }
+
+  // Explicitly destroy the ContextGuard, which triggers proper cleanup
+  global_context_guard.reset();
+  return true;
 }
 
 PYBIND11_MODULE(_core, m) {

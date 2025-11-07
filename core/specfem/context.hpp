@@ -16,41 +16,19 @@ namespace specfem {
  * @brief Unified SPECFEM++ context class for managing initialization,
  * execution, and finalization
  *
- * This class provides a clean singleton interface for managing Kokkos and MPI
- * initialization, dimension-templated execution, and proper resource cleanup.
- * It replaces the global variable approach with a more maintainable RAII-based
- * design.
+ * This class provides RAII-based management of Kokkos and MPI initialization,
+ * dimension-templated execution, and proper resource cleanup.
+ * Typically used through ContextGuard for scoped lifetime management.
  */
 class Context {
 public:
   /**
-   * @brief Get the singleton instance
-   */
-  static Context &instance();
-
-  /**
-   * @brief Initialize Kokkos and MPI
+   * @brief Construct Context with command line arguments
    *
    * @param argc Command line argument count
    * @param argv Command line arguments
-   * @return true if initialization successful
    */
-  bool initialize(int argc, char *argv[]);
-
-  /**
-   * @brief Initialize from Python with argument list
-   *
-   * @param py_argv Python list of command line arguments
-   * @return true if initialization successful
-   */
-  bool initialize_from_python(const std::vector<std::string> &py_argv);
-
-  /**
-   * @brief Finalize and cleanup all resources
-   *
-   * @return true if finalization successful
-   */
-  bool finalize();
+  Context(int argc, char *argv[]);
 
   /**
    * @brief Execute simulation with dimension template
@@ -83,36 +61,16 @@ public:
           &tasks);
 
   /**
-   * @brief Get MPI instance (for backward compatibility)
+   * @brief Get MPI instance
    *
-   * @return Pointer to MPI instance or nullptr if not initialized
+   * @return Pointer to MPI instance
    */
   specfem::MPI::MPI *get_mpi() const;
 
   /**
-   * @brief Check if core is initialized
-   *
-   * @return true if initialized
-   */
-  bool is_initialized() const;
-
-  /**
-   * @brief Check if Kokkos is initialized
-   *
-   * @return true if Kokkos is initialized
-   */
-  bool is_kokkos_initialized() const;
-
-  /**
-   * @brief Destructor - ensures proper cleanup
+   * @brief Destructor - ensures proper cleanup via RAII
    */
   ~Context();
-
-private:
-  /**
-   * @brief Private constructor for singleton
-   */
-  Context();
 
   /**
    * @brief Delete copy constructor and assignment operator
@@ -120,33 +78,25 @@ private:
   Context(const Context &) = delete;
   Context &operator=(const Context &) = delete;
 
-  /**
-   * @brief Internal helper to convert string arguments to argc/argv
-   */
-  void setup_argc_argv(const std::vector<std::string> &args, int &argc,
-                       char **&argv);
-  void cleanup_argc_argv(int argc, char **argv);
-
-  static std::unique_ptr<Context> instance_;
+private:
+  Kokkos::ScopeGuard kokkos_guard_;
   std::unique_ptr<specfem::MPI::MPI> mpi_;
-  bool kokkos_initialized_;
-  bool mpi_initialized_;
-  bool context_initialized_;
 };
 
 /**
  * @brief RAII guard for SPECFEM++ context (similar to Kokkos::ScopeGuard)
  *
  * This class provides automatic initialization and finalization of SPECFEM++
- * resources following the RAII pattern. It initializes Kokkos and MPI in the
- * constructor and ensures proper cleanup in the destructor.
+ * resources following the RAII pattern. It owns a Context instance and
+ * initializes Kokkos and MPI in the constructor, ensuring proper cleanup
+ * in the destructor.
  *
  * Usage:
  * @code
  * int main(int argc, char* argv[]) {
  *     specfem::ContextGuard guard(argc, argv);
  *     // Kokkos & MPI automatically initialized
- *     // ... use context ...
+ *     // ... use guard.get_context() ...
  *     // Automatic cleanup on scope exit
  * }
  * @endcode
@@ -154,29 +104,28 @@ private:
 class ContextGuard {
 public:
   /**
-   * @brief Constructor - initializes Context with command line arguments
+   * @brief Constructor - creates and initializes Context with command line
+   * arguments
    *
    * @param argc Command line argument count
    * @param argv Command line arguments
-   * @throws std::runtime_error if Context is already initialized or finalized
    */
   ContextGuard(int argc, char *argv[]);
 
   /**
-   * @brief Constructor - initializes Context with argument vector
+   * @brief Constructor - creates and initializes Context with argument vector
    *
    * @param args Vector of command line arguments
-   * @throws std::runtime_error if Context is already initialized or finalized
    */
   explicit ContextGuard(const std::vector<std::string> &args);
 
   /**
-   * @brief Destructor - automatically finalizes Context
+   * @brief Destructor - automatically destroys Context (triggering cleanup)
    */
   ~ContextGuard();
 
   /**
-   * @brief Get reference to the Context instance
+   * @brief Get reference to the owned Context instance
    *
    * @return Reference to the managed Context
    */
@@ -200,8 +149,14 @@ public:
   ContextGuard &operator=(ContextGuard &&) = delete;
 
 private:
-  Context &context_;
-  bool should_finalize_;
+  /**
+   * @brief Internal helper to convert string arguments to argc/argv
+   */
+  static void setup_argc_argv(const std::vector<std::string> &args, int &argc,
+                              char **&argv);
+  static void cleanup_argc_argv(int argc, char **argv);
+
+  std::unique_ptr<Context> context_;
 };
 
 } // namespace specfem
