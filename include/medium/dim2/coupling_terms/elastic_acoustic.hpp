@@ -66,7 +66,7 @@ KOKKOS_INLINE_FUNCTION void compute_coupling(
   static_assert(specfem::data_access::is_acceleration<CoupledFieldType>::value,
                 "CoupledFieldType must be an acceleration type");
 
-  specfem::algorithms::transfer(
+  specfem::algorithms::transfer_coupled(
       chunk_edge_index, interface_data, coupled_field,
       [&](const int &iedge, const int &iintersection, const auto &point) {
         intersection_field(iedge, iintersection, 0) =

@@ -68,49 +68,32 @@ void specfem::kokkos_kernels::impl::compute_coupling(
 
   specfem::execution::for_each_level(
       "specfem::kokkos_kernels::impl::compute_coupling", chunk,
-      KOKKOS_LAMBDA(
-          const typename decltype(chunk)::index_type &chunk_iterator_index) {
-        const auto &chunk_index = chunk_iterator_index.get_index();
-        const int league_index = chunk_index.get_policy_index().league_rank();
+      KOKKOS_LAMBDA(const typename decltype(chunk)::base_index_type &iterator_index) {
+        const auto index = iterator_index.get_index();
 
-        specfem::execution::for_each_level(
-            chunk_index.get_iterator(),
-            [&](const typename std::remove_const_t<std::remove_reference_t<
-                    decltype(chunk_index)> >::iterator_type::index_type
-                    &iterator_index) {
-              const specfem::point::interface_index<dimension_tag> &index =
-                  iterator_index.get_index();
-              auto self_index = index.self_index;
-              const auto coupled_index = index.coupled_index;
-              self_index.iedge += league_index * parallel_config::chunk_size;
+        specfem::point::coupled_interface<dimension_tag, connection_tag,
+                                          interface_tag, boundary_tag>
+            point_interface_data;
+        specfem::assembly::load_on_device(index.self_index, coupled_interfaces,
+                                          point_interface_data);
 
-              specfem::point::coupled_interface<dimension_tag, connection_tag,
-                                                interface_tag, boundary_tag>
-                  point_interface_data;
-              specfem::assembly::load_on_device(self_index, coupled_interfaces,
-                                                point_interface_data);
-
-              CoupledFieldType coupled_field;
-              specfem::assembly::load_on_device(coupled_index, field,
-                                                coupled_field);
-
-              SelfFieldType self_field;
+        CoupledFieldType coupled_field;
+        specfem::assembly::load_on_device(index.coupled_index, field, coupled_field);
+        SelfFieldType self_field;
 
               specfem::medium::compute_coupling(point_interface_data,
                                                 coupled_field, self_field);
 
-              PointBoundaryType point_boundary;
-              specfem::assembly::load_on_device(self_index, boundaries,
-                                                point_boundary);
-              if constexpr (BoundaryTag == specfem::element::boundary_tag::
-                                               acoustic_free_surface) {
-                specfem::boundary_conditions::apply_boundary_conditions(
-                    point_boundary, self_field);
-              }
+        PointBoundaryType point_boundary;
+        specfem::assembly::load_on_device(index.self_index, boundaries,
+                                          point_boundary);
+        if constexpr (BoundaryTag ==
+                      specfem::element::boundary_tag::acoustic_free_surface) {
+          specfem::boundary_conditions::apply_boundary_conditions(
+              point_boundary, self_field);
+        }
 
-              specfem::assembly::atomic_add_on_device(self_index, field,
-                                                      self_field);
-            });
+        specfem::assembly::atomic_add_on_device(index.self_index, field, self_field);
       });
 
   return;
