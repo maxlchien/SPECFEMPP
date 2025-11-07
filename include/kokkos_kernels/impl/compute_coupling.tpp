@@ -15,7 +15,7 @@
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
-#include "algorithms/integrate/integrate1d.hpp"
+#include "algorithms/integrate/coupling_integral1d.hpp"
 
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType,
@@ -66,7 +66,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
   specfem::execution::ChunkedIntersectionIterator chunk(
       parallel_config(), self_edges, coupled_edges, num_points);
 
-  specfem::execution::for_each_level(
+  specfem::execution::for_all(
       "specfem::kokkos_kernels::impl::compute_coupling", chunk,
       KOKKOS_LAMBDA(const typename decltype(chunk)::base_index_type &iterator_index) {
         const auto index = iterator_index.get_index();
@@ -81,8 +81,8 @@ void specfem::kokkos_kernels::impl::compute_coupling(
         specfem::assembly::load_on_device(index.coupled_index, field, coupled_field);
         SelfFieldType self_field;
 
-              specfem::medium::compute_coupling(point_interface_data,
-                                                coupled_field, self_field);
+        specfem::medium::compute_coupling(point_interface_data, coupled_field,
+                                          self_field);
 
         PointBoundaryType point_boundary;
         specfem::assembly::load_on_device(index.self_index, boundaries,
