@@ -72,6 +72,7 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
           std::vector<specfem::mesh_entity::edge<dimension_tag> >
               coupled_collect;
 
+          int edge_index = 0;
           for (const auto &edge :
                boost::make_iterator_range(boost::edges(nc_graph))) {
             const int ispec1 = boost::source(edge, nc_graph);
@@ -95,8 +96,11 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
               count++;
               // we do not need orientation flipping -- that's handled by
               // the transfer function
-              self_collect.push_back({ ispec1, self_orientation, false });
-              coupled_collect.push_back({ ispec2, coupled_orientation, false });
+              self_collect.push_back(
+                  { ispec1, edge_index, self_orientation, false });
+              coupled_collect.push_back(
+                  { ispec2, edge_index, coupled_orientation, false });
+              edge_index++;
             }
           }
 
@@ -137,6 +141,7 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
               coupled_interfaces.template get<self_medium, coupled_medium>();
           const int nedges =
               interface_container.num_interfaces; // number of edges
+          int edge_index = 0;
           for (int iedge = 0; iedge < nedges; ++iedge) {
             const int ispec1_mesh =
                 interface_container.medium1_index_mapping(iedge);
@@ -152,13 +157,14 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
                   connection_mapping.flip_orientation(edge1, edge2);
               _h_self_edges_(index) =
                   specfem::mesh_entity::edge<specfem::dimension::type::dim2>{
-                    ispec1, edge1, false
+                    ispec1, edge_index, edge1, false
                   };
               _h_coupled_edges_(index) =
                   specfem::mesh_entity::edge<specfem::dimension::type::dim2>{
-                    ispec2, edge2, flip
+                    ispec2, edge_index, edge2, flip
                   };
               index++;
+              edge_index++;
             }
           }
           Kokkos::deep_copy(_self_edges_, _h_self_edges_);
