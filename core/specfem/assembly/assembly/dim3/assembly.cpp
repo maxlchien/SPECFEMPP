@@ -71,6 +71,75 @@ specfem::assembly::assembly<specfem::dimension::type::dim3>::assembly(
   return;
 }
 
+specfem::assembly::assembly<specfem::dimension::type::dim3>::assembly(
+    const specfem::mesh::meshfem3d::mesh<dimension_tag> &mesh,
+    const specfem::quadrature::quadratures &quadratures,
+    std::vector<std::shared_ptr<specfem::sources::source<dimension_tag> > >
+        &sources,
+    const std::vector<
+        std::shared_ptr<specfem::receivers::receiver<dimension_tag> > >
+        &receivers,
+    const std::vector<specfem::wavefield::type> &stypes, const type_real t0,
+    const type_real dt, const int max_timesteps, const int max_sig_step,
+    const int nsteps_between_samples,
+    const specfem::simulation::type simulation,
+    const bool allocate_boundary_values,
+    const std::shared_ptr<specfem::io::reader> &property_reader) {
+
+  const int nspec = mesh.nspec;
+  const int ngllz = mesh.element_grid.ngllz;
+  const int nglly = mesh.element_grid.nglly;
+  const int ngllx = mesh.element_grid.ngllx;
+  const int ngnod = mesh.control_nodes.ngnod;
+
+  this->mesh = { nspec,
+                 ngnod,
+                 ngllz,
+                 nglly,
+                 ngllx,
+                 mesh.adjacency_graph,
+                 mesh.control_nodes,
+                 quadratures };
+
+  this->element_types = { nspec, ngllz, nglly, ngllx, this->mesh, mesh.tags };
+
+  this->jacobian_matrix = { this->mesh };
+
+  this->properties = { nspec, ngllz,          nglly,
+                       ngllx, mesh.materials, this->element_types };
+
+  this->kernels = { this->mesh.nspec, this->mesh.element_grid.ngllz,
+                    this->mesh.element_grid.nglly,
+                    this->mesh.element_grid.ngllx, this->element_types };
+
+  this->sources = {
+    sources, this->mesh, this->jacobian_matrix, this->element_types,
+    t0,      dt,         max_timesteps
+  };
+  this->receivers = {
+    max_sig_step, dt,         t0,        nsteps_between_samples, receivers,
+    stypes,       this->mesh, mesh.tags, this->element_types
+  };
+  // this->boundaries = { this->mesh.nspec,
+  //                      this->mesh.element_grid.ngllz,
+  //                      this->mesh.element_grid.ngllx,
+  //                      mesh,
+  //                      this->mesh,
+  //                      this->jacobian_matrix };
+  // this->coupled_interfaces = { mesh, this->mesh, this->jacobian_matrix,
+  //                              this->element_types };
+  this->fields = { this->mesh, this->element_types, simulation };
+
+  // if (allocate_boundary_values)
+  //   this->boundary_values = { max_timesteps, this->mesh, this->element_types,
+  //                             this->boundaries };
+
+  // Currently done in the mesher!
+  this->check_jacobian_matrix();
+
+  return;
+}
+
 std::string
 specfem::assembly::assembly<specfem::dimension::type::dim3>::print() const {
   std::ostringstream message;

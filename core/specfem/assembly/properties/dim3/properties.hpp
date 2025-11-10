@@ -48,7 +48,17 @@ struct properties<specfem::dimension::type::dim3>
       const specfem::assembly::mesh<dimension_tag> &mesh,
       const specfem::mesh::materials<dimension_tag> &materials);
 
+  properties(
+      const int nspec, const int ngllz, const int nglly, const int ngllx,
+      const specfem::mesh::meshfem3d::Materials<dimension_tag> &materials,
+      const specfem::assembly::element_types<dimension_tag> &element_types);
+
   ///@}
+
+  int nspec; ///< total number of spectral elements
+  int ngllz; ///< number of quadrature points in z dimension
+  int nglly; ///< number of quadrature points in y dimension
+  int ngllx; ///< number of quadrature points in x dimension
 
   /**
    * @brief Copy misfit kernel data to host

@@ -7,7 +7,8 @@
 #include <tuple>
 #include <vector>
 
-std::tuple<int, Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
+std::tuple<int, int, int, int,
+           Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
            specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
 specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
     std::ifstream &stream, const int ngnod, const specfem::MPI::MPI *mpi) {
@@ -51,7 +52,8 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
                 "materials.");
           }
 
-          specfem::medium::material<specfem::element::medium_tag::acoustic,
+          specfem::medium::material<specfem::dimension::type::dim3,
+                                    specfem::element::medium_tag::acoustic,
                                     specfem::element::property_tag::isotropic>
               material(rho, vp, Qkappa, Qmu, static_cast<type_real>(0.0));
           const int index = materials.add_material(material);
@@ -66,7 +68,8 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
                 "materials.");
           }
 
-          specfem::medium::material<specfem::element::medium_tag::elastic,
+          specfem::medium::material<specfem::dimension::type::dim3,
+                                    specfem::element::medium_tag::elastic,
                                     specfem::element::property_tag::isotropic>
               material(rho, vs, vp, Qkappa, Qmu, static_cast<type_real>(0.0));
           const int index = materials.add_material(material);
@@ -114,6 +117,9 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
   Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>
       control_node_index("specfem::mesh::control_node_index", nspec, ngnod);
 
+  int ngllz, nglly, ngllx;
+  specfem::io::fortran_read_line(stream, &ngllz, &nglly, &ngllx);
+
   materials.material_index_mapping.resize(nspec);
   materials.nspec = nspec;
   for (int ispec = 0; ispec < nspec; ++ispec) {
@@ -146,5 +152,6 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
     }
   }
 
-  return std::make_tuple(nspec, control_node_index, materials);
+  return std::make_tuple(nspec, ngllz, nglly, ngllx, control_node_index,
+                         materials);
 }

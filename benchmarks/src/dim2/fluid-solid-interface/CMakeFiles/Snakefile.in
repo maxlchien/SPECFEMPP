@@ -55,7 +55,7 @@ rule run_solver:
         cpus_per_task=1,
         runtime=10,
     params:
-        KOKKOS_TOOLS_LIBS="",
+        KOKKOS_TOOLS_LIBS='""',
     shell:
         """
             # module purge

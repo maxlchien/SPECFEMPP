@@ -119,7 +119,8 @@ template <> struct Materials<specfem::dimension::type::dim3> {
     int n_materials;
 
     /** @brief Storage for material objects of this type/property combination */
-    std::vector<specfem::medium::material<type, property> > element_materials;
+    std::vector<specfem::medium::material<dimension_tag, type, property> >
+        element_materials;
 
     /** @brief Default constructor creating empty container */
     material() : n_materials(0) {}
@@ -131,7 +132,8 @@ template <> struct Materials<specfem::dimension::type::dim3> {
      * @param l_material Vector of materials to initialize container with
      */
     material(const int n_materials,
-             const std::vector<specfem::medium::material<type, property> >
+             const std::vector<
+                 specfem::medium::material<dimension_tag, type, property> >
                  &l_material);
   };
 
@@ -236,7 +238,7 @@ public:
    */
   template <specfem::element::medium_tag MediumTag,
             specfem::element::property_tag PropertyTag>
-  specfem::medium::material<MediumTag, PropertyTag>
+  specfem::medium::material<dimension_tag, MediumTag, PropertyTag>
   get_material(const int index) const {
 #ifndef NDEBUG
     if (index < 0 || index >= this->nspec) {
@@ -265,6 +267,14 @@ public:
     Kokkos::abort("Invalid material type detected in material specification");
 
     return {};
+  }
+
+  template <specfem::element::medium_tag MediumTag,
+            specfem::element::property_tag PropertyTag>
+  const specfem::point::properties<dimension_tag, MediumTag, PropertyTag, false>
+  get_properties(const int index) const {
+    const auto material = this->get_material<MediumTag, PropertyTag>(index);
+    return material.get_properties();
   }
 
   /**
@@ -332,8 +342,8 @@ public:
    */
   template <specfem::element::medium_tag MediumTag,
             specfem::element::property_tag PropertyTag>
-  int add_material(
-      const specfem::medium::material<MediumTag, PropertyTag> &new_material) {
+  int add_material(const specfem::medium::material<dimension_tag, MediumTag,
+                                                   PropertyTag> &new_material) {
     this->n_materials += 1;
     auto &material_container = this->get_container<MediumTag, PropertyTag>();
     material_container.element_materials.push_back(new_material);
