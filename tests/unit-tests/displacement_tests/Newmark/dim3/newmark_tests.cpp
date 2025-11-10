@@ -114,7 +114,6 @@ TEST_P(Newmark, 3D) {
   specfem::runtime_configuration::setup setup(parameter_file, __default_file__);
 
   const auto database_filename = setup.get_databases();
-  const auto mesh_parameters_filename = setup.get_mesh_parameters();
   const auto source_node = setup.get_sources();
   const auto stations_node = setup.get_stations();
 
@@ -122,8 +121,7 @@ TEST_P(Newmark, 3D) {
   const auto quadratures = setup.instantiate_quadrature();
 
   // Read mesh generated MESHFEM
-  auto mesh = specfem::io::read_3d_mesh(mesh_parameters_filename,
-                                        database_filename, mpi);
+  auto mesh = specfem::io::meshfem3d::read_3d_mesh(database_filename, mpi);
   const type_real dt = setup.get_dt();
   const int nsteps = setup.get_nsteps();
 

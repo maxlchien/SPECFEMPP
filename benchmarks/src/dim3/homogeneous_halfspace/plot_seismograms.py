@@ -130,16 +130,16 @@ def main():
 
     # Find seismogram files (current output)
     seismogram_files = {
-        "BXX": sorted(glob.glob("OUTPUT_FILES/results/*.BXX.semd")),
-        "BXY": sorted(glob.glob("OUTPUT_FILES/results/*.BXY.semd")),
-        "BXZ": sorted(glob.glob("OUTPUT_FILES/results/*.BXZ.semd")),
+        "MXX": sorted(glob.glob("OUTPUT_FILES/results/*.MXX.semd")),
+        "MXY": sorted(glob.glob("OUTPUT_FILES/results/*.MXY.semd")),
+        "MXZ": sorted(glob.glob("OUTPUT_FILES/results/*.MXZ.semd")),
     }
 
     # Find reference seismogram files
     reference_seismogram_files = {
-        "BXX": sorted(glob.glob("reference_seismograms/*.MXX.semd")),
-        "BXY": sorted(glob.glob("reference_seismograms/*.MXY.semd")),
-        "BXZ": sorted(glob.glob("reference_seismograms/*.MXZ.semd")),
+        "MXX": sorted(glob.glob("reference_seismograms/*.MXX.semd")),
+        "MXY": sorted(glob.glob("reference_seismograms/*.MXY.semd")),
+        "MXZ": sorted(glob.glob("reference_seismograms/*.MXZ.semd")),
     }
 
     # Read all seismograms and find common time range
@@ -148,7 +148,7 @@ def main():
     time_range = None
     max_displacement = 0
 
-    for component in ["BXX", "BXY", "BXZ"]:
+    for component in ["MXX", "MXY", "MXZ"]:
         all_seismograms[component] = {}
         reference_seismograms[component] = {}
 
@@ -187,7 +187,7 @@ def main():
             max_displacement = max(max_displacement, np.abs(displacement).max())
 
     # Plot seismograms for each component
-    components = ["BXX", "BXY", "BXZ"]
+    components = ["MXX", "MXY", "MXZ"]
 
     for i, component in enumerate(components):
         ax = fig.add_subplot(gs[0, i + 1])

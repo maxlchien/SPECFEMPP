@@ -1,16 +1,14 @@
 SPECFEM_BIN = "@CMAKE_BINARY_DIR@/bin/specfem3d"
 MESHFEM_BIN = "@CMAKE_BINARY_DIR@/bin/xmeshfem3D"
-XGENERATE_DATABASES_BIN = "@CMAKE_BINARY_DIR@/bin/xgenerate_databases"
-
 
 rule all:
     input:
         summary_plot="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/seismogram_plot.png",
         traces=expand(
-            "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/{network_name}.{station_name}.S3.{component}.semd",
+            "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/{network_name}.{station_name}.{component}.semd",
             station_name=["X55", "X60", "X65", "X70", "X75", "X80", "X85", "X90", "X95"],
             network_name=["DB"],
-            component=["BXX", "BXY", "BXZ"],
+            component=["MXX", "MXY", "MXZ"],
         ),
         # vtk_file="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/vtk/wavefield.vtkhdf",
     localrule: True
@@ -31,26 +29,9 @@ rule generate_mesh:
             {MESHFEM_BIN} -p {input}
         """
 
-rule generate_databases:
-    input:
-        par_file="@CURRENT_BENCHMARK_BUILD_DIR@/DATA/Par_File",
-        database=rules.generate_mesh.output.database,
-    output:
-        output_generate_databases="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/output_generate_databases.txt",
-        mesh_parameters="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/DATABASES/mesh_parameters.bin",
-        external_mesh="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/DATABASES/proc000000_external_mesh.bin",
-        values_from_mesher="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/values_from_mesher.h",
-        surface_from_mesher="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/surface_from_mesher.h"
-    localrule: True
-    shell:
-        """
-            {XGENERATE_DATABASES_BIN} -p {input.par_file}
-        """
-
 rule run_solver:
     input:
-        mesh_parameters=rules.generate_databases.output.mesh_parameters,
-        external_mesh=rules.generate_databases.output.external_mesh,
+        database=rules.generate_mesh.output.database,
         stations="@CURRENT_BENCHMARK_BUILD_DIR@/DATA/STATIONS",
         source="@CURRENT_BENCHMARK_BUILD_DIR@/force.yaml",
         config="@CURRENT_BENCHMARK_BUILD_DIR@/specfem_config.yaml",
