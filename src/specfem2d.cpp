@@ -1,4 +1,5 @@
-#include "execute.hpp"
+#include "specfem/context.hpp"
+#include "specfem/periodic_tasks.hpp"
 
 boost::program_options::options_description define_args() {
   namespace po = boost::program_options;
@@ -38,26 +39,49 @@ int parse_args(int argc, char **argv,
 }
 
 int main(int argc, char **argv) {
-  // Initialize MPI
-  specfem::MPI::MPI *mpi = new specfem::MPI::MPI(&argc, &argv);
-  // Initialize Kokkos
-  Kokkos::initialize(argc, argv);
-  {
-    boost::program_options::variables_map vm;
-    if (parse_args(argc, argv, vm)) {
-      const std::string parameters_file =
-          vm["parameters_file"].as<std::string>();
-      const std::string default_file = vm["default_file"].as<std::string>();
-      const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
-      const YAML::Node default_dict = YAML::LoadFile(default_file);
-      std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
-          tasks;
-      execute(parameter_dict, default_dict, tasks, mpi);
-    }
+  // Parse command line arguments
+  boost::program_options::variables_map vm;
+  int parse_result = parse_args(argc, argv, vm);
+
+  if (parse_result <= 0) {
+    return (parse_result == 0) ? 0 : 1; // 0 for help, 1 for error
   }
-  // Finalize Kokkos
-  Kokkos::finalize();
-  // Finalize MPI
-  delete mpi;
-  return 0;
+
+  // Use ContextGuard for automatic RAII-based initialization and cleanup
+  int result = 0;
+
+  try {
+    // Initialize context with RAII guard
+    specfem::ContextGuard guard(argc, argv);
+    auto &context = guard.get_context();
+
+    // Extract parameters
+    const std::string parameters_file = vm["parameters_file"].as<std::string>();
+    const std::string default_file = vm["default_file"].as<std::string>();
+
+    // Load configuration files
+    const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
+    const YAML::Node default_dict = YAML::LoadFile(default_file);
+
+    // Setup periodic tasks (signal checking)
+    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks;
+    const auto signal_task =
+        std::make_shared<specfem::periodic_tasks::check_signal>(10);
+    tasks.push_back(signal_task);
+
+    // Execute simulation for 2D
+    if (!context.execute<specfem::dimension::type::dim2>(parameter_dict,
+                                                         default_dict, tasks)) {
+      std::cerr << "Execution failed" << std::endl;
+      result = 1;
+    }
+
+    // Context automatically finalized when guard goes out of scope
+
+  } catch (const std::exception &e) {
+    std::cerr << "Error during execution: " << e.what() << std::endl;
+    result = 1;
+  }
+
+  return result;
 }

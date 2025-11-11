@@ -20,9 +20,11 @@ bool Context::execute(
   try {
     // Call the appropriate templated execute function
     if constexpr (DimensionTag == specfem::dimension::type::dim2) {
-      ::execute(parameter_dict, default_dict, tasks, mpi_.get());
+      specfem::execute::execute_2d(parameter_dict, default_dict, tasks,
+                                   mpi_.get());
     } else if constexpr (DimensionTag == specfem::dimension::type::dim3) {
-      throw std::runtime_error("3D simulations are not yet enabled.");
+      specfem::execute::execute_3d(parameter_dict, default_dict, tasks,
+                                   mpi_.get());
     } else {
       std::cerr << "Unsupported dimension type" << std::endl;
       return false;

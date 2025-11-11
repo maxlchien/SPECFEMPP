@@ -41,7 +41,7 @@ print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
   return message.str();
 }
 
-void execute(
+void specfem::execute::execute_2d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi) {
@@ -52,6 +52,7 @@ void execute(
   auto start_time = std::chrono::system_clock::now();
   specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
   const auto database_filename = setup.get_databases();
+
   mpi->cout(setup.print_header(start_time));
 
   // --------------------------------------------------------------
@@ -240,6 +241,122 @@ void execute(
   //                   Print End Message
   // --------------------------------------------------------------
   mpi->cout(print_end_message(start_time, solver_time));
+  // --------------------------------------------------------------
+
+  return;
+}
+
+void specfem::execute::execute_3d(
+    const YAML::Node &parameter_dict, const YAML::Node &default_dict,
+    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
+    specfem::MPI::MPI *mpi) {
+
+  // --------------------------------------------------------------
+  //                    Read parameter file
+  // --------------------------------------------------------------
+  auto start_time = std::chrono::system_clock::now();
+  specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
+  const auto database_filename = setup.get_databases();
+  const auto mesh_parameters_filename = setup.get_mesh_parameters();
+  mpi->cout(setup.print_header(start_time));
+
+  // Get simulation parameters
+  const specfem::simulation::type simulation_type = setup.get_simulation_type();
+  const type_real dt = setup.get_dt();
+  const int nsteps = setup.get_nsteps();
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Read mesh and materials
+  // --------------------------------------------------------------
+  mpi->cout("Reading the mesh...");
+  mpi->cout("===================");
+  const auto quadrature = setup.instantiate_quadrature();
+  const auto mesh = specfem::io::read_3d_mesh(mesh_parameters_filename,
+                                              database_filename, mpi);
+  std::chrono::duration<double> elapsed_seconds =
+      std::chrono::system_clock::now() - start_time;
+  mpi->cout("Time to read mesh: " + std::to_string(elapsed_seconds.count()) +
+            " seconds");
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Read Sources and Receivers
+  // --------------------------------------------------------------
+  auto [sources, t0] =
+      specfem::io::read_3d_sources(setup.get_sources(), nsteps, setup.get_t0(),
+                                   setup.get_dt(), simulation_type);
+  setup.update_t0(t0); // Update t0 in case it was changed
+
+  // TODO: Replace hardcoded receiver with proper 3D receiver reading
+  std::vector<std::shared_ptr<
+      specfem::receivers::receiver<specfem::dimension::type::dim3> > >
+      receivers;
+  receivers.emplace_back(
+      std::make_shared<
+          specfem::receivers::receiver<specfem::dimension::type::dim3> >(
+          "NET", "STA", 50000.0, 40000.0, 0.0));
+
+  mpi->cout("Source Information:");
+  mpi->cout("-------------------------------");
+  if (mpi->main_proc()) {
+    std::cout << "Number of sources : " << sources.size() << "\n" << std::endl;
+  }
+
+  for (auto &source : sources) {
+    mpi->cout(source->print());
+  }
+
+  mpi->cout("Receiver Information:");
+  mpi->cout("-------------------------------");
+
+  if (mpi->main_proc()) {
+    std::cout << "Number of receivers : " << receivers.size() << "\n"
+              << std::endl;
+  }
+
+  for (auto &receiver : receivers) {
+    mpi->cout(receiver->print());
+  }
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Generate Assembly
+  // --------------------------------------------------------------
+  const int max_seismogram_time_step = setup.get_max_seismogram_step();
+  const int nstep_between_samples = setup.get_nstep_between_samples();
+  specfem::assembly::assembly<specfem::dimension::type::dim3> assembly(
+      mesh, quadrature, sources, receivers, setup.get_seismogram_types(),
+      setup.get_t0(), dt, nsteps, max_seismogram_time_step,
+      nstep_between_samples, setup.get_simulation_type(),
+      setup.allocate_boundary_values(), setup.instantiate_property_reader());
+
+  if (mpi->main_proc()) {
+    mpi->cout(assembly.print());
+  }
+
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Instantiate Timescheme
+  // --------------------------------------------------------------
+  const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
+
+  if (mpi->main_proc())
+    std::cout << *time_scheme << std::endl;
+
+  if (mpi->main_proc())
+    mpi->cout(assembly.print());
+
+  // --------------------------------------------------------------
+  // NOTE: Full 3D solver and writer support is not yet implemented
+  // TODO: Implement the following for 3D:
+  //   - Property writer
+  //   - Wavefield reader/writer
+  //   - Wavefield plotter
+  //   - Solver instantiation and execution
+  //   - Seismogram writer
+  //   - Kernel writer
   // --------------------------------------------------------------
 
   return;

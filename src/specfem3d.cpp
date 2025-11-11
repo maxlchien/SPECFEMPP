@@ -1,12 +1,6 @@
-#include "enumerations/dimension.hpp"
-#include "io/interface.hpp"
-#include "parameter_parser/interface.hpp"
+#include "specfem/context.hpp"
 #include "specfem/periodic_tasks.hpp"
-#include "specfem/receivers.hpp"
-#include "specfem_mpi/interface.hpp"
-#include "specfem_setup.hpp"
 #include <boost/program_options.hpp>
-#include <chrono>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
 
@@ -47,131 +41,50 @@ int parse_args(int argc, char **argv,
   return 1;
 }
 
-void execute(
-    const YAML::Node parameter_dict, const YAML::Node default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
-    specfem::MPI::MPI *mpi) {
-
-  // --------------------------------------------------------------
-  //                    Read parameter file
-  // --------------------------------------------------------------
-  auto start_time = std::chrono::system_clock::now();
-  specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
-  const auto database_filename = setup.get_databases();
-  const auto mesh_parameters_filename = setup.get_mesh_parameters();
-
-  // Get simulation parameters
-  const specfem::simulation::type simulation_type = setup.get_simulation_type();
-  const type_real dt = setup.get_dt();
-  const int nsteps = setup.get_nsteps();
-
-  // --------------------------------------------------------------
-  //                   Read mesh and materials
-  // --------------------------------------------------------------
-
-  // Read mesh from the mesh database file
-  mpi->cout("Reading the mesh...");
-  mpi->cout("===================");
-  const auto mesh = specfem::io::read_3d_mesh(mesh_parameters_filename,
-                                              database_filename, mpi);
-  std::chrono::duration<double> elapsed_seconds =
-      std::chrono::system_clock::now() - start_time;
-  mpi->cout("Time to read mesh: " + std::to_string(elapsed_seconds.count()) +
-            " seconds");
-
-  // --------------------------------------------------------------
-  //                   Get Quadrature
-  // --------------------------------------------------------------
-  const auto quadrature = setup.instantiate_quadrature();
-
-  // --------------------------------------------------------------
-  //                   Get Sources
-  // --------------------------------------------------------------
-  auto [sources, t0] =
-      specfem::io::read_3d_sources(setup.get_sources(), nsteps, setup.get_t0(),
-                                   setup.get_dt(), simulation_type);
-  setup.update_t0(0.0); // Update t0 in case it was changed
-
-  mpi->cout("Source Information:");
-  mpi->cout("-------------------------------");
-  if (mpi->main_proc()) {
-    std::cout << "Number of sources : " << sources.size() << "\n" << std::endl;
-  }
-
-  for (auto &source : sources) {
-    mpi->cout(source->print());
-  }
-
-  // --------------------------------------------------------------
-  //                   Get receivers
-  // --------------------------------------------------------------
-  // create single receiver receivers vector for now
-  std::vector<std::shared_ptr<
-      specfem::receivers::receiver<specfem::dimension::type::dim3> > >
-      receivers;
-  receivers.emplace_back(
-      std::make_shared<
-          specfem::receivers::receiver<specfem::dimension::type::dim3> >(
-          "NET", "STA", 50000.0, 40000.0, 0.0));
-
-  mpi->cout("Receiver Information:");
-  mpi->cout("-------------------------------");
-
-  if (mpi->main_proc()) {
-    std::cout << "Number of receivers : " << receivers.size() << "\n"
-              << std::endl;
-  }
-
-  for (auto &receiver : receivers) {
-    mpi->cout(receiver->print());
-  }
-
-  // --------------------------------------------------------------
-  //                   Generate Assembly
-  // --------------------------------------------------------------
-  const int nstep_between_samples = setup.get_nstep_between_samples();
-  const int max_seismogram_time_step = setup.get_max_seismogram_step();
-  specfem::assembly::assembly<specfem::dimension::type::dim3> assembly(
-      mesh, quadrature, sources, receivers, setup.get_seismogram_types(),
-      setup.get_t0(), dt, nsteps, max_seismogram_time_step,
-      nstep_between_samples, setup.get_simulation_type(),
-      setup.allocate_boundary_values(), setup.instantiate_property_reader());
-
-  // --------------------------------------------------------------
-  //                   Instantiate Timescheme
-  // --------------------------------------------------------------
-  const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
-
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
-
-  if (mpi->main_proc())
-    mpi->cout(assembly.print());
-
-  return;
-}
-
 int main(int argc, char **argv) {
-  // Initialize MPI
-  specfem::MPI::MPI *mpi = new specfem::MPI::MPI(&argc, &argv);
-  // Initialize Kokkos
-  Kokkos::initialize(argc, argv);
-  {
-    boost::program_options::variables_map vm;
-    if (parse_args(argc, argv, vm)) {
-      const std::string parameters_file =
-          vm["parameters_file"].as<std::string>();
-      const std::string default_file = vm["default_file"].as<std::string>();
-      const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
-      const YAML::Node default_dict = YAML::LoadFile(default_file);
-      std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
-          tasks;
-      execute(parameter_dict, default_dict, tasks, mpi);
-    }
+  // Parse command line arguments
+  boost::program_options::variables_map vm;
+  int parse_result = parse_args(argc, argv, vm);
+
+  if (parse_result <= 0) {
+    return (parse_result == 0) ? 0 : 1; // 0 for help, 1 for error
   }
-  // Finalize Kokkos
-  Kokkos::finalize();
-  // Finalize MPI
-  delete mpi;
-  return 0;
+
+  // Use ContextGuard for automatic RAII-based initialization and cleanup
+  int result = 0;
+
+  try {
+    // Initialize context with RAII guard
+    specfem::ContextGuard guard(argc, argv);
+    auto &context = guard.get_context();
+
+    // Extract parameters
+    const std::string parameters_file = vm["parameters_file"].as<std::string>();
+    const std::string default_file = vm["default_file"].as<std::string>();
+
+    // Load configuration files
+    const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
+    const YAML::Node default_dict = YAML::LoadFile(default_file);
+
+    // Setup periodic tasks (signal checking)
+    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks;
+    const auto signal_task =
+        std::make_shared<specfem::periodic_tasks::check_signal>(10);
+    tasks.push_back(signal_task);
+
+    // Execute simulation for 3D
+    if (!context.execute<specfem::dimension::type::dim3>(parameter_dict,
+                                                         default_dict, tasks)) {
+      std::cerr << "Execution failed" << std::endl;
+      result = 1;
+    }
+
+    // Context automatically finalized when guard goes out of scope
+
+  } catch (const std::exception &e) {
+    std::cerr << "Error during execution: " << e.what() << std::endl;
+    result = 1;
+  }
+
+  return result;
 }

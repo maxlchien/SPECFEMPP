@@ -19,8 +19,16 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-// Legacy execute function (currently used by existing code)
-void execute(
+namespace specfem::execute {
+
+// Execute function for 2D simulations
+void execute_2d(
+    const YAML::Node &parameter_dict, const YAML::Node &default_dict,
+    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
+    specfem::MPI::MPI *mpi);
+
+// Execute function for 3D simulations
+void execute_3d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi);
@@ -45,3 +53,5 @@ extern template void execute_templated<specfem::dimension::type::dim3>(
     const YAML::Node &, const YAML::Node &,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >,
     specfem::MPI::MPI *);
+
+} // namespace specfem::execute
