@@ -37,10 +37,10 @@ mpirun -np 1 ./bin/xspecfem3D
 Then move the traces from `OUTPUT_FILES` to the `traces` directory.
 
 ```bash
-mv OUTPUT_FILES/*.sem* ../../traces/
+mv -f OUTPUT_FILES/*.sem* ../../traces/
 ```
 
-## Recreatign The SPECFEM++ databases.
+## Recreating The SPECFEM++ databases.
 
 Use `provenance/specfempp`
 
