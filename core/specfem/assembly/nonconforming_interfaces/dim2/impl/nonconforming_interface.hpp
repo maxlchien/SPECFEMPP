@@ -121,20 +121,45 @@ public:
                 specfem::data_access::is_point<PointType>::value, int> = 0>
   KOKKOS_FORCEINLINE_FUNCTION void impl_load(const IndexType &index,
                                              PointType &point) const {
-    if constexpr (on_device) {
-      point.edge_factor = intersection_factor(index.iedge, index.ipoint);
-      point.intersection_normal(0) =
-          intersection_normal(index.iedge, index.ipoint, 0);
-      point.intersection_normal(1) =
-          intersection_normal(index.iedge, index.ipoint, 1);
-    } else {
-      point.edge_factor = h_intersection_factor(index.iedge, index.ipoint);
-      point.intersection_normal(0) =
-          h_intersection_normal(index.iedge, index.ipoint, 0);
-      point.intersection_normal(1) =
-          h_intersection_normal(index.iedge, index.ipoint, 1);
+
+    if constexpr (specfem::assembly::coupled_interfaces_impl::
+                      stores_transfer_function_self<PointType>::value ||
+                  specfem::assembly::coupled_interfaces_impl::
+                      stores_transfer_function_coupled<PointType>::value) {
+
+      const int &container_slot = index.iedge;
+      const int &ipoint = index.ipoint;
+
+      if constexpr (on_device) {
+        for (int i = 0; i < PointType::n_quad_intersection; i++) {
+          if constexpr (specfem::assembly::coupled_interfaces_impl::
+                            stores_transfer_function_self<PointType>::value) {
+            point.transfer_function_self(i) =
+                transfer_function(container_slot, i, ipoint);
+          }
+          if constexpr (specfem::assembly::coupled_interfaces_impl::
+                            stores_transfer_function_coupled<
+                                PointType>::value) {
+            point.transfer_function_coupled(i) =
+                transfer_function_other(container_slot, i, ipoint);
+          }
+        }
+      } else {
+        for (int i = 0; i < PointType::n_quad_intersection; i++) {
+          if constexpr (specfem::assembly::coupled_interfaces_impl::
+                            stores_transfer_function_self<PointType>::value) {
+            point.transfer_function_self(i) =
+                h_transfer_function(container_slot, i, ipoint);
+          }
+          if constexpr (specfem::assembly::coupled_interfaces_impl::
+                            stores_transfer_function_coupled<
+                                PointType>::value) {
+            point.transfer_function_coupled(i) =
+                h_transfer_function_other(container_slot, i, ipoint);
+          }
+        }
+      }
     }
-    return;
   }
 
   /**
@@ -210,11 +235,11 @@ public:
           index.get_iterator(),
           [&](const typename IndexType::iterator_type::index_type
                   &iterator_index) {
-            const auto point_index = iterator_index.get_index();
-
-            const int &local_slot = point_index.iedge;
-            const int &container_slot = offset + point_index.iedge;
-            const int &ipoint = point_index.ipoint;
+            const auto &local_index = iterator_index.get_local_index();
+            const auto &index = iterator_index.get_index();
+            const int &local_slot = local_index.iedge;
+            const int &container_slot = index.iedge;
+            const int &ipoint = index.ipoint;
 
             if constexpr (on_device) {
               for (int i = 0; i < EdgeType::n_quad_intersection; i++) {

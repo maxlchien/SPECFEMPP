@@ -17,7 +17,7 @@ namespace mesh {
  */
 
 template <> struct materials<specfem::dimension::type::dim2> {
-  constexpr static auto dimension =
+  constexpr static auto dimension_tag =
       specfem::dimension::type::dim2; ///< Dimension type
 
   struct material_specification {
@@ -50,13 +50,14 @@ template <> struct materials<specfem::dimension::type::dim2> {
             specfem::element::property_tag property>
   struct material {
     int n_materials; ///< Number of elements
-    std::vector<specfem::medium::material<type, property> >
+    std::vector<specfem::medium::material<dimension_tag, type, property> >
         element_materials; ///< Material properties
 
     material() = default;
 
     material(const int n_materials,
-             const std::vector<specfem::medium::material<type, property> >
+             const std::vector<
+                 specfem::medium::material<dimension_tag, type, property> >
                  &l_material);
   };
 
@@ -110,7 +111,7 @@ public:
    * @param index Spectral element index
    * @return std::variant Material properties
    */
-  specfem::medium::material<MediumTag, PropertyTag>
+  specfem::medium::material<dimension_tag, MediumTag, PropertyTag>
   get_material(const int index) const {
     const auto &material_specification = this->material_index_mapping(index);
 
@@ -140,7 +141,7 @@ public:
    */
   template <specfem::element::medium_tag MediumTag,
             specfem::element::property_tag PropertyTag>
-  specfem::mesh::materials<dimension>::material<MediumTag, PropertyTag> &
+  specfem::mesh::materials<dimension_tag>::material<MediumTag, PropertyTag> &
   get_container() {
 
     FOR_EACH_IN_PRODUCT(

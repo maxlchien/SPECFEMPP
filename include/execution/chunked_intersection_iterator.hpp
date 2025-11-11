@@ -128,6 +128,11 @@ public:
                         ///< the interface
   }
 
+  KOKKOS_INLINE_FUNCTION
+  constexpr const index_type &get_local_index() const {
+    return this->local_index; ///< Returns the local point index
+  }
+
   /**
    * @brief Constructor for InterfacePointIndex
    *
@@ -157,6 +162,7 @@ public:
 
 private:
   index_type index;             ///< Index of the GLL point on the interface
+  index_type local_index;       ///< Index of the GLL point relative to chunk
   KokkosIndexType kokkos_index; ///< Kokkos index type
 };
 
@@ -551,10 +557,15 @@ public:
 
   using execution_space =
       typename base_type::execution_space; ///< Execution space type.
-  using base_index_type = specfem::point::interface_index<
-      ParallelConfig::dimension>; ///< Index type to be used when calling @c
-                                  ///< specfem::execution::for_all with this
-                                  ///< iterator.
+  using base_index_type = InterfacePointIndex<
+      ParallelConfig::dimension, int,
+      typename base_type::execution_space>; ///< Index type
+                                            ///< to be used
+                                            ///< when calling
+                                            ///< @ref
+                                            ///< specfem::execution::for_all
+                                            ///< with this
+                                            ///< iterator.
 
   /**
    * @brief Constructor with explicit edge views and point count

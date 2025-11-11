@@ -6,10 +6,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 # SPECFEM options
 option(SPECFEM_ENABLE_ADIOS2 "Enable ADIOS2 I/O in SPECFEM++" OFF)
+option(SPECFEM_ENABLE_ADIOS2_FORCE_INSTALL "Force install ADIOS2 dependency if SPECFEM_ENABLE_ADIOS2 is ON even if system ADIOS2 is found" OFF)
 option(SPECFEM_ENABLE_HDF5 "Enable HDF5 I/O in SPECFEM++" OFF)
 option(SPECFEM_ENABLE_HDF5_FORCE_INSTALL "Force install HDF5 dependency if SPECFEM_ENABLE_HDF5 is ON even if system HDF5 is found" OFF)
 option(SPECFEM_ENABLE_NPZ "Enable NPZ I/O in SPECFEM++" OFF)
 option(SPECFEM_ENABLE_ZLIB_FORCE_INSTALL "Force install ZLIB dependency even if system ZLIB is found" OFF)
+option(SPECFEM_ENABLE_BOOST_FORCE_INSTALL "Force install Boost dependency even if system Boost is found" OFF)
 option(SPECFEM_ENABLE_VTK "Enable VTK visualization in SPECFEM++" ON)
 option(SPECFEM_ENABLE_MPI "MPI enabled" OFF)
 option(SPECFEM_BUILD_TESTS "Tests included" OFF)
@@ -20,7 +22,8 @@ option(SPECFEM_INSTALL "Creates clean executable directory. Location Controlled 
 option(SPECFEM_ENABLE_DOUBLE_PRECISION "Enable double precision" OFF)
 option(SPECFEM_BUILD_BENCHMARKS "Benchmarks included" ON)
 option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" ON)
-option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tests" OFF)
+option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tesats" OFF)
+set(SPECFEMPP_UNITY_BUILD_BATCH_SIZE 8 CACHE STRING "Set the batch size for unity builds (only used if SPECFEM_ENABLE_UNITY_BUILD is ON)")
 
 # set(CMAKE_BUILD_TYPE Release)
 set(CHUNK_SIZE 32)
@@ -60,7 +63,7 @@ if(SPECFEM_ENABLE_UNITY_BUILD)
     else (CMAKE_BUILD_TYPE STREQUAL "Debug")
         message(STATUS "Unity build enabled - this will speed up compilation")
         set(CMAKE_UNITY_BUILD ON)
-        set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+        set(CMAKE_UNITY_BUILD_BATCH_SIZE ${SPECFEMPP_UNITY_BUILD_BATCH_SIZE})
     endif()
 endif()
 
@@ -369,6 +372,7 @@ add_library(
         src/mesh/dim3/generate_database/tags/tags.cpp
 
         src/mesh/dim3/meshfem3d/adjacency_graph/assert_symmetry.cpp
+        src/mesh/dim3/meshfem3d/tags/tags.cpp
         src/mesh/dim3/meshfem3d/mesh.cpp
 )
 

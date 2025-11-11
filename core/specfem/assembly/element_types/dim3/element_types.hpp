@@ -66,6 +66,27 @@ public:
                 const specfem::assembly::mesh<dimension_tag> &mesh,
                 const specfem::mesh::tags<dimension_tag> &tags);
 
+  /**
+   * @brief Constructor for element_types class in 3D assembly
+   *
+   * Initializes the element types container with spectral element mesh
+   * parameters and mesh configuration data for 3D finite element assembly
+   * operations.
+   *
+   * @param nspec Total number of spectral elements in the mesh
+   * @param ngllz Number of Gauss-Lobatto-Legendre points in the z-direction
+   * @param nglly Number of Gauss-Lobatto-Legendre points in the y-direction
+   * @param ngllx Number of Gauss-Lobatto-Legendre points in the x-direction
+   * @param mesh Reference to the 3D assembly mesh containing geometric and
+   * topological information
+   * @param tags Reference to the mesh tags containing element type
+   * classifications and material properties
+   */
+  element_types(const int nspec, const int ngllz, const int nglly,
+                const int ngllx,
+                const specfem::assembly::mesh<dimension_tag> &mesh,
+                const specfem::mesh::meshfem3d::tags<dimension_tag> &tags);
+
   Kokkos::View<int *, Kokkos::DefaultHostExecutionSpace>
   get_elements_on_host(const specfem::element::medium_tag tag) const;
 

@@ -3,6 +3,7 @@
 #include "algorithms/transfer.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/data_access.hpp"
+#include "specfem/data_access/check_compatibility.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
@@ -62,10 +63,10 @@ KOKKOS_INLINE_FUNCTION void compute_coupling(
       "acoustic_elastic compute_coupling needs CoupledInterfaceType to have "
       "the normal vector.");
 
-  static_assert(specfem::data_access::is_displacement<CoupledFieldType>::value,
-                "CoupledFieldType must be a displacement type");
+  static_assert(specfem::data_access::is_acceleration<CoupledFieldType>::value,
+                "CoupledFieldType must be an acceleration type");
 
-  specfem::algorithms::transfer(
+  specfem::algorithms::transfer_coupled(
       chunk_edge_index, interface_data, coupled_field,
       [&](const int &iedge, const int &iintersection, const auto &point) {
         intersection_field(iedge, iintersection, 0) =
