@@ -13,7 +13,7 @@ namespace py = pybind11;
 static std::unique_ptr<specfem::ContextGuard> global_context_guard = nullptr;
 
 bool _initialize(py::list py_argv) {
-  if (global_context_guard != nullptr) {
+  if (global_context_guard) {
     return false; // Already initialized
   }
 
