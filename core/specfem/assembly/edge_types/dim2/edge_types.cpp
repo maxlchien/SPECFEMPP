@@ -16,6 +16,15 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
     const specfem::mesh::coupled_interfaces<dimension_tag>
         &coupled_interfaces) {
 
+  if (ngllz <= 0 || ngllx <= 0) {
+    KOKKOS_ABORT_WITH_LOCATION("Invalid GLL grid size");
+  }
+
+  if (ngllz != ngllx) {
+    KOKKOS_ABORT_WITH_LOCATION(
+        "The number of GLL points in z and x must be the same.");
+  }
+
   const auto element = specfem::mesh_entity::element(ngllz, ngllx);
 
   const int ngll = ngllx; // ngllx == ngllz in 2D
