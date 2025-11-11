@@ -5,6 +5,9 @@ add_library(specfem::assembly ALIAS assembly)
 
 target_link_libraries(
         assembly
+        PUBLIC
+        specfem::macros
+        PRIVATE
         algorithms
         enumerations
         quadrature

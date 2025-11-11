@@ -48,8 +48,8 @@
 #pragma once
 
 #include "chunked_edge_iterator.hpp"
-#include "macros.hpp"
 #include "policy.hpp"
+#include "specfem/macros.hpp"
 #include "specfem/point.hpp"
 #include "void_iterator.hpp"
 #include <Kokkos_Core.hpp>

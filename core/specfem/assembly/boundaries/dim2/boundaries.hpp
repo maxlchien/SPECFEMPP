@@ -3,7 +3,6 @@
 #include "enumerations/interface.hpp"
 #include "impl/acoustic_free_surface.hpp"
 #include "impl/stacey.hpp"
-#include "macros.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"

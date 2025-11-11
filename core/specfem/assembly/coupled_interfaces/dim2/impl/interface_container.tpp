@@ -1,12 +1,12 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "enumerations/macros.hpp"
 #include "specfem/assembly/coupled_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/data_access.hpp"
+#include "specfem/macros.hpp"
 
 template <specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag>

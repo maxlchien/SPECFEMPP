@@ -1,9 +1,9 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "enumerations/material_definitions.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem/assembly/element_types.hpp"
+#include "specfem/macros.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem::assembly {

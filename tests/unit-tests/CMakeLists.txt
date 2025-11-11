@@ -415,6 +415,15 @@ target_link_libraries(
   -lpthread -lm
 )
 
+target_compile_definitions(
+        compute_tests
+        PUBLIC
+        $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
+        $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
+        $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
+        $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
+)
+
 add_executable(
   nonconforming_assembly_tests
   assembly/runner.cpp
@@ -455,6 +464,7 @@ add_executable(
   assembly/compute_source_array/dim2/compute_source_array_from_vector.cpp
   assembly/compute_source_array/dim2/compute_source_array_from_tensor.cpp
   assembly/compute_source_array/dim3/compute_source_array_from_vector.cpp
+  assembly/compute_source_array/dim3/compute_source_array_from_tensor.cpp
 
   # New dim3 tests
   assembly/dim3/mesh/shape_functions.cpp
