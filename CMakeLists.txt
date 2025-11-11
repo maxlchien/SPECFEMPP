@@ -22,7 +22,8 @@ option(SPECFEM_INSTALL "Creates clean executable directory. Location Controlled 
 option(SPECFEM_ENABLE_DOUBLE_PRECISION "Enable double precision" OFF)
 option(SPECFEM_BUILD_BENCHMARKS "Benchmarks included" ON)
 option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" ON)
-option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tests" OFF)
+option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tesats" OFF)
+set(SPECFEMPP_UNITY_BUILD_BATCH_SIZE 8 CACHE STRING "Set the batch size for unity builds (only used if SPECFEM_ENABLE_UNITY_BUILD is ON)")
 
 # set(CMAKE_BUILD_TYPE Release)
 set(CHUNK_SIZE 32)
@@ -62,7 +63,7 @@ if(SPECFEM_ENABLE_UNITY_BUILD)
     else (CMAKE_BUILD_TYPE STREQUAL "Debug")
         message(STATUS "Unity build enabled - this will speed up compilation")
         set(CMAKE_UNITY_BUILD ON)
-        set(CMAKE_UNITY_BUILD_BATCH_SIZE 8)
+        set(CMAKE_UNITY_BUILD_BATCH_SIZE ${SPECFEMPP_UNITY_BUILD_BATCH_SIZE})
     endif()
 endif()
 
