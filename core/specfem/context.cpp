@@ -1,5 +1,5 @@
 #include "specfem/context.hpp"
-#include "specfem/execute.hpp"
+#include "specfem/simulation.hpp"
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
@@ -18,13 +18,13 @@ bool Context::execute(
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
         &tasks) {
   try {
-    // Call the appropriate templated execute function
+    // Call the appropriate dimension-specific simulation function
     if constexpr (DimensionTag == specfem::dimension::type::dim2) {
-      specfem::execute::execute_2d(parameter_dict, default_dict, tasks,
-                                   mpi_.get());
+      specfem::simulation::simulation_2d(parameter_dict, default_dict, tasks,
+                                         mpi_.get());
     } else if constexpr (DimensionTag == specfem::dimension::type::dim3) {
-      specfem::execute::execute_3d(parameter_dict, default_dict, tasks,
-                                   mpi_.get());
+      specfem::simulation::simulation_3d(parameter_dict, default_dict, tasks,
+                                         mpi_.get());
     } else {
       std::cerr << "Unsupported dimension type" << std::endl;
       return false;

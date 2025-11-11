@@ -1,5 +1,5 @@
 #include "specfem/context.hpp"
-#include "specfem/execute.hpp"
+#include "specfem/simulation.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #define STRINGIFY(x) #x

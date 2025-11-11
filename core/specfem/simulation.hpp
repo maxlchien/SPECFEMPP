@@ -19,16 +19,16 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-namespace specfem::execute {
+namespace specfem::simulation {
 
 // Execute function for 2D simulations
-void execute_2d(
+void simulation_2d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi);
 
 // Execute function for 3D simulations
-void execute_3d(
+void simulation_3d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi);
@@ -54,4 +54,4 @@ extern template void execute_templated<specfem::dimension::type::dim3>(
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >,
     specfem::MPI::MPI *);
 
-} // namespace specfem::execute
+} // namespace specfem::simulation

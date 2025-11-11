@@ -22,8 +22,8 @@ target_link_libraries(specfem_core
         $<TARGET_NAME_IF_EXISTS:MPI::MPI_CXX>
 )
 
-# Execute library - main simulation execution logic
-add_library(specfem_execute STATIC execute.cpp)
+# Simulation library - main simulation execution logic
+add_library(specfem_execute STATIC simulation.cpp)
 target_include_directories(specfem_execute PUBLIC ${CMAKE_SOURCE_DIR}/core)
 target_link_libraries(specfem_execute
     PUBLIC

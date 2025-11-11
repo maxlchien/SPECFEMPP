@@ -1,4 +1,4 @@
-#include "execute.hpp"
+#include "simulation.hpp"
 
 #include "enumerations/dimension.hpp"
 #include "io/interface.hpp"
@@ -41,7 +41,7 @@ print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
   return message.str();
 }
 
-void specfem::execute::execute_2d(
+void specfem::simulation::simulation_2d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi) {
@@ -246,7 +246,7 @@ void specfem::execute::execute_2d(
   return;
 }
 
-void specfem::execute::execute_3d(
+void specfem::simulation::simulation_3d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi) {
