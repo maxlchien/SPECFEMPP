@@ -1,7 +1,6 @@
 #pragma once
 
-#include "enumerations/dimension.hpp"
-#include "enumerations/execution.hpp"
+#include "enumerations/interface.hpp"
 #include "periodic_tasks/periodic_task.hpp"
 #include "specfem_mpi/interface.hpp"
 #include <Kokkos_Core.hpp>

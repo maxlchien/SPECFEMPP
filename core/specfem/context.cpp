@@ -42,19 +42,19 @@ bool Context::execute_with_dimension(
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
         &tasks) {
   try {
-    // Use execution model enumeration for validation
-    specfem::execution::model exec_model =
-        specfem::execution::from_string(dimension);
+    // Use simulation model enumeration for validation
+    specfem::simulation::model simulation_model =
+        specfem::simulation::from_string(dimension);
 
-    switch (exec_model) {
-    case specfem::execution::model::dim2:
+    switch (simulation_model) {
+    case specfem::simulation::model::Cartesian2D:
       return execute<specfem::dimension::type::dim2>(parameter_dict,
                                                      default_dict, tasks);
-    case specfem::execution::model::dim3:
+    case specfem::simulation::model::Cartesian3D:
       return execute<specfem::dimension::type::dim3>(parameter_dict,
                                                      default_dict, tasks);
     default:
-      std::cerr << "Unsupported execution model" << std::endl;
+      std::cerr << "Unsupported simulation model" << std::endl;
       return false;
     }
   } catch (const std::invalid_argument &e) {
