@@ -43,7 +43,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
 
-  if (self_edges.extent(0) == 0 && coupled_edges.extent(0) == 0)
+  if (self_edges.n_edges == 0 && coupled_edges.n_edges == 0)
     return;
 
   const auto &field =
@@ -64,7 +64,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       specfem::point::boundary<boundary_tag, dimension_tag, false>;
 
   specfem::execution::ChunkedIntersectionIterator chunk(
-      parallel_config(), self_edges, coupled_edges, num_points);
+      parallel_config(), self_edges, coupled_edges);
 
   specfem::execution::for_all(
       "specfem::kokkos_kernels::impl::compute_coupling", chunk,
@@ -123,7 +123,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
 
-  if (self_edges.extent(0) == 0 && coupled_edges.extent(0) == 0)
+  if (self_edges.n_edges == 0 && coupled_edges.n_edges == 0)
     return;
 
   const auto field = assembly.fields.template get_simulation_field<wavefield>();
@@ -179,7 +179,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
   specfem::execution::ChunkedIntersectionIterator chunk(
-      parallel_config(), self_edges, coupled_edges, num_points);
+      parallel_config(), self_edges, coupled_edges);
 
   int scratch_size = CoupledFieldType::shmem_size() +
                      CoupledTransferFunctionType::shmem_size() +
