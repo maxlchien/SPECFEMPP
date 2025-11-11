@@ -92,8 +92,9 @@ public:
   /**
    * @brief Print a formatted header with SPECFEM++ branding
    *
+   * @param s Header string to print (default: "SPECFEM++")
    */
-  void print_header() const;
+  void print_header(const std::string &s = "SPECFEM++") const;
 
   /**
    * @brief Print a title string with surrounding decoration

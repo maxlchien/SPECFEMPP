@@ -280,11 +280,13 @@ void specfem::MPI::MPI::print_title(const std::string &s) const {
 /**
  * @brief Print a formatted header with SPECFEM++ branding
  *
+ * @param s Header string to print (default: "SPECFEM++")
  */
-void specfem::MPI::MPI::print_header() const {
+void specfem::MPI::MPI::print_header(const std::string &s) const {
   const int total_width = 60;
   const std::string deco_line(total_width, '=');
-  const std::string title = " SPECFEM++ ";
+  // Add spaces around the string
+  const std::string title = " " + s + " ";
 
   // Calculate padding for centering
   int text_length = title.length();
