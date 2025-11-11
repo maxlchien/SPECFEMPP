@@ -172,12 +172,21 @@ TEST_P(Newmark, 3D) {
 
   const int max_sig_step = setup.get_max_seismogram_step();
   const int nstep_between_samples = setup.get_nstep_between_samples();
-
+  if (mpi->main_proc()) {
+    std::cout << "Creating the Assembly..." << std::endl;
+  }
+  auto start = std::chrono::high_resolution_clock::now();
   specfem::assembly::assembly<specfem::dimension::type::dim3> assembly(
       mesh, quadratures, sources, receivers, setup.get_seismogram_types(),
       setup.get_t0(), dt, nsteps, max_sig_step, nstep_between_samples,
       setup.get_simulation_type(), setup.allocate_boundary_values(),
       setup.instantiate_property_reader());
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  if (mpi->main_proc()) {
+    std::cout << "Assembly created in " << elapsed.count() << " seconds."
+              << std::endl;
+  }
 
   // Instantiate the solver and timescheme
   auto it = setup.instantiate_timescheme(assembly.fields);

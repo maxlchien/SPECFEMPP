@@ -22,8 +22,8 @@ parameters:
         type-of-simulation: forward
         time-scheme:
           type: Newmark
-          dt: 0.011
-          nstep: 200
+          dt: 0.035
+          nstep: 75
 
     simulation-mode:
       forward:
@@ -48,6 +48,6 @@ parameters:
 
   ## databases
   databases:
-    mesh-database: "displacement_tests/Newmark/serial/dim3/HomogeneousHalfspaceSmallNoABCForceSource/DATABASES_MPI/database.bin"
+    mesh-database: "displacement_tests/Newmark/serial/dim3/HomogeneousHalfspaceSmallNoABCForceSource/DATABASES_MPI/mesh_database.bin"
 
   sources: "displacement_tests/Newmark/serial/dim3/HomogeneousHalfspaceSmallNoABCForceSource/force.yaml"
