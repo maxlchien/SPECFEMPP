@@ -19,8 +19,8 @@
  */
 #include "../test_fixture.hpp"
 #include "enumerations/interface.hpp"
-#include "enumerations/material_definitions.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/macros.hpp"
 #include "specfem/point.hpp"
 #include "specfem_setup.hpp"
 #include <any>

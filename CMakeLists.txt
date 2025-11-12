@@ -116,6 +116,15 @@ else(MSVC)
     message(STATUS "MSVC not detected -- setting __MSVC__ FALSE")
 endif()
 
+# check GNU compiler
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(__GNUC__ TRUE)
+    message(STATUS "GNU compiler detected -- setting __GNUC__ TRUE")
+else(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(__GNUC__ FALSE)
+    message(STATUS "GNU compiler not detected -- setting __GNUC__ FALSE")
+endif()
+
 # Install Kokkos as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/kokkos.cmake")
 
@@ -372,6 +381,7 @@ target_link_libraries(
         enumerations
         Kokkos::kokkos
         specfem_mpi
+        specfem::macros
         # material_class
         yaml-cpp
         ${BOOST_LIBS}
@@ -424,6 +434,7 @@ target_link_libraries(
         Kokkos::kokkos
         jacobian
         point
+        assembly
         ${BOOST_LIBS}
 )
 
@@ -458,19 +469,17 @@ add_library(
         src/kokkos_kernels/impl/compute_coupling.cpp
         src/kokkos_kernels/frechet_kernels.cpp
 )
+
 set_target_properties(kokkos_kernels PROPERTIES
         UNITY_BUILD $<NOT:$<BOOL:${__APPLE__}>>
         UNITY_BUILD_BATCH_SIZE $<IF:$<BOOL:${__APPLE__}>,0,4>
 )
 
-if(__MSVC__)
-target_compile_definitions(kokkos_kernels PRIVATE __MSVC__)
-endif(__MSVC__)
-
 target_link_libraries(
         kokkos_kernels
-        Kokkos::kokkos
+        PRIVATE
         assembly
+        Kokkos::kokkos
 )
 
 add_library(
