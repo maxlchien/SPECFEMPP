@@ -23,6 +23,8 @@ rule run_seispie:
         stations="<cwd>/provenance/seispie/stations.dat",
     output:
         ry="<cwd>/provenance/seispie/output/ry_000000.npy",
+        iry="<cwd>/provenance/seispie/output/iry_000000.npy",
+        cry="<cwd>/provenance/seispie/output/cry_000000.npy",
         ux="<cwd>/provenance/seispie/output/ux_000000.npy",
         uz="<cwd>/provenance/seispie/output/uz_000000.npy",
     localrule: True,
@@ -33,6 +35,7 @@ rule run_seispie:
         fi
         cd $(dirname {input.model})
         mkdir -p model
+        export PYTHONPATH=$SEISPIE_DIR:$PYTHONPATH
         $SEISPIE_DIR/.venv/bin/python generate_model.py
         $SEISPIE_DIR/.venv/bin/python $SEISPIE_DIR/scripts/sprun --workdir=$PWD
         """
