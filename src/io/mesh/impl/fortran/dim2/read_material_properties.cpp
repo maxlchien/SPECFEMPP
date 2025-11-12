@@ -505,11 +505,20 @@ void read_material_indices(
                                    &pml_read);
 
     if (n < 1 || n > nspec) {
-      throw std::runtime_error("Error reading material indices");
+      std::ostringstream message;
+      message << "Error reading material indices: element index out of bounds, "
+                 "read "
+              << n << " but should be between 1 and " << nspec;
+      throw std::runtime_error(message.str());
     }
 
     if (kmato_read < 1 || kmato_read > numat) {
-      throw std::runtime_error("Error reading material indices");
+      std::ostringstream message;
+      message
+          << "Error reading material indices: material index out of bounds, "
+             "read "
+          << kmato_read << " but should be between 1 and " << numat;
+      throw std::runtime_error(message.str());
     }
 
     for (int i = 0; i < ngnod; i++) {
