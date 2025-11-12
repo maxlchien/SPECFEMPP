@@ -73,12 +73,6 @@ build_assembly_adjacency_graph(
         specfem::dimension::type::dim2> &mapping,
     const specfem::mesh::adjacency_graph<specfem::dimension::type::dim2>
         &mesh_adjacency_graph) {
-
-  if (mesh_adjacency_graph.empty()) {
-    return specfem::assembly::mesh_impl::adjacency_graph<
-        specfem::dimension::type::dim2>();
-  }
-
   specfem::assembly::mesh_impl::adjacency_graph<specfem::dimension::type::dim2>
       adjacency_graph(nspec);
 
