@@ -2,7 +2,7 @@
 
 #include "enumerations/coupled_interface.hpp"
 #include "enumerations/interface.hpp"
-#include "enumerations/macros.hpp"
+#include "specfem/macros.hpp"
 #include "enumerations/medium.hpp"
 #include "kokkos_abstractions.h"
 #include "specfem/assembly/coupled_interfaces.hpp"

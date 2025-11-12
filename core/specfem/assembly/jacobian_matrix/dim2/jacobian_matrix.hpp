@@ -3,7 +3,6 @@
 #include "domain_view.hpp"
 #include "enumerations/interface.hpp"
 #include "kokkos_abstractions.h"
-#include "macros.hpp"
 #include "quadrature/interface.hpp"
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/data_access.hpp"

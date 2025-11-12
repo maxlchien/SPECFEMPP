@@ -48,8 +48,8 @@
 #pragma once
 
 #include "chunked_edge_iterator.hpp"
-#include "macros.hpp"
 #include "policy.hpp"
+#include "specfem/macros.hpp"
 #include "specfem/point.hpp"
 #include "void_iterator.hpp"
 #include <Kokkos_Core.hpp>
@@ -271,7 +271,8 @@ private:
       return { ispec, ipoint, num_points - 1 };
       break;
     default:
-      DEVICE_ASSERT(false, "Invalid edge type");
+      KOKKOS_ABORT_WITH_LOCATION(
+          "Error: Unknown edge type in ChunkEdgeIterator::compute_index");
       return { 0, 0, 0 };
     }
   }
