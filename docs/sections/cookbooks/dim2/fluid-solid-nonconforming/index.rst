@@ -1,6 +1,6 @@
-
-Wave propagation through a nonconforming fluid-solid interface
-==============================================================
+################################################################
+ Wave propagation through a nonconforming fluid-solid interface
+################################################################
 
 This `example
 <https://github.com/PrincetonUniversity/SPECFEMPP/tree/main/examples/dim2/fluid-solid-nonconforming>`_
@@ -17,9 +17,9 @@ meshes, we have provided a ``gmshlayerbuilder`` script to take a
 topography file (normally read in by ``Par_file``) and generate a mesh
 for ``xmeshfem2D`` to generate a database for.
 
-
-Setting up the workspace
-------------------------
+**************************
+ Setting up the workspace
+**************************
 
 Let's start by creating a workspace from where we can run this example.
 
@@ -64,9 +64,9 @@ output artifacts.
    touch topography_file.dat
    touch Par_file
 
-
-Meshing the domain
-------------------
+********************
+ Meshing the domain
+********************
 
 We first start by generating an external mesh from our topography file.
 This is the same as the ``fluid-solid-bathymetry`` example.
@@ -138,23 +138,23 @@ resolution).
 
    Mesh of the modified topography file.
 
-
 Parameter file
-~~~~~~~~~~~~~~
+==============
 
 We told ``gmshlayerbuilder`` to save the external mesh files into
 ``OUTPUT_FILES/MESH``. We now read those files into ``xmeshfem2D``
 through the parameter file, with the ``read_external_mesh`` flag set to
-true.
+true. We're also setting the second receiver a little higher to ensure
+that it is inside the acoustic regime, no matter how we discretized the
+topography.
 
 .. literalinclude:: Par_file
    :language: bash
-   :emphasize-lines: 88,98-107
+   :emphasize-lines: 59,61,88,98-107
    :caption: Par_file
 
-
 Running ``xmeshfem2D``
-~~~~~~~~~~~~~~~~~~~~~~
+======================
 
 To execute the mesher run
 
@@ -165,9 +165,8 @@ To execute the mesher run
 Note the path of the database file and a stations file generated after
 successfully running the mesher.
 
-
 Defining the source
-~~~~~~~~~~~~~~~~~~~
+===================
 
 The sources are set as in the :doc:`fluid-solid-bathymetry
 </sections/cookbooks/dim2/fluid-solid-bathymetry/index>` example.
@@ -176,20 +175,17 @@ The sources are set as in the :doc:`fluid-solid-bathymetry
    :caption: line_source.yaml
    :language: yaml
 
-
-Running the simulation
-----------------------
+************************
+ Running the simulation
+************************
 
 To run the solver, we need a configuration file. We use a
 ``specfem_config.yaml`` file similar to the ``fluid-solid-bathymetry``
-example. Since we reduced the mesh resolution in the faster medium, we
-can afford a lower time step size. Below, we doubled the time step size
-from ``1.000e-3`` to ``2.000e-3``.
+example.
 
 .. literalinclude:: specfem_config.yaml
    :language: yaml
    :caption: specfem_config.yaml
-   :emphasize-lines: 5,24-25,39,46
 
 With the configuration file in place, we can run the solver using the
 following command:
@@ -198,9 +194,9 @@ following command:
 
    specfem2d -p specfem_config.yaml
 
-
-Visualizing the results
------------------------
+*************************
+ Visualizing the results
+*************************
 
 The simulation generates seismograms at the stations defined in the
 ``specfem_config.yaml`` file and wavefield snapshots for visualization.
@@ -218,15 +214,20 @@ The output image should look like this:
 
 If you compare these traces with that found in the
 ``fluid-solid-interface`` example, you will notice a relative error
-reaching up to 5% in the ``S0001`` trace, but 40% in the ``S0002``
+reaching up to 5% in the ``S0001`` trace, but 18% in the ``S0002``
 trace. Since the ``S0002`` seismogram is right at the interface, which
 is resolved at a much lower resolution on the elastic side, significant
 errors are expected. So, be sure to continue respecting domain geometry
 when choosing mesh sizes.
 
+.. image:: conforming_nonconforming_compare.svg
+   :width: 100%
+   :alt: Seismograms from the simulation
 
-[Optional] Creating animated visualization
-------------------------------------------
+
+********************************************
+ [Optional] Creating animated visualization
+********************************************
 
 To create an animated gif of the wavefield evolution, you can use
 ImageMagick (if available):
