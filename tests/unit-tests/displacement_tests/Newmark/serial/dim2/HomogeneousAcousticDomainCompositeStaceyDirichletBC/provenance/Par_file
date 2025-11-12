@@ -90,6 +90,11 @@ ATTENUATION_PORO_FLUID_PART     = .false.        # turn viscous attenuation on o
 Q0_poroelastic                  = 1              # quality factor for viscous attenuation (ignore it if you are not using a poroelastic material)
 freq0_poroelastic               = 10             # frequency for viscous attenuation (ignore it if you are not using a poroelastic material)
 
+# for electromagnetic attenuation
+ATTENUATION_PERMITTIVITY        = .false.        # turn permittivity (Zener model) attenuation on or off for electromagnetic material
+ATTENUATION_CONDUCTIVITY        = .false.        # turn conductivity (Kelvin-Voigt model) attenuation on or off for electromagnetic material
+f0_electromagnetic              = 1.d9           # (Hz) relevant only if source is a Dirac or a Heaviside, otherwise it is f0 the dominant frequency of the source in the DATA/SOURCE file
+
 # to undo attenuation and/or PMLs for sensitivity kernel calculations or forward runs with SAVE_FORWARD
 # use the flag below. It performs undoing of attenuation and/or of PMLs in an exact way for sensitivity kernel calculations
 # but requires disk space for temporary storage, and uses a significant amount of memory used as buffers for temporary storage.
@@ -108,7 +113,7 @@ NO_BACKWARD_RECONSTRUCTION      = .false.
 #-----------------------------------------------------------
 
 # source parameters
-NSOURCES                        = 1              # number of sources (source information is then read from the DATA/SOURCE file)
+NSOURCES                        = 4              # number of sources (source information is then read from the DATA/SOURCE file)
 force_normal_to_surface         = .false.        # angleforce normal to surface (external mesh and curve file needed)
 
 # use an existing initial wave field as source or start from zero (medium initially at rest)
@@ -142,7 +147,7 @@ write_moving_sources_database   = .false.
 
 # receiver set parameters for recording stations (i.e. recording points)
 # seismotype : record 1=displ 2=veloc 3=accel 4=pressure 5=curl of displ 6=the fluid potential
-seismotype                      = 1,2,3,4              # several values can be chosen. For example : 1,2,4
+seismotype                      = 1              # several values can be chosen. For example : 1,2,4
 
 # interval in time steps for writing of seismograms
 # every how many time steps we save the seismograms
@@ -170,7 +175,7 @@ SU_FORMAT                       = .false.        # output single precision binar
 use_existing_STATIONS           = .false.
 
 # number of receiver sets (i.e. number of receiver lines to create below)
-nreceiversets                   = 4
+nreceiversets                   = 12
 
 # orientation
 anglerec                        = 0.d0           # angle to rotate components at receivers
@@ -178,34 +183,98 @@ rec_normal_to_surface           = .false.        # base anglerec normal to surfa
 
 # first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
 nrec                            = 5             # number of receivers
-xdeb                            = 2000.           # first receiver x in meters
-zdeb                            = 2200.          # first receiver z in meters
-xfin                            = 3000.          # last receiver x in meters (ignored if only one receiver)
-zfin                            = 2200.          # last receiver z in meters (ignored if only one receiver)
-record_at_surface_same_vertical = .true.         # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
-
-# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
-nrec                            = 5             # number of receivers
-xdeb                            = 2500.          # first receiver x in meters
-zdeb                            = 2500.          # first receiver z in meters
-xfin                            = 2500.          # last receiver x in meters (ignored if only one receiver)
-zfin                            = 1700.             # last receiver z in meters (ignored if only one receiver)
+xdeb                            = 500.          # first receiver x in meters
+zdeb                            = 0.          # first receiver z in meters
+xfin                            = 500.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 800.             # last receiver z in meters (ignored if only one receiver)
 record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
 
 # first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
 nrec                            = 5             # number of receivers
-xdeb                            = 2500.          # first receiver x in meters
-zdeb                            = 2500.          # first receiver z in meters
-xfin                            = 2000.          # last receiver x in meters (ignored if only one receiver)
-zfin                            = 2000.             # last receiver z in meters (ignored if only one receiver)
+xdeb                            = 0.          # first receiver x in meters
+zdeb                            = 500.          # first receiver z in meters
+xfin                            = 800.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 500.             # last receiver z in meters (ignored if only one receiver)
 record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
 
 # first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
 nrec                            = 5             # number of receivers
-xdeb                            = 2200.          # first receiver x in meters
-zdeb                            = 2900.          # first receiver z in meters
-xfin                            = 2800.          # last receiver x in meters (ignored if only one receiver)
-zfin                            = 2400.             # last receiver z in meters (ignored if only one receiver)
+xdeb                            = 0.          # first receiver x in meters
+zdeb                            = 800.          # first receiver z in meters
+xfin                            = 800.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 0.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 3500.          # first receiver x in meters
+zdeb                            = 0.          # first receiver z in meters
+xfin                            = 3500.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 800.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 4000.          # first receiver x in meters
+zdeb                            = 500.          # first receiver z in meters
+xfin                            = 3200.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 500.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 4000.          # first receiver x in meters
+zdeb                            = 800.          # first receiver z in meters
+xfin                            = 3200.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 0.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 500.          # first receiver x in meters
+zdeb                            = 3000.          # first receiver z in meters
+xfin                            = 500.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 2200.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 0.          # first receiver x in meters
+zdeb                            = 2500.          # first receiver z in meters
+xfin                            = 800.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 2500.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 800.          # first receiver x in meters
+zdeb                            = 3000.          # first receiver z in meters
+xfin                            = 0.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 2200.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 3500.          # first receiver x in meters
+zdeb                            = 3000.          # first receiver z in meters
+xfin                            = 3500.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 2200.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 4000.          # first receiver x in meters
+zdeb                            = 2500.          # first receiver z in meters
+xfin                            = 3200.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 2500.             # last receiver z in meters (ignored if only one receiver)
+record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
+
+# first receiver set (repeat these 6 lines and adjust nreceiversets accordingly)
+nrec                            = 5             # number of receivers
+xdeb                            = 3200.          # first receiver x in meters
+zdeb                            = 3000.          # first receiver z in meters
+xfin                            = 4000.          # last receiver x in meters (ignored if only one receiver)
+zfin                            = 2200.             # last receiver z in meters (ignored if only one receiver)
 record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
 
 #-----------------------------------------------------------
@@ -231,7 +300,7 @@ APPROXIMATE_HESS_KL             = .false.
 
 # Perfectly Matched Layer (PML) boundaries
 # absorbing boundary active or not
-PML_BOUNDARY_CONDITIONS         = .true.
+PML_BOUNDARY_CONDITIONS         = .false.
 NELEM_PML_THICKNESS             = 3
 ROTATE_PML_ACTIVATE             = .false.
 ROTATE_PML_ANGLE                = 30.
@@ -246,7 +315,7 @@ damping_change_factor_elastic   = 1.0d0
 PML_PARAMETER_ADJUSTMENT        = .false.
 
 # Stacey ABC
-STACEY_ABSORBING_CONDITIONS     = .false.
+STACEY_ABSORBING_CONDITIONS     = .true.
 
 # periodic boundaries
 ADD_PERIODIC_CONDITIONS         = .false.
@@ -275,7 +344,7 @@ nbmodels                        = 1
 #       Please also note that Qmu is always equal to Qs, but Qkappa is in general not equal to Qp.
 #       To convert one to the other see doc/Qkappa_Qmu_versus_Qp_Qs_relationship_in_2D_plane_strain.pdf and
 #       utils/attenuation/conversion_from_Qkappa_Qmu_to_Qp_Qs_from_Dahlen_Tromp_959_960.f90.
-1 1 2700.d0 3000.d0 1732.051d0 0 0 9999 9999 0 0 0 0 0 0
+1 1 2700.d0 3000.d0 0 0 0 9999 9999 0 0 0 0 0 0
 # 2 1 2500.d0 2700.d0 0 0 0 9999 9999 0 0 0 0 0 0
 # 3 1 2200.d0 2500.d0 1443.375d0 0 0 9999 9999 0 0 0 0 0 0
 # 4 1 2200.d0 2200.d0 1343.375d0 0 0 9999 9999 0 0 0 0 0 0
@@ -318,13 +387,11 @@ xmin                            = 0.d0           # abscissa of left side of the 
 xmax                            = 4000.d0        # abscissa of right side of the model
 nx                              = 80             # number of elements along X
 
-STACEY_ABSORBING_CONDITIONS     = .true.
-
 # absorbing boundary parameters (see absorbing_conditions above)
-absorbbottom                    = .false.
-absorbright                     = .false.
+absorbbottom                    = .true.
+absorbright                     = .true.
 absorbtop                       = .false.
-absorbleft                      = .false.
+absorbleft                      = .true.
 
 # define the different regions of the model in the (nx,nz) spectral-element mesh
 nbregions                       = 1              # then set below the different regions and model number for each region
@@ -374,7 +441,7 @@ cutsnaps                        = 1.
 
 #### for JPEG color images ####
 output_color_image              = .true.         # output JPEG color image of the results every NTSTEP_BETWEEN_OUTPUT_IMAGES time steps or not
-imagetype_JPEG                  = 2              # display 1=displ_Ux 2=displ_Uz 3=displ_norm 4=veloc_Vx 5=veloc_Vz 6=veloc_norm 7=accel_Ax 8=accel_Az 9=accel_norm 10=pressure
+imagetype_JPEG                  = 3              # display 1=displ_Ux 2=displ_Uz 3=displ_norm 4=veloc_Vx 5=veloc_Vz 6=veloc_norm 7=accel_Ax 8=accel_Az 9=accel_norm 10=pressure
 factor_subsample_image          = 1.0d0          # (double precision) factor to subsample or oversample (if set to e.g. 0.5) color images output by the code (useful for very large models, or to get nicer looking denser pictures)
 USE_CONSTANT_MAX_AMPLITUDE      = .false.        # by default the code normalizes each image independently to its maximum; use this option to use the global maximum below instead
 CONSTANT_MAX_AMPLITUDE_TO_USE   = 1.17d4         # constant maximum amplitude to use for all color images if the above USE_CONSTANT_MAX_AMPLITUDE option is true
@@ -452,3 +519,8 @@ BROADCAST_SAME_MESH_AND_MODEL   = .true.
 
 # set to true to use GPUs
 GPU_MODE                        = .false.
+
+# SPECFEM++ configurations
+database_filename               = ../OUTPUT_FILES/database.bin
+stations_filename               = ../OUTPUT_FILES/STATIONS_pp
+OUTPUT_FILES                    = ../OUTPUT_FILES

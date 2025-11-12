@@ -10,10 +10,6 @@ title                           = Elastic Simulation with point source
 # parameters concerning partitioning
 NPROC                           = 1              # number of processes
 
-# Output folder to store mesh related files
-OUTPUT_FILES                   = ./OUTPUT_FILES
-
-
 #-----------------------------------------------------------
 #
 # Mesh
@@ -25,9 +21,6 @@ PARTITIONING_TYPE               = 3              # SCOTCH = 3, ascending order (
 
 # number of control nodes per element (4 or 9)
 NGNOD                           = 9
-
-# location to store the mesh
-database_filename               = ./OUTPUT_FILES/database.bin
 
 #-----------------------------------------------------------
 #
@@ -77,10 +70,6 @@ zdeb                            = 110.          # first receiver z in meters
 xfin                            = 210.          # last receiver x in meters (ignored if only one receiver)
 zfin                            = 150.             # last receiver z in meters (ignored if only one receiver)
 record_at_surface_same_vertical = .false.        # receivers inside the medium or at the surface (z values are ignored if this is set to true, they are replaced with the topography height)
-
-###END:RECEIVER SETS###
-# filename to store stations file
-stations_filename              = ./OUTPUT_FILES/STATIONS
 
 #-----------------------------------------------------------
 #
@@ -179,3 +168,8 @@ nbregions                       = 1              # then set below the different 
 # meshing output
 output_grid_Gnuplot             = .false.        # generate a GNUPLOT file containing the grid, and a script to plot it
 output_grid_ASCII               = .false.        # dump the grid in an ASCII text file consisting of a set of X,Y,Z points or not
+
+# SPECFEM++ configurations
+database_filename               = ../OUTPUT_FILES/database.bin
+stations_filename               = ../OUTPUT_FILES/STATIONS_pp
+OUTPUT_FILES                    = ../OUTPUT_FILES

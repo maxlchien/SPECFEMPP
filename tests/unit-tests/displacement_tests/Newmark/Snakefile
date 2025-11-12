@@ -1,11 +1,11 @@
 configfile: "dim2/tests.yaml"
 
-# tests = config["tests"]
-tests = ["HomogeneousElasticDomain"]
+tests = config["tests2d"]
 
 rule all:
     input:
-        traces=expand("serial/dim2/{test_name}/traces/trace_list.txt", test_name=tests)
+        traces=expand("serial/dim2/{test_name}/traces/trace_list.txt", test_name=tests),
+        database=expand("serial/dim2/{test_name}/database.bin", test_name=tests),
 
 # for test_name in config["tests"]:
 for test_name in tests:
@@ -24,6 +24,5 @@ rule clean:
         """
         rm -rf serial/dim2/*/specfem2d_workdir
         rm -rf serial/dim2/*/database.bin
-        rm -rf serial/dim3/*/specfem3d_workdir
-        rm -rf serial/*/*/traces
+        rm -rf serial/dim2/*/traces
         """
