@@ -33,7 +33,8 @@
  * // Create chunked iterator and process edges
  * specfem::execution::ChunkedEdgeIterator iterator(ParallelConfig(), edges,
  * num_points); specfem::execution::for_all("process_edges", iterator,
- *     KOKKOS_LAMBDA(const auto& index) {
+ *     KOKKOS_LAMBDA(const auto& iterator_index) {
+ *       const auto index = iterator_index.get_index();
  *         // Access edge point data
  *         int ispec = index.ispec;     // Element index
  *         int ipoint = index.ipoint;   // Point index along edge
@@ -47,8 +48,8 @@
 #pragma once
 
 #include "chunked_edge_iterator.hpp"
-#include "macros.hpp"
 #include "policy.hpp"
+#include "specfem/macros.hpp"
 #include "specfem/point.hpp"
 #include "void_iterator.hpp"
 #include <Kokkos_Core.hpp>
@@ -80,7 +81,8 @@ namespace specfem::execution {
  * @code{.cpp}
  * // Typically used within chunked edge iterator lambdas
  * specfem::execution::for_all("process_edges", iterator,
- *     KOKKOS_LAMBDA(const EdgePointIndex<dim2, int, ExecutionSpace>& index) {
+ *     KOKKOS_LAMBDA(const auto & iterator_index) {
+*        const auto index = iterator_index.get_index();
  *         int element_id = index.ispec;    // Element containing this edge point
  *         int z_coord = index.iz;          // Local z-coordinate within element
  *         int x_coord = index.ix;          // Local x-coordinate within element
@@ -121,6 +123,11 @@ public:
   KOKKOS_INLINE_FUNCTION
   constexpr const index_type &get_index() const { return this->index; }
 
+  KOKKOS_INLINE_FUNCTION
+  constexpr const index_type &get_local_index() const {
+    return this->local_index; ///< Returns the local point index
+  }
+
   /**
    * @brief Constructor for EdgePointIndex
    *
@@ -130,8 +137,10 @@ public:
    */
   KOKKOS_INLINE_FUNCTION
   EdgePointIndex(const specfem::point::index<DimensionTag, false> &index,
-                 const int ipoint, const KokkosIndexType &kokkos_index)
-      : index(index.ispec, kokkos_index, ipoint, index.iz, index.ix),
+                 const int gedge, const int iedge, const int ipoint,
+                 const KokkosIndexType &kokkos_index)
+      : index(index.ispec, gedge, ipoint, index.iz, index.ix),
+        local_index(index.ispec, iedge, ipoint, index.iz, index.ix),
         kokkos_index(kokkos_index) {}
 
   /**
@@ -144,7 +153,8 @@ public:
   constexpr const iterator_type get_iterator() const { return iterator_type{}; }
 
 private:
-  index_type index; ///< Local element coordinates of the edge point
+  index_type index;       ///< Local element coordinates of the edge point
+  index_type local_index; ///< Local element coordinates relative to chunk
 
   KokkosIndexType kokkos_index; ///< Kokkos index type
 };
@@ -201,6 +211,7 @@ public:
     const int iedge = i % nedges;
     const int ipoint = i / nedges;
     const int ispec = edges(iedge).ispec;
+    const int gedge = edges(iedge).iedge;
     const specfem::mesh_entity::dim2::type edge_type = edges(iedge).edge_type;
     const auto index =
         (edges(iedge).reverse_orientation)
@@ -209,7 +220,7 @@ public:
             : ChunkEdgeIterator::compute_index(ispec, ipoint, num_points,
                                                edge_type);
 
-    return index_type{ index, ipoint, iedge };
+    return index_type{ index, gedge, iedge, ipoint, i };
   }
 
   /**
@@ -260,7 +271,8 @@ private:
       return { ispec, ipoint, num_points - 1 };
       break;
     default:
-      DEVICE_ASSERT(false, "Invalid edge type");
+      KOKKOS_ABORT_WITH_LOCATION(
+          "Error: Unknown edge type in ChunkEdgeIterator::compute_index");
       return { 0, 0, 0 };
     }
   }
@@ -463,10 +475,15 @@ public:
                                          ///< specfem::execution::for_each_level
   using execution_space =
       typename base_type::execution_space; ///< Execution space type.
-  using base_index_type = specfem::point::edge_index<
-      ParallelConfig::dimension>; ///< Index type to be used when calling
-                                  ///< @ref specfem::execution::for_all
-                                  ///< with this iterator.
+  using base_index_type = EdgePointIndex<
+      ParallelConfig::dimension, int,
+      typename base_type::execution_space>; ///< Index type
+                                            ///< to be used
+                                            ///< when calling
+                                            ///< @ref
+                                            ///< specfem::execution::for_all
+                                            ///< with this
+                                            ///< iterator.
 
   /**
    * @brief Constructor with explicit edge view and point count
