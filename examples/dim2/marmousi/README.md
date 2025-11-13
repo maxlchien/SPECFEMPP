@@ -1,6 +1,49 @@
 README
 ======
 
+**Warning** : The documentation for this example is still under development.
+
+## Running the example
+
+Add path/to/SPECFEMPP/bin to your PATH environment variable, so that you can
+run the `specfem2d` command from anywhere.
+
+```bash
+export PATH=$PATH:path/to/SPECFEMPP/bin
+```
+
+Create the output directory:
+
+```bash
+mkdir -p OUTPUT_FILES/seismograms
+mkdir -p OUTPUT_FILES/display
+```
+
+Compute the mesh using the `xmeshfem2d` command:
+
+```bash
+xmeshfem2d -p DATA/Par_file
+```
+
+Run the simulation:
+
+```bash
+specfem2d -p DATA/specfem_config.yaml
+```
+
+The output seismograms will be stored in the `OUTPUT_FILES/seismograms` directory.
+Each station has a two column file with the first column being the time and the
+second column being the amplitude of the wave at that time.
+
+## Cleaning up
+
+To clean up this example directory, you can run the following command in the
+directory of the example you want to clean up:
+
+```bash
+rm -rf OUTPUT_FILES
+```
+
 **Marmousi2 with CUBIT/Trelis mesh of the model**
 
 This examples holds several subfolders with the idea of providing a CUBIT/Trelis mesh example of Marmousi2.

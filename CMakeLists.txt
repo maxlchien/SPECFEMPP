@@ -493,6 +493,7 @@ target_link_libraries(
         Kokkos::kokkos
         timescheme
         kokkos_kernels
+        periodic_tasks
 )
 
 add_library(

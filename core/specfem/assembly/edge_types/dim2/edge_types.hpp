@@ -13,7 +13,6 @@ template <> class edge_types<specfem::dimension::type::dim2> {
 public:
   constexpr static auto dimension_tag = specfem::dimension::type::dim2;
 
-private:
   template <typename ExecutionSpace> struct Edge {
     int n_points;
     using IndexView = Kokkos::View<int *, Kokkos::LayoutStride, ExecutionSpace>;
@@ -23,6 +22,7 @@ private:
     IndexView iz;
     IndexView ix;
 
+    KOKKOS_INLINE_FUNCTION
     Edge(const int n_points, const int element_index, const int edge_index,
          const specfem::mesh_entity::dim2::type edge_type, const IndexView iz,
          const IndexView ix)
@@ -37,23 +37,25 @@ private:
     }
   };
 
-  template <typename ExecutionSpace> struct EdgeView {
+  template <typename ExecutionSpace,
+            typename Layout = typename ExecutionSpace::array_layout>
+  struct EdgeView {
     int n_edges;
     int n_points;
-    std::string label;
-    using IndexView = Kokkos::View<int *, ExecutionSpace>;
-    using QPView = Kokkos::View<int **, ExecutionSpace>;
+    using IndexView = Kokkos::View<int *, Layout, ExecutionSpace>;
+    using QPView = Kokkos::View<int **, Layout, ExecutionSpace>;
     using EdgeTypeView =
         Kokkos::View<specfem::mesh_entity::dim2::type *, ExecutionSpace>;
 
     using HostMirror = std::conditional_t<
-        std::is_same<ExecutionSpace, Kokkos::HostSpace>::value, EdgeView,
-        EdgeView<Kokkos::HostSpace> >;
+        std::is_same<typename ExecutionSpace::memory_space,
+                     Kokkos::HostSpace>::value,
+        EdgeView, EdgeView<Kokkos::DefaultHostExecutionSpace, Layout> >;
 
-    EdgeView() : n_edges(0), n_points(0), label("undefined") {}
+    EdgeView() : n_edges(0), n_points(0) {}
 
     EdgeView(const std::string &label, const int n_edges, const int n_points)
-        : label(label), n_edges(n_edges), n_points(n_points),
+        : n_edges(n_edges), n_points(n_points),
           element_index(label + "_element_index", n_edges),
           edge_index(label + "_edge_index", n_edges),
           edge_types(label + "_edge_types", n_edges),
@@ -66,12 +68,12 @@ private:
     QPView iz;
     QPView ix;
 
-    EdgeView(const int n_edges, const int n_points, const std::string &label,
+    KOKKOS_INLINE_FUNCTION
+    EdgeView(const int n_edges, const int n_points,
              const IndexView &element_index, const IndexView &edge_index,
              const EdgeTypeView &edge_types, const QPView &iz, const QPView &ix)
-        : n_edges(n_edges), n_points(n_points), label(label),
-          element_index(element_index), edge_index(edge_index),
-          edge_types(edge_types), iz(iz), ix(ix) {}
+        : n_edges(n_edges), n_points(n_points), element_index(element_index),
+          edge_index(edge_index), edge_types(edge_types), iz(iz), ix(ix) {}
 
     KOKKOS_INLINE_FUNCTION
     Edge<ExecutionSpace> operator()(const int edge_id) const {
@@ -88,7 +90,6 @@ private:
     operator()(const Kokkos::pair<int, int> &edge_range) const {
       return { edge_range.second - edge_range.first,
                n_points,
-               label + "_subview",
                Kokkos::subview(element_index, edge_range),
                Kokkos::subview(edge_index, edge_range),
                Kokkos::subview(edge_types, edge_range),
@@ -102,7 +103,11 @@ public:
 
 private:
   static EdgeViewType::HostMirror create_mirror_view(const EdgeViewType &view) {
-    return EdgeViewType::HostMirror(view.label, view.n_edges, view.n_points);
+    const auto label = view.element_index.label();
+    // remove element_index suffix
+    const auto base_label = label.substr(0, label.size() - 14);
+    return EdgeViewType::HostMirror(base_label + "_host_mirror", view.n_edges,
+                                    view.n_points);
   }
 
   template <typename SrcView, typename DestView>
