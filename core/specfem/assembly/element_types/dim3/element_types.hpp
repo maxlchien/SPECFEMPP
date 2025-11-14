@@ -52,21 +52,6 @@ public:
   element_types() = default;
 
   /**
-   * @brief Construct a new properties object from mesh information
-   *
-   * @param nspec Number of spectral elements
-   * @param ngllz Number of quadrature points in z direction
-   * @param nglly Number of quadrature points in y direction
-   * @param ngllx Number of quadrature points in x direction
-   * @param mesh Mesh information
-   * @param tags Element Tags for every spectral element
-   */
-  element_types(const int nspec, const int ngllz, const int nglly,
-                const int ngllx,
-                const specfem::assembly::mesh<dimension_tag> &mesh,
-                const specfem::mesh::tags<dimension_tag> &tags);
-
-  /**
    * @brief Constructor for element_types class in 3D assembly
    *
    * Initializes the element types container with spectral element mesh

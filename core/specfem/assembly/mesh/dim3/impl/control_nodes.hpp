@@ -30,9 +30,6 @@ public:
 
   control_nodes() = default;
 
-  control_nodes(
-      const specfem::mesh::control_nodes<dimension_tag> &control_nodes);
-
   control_nodes(const specfem::mesh::meshfem3d::ControlNodes<dimension_tag>
                     &control_nodes);
 };

@@ -41,12 +41,6 @@ public:
 
   mesh() = default;
 
-  mesh(const specfem::mesh::parameters<dimension_tag> &parameters,
-       const specfem::mesh::coordinates<dimension_tag> &coordinates,
-       const specfem::mesh::mapping<dimension_tag> &mapping,
-       const specfem::mesh::control_nodes<dimension_tag> &control_nodes,
-       const specfem::quadrature::quadratures &quadrature);
-
   mesh(const int nspec, const int ngnod, const int ngllz, const int nglly,
        const int ngllx,
        const specfem::mesh::meshfem3d::adjacency_graph<dimension_tag>

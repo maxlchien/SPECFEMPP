@@ -452,15 +452,12 @@ add_executable(
   assembly/compute_wavefield/compute_wavefield.cpp
   assembly/sources/sources.cpp
   assembly/check_jacobian/dim2/check_jacobian.cpp
-  assembly/check_jacobian/dim3/check_jacobian.cpp
   assembly/locate/locate_point.cpp
   assembly/locate/locate_point_on_edge.cpp
   assembly/mesh/utilities.cpp
   assembly/sources/locate_sources.cpp
   assembly/compute_source_array/dim2/compute_source_array_from_vector.cpp
   assembly/compute_source_array/dim2/compute_source_array_from_tensor.cpp
-  assembly/compute_source_array/dim3/compute_source_array_from_vector.cpp
-  assembly/compute_source_array/dim3/compute_source_array_from_tensor.cpp
 
   # New dim3 tests
   assembly/dim3/mesh/shape_functions.cpp
@@ -499,10 +496,8 @@ add_executable(
   assembly_receivers_tests
   assembly/receivers/receivers_tests.cpp
   assembly/receivers/dim2/receivers_tests.cpp
-  assembly/receivers/dim3/receivers_tests.cpp
   assembly/receivers/impl/receiver_iterator_tests.cpp
   assembly/receivers/impl/dim2/seismogram_iterator_tests.cpp
-  assembly/receivers/impl/dim3/seismogram_iterator_tests.cpp
 )
 
 target_link_libraries(

@@ -65,40 +65,6 @@ template <> struct assembly<specfem::dimension::type::dim3> {
   //             ///< the
   //             ///< boundaries
 
-  /**
-   * @brief Generate a finite element assembly
-   *
-   * @param mesh Finite element mesh as read from mesher
-   * @param quadratures Quadrature points and weights
-   * @param sources Source information
-   * @param receivers Receiver information
-   * @param stypes Types of seismograms
-   * @param t0 Start time of simulation
-   * @param dt Time step
-   * @param max_timesteps Maximum number of time steps
-   * @param max_sig_step Maximum number of seismogram time steps
-   * @param nstep_between_samples Number of time steps between output seismogram
-   * samples
-   * @param simulation Type of simulation (forward, adjoint, etc.)
-   * @param write_wavefield Whether to write wavefield
-   * @param property_reader Reader for GLL model (skip material property
-   * assignment if exists)
-   */
-  assembly(
-      const specfem::mesh::mesh<dimension_tag> &mesh,
-      const specfem::quadrature::quadratures &quadratures,
-      std::vector<std::shared_ptr<specfem::sources::source<dimension_tag> > >
-          &sources,
-      const std::vector<
-          std::shared_ptr<specfem::receivers::receiver<dimension_tag> > >
-          &receivers,
-      const std::vector<specfem::wavefield::type> &stypes, const type_real t0,
-      const type_real dt, const int max_timesteps, const int max_sig_step,
-      const int nsteps_between_samples,
-      const specfem::simulation::type simulation,
-      const bool allocate_boundary_values,
-      const std::shared_ptr<specfem::io::reader> &property_reader);
-
   assembly(
       const specfem::mesh::meshfem3d::mesh<dimension_tag> &mesh,
       const specfem::quadrature::quadratures &quadratures,

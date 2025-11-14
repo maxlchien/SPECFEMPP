@@ -38,8 +38,6 @@ public:
   int nglob; ///< Total number of global points
 
   points() = default;
-  points(const specfem::mesh::mapping<dimension_tag> &mapping,
-         const specfem::mesh::coordinates<dimension_tag> &coordinates);
 
   points(const int &nspec, const int &ngllz, const int &nglly, const int &ngllx,
          const specfem::mesh::meshfem3d::adjacency_graph<dimension_tag>
