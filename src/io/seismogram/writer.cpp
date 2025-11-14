@@ -163,7 +163,7 @@ void specfem::io::seismogram_writer::write(
 
       // Depending on station name and wavefield type, get the correct filenames
       std::vector<std::string> filenames = this->get_station_filenames(
-          network_name, station_name, seismogram_type);
+          network_name, station_name, "S3", seismogram_type);
 
       const int ncomponents = filenames.size();
       std::vector<std::ofstream> seismo_file(ncomponents);

@@ -130,16 +130,16 @@ def main():
 
     # Find seismogram files (current output)
     seismogram_files = {
-        "MXX": sorted(glob.glob("OUTPUT_FILES/results/*.MXX.semd")),
-        "MXY": sorted(glob.glob("OUTPUT_FILES/results/*.MXY.semd")),
-        "MXZ": sorted(glob.glob("OUTPUT_FILES/results/*.MXZ.semd")),
+        "MXX": sorted(glob.glob("OUTPUT_FILES/results/*.S3.MXX.semd")),
+        "MXY": sorted(glob.glob("OUTPUT_FILES/results/*.S3.MXY.semd")),
+        "MXZ": sorted(glob.glob("OUTPUT_FILES/results/*.S3.MXZ.semd")),
     }
 
     # Find reference seismogram files
     reference_seismogram_files = {
-        "MXX": sorted(glob.glob("reference_seismograms/*.MXX.semd")),
-        "MXY": sorted(glob.glob("reference_seismograms/*.MXY.semd")),
-        "MXZ": sorted(glob.glob("reference_seismograms/*.MXZ.semd")),
+        "MXX": sorted(glob.glob("reference_seismograms/*.S3.MXX.semd")),
+        "MXY": sorted(glob.glob("reference_seismograms/*.S3.MXY.semd")),
+        "MXZ": sorted(glob.glob("reference_seismograms/*.S3.MXZ.semd")),
     }
 
     # Read all seismograms and find common time range

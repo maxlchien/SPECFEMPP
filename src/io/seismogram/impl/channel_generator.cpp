@@ -51,10 +51,17 @@ std::string specfem::io::impl::ChannelGenerator::get_file_extension(
 std::vector<std::string>
 specfem::io::impl::ChannelGenerator::get_station_filenames(
     const std::string &network_name, const std::string &station_name,
+    const std::string &location_code,
     const specfem::wavefield::type seismogram_type) {
 
   std::string channel_code;
   std::vector<std::string> filenames;
+
+  // Catch to hanndle empty location code
+  std::string location_code_with_dot = "";
+  if (!location_code.empty()) {
+    location_code_with_dot = location_code + ".";
+  }
 
   // Component letters for 3D seismograms
   // TODO (Lucas : This will need to be modified once we allow different
@@ -72,7 +79,8 @@ specfem::io::impl::ChannelGenerator::get_station_filenames(
       // TODO (Lucas : CPP20 std::format would be perfect here)
       // Get the filename for the current component
       filenames.push_back(output_folder + "/" + network_name + "." +
-                          station_name + "." + channel_code + "." +
+                          station_name + "." + location_code_with_dot +
+                          channel_code + "." +
                           this->get_file_extension(seismogram_type));
     }
     break;
@@ -87,7 +95,8 @@ specfem::io::impl::ChannelGenerator::get_station_filenames(
       // TODO (Lucas : CPP20 std::format would be perfect here)
       // Get the filename for the current component
       filenames.push_back(output_folder + "/" + network_name + "." +
-                          station_name + "." + channel_code + "." +
+                          station_name + "." + location_code_with_dot +
+                          channel_code + "." +
                           this->get_file_extension(seismogram_type));
     }
     break;
@@ -101,7 +110,8 @@ specfem::io::impl::ChannelGenerator::get_station_filenames(
 
       // Get the filename for the current component
       filenames.push_back(output_folder + "/" + network_name + "." +
-                          station_name + "." + channel_code + "." +
+                          station_name + "." + location_code_with_dot +
+                          channel_code + "." +
                           this->get_file_extension(seismogram_type));
     }
     break;
@@ -110,7 +120,7 @@ specfem::io::impl::ChannelGenerator::get_station_filenames(
 
     channel_code = this->get_channel_code('P');
     filenames = { output_folder + "/" + network_name + "." + station_name +
-                  "." + channel_code + "." +
+                  "." + location_code_with_dot + channel_code + "." +
                   this->get_file_extension(seismogram_type) };
     break;
   default:
