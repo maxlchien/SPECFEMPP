@@ -104,6 +104,7 @@ public:
   std::vector<std::string>
   get_station_filenames(const std::string &network_name,
                         const std::string &station_name,
+                        const std::string &location_code,
                         specfem::wavefield::type seismogram_type);
 
   /**

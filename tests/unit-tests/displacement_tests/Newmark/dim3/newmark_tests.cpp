@@ -114,7 +114,6 @@ TEST_P(Newmark, 3D) {
   specfem::runtime_configuration::setup setup(parameter_file, __default_file__);
 
   const auto database_filename = setup.get_databases();
-  const auto mesh_parameters_filename = setup.get_mesh_parameters();
   const auto source_node = setup.get_sources();
   const auto stations_node = setup.get_stations();
 
@@ -122,8 +121,7 @@ TEST_P(Newmark, 3D) {
   const auto quadratures = setup.instantiate_quadrature();
 
   // Read mesh generated MESHFEM
-  auto mesh = specfem::io::read_3d_mesh(mesh_parameters_filename,
-                                        database_filename, mpi);
+  auto mesh = specfem::io::meshfem3d::read_3d_mesh(database_filename, mpi);
   const type_real dt = setup.get_dt();
   const int nsteps = setup.get_nsteps();
 
@@ -174,12 +172,21 @@ TEST_P(Newmark, 3D) {
 
   const int max_sig_step = setup.get_max_seismogram_step();
   const int nstep_between_samples = setup.get_nstep_between_samples();
-
+  if (mpi->main_proc()) {
+    std::cout << "Creating the Assembly..." << std::endl;
+  }
+  auto start = std::chrono::high_resolution_clock::now();
   specfem::assembly::assembly<specfem::dimension::type::dim3> assembly(
       mesh, quadratures, sources, receivers, setup.get_seismogram_types(),
       setup.get_t0(), dt, nsteps, max_sig_step, nstep_between_samples,
       setup.get_simulation_type(), setup.allocate_boundary_values(),
       setup.instantiate_property_reader());
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  if (mpi->main_proc()) {
+    std::cout << "Assembly created in " << elapsed.count() << " seconds."
+              << std::endl;
+  }
 
   // Instantiate the solver and timescheme
   auto it = setup.instantiate_timescheme(assembly.fields);
@@ -227,7 +234,7 @@ TEST_P(Newmark, 3D) {
 
       // Depending on wavefield, and timestep, get the correct filenames
       filenames = channel_generator.get_station_filenames(
-          network_name, station_name, seismogram_type);
+          network_name, station_name, "", seismogram_type);
 
       // Get the number of components for this seismogram type
       const int ncomponents = filenames.size();

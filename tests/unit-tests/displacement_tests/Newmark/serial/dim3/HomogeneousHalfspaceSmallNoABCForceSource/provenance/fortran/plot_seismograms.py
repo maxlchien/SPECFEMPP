@@ -160,9 +160,9 @@ def main():
 
     # Find seismogram files
     seismogram_files = {
-        "BXX": sorted(glob.glob("OUTPUT_FILES/*.HXX.semd")),
-        "BXY": sorted(glob.glob("OUTPUT_FILES/*.HXY.semd")),
-        "BXZ": sorted(glob.glob("OUTPUT_FILES/*.HXZ.semd")),
+        "BXX": sorted(glob.glob("OUTPUT_FILES/*.BXX.semd")),
+        "BXY": sorted(glob.glob("OUTPUT_FILES/*.BXY.semd")),
+        "BXZ": sorted(glob.glob("OUTPUT_FILES/*.BXZ.semd")),
     }
 
     # Read all seismograms and find common time range
