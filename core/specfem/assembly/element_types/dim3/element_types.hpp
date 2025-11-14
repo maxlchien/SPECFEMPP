@@ -70,7 +70,7 @@ public:
   element_types(const int nspec, const int ngllz, const int nglly,
                 const int ngllx,
                 const specfem::assembly::mesh<dimension_tag> &mesh,
-                const specfem::mesh::meshfem3d::tags<dimension_tag> &tags);
+                const specfem::mesh::tags<dimension_tag> &tags);
 
   Kokkos::View<int *, Kokkos::DefaultHostExecutionSpace>
   get_elements_on_host(const specfem::element::medium_tag tag) const;

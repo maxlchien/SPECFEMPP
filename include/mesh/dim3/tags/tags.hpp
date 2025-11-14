@@ -5,29 +5,29 @@
  *
  * This file implements element tagging for 3D spectral element meshes based on
  * MESHFEM3D material database information. It extracts material classification
- * from Materials containers and creates tags_container objects for each
+ * from materials containers and creates tags_container objects for each
  * element.
  *
  * Currently sets all boundary tags to `none` as other boundary conditions are
  * not yet implemented in the MESHFEM3D workflow.
  *
- * @see specfem::mesh::meshfem3d::Materials
+ * @see specfem::mesh::materials
  * @see specfem::mesh::impl::tags_container
  */
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "mesh/dim3/meshfem3d/materials/materials.hpp"
+#include "mesh/dim3/materials/materials.hpp"
 #include <Kokkos_Core.hpp>
 
-namespace specfem::mesh::meshfem3d {
+namespace specfem::mesh {
 
 template <specfem::dimension::type DimensionTag> struct tags;
 
 /**
  * @brief Element tagging system for 3D MESHFEM3D spectral elements
  *
- * Extracts material classification from MESHFEM3D Materials containers and
+ * Extracts material classification from MESHFEM3D materials containers and
  * creates tags_container objects for each spectral element. Uses parallel
  * initialization to assign medium and property tags based on material data.
  *
@@ -35,15 +35,15 @@ template <specfem::dimension::type DimensionTag> struct tags;
  * conditions are not yet implemented in the MESHFEM3D workflow.
  *
  * @code
- * specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3>
+ * specfem::mesh::materials<specfem::dimension::type::dim3>
  * materials;
  * // ... populate materials ...
  *
- * specfem::mesh::meshfem3d::tags<specfem::dimension::type::dim3> tags(
+ * specfem::mesh::tags<specfem::dimension::type::dim3> tags(
  *     nspec, materials);
  * @endcode
  *
- * @see specfem::mesh::meshfem3d::Materials::get_material_type
+ * @see specfem::mesh::materials::get_material_type
  * @see specfem::mesh::impl::tags_container
  */
 template <> struct tags<specfem::dimension::type::dim3> {
@@ -69,12 +69,11 @@ template <> struct tags<specfem::dimension::type::dim3> {
    * not yet implemented.
    *
    * @param nspec Total number of spectral elements in the mesh
-   * @param materials MESHFEM3D Materials container with material data
+   * @param materials MESHFEM3D materials container with material data
    *
-   * @see specfem::mesh::meshfem3d::Materials::get_material_type
+   * @see specfem::mesh::materials::get_material_type
    */
-  tags(const int nspec,
-       specfem::mesh::meshfem3d::Materials<dimension_tag> &materials);
+  tags(const int nspec, specfem::mesh::materials<dimension_tag> &materials);
 
   /** @} */
 
@@ -97,4 +96,4 @@ template <> struct tags<specfem::dimension::type::dim3> {
   /** @} */
 };
 
-} // namespace specfem::mesh::meshfem3d
+} // namespace specfem::mesh

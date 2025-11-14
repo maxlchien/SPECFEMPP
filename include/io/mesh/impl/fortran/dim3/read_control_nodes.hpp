@@ -5,7 +5,7 @@
 #include "specfem_mpi/interface.hpp"
 #include <fstream>
 
-namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
+namespace specfem::io::mesh::impl::fortran::dim3 {
 
 /**
  * @brief Reads control nodes from a meshfem3D binary database file.
@@ -19,7 +19,7 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  * @return ControlNodes object containing node count and 3D coordinates
  * @throws std::runtime_error if file reading fails
  */
-specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
+specfem::mesh::control_nodes<specfem::dimension::type::dim3>
 read_control_nodes(std::ifstream &stream, const specfem::MPI::MPI *mpi);
 
-} // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d
+} // namespace specfem::io::mesh::impl::fortran::dim3

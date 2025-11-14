@@ -1,9 +1,9 @@
-#include "mesh/dim3/meshfem3d/adjacency_graph/adjacency_graph.hpp"
+#include "mesh/dim3/adjacency_graph/adjacency_graph.hpp"
 #include <boost/range/iterator_range.hpp>
 #include <sstream>
 #include <stdexcept>
 
-void specfem::mesh::meshfem3d::adjacency_graph<
+void specfem::mesh::adjacency_graph<
     specfem::dimension::type::dim3>::assert_symmetry() const {
   const auto &g = this->graph();
 

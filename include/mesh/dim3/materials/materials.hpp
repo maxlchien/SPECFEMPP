@@ -6,9 +6,9 @@
 #include <Kokkos_Core.hpp>
 #include <vector>
 
-namespace specfem::mesh::meshfem3d {
+namespace specfem::mesh {
 
-template <specfem::dimension::type Dimension> struct Materials;
+template <specfem::dimension::type Dimension> struct materials;
 
 /**
  * @brief 3D specialization for MESHFEM3D material database management
@@ -29,7 +29,7 @@ template <specfem::dimension::type Dimension> struct Materials;
  *
  * @code
  * // Create materials database for 1000 elements with 5 unique materials
- * spectral::mesh::meshfem3d::Materials<specfem::dimension::type::dim3>
+ * spectral::mesh::meshfem3d::materials<specfem::dimension::type::dim3>
  *     materials(1000, 5);
  *
  * // Add an isotropic elastic material from MESHFEM3D database
@@ -42,7 +42,7 @@ template <specfem::dimension::type Dimension> struct Materials;
  *                                       specfem::element::property_tag::isotropic>(elem_id);
  * @endcode
  */
-template <> struct Materials<specfem::dimension::type::dim3> {
+template <> struct materials<specfem::dimension::type::dim3> {
   /**
    * @brief Dimension tag for compile-time type identification
    *
@@ -184,9 +184,8 @@ private:
    */
   FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM3), MEDIUM_TAG(ACOUSTIC, ELASTIC),
                        PROPERTY_TAG(ISOTROPIC, ANISOTROPIC)),
-                      DECLARE(((specfem::mesh::meshfem3d::Materials,
-                                (_DIMENSION_TAG_), ::material,
-                                (_MEDIUM_TAG_, _PROPERTY_TAG_)),
+                      DECLARE(((specfem::mesh::materials, (_DIMENSION_TAG_),
+                                ::material, (_MEDIUM_TAG_, _PROPERTY_TAG_)),
                                material)))
 
   /** @} */
@@ -201,7 +200,7 @@ public:
    * materials. Suitable for delayed initialization or when material
    * data will be populated later through other means.
    */
-  Materials() : n_materials(0), nspec(0) {}
+  materials() : n_materials(0), nspec(0) {}
 
   /** @} */
 
@@ -304,8 +303,7 @@ public:
    */
   template <specfem::element::medium_tag MediumTag,
             specfem::element::property_tag PropertyTag>
-  specfem::mesh::meshfem3d::Materials<dimension_tag>::material<MediumTag,
-                                                               PropertyTag> &
+  specfem::mesh::materials<dimension_tag>::material<MediumTag, PropertyTag> &
   get_container() {
 
     FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM3), MEDIUM_TAG(ACOUSTIC, ELASTIC),
@@ -385,5 +383,5 @@ public:
   }
 
   /** @} */ // End Material Access Interface
-}; // End Materials<dim3> specialization
-} // namespace specfem::mesh::meshfem3d
+}; // End materials<dim3> specialization
+} // namespace specfem::mesh

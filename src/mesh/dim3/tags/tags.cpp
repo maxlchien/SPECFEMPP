@@ -19,18 +19,17 @@
  * @param nspec Number of spectral elements
  * @param materials Materials container with material data
  */
-specfem::mesh::meshfem3d::tags<specfem::dimension::type::dim3>::tags(
-    const int nspec,
-    specfem::mesh::meshfem3d::Materials<dimension_tag> &materials) {
+specfem::mesh::tags<specfem::dimension::type::dim3>::tags(
+    const int nspec, specfem::mesh::materials<dimension_tag> &materials) {
 
   this->nspec = nspec;
 
   this->tags_container =
       specfem::kokkos::HostView1d<specfem::mesh::impl::tags_container>(
-          "specfem::mesh::meshfem3d::tags::tags", this->nspec);
+          "specfem::mesh::tags::tags", this->nspec);
 
   Kokkos::parallel_for(
-      "specfem::mesh::meshfem3d::tags::copy_tags",
+      "specfem::mesh::tags::copy_tags",
       Kokkos::RangePolicy<Kokkos::DefaultHostExecutionSpace>(0, nspec),
       [=, *this](const int ispec) {
         const auto [material_tag, property_tag] =

@@ -9,9 +9,9 @@
 specfem::assembly::mesh<specfem::dimension::type::dim3>::mesh(
     const int nspec, const int ngnod, const int ngllz, const int nglly,
     const int ngllx,
-    const specfem::mesh::meshfem3d::adjacency_graph<dimension_tag>
+    const specfem::mesh::adjacency_graph<dimension_tag>
         &adjacency_graph,
-    const specfem::mesh::meshfem3d::ControlNodes<dimension_tag> &control_nodes,
+    const specfem::mesh::control_nodes<dimension_tag> &control_nodes,
     const specfem::quadrature::quadratures &quadrature)
     : nspec(nspec), element_grid(ngllz, nglly, ngllx), ngnod(ngnod) {
   // Initialize base classes

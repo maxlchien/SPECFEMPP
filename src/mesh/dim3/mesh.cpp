@@ -1,6 +1,6 @@
 #include "mesh/mesh.hpp"
 
-void specfem::mesh::meshfem3d::mesh<
+void specfem::mesh::mesh<
     specfem::dimension::type::dim3>::setup_coupled_interfaces() {
   if (this->adjacency_graph.empty()) {
     return;

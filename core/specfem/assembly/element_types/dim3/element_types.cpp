@@ -3,7 +3,7 @@
 specfem::assembly::element_types<specfem::dimension::type::dim3>::element_types(
     const int nspec, const int ngllz, const int nglly, const int ngllx,
     const specfem::assembly::mesh<specfem::dimension::type::dim3> &mesh,
-    const specfem::mesh::meshfem3d::tags<specfem::dimension::type::dim3> &tags)
+    const specfem::mesh::tags<specfem::dimension::type::dim3> &tags)
     : nspec(nspec),
       medium_tags("specfem::assembly::element_types::medium_tags", nspec),
       property_tags("specfem::assembly::element_types::property_tags", nspec),

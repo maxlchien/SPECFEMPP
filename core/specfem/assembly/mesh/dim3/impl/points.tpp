@@ -31,7 +31,7 @@ void initialize_coordinates(
 
 specfem::assembly::mesh_impl::points<specfem::dimension::type::dim3>::points(
     const int &nspec, const int &ngllz, const int &nglly, const int &ngllx,
-    const specfem::mesh::meshfem3d::adjacency_graph<dimension_tag>
+    const specfem::mesh::adjacency_graph<dimension_tag>
         &adjacency_graph,
     const specfem::assembly::mesh_impl::control_nodes<dimension_tag>
         &control_nodes,
