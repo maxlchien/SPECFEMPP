@@ -37,6 +37,7 @@ if (NOT SPECFEM_ENABLE_VTK)
 else ()
         target_link_libraries(
                 assembly
+                PUBLIC
                 ${VTK_LIBRARIES}
                 )
 

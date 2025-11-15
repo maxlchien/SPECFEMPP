@@ -5,7 +5,7 @@
 #-----------------------------------------------------------
 
 # title of job
-title                           = Flat fluid/solid interface
+title                           = Flat fluid/solid interface (nonconforming)
 
 # parameters concerning partitioning
 NPROC                           = 1              # number of processes
@@ -86,16 +86,16 @@ read_external_mesh              = .true.
 
 # data concerning mesh, when generated using third-party app (more info in README)
 # (see also absorbing_conditions above)
-mesh_file                       = ./MESH/mesh   # file containing the mesh
-nodes_coords_file               = ./MESH/node_coords   # file containing the nodes coordinates
-materials_file                  = ./MESH/materials   # file containing the material number for each element
-free_surface_file               = ./MESH/free_surface   # file containing the free surface
+mesh_file                       = ../MESH/mesh   # file containing the mesh
+nodes_coords_file               = ../MESH/node_coords   # file containing the nodes coordinates
+materials_file                  = ../MESH/materials   # file containing the material number for each element
+free_surface_file               = ../MESH/free_surface   # file containing the free surface
 axial_elements_file             = dummy   # file containing the axial elements if AXISYM is true
-absorbing_surface_file          = ./MESH/absorbing_surface   # file containing the absorbing surface
+absorbing_surface_file          = ../MESH/absorbing_surface   # file containing the absorbing surface
 acoustic_forcing_surface_file   = dummy   # file containing the acoustic forcing surface
 absorbing_cpml_file             = dummy   # file containing the CPML element numbers
 tangential_detection_curve_file = dummy  # file containing the curve delimiting the velocity model
-nonconforming_adjacencies_file  = ./MESH/nc_adjacencies   # file containing the nonconforming adjacencies
+nonconforming_adjacencies_file  = ../MESH/nc_adjacencies   # file containing the nonconforming adjacencies
 
 #-----------------------------------------------------------
 #
