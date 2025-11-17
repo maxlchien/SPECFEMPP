@@ -245,7 +245,7 @@ public:
  * the specified quadrature point
  *
  * @pre The boundary tag in PointBoundaryType must match the boundary tag stored
- * in @c boundaries.boundary_tags[index.ispec]
+ * in `boundaries.boundary_tags[index.ispec]`
  * @pre IndexType and PointBoundaryType must have compatible SIMD configurations
  * (both SIMD or both non-SIMD)
  *
@@ -357,7 +357,7 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(
  * the specified quadrature point
  *
  * @pre The boundary tag in PointBoundaryType must match the boundary tag stored
- * in @c boundaries.boundary_tags[index.ispec]
+ * in `boundaries.boundary_tags[index.ispec]`
  * @pre IndexType and PointBoundaryType must have compatible SIMD configurations
  * (both SIMD or both non-SIMD)
  *
