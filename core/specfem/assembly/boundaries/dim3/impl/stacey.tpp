@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "enumerations/interface.hpp"
-#include "macros.hpp"
+#include "specfem/macros.hpp"
 #include "stacey.hpp"
 #include "utilities.hpp"
 #include <Kokkos_Core.hpp>

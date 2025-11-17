@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "acoustic_free_surface.hpp"
-#include "macros.hpp"
+#include "specfem/macros.hpp"
 #include "utilities.hpp"
 
 specfem::assembly::boundaries_impl::acoustic_free_surface<specfem::dimension::type::dim3>::
