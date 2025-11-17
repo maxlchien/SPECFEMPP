@@ -6,7 +6,7 @@
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/data_access.hpp"
-#include "enumerations/macros.hpp"
+#include "specfem/macros.hpp"
 
 template <specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag>

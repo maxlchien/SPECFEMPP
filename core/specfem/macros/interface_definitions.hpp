@@ -1,8 +1,10 @@
 #pragma once
 
 #include "enum_tags.hpp"
+#include "enumerations/interface.hpp"
 #include "macros_impl/array.hpp"
 #include "macros_impl/utils.hpp"
+#include <boost/preprocessor.hpp>
 
 #define CONNECTION_TAG_STRONGLY_CONFORMING                                     \
   (0, specfem::connections::type::strongly_conforming, strongly_conforming,    \
