@@ -30,12 +30,11 @@ set_target_properties(assembly PROPERTIES
     UNITY_BUILD_BATCH_SIZE $<IF:$<BOOL:${__INTEL_LLVM__}>,0,8>
 )
 
-if (NOT SPECFEM_ENABLE_VTK)
-    target_compile_definitions(
-        assembly
-        PUBLIC -DNO_VTK
-    )
-endif()
+target_compile_definitions(
+    assembly
+    PUBLIC
+    $<$<NOT:$<BOOL:${SPECFEM_ENABLE_VTK}>>:-DNO_VTK>
+)
 
 target_include_directories(
         assembly
