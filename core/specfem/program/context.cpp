@@ -8,10 +8,32 @@
 namespace specfem::program {
 
 Context::Context(int argc, char *argv[])
-    : kokkos_guard_(argc, argv),
+    : kokkos_guard_(std::make_unique<Kokkos::ScopeGuard>(argc, argv)),
       mpi_(std::make_unique<specfem::MPI::MPI>(&argc, &argv)) {
   // Initialize static MPI wrapper
   specfem::MPI_new::initialize(&argc, &argv);
+}
+
+Context::Context(const std::vector<std::string> &args) {
+  int argc;
+  char **argv;
+  setup_argc_argv(args, argc, argv);
+
+  try {
+    // Initialize Kokkos
+    kokkos_guard_ = std::make_unique<Kokkos::ScopeGuard>(argc, argv);
+
+    // Initialize old MPI
+    mpi_ = std::make_unique<specfem::MPI::MPI>(&argc, &argv);
+
+    // Initialize static MPI wrapper
+    specfem::MPI_new::initialize(&argc, &argv);
+  } catch (...) {
+    cleanup_argc_argv(argc, argv);
+    throw;
+  }
+
+  cleanup_argc_argv(argc, argv);
 }
 
 Context::~Context() {
@@ -21,36 +43,8 @@ Context::~Context() {
 
 specfem::MPI::MPI *Context::get_mpi() const { return mpi_.get(); }
 
-// ============================================================================
-// ContextGuard Implementation
-// ============================================================================
-
-ContextGuard::ContextGuard(int argc, char *argv[])
-    : context_(std::make_unique<Context>(argc, argv)) {}
-
-ContextGuard::ContextGuard(const std::vector<std::string> &args) {
-  int argc;
-  char **argv;
-  setup_argc_argv(args, argc, argv);
-
-  try {
-    context_ = std::make_unique<Context>(argc, argv);
-  } catch (...) {
-    cleanup_argc_argv(argc, argv);
-    throw;
-  }
-
-  cleanup_argc_argv(argc, argv);
-}
-
-ContextGuard::~ContextGuard() = default;
-
-Context &ContextGuard::get_context() { return *context_; }
-
-specfem::MPI::MPI *ContextGuard::get_mpi() const { return context_->get_mpi(); }
-
-void ContextGuard::setup_argc_argv(const std::vector<std::string> &args,
-                                   int &argc, char **&argv) {
+void Context::setup_argc_argv(const std::vector<std::string> &args, int &argc,
+                              char **&argv) {
   argc = args.size();
   argv = new char *[argc + 1];
 
@@ -64,7 +58,7 @@ void ContextGuard::setup_argc_argv(const std::vector<std::string> &args,
   argv[argc] = nullptr;
 }
 
-void ContextGuard::cleanup_argc_argv(int argc, char **argv) {
+void Context::cleanup_argc_argv(int argc, char **argv) {
   if (argv) {
     for (int i = 0; i < argc; ++i) {
       delete[] argv[i];
