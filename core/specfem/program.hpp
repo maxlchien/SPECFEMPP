@@ -39,3 +39,5 @@ bool execute(
         &tasks);
 
 } // namespace specfem::program
+
+#include "program/context.hpp"

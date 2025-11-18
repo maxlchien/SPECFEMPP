@@ -10,6 +10,8 @@ target_link_libraries(specfem_program
         yaml-cpp::yaml-cpp
         ${BOOST_LIBS}
         specfem_mpi
+        specfem::logger
+        specfem::mpi
         Kokkos::kokkos
         mesh
         quadrature

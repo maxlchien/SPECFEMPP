@@ -1,4 +1,5 @@
 #include "specfem/program/context.hpp"
+#include "specfem/logger.hpp"
 #include "specfem/mpi.hpp"
 #include "specfem_mpi/interface.hpp"
 #include <cstring>
@@ -12,6 +13,8 @@ Context::Context(int argc, char *argv[])
       mpi_(std::make_unique<specfem::MPI::MPI>(&argc, &argv)) {
   // Initialize static MPI wrapper
   specfem::MPI_new::initialize(&argc, &argv);
+  // Initialize Logger
+  specfem::Logger::initialize(this);
 }
 
 Context::Context(const std::vector<std::string> &args) {
@@ -28,6 +31,9 @@ Context::Context(const std::vector<std::string> &args) {
 
     // Initialize static MPI wrapper
     specfem::MPI_new::initialize(&argc, &argv);
+
+    // Initialize Logger
+    specfem::Logger::initialize(this);
   } catch (...) {
     cleanup_argc_argv(argc, argv);
     throw;
@@ -37,6 +43,8 @@ Context::Context(const std::vector<std::string> &args) {
 }
 
 Context::~Context() {
+  // Finalize Logger (before MPI)
+  specfem::Logger::finalize();
   // Finalize static MPI wrapper
   specfem::MPI_new::finalize();
 }
