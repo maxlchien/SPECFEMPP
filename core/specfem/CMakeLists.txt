@@ -7,7 +7,7 @@ add_subdirectory(source)
 add_subdirectory(jacobian)
 add_subdirectory(timescheme)
 add_subdirectory(periodic_tasks)
-add_subdirectory(simulation)
+add_subdirectory(program)
 
 # Create specfem::core interface library that ties everything together
 add_library(specfem_core_interface INTERFACE)
@@ -23,7 +23,7 @@ target_link_libraries(specfem_core_interface
         specfem::jacobian
         specfem::timescheme
         specfem::periodic_tasks
-        specfem::simulation
+        specfem::program
 )
 
 target_include_directories(specfem_core_interface

@@ -1,7 +1,7 @@
 #include "constants.hpp"
 #include "specfem/periodic_tasks.hpp"
-#include "specfem/simulation.hpp"
-#include "specfem/simulation/context.hpp"
+#include "specfem/program.hpp"
+#include "specfem/program/context.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <string>
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 
   try {
     // Initialize context with RAII guard
-    specfem::ContextGuard guard(argc, argv);
+    specfem::program::ContextGuard guard(argc, argv);
     auto &context = guard.get_context();
 
     // Extract parameters (dimension is already extracted as positional
@@ -105,8 +105,8 @@ int main(int argc, char **argv) {
         std::make_shared<specfem::periodic_tasks::check_signal>(10);
     tasks.push_back(signal_task);
 
-    // Execute simulation with the specified dimension
-    const auto success = specfem::simulation::execute(
+    // Execute program with the specified dimension
+    const auto success = specfem::program::execute(
         dimension, guard.get_mpi(), parameter_dict, default_dict, tasks);
 
     // Check execution result

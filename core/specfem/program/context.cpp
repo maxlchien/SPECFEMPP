@@ -1,9 +1,9 @@
-#include "specfem/simulation/context.hpp"
+#include "specfem/program/context.hpp"
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
 
-namespace specfem {
+namespace specfem::program {
 
 Context::Context(int argc, char *argv[])
     : kokkos_guard_(argc, argv),
@@ -65,4 +65,4 @@ void ContextGuard::cleanup_argc_argv(int argc, char **argv) {
   }
 }
 
-} // namespace specfem
+} // namespace specfem::program

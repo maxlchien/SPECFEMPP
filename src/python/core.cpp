@@ -1,5 +1,5 @@
-#include "specfem/simulation.hpp"
-#include "specfem/simulation/context.hpp"
+#include "specfem/program.hpp"
+#include "specfem/program/context.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #define STRINGIFY(x) #x
@@ -10,7 +10,8 @@
 namespace py = pybind11;
 
 // Global ContextGuard to manage Context lifetime in Python
-static std::unique_ptr<specfem::ContextGuard> global_context_guard = nullptr;
+static std::unique_ptr<specfem::program::ContextGuard> global_context_guard =
+    nullptr;
 
 bool _initialize(py::list py_argv) {
   if (global_context_guard) {
@@ -24,7 +25,8 @@ bool _initialize(py::list py_argv) {
   }
 
   try {
-    global_context_guard = std::make_unique<specfem::ContextGuard>(args);
+    global_context_guard =
+        std::make_unique<specfem::program::ContextGuard>(args);
     return true;
   } catch (const std::exception &) {
     return false;
@@ -54,9 +56,8 @@ bool _execute(const std::string &parameter_string,
     py::gil_scoped_release release;
     // For now, default to 2D execution for backward compatibility
     // Later we can add a dimension parameter to the Python interface
-    success =
-        specfem::simulation::execute("2d", global_context_guard->get_mpi(),
-                                     parameter_dict, default_dict, tasks);
+    success = specfem::program::program("2d", global_context_guard->get_mpi(),
+                                        parameter_dict, default_dict, tasks);
   }
   return success;
 }

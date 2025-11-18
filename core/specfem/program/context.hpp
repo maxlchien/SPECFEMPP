@@ -9,7 +9,7 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-namespace specfem {
+namespace specfem::program {
 
 /**
  * @brief Unified SPECFEM++ context class for managing initialization
@@ -63,7 +63,7 @@ private:
  * Usage:
  * @code
  * int main(int argc, char* argv[]) {
- *     specfem::ContextGuard guard(argc, argv);
+ *     specfem::program::ContextGuard guard(argc, argv);
  *     // Kokkos & MPI automatically initialized
  *     // ... use guard.get_context() ...
  *     // Automatic cleanup on scope exit
@@ -128,4 +128,4 @@ private:
   std::unique_ptr<Context> context_;
 };
 
-} // namespace specfem
+} // namespace specfem::program

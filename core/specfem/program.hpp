@@ -1,16 +1,17 @@
 #pragma once
 /**
- * @file execute.hpp
- * @brief Unified SPECFEM++ execution interface
+ * @file program.hpp
+ * @brief Unified SPECFEM++ program interface
  *
- * This header defines the unified execution function for SPECFEM++ simulations,
+ * This header defines the unified program function for SPECFEM++ simulations,
  * supporting both 2D and 3D simulations through dimension-templated execution.
  *
- * The execute function initializes and runs the simulation based on the
+ * The program function initializes and runs the simulation based on the
  * provided parameters and periodic tasks.
  */
 #include "enumerations/interface.hpp"
 #include "specfem/periodic_tasks.hpp"
+#include "specfem_mpi/interface.hpp"
 #include <chrono>
 #include <ctime>
 #include <memory>
@@ -19,10 +20,10 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-namespace specfem::simulation {
+namespace specfem::program {
 
 /**
- * @brief Execute SPECFEM simulation with runtime dimension selection
+ * @brief Execute SPECFEM program with runtime dimension selection
  *
  * @param dimension Dimension string ("2d" or "3d")
  * @param mpi MPI instance pointer
@@ -37,4 +38,4 @@ bool execute(
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
         &tasks);
 
-} // namespace specfem::simulation
+} // namespace specfem::program

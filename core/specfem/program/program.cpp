@@ -1,4 +1,4 @@
-#include "specfem/simulation.hpp"
+#include "specfem/program.hpp"
 #include "context.hpp"
 #include "enumerations/dimension.hpp"
 #include "io/interface.hpp"
@@ -44,7 +44,7 @@ print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
 }
 
 // Internal function for 2D simulations
-void simulation_2d(
+void program_2d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi) {
@@ -250,7 +250,7 @@ void simulation_2d(
 }
 
 // Internal function for 3D simulations
-void simulation_3d(
+void program_3d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
     specfem::MPI::MPI *mpi) {
@@ -368,7 +368,7 @@ void simulation_3d(
 
 } // anonymous namespace
 
-bool specfem::simulation::execute(
+bool specfem::program::execute(
     const std::string &dimension, specfem::MPI::MPI *mpi,
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
@@ -380,10 +380,10 @@ bool specfem::simulation::execute(
 
     switch (simulation_model) {
     case specfem::simulation::model::Cartesian2D:
-      simulation_2d(parameter_dict, default_dict, tasks, mpi);
+      program_2d(parameter_dict, default_dict, tasks, mpi);
       return true;
     case specfem::simulation::model::Cartesian3D:
-      simulation_3d(parameter_dict, default_dict, tasks, mpi);
+      program_3d(parameter_dict, default_dict, tasks, mpi);
       return true;
     default:
       std::cerr << "Unsupported simulation model" << std::endl;
