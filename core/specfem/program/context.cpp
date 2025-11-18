@@ -1,4 +1,6 @@
 #include "specfem/program/context.hpp"
+#include "specfem/mpi.hpp"
+#include "specfem_mpi/interface.hpp"
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
@@ -7,9 +9,15 @@ namespace specfem::program {
 
 Context::Context(int argc, char *argv[])
     : kokkos_guard_(argc, argv),
-      mpi_(std::make_unique<specfem::MPI::MPI>(&argc, &argv)) {}
+      mpi_(std::make_unique<specfem::MPI::MPI>(&argc, &argv)) {
+  // Initialize static MPI wrapper
+  specfem::MPI_new::initialize(&argc, &argv);
+}
 
-Context::~Context() = default;
+Context::~Context() {
+  // Finalize static MPI wrapper
+  specfem::MPI_new::finalize();
+}
 
 specfem::MPI::MPI *Context::get_mpi() const { return mpi_.get(); }
 
