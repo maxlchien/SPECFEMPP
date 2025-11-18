@@ -458,6 +458,8 @@ add_executable(
   assembly/sources/locate_sources.cpp
   assembly/compute_source_array/dim2/compute_source_array_from_vector.cpp
   assembly/compute_source_array/dim2/compute_source_array_from_tensor.cpp
+  assembly/compute_source_array/dim3/compute_source_array_from_vector.cpp
+  assembly/compute_source_array/dim3/compute_source_array_from_tensor.cpp
 
   # New dim3 tests
   assembly/dim3/mesh/shape_functions.cpp
