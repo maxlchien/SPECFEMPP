@@ -16,8 +16,8 @@ void test_check_jacobian(
                                         false>
       jacobian_matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5);
 
-  specfem::assembly::store_on_host(index, jacobian_matrix,
-                                   assembly.jacobian_matrix);
+  specfem::assembly::store_on_host(index, assembly.jacobian_matrix,
+                                   jacobian_matrix);
 
   std::cout << "Calling check_jacobian_matrix" << std::endl;
   assembly.check_jacobian_matrix();
