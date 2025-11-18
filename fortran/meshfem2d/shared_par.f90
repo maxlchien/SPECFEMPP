@@ -283,6 +283,9 @@ module shared_input_parameters
    character(len=MAX_STRING_LEN) :: nonconforming_adjacencies_file
    logical :: should_read_nonconforming_adjacencies_file
 
+   character(len=MAX_STRING_LEN) :: nummaterial_velocity_file
+   logical :: has_nummaterial_velocity_file = .false.
+
    !#-----------------------------------------------------------------------------
    !#
    !# PARAMETERS FOR INTERNAL MESHING
@@ -432,6 +435,10 @@ module shared_parameters
    ! electromagnetic (EM)
    double precision, dimension(:),allocatable :: mu0_read,e0_read,e11_read,e33_read,sig11_read,sig33_read,&
    Qe11_read,Qe33_read,Qs11_read,Qs33_read
+
+   ! compaction gradient
+   ! (in particular for Marmousi2 which defines a compaction gradient to increase velocities with depth)
+   double precision, dimension(:),allocatable :: compaction_grad
 
    ! mesh setup
    ! total number of elements

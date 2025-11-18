@@ -56,13 +56,12 @@ specfem::assembly::coupled_interfaces_impl::interface_container<
         "The number of GLL points in z and x must be the same.");
   }
 
-  const auto connection_mapping =
-      specfem::connections::connection_mapping(ngllx, ngllz);
+  const auto element = specfem::mesh_entity::element(ngllz, ngllx);
 
   const auto [self_edges, coupled_edges] = edge_types.get_edges_on_host(
       specfem::connections::type::nonconforming, InterfaceTag, BoundaryTag);
 
-  const auto nedges = self_edges.size();
+  const auto nedges = self_edges.n_edges;
 
   this->intersection_factor = EdgeFactorView(
       "specfem::assembly::nonconforming_interfaces::intersection_factor",
@@ -101,9 +100,9 @@ specfem::assembly::coupled_interfaces_impl::interface_container<
       jcoorg("jcoorg", mesh.ngnod);
 
   for (int i = 0; i < nedges; ++i) {
-    const int ispec = self_edges(i).ispec;
+    const int ispec = self_edges(i).element_index;
     const auto iedge_type = self_edges(i).edge_type;
-    const int jspec = coupled_edges(i).ispec;
+    const int jspec = coupled_edges(i).element_index;
     const auto jedge_type = coupled_edges(i).edge_type;
     for (int inod = 0; inod < mesh.ngnod; inod++) {
       icoorg(inod).x = mesh.h_control_node_coord(0, ispec, inod);
@@ -126,7 +125,7 @@ specfem::assembly::coupled_interfaces_impl::interface_container<
     }
     // compute normal on edge
     const int npoints =
-        connection_mapping.number_of_points_on_orientation(iedge_type);
+        element.number_of_points_on_orientation(iedge_type);
 
     // compute factor by finding first derivative of position
     // along the edge and multiplying by the quadrature weight

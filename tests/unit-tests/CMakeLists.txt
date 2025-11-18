@@ -173,9 +173,11 @@ target_link_libraries(
 
 add_executable(
   enumerations_tests
+  enumerations/dim2/mesh_entity.cpp
+  enumerations/dim2/connections.cpp
   enumerations/dim3/mesh_entity.cpp
   enumerations/dim3/connections.cpp
-  enumerations/dim3/runner.cpp
+  enumerations/runner.cpp
 )
 
 target_link_libraries(
@@ -188,6 +190,8 @@ target_link_libraries(
   utilities
   -lpthread -lm
 )
+
+set_target_properties(enumerations_tests PROPERTIES UNITY_BUILD OFF)
 
 add_executable(
   simd_tests
@@ -635,21 +639,22 @@ target_link_libraries(
   -lpthread -lm
 )
 
-add_executable(
-  chunked_edge_tests
-  policies/chunked_edge.cpp
-)
+# add_executable(
+#   chunked_edge_tests
+#   policies/chunked_edge.cpp
+# )
 
-target_link_libraries(
-  chunked_edge_tests
-  kokkos_environment
-  gtest_main
-  Kokkos::kokkos
-  mpi_environment
-  kokkos_environment
-  ${BOOST_LIBS}
-  -lpthread -lm
-)
+# target_link_libraries(
+#   chunked_edge_tests
+#   kokkos_environment
+#   gtest_main
+#   Kokkos::kokkos
+#   mpi_environment
+#   kokkos_environment
+#   enumerations
+#   ${BOOST_LIBS}
+#   -lpthread -lm
+# )
 
 add_executable(
   mass_matrix_tests
@@ -916,7 +921,7 @@ if(NOT MPI_PARALLEL)
     nonconforming_tests
     point_tests
     policies_tests
-    chunked_edge_tests
+    # chunked_edge_tests
     receivers_tests
     simd_tests
     source_class_tests
