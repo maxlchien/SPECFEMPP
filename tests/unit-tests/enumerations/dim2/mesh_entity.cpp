@@ -50,7 +50,7 @@ namespace specfem::mesh_entity_test {
  * assert(test_point == right_edge); // True: x matches, z is wildcard
  * @endcode
  */
-struct Coordinate {
+struct Coordinate2D {
 
   /**
    * @brief Wildcard type for flexible coordinate matching
@@ -81,7 +81,7 @@ struct Coordinate {
    *
    * Creates a coordinate at the origin (0, 0).
    */
-  Coordinate() = default;
+  Coordinate2D() = default;
 
   /**
    * @brief Generic constructor with type-safe coordinate assignment
@@ -108,7 +108,7 @@ struct Coordinate {
                 std::is_floating_point_v<X> || std::is_same_v<X, All>, int> = 0,
             typename std::enable_if_t<
                 std::is_floating_point_v<Z> || std::is_same_v<Z, All>, int> = 0>
-  Coordinate(X x_val, Z z_val)
+  Coordinate2D(X x_val, Z z_val)
       : x([&]() -> std::variant<type_real, All> {
           if constexpr (std::is_same_v<X, All>) {
             return All{};
@@ -138,7 +138,7 @@ struct Coordinate {
    * Coordinate origin = {0.0, 0.0};
    * @endcode
    */
-  Coordinate(const std::initializer_list<type_real> &list) {
+  Coordinate2D(const std::initializer_list<type_real> &list) {
     if (list.size() != 2) {
       throw std::runtime_error(
           "Coordinate assignment requires exactly 2 values.");
@@ -166,7 +166,7 @@ struct Coordinate {
    * assert(exact == pattern); // True: x matches, z is wildcard
    * @endcode
    */
-  bool operator==(const Coordinate &other) const {
+  bool operator==(const Coordinate2D &other) const {
     bool x_equal = false;
     if (std::holds_alternative<All>(x) ||
         std::holds_alternative<All>(other.x)) {
@@ -267,7 +267,7 @@ struct Element4Node {
    * The nodes are ordered according to standard quadrilateral convention
    * with node 0 at the origin and node 2 at the opposite corner.
    */
-  std::array<Coordinate, ncontrol_nodes> control_node_coords;
+  std::array<Coordinate2D, ncontrol_nodes> control_node_coords;
 
   /**
    * @brief Physical coordinates of all GLL quadrature points
@@ -276,7 +276,7 @@ struct Element4Node {
    * within the element. Layout: quadrature_coords(iz, ix) where
    * indices correspond to the ζ and ξ directions respectively.
    */
-  Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::HostSpace>
+  Kokkos::View<Coordinate2D **, Kokkos::LayoutLeft, Kokkos::HostSpace>
       quadrature_coords;
 
   /**
@@ -307,7 +307,8 @@ struct Element4Node {
    * });
    * @endcode
    */
-  Element4Node(const int ngll, const std::initializer_list<Coordinate> &coords)
+  Element4Node(const int ngll,
+               const std::initializer_list<Coordinate2D> &coords)
       : ngll(ngll), quadrature(0.0, 0.0, ngll),
         quadrature_coords("quad_coords", ngll, ngll), control_node_coords() {
     if (coords.size() != ncontrol_nodes) {
@@ -411,7 +412,7 @@ struct SingleElement2DTestConfig {
   std::string name;
 
   /** @brief Expected coordinate pattern (may include wildcards) */
-  specfem::mesh_entity_test::Coordinate expected;
+  specfem::mesh_entity_test::Coordinate2D expected;
 
   /**
    * @brief Constructor for test configuration
@@ -422,7 +423,7 @@ struct SingleElement2DTestConfig {
    */
   SingleElement2DTestConfig(
       const specfem::mesh_entity::dim2::type entity, const std::string &name,
-      const specfem::mesh_entity_test::Coordinate &expected)
+      const specfem::mesh_entity_test::Coordinate2D &expected)
       : entity(entity), name(name), expected(expected) {}
 };
 
@@ -499,7 +500,7 @@ protected:
 };
 
 /** @brief Alias for wildcard coordinate type */
-using All = specfem::mesh_entity_test::Coordinate::All;
+using All = specfem::mesh_entity_test::Coordinate2D::All;
 
 /**
  * @brief Parameterized test for mesh entity coordinate mapping validation
@@ -550,26 +551,26 @@ INSTANTIATE_TEST_SUITE_P(
         // Edge tests
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::left, "LeftEdge",
-            specfem::mesh_entity_test::Coordinate(0.0, All())),
+            specfem::mesh_entity_test::Coordinate2D(0.0, All())),
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::right, "RightEdge",
-            specfem::mesh_entity_test::Coordinate(1.0, All())),
+            specfem::mesh_entity_test::Coordinate2D(1.0, All())),
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::bottom, "BottomEdge",
-            specfem::mesh_entity_test::Coordinate(All(), 0.0)),
+            specfem::mesh_entity_test::Coordinate2D(All(), 0.0)),
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::top, "TopEdge",
-            specfem::mesh_entity_test::Coordinate(All(), 1.0)),
+            specfem::mesh_entity_test::Coordinate2D(All(), 1.0)),
         // Corner tests
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::bottom_left, "BottomLeftCorner",
-            specfem::mesh_entity_test::Coordinate(0.0, 0.0)),
+            specfem::mesh_entity_test::Coordinate2D(0.0, 0.0)),
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::bottom_right, "BottomRightCorner",
-            specfem::mesh_entity_test::Coordinate(1.0, 0.0)),
+            specfem::mesh_entity_test::Coordinate2D(1.0, 0.0)),
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::top_right, "TopRightCorner",
-            specfem::mesh_entity_test::Coordinate(1.0, 1.0)),
+            specfem::mesh_entity_test::Coordinate2D(1.0, 1.0)),
         SingleElement2DTestConfig(
             specfem::mesh_entity::dim2::type::top_left, "TopLeftCorner",
-            specfem::mesh_entity_test::Coordinate(0.0, 1.0))));
+            specfem::mesh_entity_test::Coordinate2D(0.0, 1.0))));
