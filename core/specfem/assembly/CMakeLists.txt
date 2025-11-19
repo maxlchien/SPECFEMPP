@@ -21,6 +21,7 @@ target_link_libraries(
         Kokkos::kokkos
         enumerations
         ${BOOST_LIBS}
+        $<$<BOOL:${SPECFEM_ENABLE_VTK}>:${VTK_LIBRARIES}>
 )
 
 set_target_properties(assembly PROPERTIES
@@ -35,12 +36,6 @@ if (NOT SPECFEM_ENABLE_VTK)
                 PUBLIC -DNO_VTK
         )
 else ()
-        target_link_libraries(
-                assembly
-                PUBLIC
-                ${VTK_LIBRARIES}
-                )
-
         # Only define the __APPLE__ compile definition if it is defined
         if (__APPLE__)
         target_compile_definitions(assembly PRIVATE __APPLE__)
