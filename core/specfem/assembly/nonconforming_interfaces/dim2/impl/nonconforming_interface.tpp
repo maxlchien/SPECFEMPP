@@ -2,7 +2,6 @@
 
 #include "enumerations/coupled_interface.hpp"
 #include "enumerations/interface.hpp"
-#include "specfem/macros.hpp"
 #include "enumerations/medium.hpp"
 #include "kokkos_abstractions.h"
 #include "specfem/assembly/coupled_interfaces.hpp"
@@ -11,6 +10,7 @@
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/assembly/nonconforming_interfaces/dim2/impl/compute_intersection.tpp"
 #include "specfem/data_access.hpp"
+#include "specfem/macros.hpp"
 
 template <specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag>
@@ -42,11 +42,6 @@ specfem::assembly::coupled_interfaces_impl::interface_container<
 
   const int nquad_intersection = interface_quadrature.extent(0);
 
-  // transfer function setting is not symmetric, so we need to make sure we know
-  // what side 1 is.
-  bool is_side1 =
-      (InterfaceTag == specfem::interface::interface_tag::elastic_acoustic);
-
   if (ngllz <= 0 || ngllx <= 0) {
     KOKKOS_ABORT_WITH_LOCATION("Invalid GLL grid size");
   }
@@ -67,9 +62,9 @@ specfem::assembly::coupled_interfaces_impl::interface_container<
       "specfem::assembly::nonconforming_interfaces::intersection_factor",
       nedges, nquad_intersection);
 
-  this->intersection_normal =
-      EdgeNormalView("specfem::assembly::nonconforming_interfaces::intersection_normal",
-                     nedges, nquad_intersection, 2);
+  this->intersection_normal = EdgeNormalView(
+      "specfem::assembly::nonconforming_interfaces::intersection_normal",
+      nedges, nquad_intersection, 2);
   this->h_intersection_normal = Kokkos::create_mirror_view(intersection_normal);
 
   // consider linking conjugate containers so that we don't need to do
@@ -114,18 +109,11 @@ specfem::assembly::coupled_interfaces_impl::interface_container<
         Kokkos::subview(h_transfer_function, i, Kokkos::ALL, Kokkos::ALL);
     auto transfer_subview_other =
         Kokkos::subview(h_transfer_function_other, i, Kokkos::ALL, Kokkos::ALL);
-    if (is_side1) {
-      specfem::assembly::nonconforming_interfaces_impl::set_transfer_functions(
-          icoorg, jcoorg, iedge_type, jedge_type, interface_quadrature,
-          mesh.h_xi, transfer_subview, transfer_subview_other);
-    } else {
-      specfem::assembly::nonconforming_interfaces_impl::set_transfer_functions(
-          jcoorg, icoorg, jedge_type, iedge_type, interface_quadrature,
-          mesh.h_xi, transfer_subview_other, transfer_subview);
-    }
+    specfem::assembly::nonconforming_interfaces_impl::set_transfer_functions(
+        icoorg, jcoorg, iedge_type, jedge_type, interface_quadrature, mesh.h_xi,
+        transfer_subview, transfer_subview_other);
     // compute normal on edge
-    const int npoints =
-        element.number_of_points_on_orientation(iedge_type);
+    const int npoints = element.number_of_points_on_orientation(iedge_type);
 
     // compute factor by finding first derivative of position
     // along the edge and multiplying by the quadrature weight
