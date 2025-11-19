@@ -1,7 +1,7 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "enumerations/material_definitions.hpp"
+#include "specfem/macros.hpp"
 #include "kokkos_abstractions.h"
 #include "mesh.hpp"
 #include "parallel_configuration/chunk_config.hpp"

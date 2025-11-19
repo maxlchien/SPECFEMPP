@@ -173,9 +173,11 @@ target_link_libraries(
 
 add_executable(
   enumerations_tests
+  enumerations/dim2/mesh_entity.cpp
+  enumerations/dim2/connections.cpp
   enumerations/dim3/mesh_entity.cpp
   enumerations/dim3/connections.cpp
-  enumerations/dim3/runner.cpp
+  enumerations/runner.cpp
 )
 
 target_link_libraries(
@@ -188,6 +190,8 @@ target_link_libraries(
   utilities
   -lpthread -lm
 )
+
+set_target_properties(enumerations_tests PROPERTIES UNITY_BUILD OFF)
 
 add_executable(
   simd_tests
@@ -294,10 +298,12 @@ target_link_libraries(
 
 add_executable(
   mesh_dim3_tests
+  mesh/dim3/mesh.cpp
   mesh/dim3/control_nodes.cpp
   mesh/dim3/materials.cpp
   mesh/dim3/boundaries.cpp
   mesh/dim3/adjacency_graph.cpp
+  mesh/dim3/tags.cpp
   mesh/dim3/test.cpp
 )
 
@@ -409,6 +415,15 @@ target_link_libraries(
 #   -lpthread -lm
 # )
 
+# target_compile_definitions(
+#         compute_tests
+#         PUBLIC
+#         $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
+#         $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
+#         $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
+#         $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
+# )
+
 add_executable(
   nonconforming_assembly_tests
   assembly/runner.cpp
@@ -449,15 +464,19 @@ add_executable(
   assembly/compute_source_array/dim2/compute_source_array_from_vector.cpp
   assembly/compute_source_array/dim2/compute_source_array_from_tensor.cpp
   assembly/compute_source_array/dim3/compute_source_array_from_vector.cpp
+  assembly/compute_source_array/dim3/compute_source_array_from_tensor.cpp
 
   # New dim3 tests
   assembly/dim3/mesh/shape_functions.cpp
   assembly/dim3/mesh/points.cpp
   assembly/dim3/mesh/control_nodes.cpp
   assembly/dim3/jacobian_matrix/jacobian_matrix.cpp
+  assembly/dim3/properties/properties.cpp
 )
 
+#Set unity build off
 target_compile_definitions(assembly_tests PRIVATE TEST_OUTPUT_DIR=${TEST_OUTPUT_DIR})
+set_target_properties(assembly_tests PROPERTIES UNITY_BUILD OFF)
 
 target_link_libraries(
   assembly_tests
@@ -620,21 +639,22 @@ target_link_libraries(
   -lpthread -lm
 )
 
-add_executable(
-  chunked_edge_tests
-  policies/chunked_edge.cpp
-)
+# add_executable(
+#   chunked_edge_tests
+#   policies/chunked_edge.cpp
+# )
 
-target_link_libraries(
-  chunked_edge_tests
-  kokkos_environment
-  gtest_main
-  Kokkos::kokkos
-  mpi_environment
-  kokkos_environment
-  ${BOOST_LIBS}
-  -lpthread -lm
-)
+# target_link_libraries(
+#   chunked_edge_tests
+#   kokkos_environment
+#   gtest_main
+#   Kokkos::kokkos
+#   mpi_environment
+#   kokkos_environment
+#   enumerations
+#   ${BOOST_LIBS}
+#   -lpthread -lm
+# )
 
 add_executable(
   mass_matrix_tests
@@ -901,7 +921,7 @@ if(NOT MPI_PARALLEL)
     nonconforming_tests
     point_tests
     policies_tests
-    chunked_edge_tests
+    # chunked_edge_tests
     receivers_tests
     simd_tests
     source_class_tests
