@@ -22,9 +22,4 @@ template <specfem::dimension::type DimensionTag> class boundaries;
 } // namespace specfem::assembly
 
 #include "boundaries/dim2/boundaries.hpp"
-#include "boundaries/dim2/impl/acoustic_free_surface.hpp"
-#include "boundaries/dim2/impl/stacey.hpp"
-
 #include "boundaries/dim3/boundaries.hpp"
-#include "boundaries/dim3/impl/acoustic_free_surface.hpp"
-#include "boundaries/dim3/impl/stacey.hpp"

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "impl/acoustic_free_surface.hpp"
-#include "impl/stacey.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
@@ -34,22 +32,6 @@ public:
                                   ///< mesh
   BoundaryViewType::HostMirror h_boundary_tags; ///< Host mirror of boundary
                                                 ///< tags
-
-  IndexViewType acoustic_free_surface_index_mapping; ///< Mapping of spectral
-                                                     ///< element index to
-                                                     ///< acoustic free surface
-  IndexViewType::HostMirror h_acoustic_free_surface_index_mapping;
-
-  IndexViewType stacey_index_mapping; ///< Mapping of spectral element index to
-                                      ///< Stacey boundary
-  IndexViewType::HostMirror h_stacey_index_mapping;
-
-  specfem::assembly::boundaries_impl::acoustic_free_surface<dimension_tag>
-      acoustic_free_surface; ///< Acoustic free surface boundary
-
-  specfem::assembly::boundaries_impl::stacey<dimension_tag>
-      stacey; ///< Stacey
-              ///< boundary
 
   /**
    * @name Constructors
@@ -116,55 +98,13 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(
 
   constexpr auto tag = PointBoundaryType::boundary_tag;
 
-  static_assert(
-      (tag == specfem::element::boundary_tag::none ||
-       tag == specfem::element::boundary_tag::acoustic_free_surface ||
-       tag == specfem::element::boundary_tag::stacey ||
-       tag == specfem::element::boundary_tag::composite_stacey_dirichlet),
-      "Boundary tag must be acoustic free surface, stacey, or "
-      "composite_stacey_dirichlet");
+  static_assert((tag == specfem::element::boundary_tag::none),
+                "Boundary tag other than none is not yet supported.");
 
   if constexpr (tag == specfem::element::boundary_tag::none)
     return;
 
   IndexType l_index = index;
-
-  if constexpr (tag == specfem::element::boundary_tag::acoustic_free_surface) {
-#ifndef NDEBUG
-    if (boundaries.boundary_tags(index.ispec) !=
-        specfem::element::boundary_tag::acoustic_free_surface) {
-      Kokkos::abort(
-          "Boundary tag for acoustic free surface does not match the expected "
-          "tag");
-    }
-#endif // NDEBUG
-    l_index.ispec = boundaries.acoustic_free_surface_index_mapping(index.ispec);
-    boundaries.acoustic_free_surface.load_on_device(l_index, boundary);
-  } else if constexpr (tag == specfem::element::boundary_tag::stacey) {
-#ifndef NDEBUG
-    if (boundaries.boundary_tags(index.ispec) !=
-        specfem::element::boundary_tag::stacey) {
-      Kokkos::abort("Boundary tag for stacey does not match the expected "
-                    "tag");
-    }
-#endif // NDEBUG
-    l_index.ispec = boundaries.stacey_index_mapping(index.ispec);
-    boundaries.stacey.load_on_device(l_index, boundary);
-  } else if constexpr (tag == specfem::element::boundary_tag::
-                                  composite_stacey_dirichlet) {
-#ifndef NDEBUG
-    if (boundaries.boundary_tags(index.ispec) !=
-        specfem::element::boundary_tag::composite_stacey_dirichlet) {
-      Kokkos::abort("Boundary tag for composite_stacey_dirichlet does not "
-                    "match the expected "
-                    "tag");
-    }
-#endif // NDEBUG
-    l_index.ispec = boundaries.acoustic_free_surface_index_mapping(index.ispec);
-    boundaries.acoustic_free_surface.load_on_device(l_index, boundary);
-    l_index.ispec = boundaries.stacey_index_mapping(index.ispec);
-    boundaries.stacey.load_on_device(l_index, boundary);
-  }
 
   return;
 }
@@ -195,57 +135,13 @@ load_on_host(const IndexType &index,
 
   constexpr auto tag = PointBoundaryType::boundary_tag;
 
-  static_assert(
-      (tag == specfem::element::boundary_tag::none ||
-       tag == specfem::element::boundary_tag::acoustic_free_surface ||
-       tag == specfem::element::boundary_tag::stacey ||
-       tag == specfem::element::boundary_tag::composite_stacey_dirichlet),
-      "Boundary tag must be acoustic free surface, stacey, or "
-      "composite_stacey_dirichlet");
+  static_assert((tag == specfem::element::boundary_tag::none),
+                "Boundary tags other than none are not yet supported.");
 
   if constexpr (tag == specfem::element::boundary_tag::none)
     return;
 
   IndexType l_index = index;
-
-  if constexpr (tag == specfem::element::boundary_tag::acoustic_free_surface) {
-#ifndef NDEBUG
-    if (boundaries.h_boundary_tags(index.ispec) !=
-        specfem::element::boundary_tag::acoustic_free_surface) {
-      Kokkos::abort(
-          "Boundary tag for acoustic free surface does not match the expected "
-          "tag");
-    }
-#endif // NDEBUG
-    l_index.ispec =
-        boundaries.h_acoustic_free_surface_index_mapping(index.ispec);
-    boundaries.acoustic_free_surface.load_on_host(l_index, boundary);
-  } else if constexpr (tag == specfem::element::boundary_tag::stacey) {
-#ifndef NDEBUG
-    if (boundaries.h_boundary_tags(index.ispec) !=
-        specfem::element::boundary_tag::stacey) {
-      Kokkos::abort("Boundary tag for stacey does not match the expected "
-                    "tag");
-    }
-#endif // NDEBUG
-    l_index.ispec = boundaries.h_stacey_index_mapping(index.ispec);
-    boundaries.stacey.load_on_host(l_index, boundary);
-  } else if constexpr (tag == specfem::element::boundary_tag::
-                                  composite_stacey_dirichlet) {
-#ifndef NDEBUG
-    if (boundaries.h_boundary_tags(index.ispec) !=
-        specfem::element::boundary_tag::composite_stacey_dirichlet) {
-      Kokkos::abort("Boundary tag for composite_stacey_dirichlet does not "
-                    "match the expected "
-                    "tag");
-    }
-#endif // NDEBUG
-    l_index.ispec =
-        boundaries.h_acoustic_free_surface_index_mapping(index.ispec);
-    boundaries.acoustic_free_surface.load_on_host(l_index, boundary);
-    l_index.ispec = boundaries.h_stacey_index_mapping(index.ispec);
-    boundaries.stacey.load_on_host(l_index, boundary);
-  }
 
   return;
 }
