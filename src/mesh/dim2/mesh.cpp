@@ -56,11 +56,6 @@ void check_adjacency_graph(
     const specfem::mesh::adjacency_graph<specfem::dimension::type::dim2> &graph,
     const specfem::mesh::control_nodes<specfem::dimension::type::dim2>
         &control_nodes) {
-
-  if (graph.empty()) {
-    return; // No edges to check
-  }
-
   // Get xmin and xmax from the control nodes
   type_real xmin = std::numeric_limits<type_real>::max();
   type_real xmax = std::numeric_limits<type_real>::lowest();
