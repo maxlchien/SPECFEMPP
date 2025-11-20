@@ -259,6 +259,7 @@ target_link_libraries(
         source_class
         specfem::receivers
         yaml-cpp
+        specfem::logger
         boost
         $<$<BOOL:${SPECFEM_ENABLE_NPZ}>:zlib>
         $<$<BOOL:${SPECFEM_ENABLE_HDF5}>:hdf5>

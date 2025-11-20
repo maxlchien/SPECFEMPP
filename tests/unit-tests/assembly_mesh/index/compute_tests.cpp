@@ -1,5 +1,4 @@
-#include "../../Kokkos_Environment.hpp"
-#include "../../MPI_environment.hpp"
+#include "../../SPECFEM_Environment.hpp"
 #include "../../utilities/include/interface.hpp"
 #include "io/interface.hpp"
 #include "mesh/mesh.hpp"
@@ -69,7 +68,7 @@ test_config get_test_config(std::string config_filename,
  */
 TEST(ASSEMBLY_MESH, compute_ibool) {
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   std::string config_filename = "assembly_mesh/index/test_config.yml";
   test_config test_config = get_test_config(config_filename, mpi);
@@ -131,7 +130,6 @@ TEST(ASSEMBLY_MESH, compute_ibool) {
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

@@ -1,5 +1,4 @@
-#include "../../../Kokkos_Environment.hpp"
-#include "../../../MPI_environment.hpp"
+#include "../../../SPECFEM_Environment.hpp"
 #include "../../../utilities/include/interface.hpp"
 #include "constants.hpp"
 #include "io/interface.hpp"
@@ -9,6 +8,7 @@
 #include "quadrature/interface.hpp"
 #include "solver/solver.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/logger.hpp"
 #include "specfem/timescheme.hpp"
 #include "yaml-cpp/yaml.h"
 #include <algorithm>
@@ -106,7 +106,7 @@ TEST_P(Newmark, 3D) {
             << "-------------------------------------------------------\n\n"
             << std::endl;
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   const auto parameter_file = Test.specfem_config;
 
@@ -146,16 +146,14 @@ TEST_P(Newmark, 3D) {
   // Read receivers from stations file
   auto receivers = specfem::io::read_3d_receivers(stations_node);
 
-  mpi->cout("Receiver Information:");
-  mpi->cout("-------------------------------");
-
-  if (mpi->main_proc()) {
-    std::cout << "Number of receivers : " << receivers.size() << "\n"
-              << std::endl;
-  }
+  std::cout << "Receiver Information:" << std::endl;
+  std::cout << "-------------------------------" << std::endl;
+  std::cout << "Number of receivers : " + std::to_string(receivers.size())
+            << "\n"
+            << std::endl;
 
   for (auto &receiver : receivers) {
-    mpi->cout(receiver->print());
+    std::cout << receiver->print();
   }
 
   const auto seismogram_types = setup.get_seismogram_types();
@@ -410,7 +408,6 @@ INSTANTIATE_TEST_SUITE_P(DisplacementTests, Newmark,
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

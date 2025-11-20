@@ -12,4 +12,5 @@ target_include_directories(specfem_logger
 target_link_libraries(specfem_logger
     PUBLIC
         ${BOOST_LIBS}
+        specfem::mpi
 )

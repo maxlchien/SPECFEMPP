@@ -13,6 +13,7 @@
 #include "io/mesh/impl/fortran/dim3/generate_database/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "medium/material.hpp"
+#include "specfem/logger.hpp"
 #include "specfem_mpi/interface.hpp"
 #include "specfem_setup.hpp"
 
@@ -157,11 +158,11 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
 
   // Print material properties
 
-  mpi->cout("Material systems:\n"
-            "------------------------------");
+  specfem::Logger::debug("Material systems:\n"
+                         "------------------------------");
 
-  mpi->cout("Number of material systems = " +
-            std::to_string(mesh.materials.n_materials) + "\n\n");
+  specfem::Logger::debug("Number of material systems = " +
+                         std::to_string(mesh.materials.n_materials) + "\n\n");
 
   FOR_EACH_IN_PRODUCT(
       (DIMENSION_TAG(DIM2),
@@ -172,7 +173,7 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
         for (const auto material :
              mesh.materials.get_container<_medium_tag_, _property_tag_>()
                  .element_materials) {
-          mpi->cout(material.print());
+          specfem::Logger::debug(material.print());
         }
       })
 

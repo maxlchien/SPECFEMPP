@@ -1,5 +1,4 @@
-#include "../../../Kokkos_Environment.hpp"
-#include "../../../MPI_environment.hpp"
+#include "../../../SPECFEM_Environment.hpp"
 #include "../../../utilities/include/interface.hpp"
 #include "constants.hpp"
 #include "io/interface.hpp"
@@ -104,7 +103,7 @@ TEST_P(Newmark, 2D) {
             << "-------------------------------------------------------\n\n"
             << std::endl;
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   const auto parameter_file = Test.specfem_config;
 
@@ -396,7 +395,6 @@ INSTANTIATE_TEST_SUITE_P(DisplacementTests, Newmark,
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

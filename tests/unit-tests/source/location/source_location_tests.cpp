@@ -1,3 +1,4 @@
+#include "../../SPECFEM_Environment.hpp"
 #include "io/interface.hpp"
 #include "medium/material.hpp"
 #include "mesh/mesh.hpp"
@@ -144,7 +145,7 @@ TEST(SOURCES, compute_source_locations) {
   std::string config_filename = "source/test_config.yml";
 
   //  alias the mpi environment pointer
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   // parse solutions file for future use
   test_config test_config = parse_test_config(config_filename);
@@ -214,7 +215,6 @@ TEST(SOURCES, compute_source_locations) {
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

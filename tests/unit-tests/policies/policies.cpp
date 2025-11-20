@@ -1,5 +1,4 @@
-#include "../Kokkos_Environment.hpp"
-#include "../MPI_environment.hpp"
+#include "../SPECFEM_Environment.hpp"
 #include "datatypes/simd.hpp"
 #include "enumerations/interface.hpp"
 #include "execution/chunked_domain_iterator.hpp"
@@ -458,7 +457,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

@@ -1,7 +1,7 @@
 #include "test_fixture.hpp"
+#include "SPECFEM_Environment.hpp"
 #include "io/interface.hpp"
 #include "test_fixture.tpp"
-
 // ------------------------------------------------------------------------
 // Reading test config
 
@@ -26,7 +26,7 @@ template <> Assembly<specfem::dimension::type::dim2>::Assembly() {
   parse_test_config<specfem::dimension::type::dim2>(
       YAML::LoadFile(config_filename), Tests, "2D");
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   const auto quadrature = []() {
     specfem::quadrature::gll::gll gll{};
@@ -74,7 +74,7 @@ template <> Assembly<specfem::dimension::type::dim3>::Assembly() {
   parse_test_config<specfem::dimension::type::dim3>(
       YAML::LoadFile(config_filename), Tests, "3D");
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   const auto quadrature = []() {
     specfem::quadrature::gll::gll gll{};
