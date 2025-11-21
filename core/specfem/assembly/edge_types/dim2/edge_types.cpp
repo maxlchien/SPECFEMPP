@@ -48,36 +48,57 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
         std::vector<specfem::mesh_entity::edge<dimension_tag> > self_collect;
         std::vector<specfem::mesh_entity::edge<dimension_tag> > coupled_collect;
 
-        if (_connection_tag_ == specfem::connections::type::weakly_conforming) {
-          const auto interface_container =
-              coupled_interfaces.template get<self_medium, coupled_medium>();
-          const int nedges =
-              interface_container.num_interfaces; // number of edges
+        const auto &graph = mesh.graph();
 
-          for (int iedge = 0; iedge < nedges; ++iedge) {
-            const int ispec1_mesh =
-                interface_container.medium1_index_mapping(iedge);
-            const int ispec2_mesh =
-                interface_container.medium2_index_mapping(iedge);
-            const int ispec1 = mesh.mesh_to_compute(ispec1_mesh);
-            const int ispec2 = mesh.mesh_to_compute(ispec2_mesh);
+        if (_connection_tag_ == specfem::connections::type::weakly_conforming) {
+          // Filter out strongly conforming connections
+          auto filter = [&graph](const auto &edge) {
+            return graph[edge].connection ==
+                   specfem::connections::type::strongly_conforming;
+          };
+
+          // Create a filtered graph view
+          const auto &nc_graph = boost::make_filtered_graph(graph, filter);
+
+          for (const auto &edge :
+               boost::make_iterator_range(boost::edges(nc_graph))) {
+            const int ispec1 = boost::source(edge, nc_graph);
+            const int ispec2 = boost::target(edge, nc_graph);
             const auto boundary_tag = element_types.get_boundary_tag(ispec1);
-            if (boundary_tag == _boundary_tag_) {
+            const auto medium1 = element_types.get_medium_tag(ispec1);
+            const auto medium2 = element_types.get_medium_tag(ispec2);
+            if (boundary_tag == _boundary_tag_ && medium1 == self_medium &&
+                medium2 == coupled_medium && medium1 != medium2) {
+              const specfem::mesh_entity::dim2::type self_orientation =
+                  nc_graph[edge].orientation;
+              const auto [edge_inv, exists] =
+                  boost::edge(ispec2, ispec1, nc_graph);
+              if (!exists) {
+                throw std::runtime_error("Non-symmetric adjacency graph "
+                                         "detected in `compute_intersection`.");
+              }
+              const specfem::mesh_entity::dim2::type coupled_orientation =
+                  nc_graph[edge_inv].orientation;
+              if (specfem::mesh_entity::contains(
+                      specfem::mesh_entity::dim2::corners, self_orientation) ||
+                  specfem::mesh_entity::contains(
+                      specfem::mesh_entity::dim2::corners,
+                      coupled_orientation)) {
+                // skip corner connections
+                continue;
+              }
               count++;
+              // we do not need orientation flipping -- that's handled by
+              // the transfer function
               self_collect.push_back(
-                  { ispec1, edge_index,
-                    interface_container.medium1_edge_type(iedge), false });
+                  { ispec1, edge_index, self_orientation, false });
               coupled_collect.push_back(
-                  { ispec2, edge_index,
-                    interface_container.medium2_edge_type(iedge), false });
+                  { ispec2, edge_index, coupled_orientation, false });
               edge_index++;
             }
           }
         } else if (_connection_tag_ ==
                    specfem::connections::type::nonconforming) {
-          // TODO populate
-          const auto &graph = mesh.graph();
-
           // Filter out strongly conforming connections
           auto filter = [&graph](const auto &edge) {
             return graph[edge].connection ==
