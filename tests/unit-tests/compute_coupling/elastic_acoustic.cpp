@@ -25,9 +25,8 @@ TEST_P(ElasticAcousticCouplingTest, CouplingCalculation) {
   const auto &params = GetParam();
 
   // Create interface data
-  specfem::point::coupled_interface<
+  specfem::point::conforming_interface<
       specfem::dimension::type::dim2,
-      specfem::connections::type::weakly_conforming,
       specfem::interface::interface_tag::elastic_acoustic,
       specfem::element::boundary_tag::none>
       interface_data(params.edge_factor,

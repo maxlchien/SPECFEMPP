@@ -100,8 +100,25 @@ public:
    * @param point Output point object to store loaded data
    */
   template <bool on_device, typename IndexType, typename PointType>
-  KOKKOS_FORCEINLINE_FUNCTION void impl_load(const IndexType &index,
-                                             PointType &point) const {
+  KOKKOS_FORCEINLINE_FUNCTION void
+  impl_load(const std::integral_constant<
+                specfem::data_access::AccessorType,
+                specfem::data_access::AccessorType::point> /* AccessorType */,
+            const IndexType &index, PointType &point) const {
+
+    static_assert(specfem::data_access::is_point<PointType>::value,
+                  "impl_load only supports point accessors");
+
+    static_assert(specfem::data_access::is_point<IndexType>::value,
+                  "impl_load requires point type for IndexType");
+
+    static_assert(specfem::data_access::is_edge_index<IndexType>::value,
+                  "impl_load requires edge index type for IndexType");
+
+    static_assert(
+        specfem::data_access::is_conforming_interface<PointType>::value,
+        "impl_load requires conforming interface point type for PointType");
+
     if constexpr (on_device) {
       point.edge_factor = edge_factor(index.iedge, index.ipoint);
       point.edge_normal(0) = edge_normal(index.iedge, index.ipoint, 0);

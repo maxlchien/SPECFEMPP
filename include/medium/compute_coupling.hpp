@@ -33,17 +33,17 @@ namespace specfem::medium {
  */
 template <typename CoupledInterfaceType, typename CoupledFieldType,
           typename SelfFieldType,
-          std::enable_if_t<CoupledInterfaceType::connection_tag !=
-                               specfem::connections::type::nonconforming,
+          std::enable_if_t<CoupledInterfaceType::connection_tag ==
+                               specfem::connections::type::weakly_conforming,
                            int> = 0>
 KOKKOS_INLINE_FUNCTION void
 compute_coupling(const CoupledInterfaceType &interface_data,
                  const CoupledFieldType &coupled_field,
                  SelfFieldType &self_field) {
 
-  static_assert(
-      specfem::data_access::is_coupled_interface<CoupledInterfaceType>::value,
-      "interface_data is not a coupled interface type");
+  static_assert(specfem::data_access::is_conforming_interface<
+                    CoupledInterfaceType>::value,
+                "interface_data is not a coupled interface type");
   constexpr auto dimension_tag = CoupledInterfaceType::dimension_tag;
   constexpr auto interface_tag = CoupledInterfaceType::interface_tag;
   constexpr auto connection_tag = CoupledInterfaceType::connection_tag;
@@ -82,6 +82,28 @@ compute_coupling(const CoupledInterfaceType &interface_data,
                          self_field);
 }
 
+namespace impl {
+
+template <typename DimensionDispatch, typename ConnectionDispatch,
+          typename InterfaceDispatch, typename IndexType,
+          typename InterfaceDataType, typename CoupledFieldType,
+          typename SelfFieldType, std::size_t... Is>
+KOKKOS_INLINE_FUNCTION void compute_coupling_expand(
+    DimensionDispatch dimension, ConnectionDispatch connection,
+    InterfaceDispatch interface,
+    const std::integer_sequence<std::size_t, Is...> /*unused*/,
+    const IndexType &index, const InterfaceDataType &interface_data,
+    const CoupledFieldType &coupled_field, SelfFieldType &self_field) {
+
+  compute_coupling(dimension, connection, interface, index,
+                   static_cast<const std::tuple_element_t<
+                       Is, typename InterfaceDataType::packed_accessors> &>(
+                       interface_data)...,
+                   coupled_field, self_field);
+}
+
+} // namespace impl
+
 /**
  * @brief Computes coupling terms between different physical media
  *
@@ -101,21 +123,21 @@ compute_coupling(const CoupledInterfaceType &interface_data,
  * specfem::medium::compute_coupling(interface, coupled_field, self_field);
  * @endcode
  */
-template <typename IndexType, typename CoupledInterfaceType,
+template <typename IndexType, typename InterfaceDataType,
           typename CoupledFieldType, typename SelfFieldType,
-          std::enable_if_t<CoupledInterfaceType::connection_tag ==
+          std::enable_if_t<InterfaceDataType::connection_tag ==
                                specfem::connections::type::nonconforming,
                            int> = 0>
 KOKKOS_INLINE_FUNCTION void compute_coupling(
-    const IndexType &index, const CoupledInterfaceType &interface_data,
+    const IndexType &index, const InterfaceDataType &interface_data,
     const CoupledFieldType &coupled_field, SelfFieldType &self_field) {
 
-  static_assert(
-      specfem::data_access::is_coupled_interface<CoupledInterfaceType>::value,
-      "interface_data is not a coupled interface type");
-  constexpr auto dimension_tag = CoupledInterfaceType::dimension_tag;
-  constexpr auto interface_tag = CoupledInterfaceType::interface_tag;
-  constexpr auto connection_tag = CoupledInterfaceType::connection_tag;
+  static_assert(specfem::data_access::is_nonconforming_interface<
+                    InterfaceDataType>::value,
+                "interface_data is not a nonconforming coupled interface type");
+  constexpr auto dimension_tag = InterfaceDataType::dimension_tag;
+  constexpr auto interface_tag = InterfaceDataType::interface_tag;
+  constexpr auto connection_tag = InterfaceDataType::connection_tag;
 
   static_assert(
       specfem::data_access::is_chunk_edge<IndexType>::value,
@@ -139,9 +161,10 @@ KOKKOS_INLINE_FUNCTION void compute_coupling(
   using interface_dispatch =
       std::integral_constant<specfem::interface::interface_tag, interface_tag>;
 
-  impl::compute_coupling(dimension_dispatch(), connection_dispatch(),
-                         interface_dispatch(), index, interface_data,
-                         coupled_field, self_field);
+  impl::compute_coupling_expand(
+      dimension_dispatch(), connection_dispatch(), interface_dispatch(),
+      std::make_integer_sequence<std::size_t, InterfaceDataType::n_accessors>{},
+      index, interface_data, coupled_field, self_field);
 }
 
 } // namespace specfem::medium

@@ -42,16 +42,20 @@ template <
 inline void load_on_host(const IndexType &index, const ContainerType &container,
                          AccessorType &accessor) {
 
-  static_assert(
-      specfem::data_access::CheckCompatibility<IndexType, ContainerType,
-                                               AccessorType>::value,
-      "Incompatible types in load_on_host");
+  //   static_assert(
+  //       specfem::data_access::CheckCompatibility<IndexType, ContainerType,
+  //                                                AccessorType>::value,
+  //       "Incompatible types in load_on_host");
+
+  using accessor_dispatch =
+      std::integral_constant<specfem::data_access::AccessorType,
+                             IndexType::accessor_type>;
 
   container
       .template get_interface_container<AccessorType::interface_tag,
                                         AccessorType::boundary_tag,
                                         AccessorType::connection_tag>()
-      .template impl_load<false>(index, accessor);
+      .template impl_load<false>(accessor_dispatch(), index, accessor);
 }
 
 /**
@@ -85,14 +89,20 @@ template <
 KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
                                                 const ContainerType &container,
                                                 AccessorType &accessor) {
-  static_assert(
-      specfem::data_access::CheckCompatibility<IndexType, ContainerType,
-                                               AccessorType>::value,
-      "Incompatible types in load_on_device");
+  //   static_assert(
+  //       specfem::data_access::CheckCompatibility<IndexType, ContainerType,
+  //                                                AccessorType>::value,
+  //       "Incompatible types in load_on_device");
+
+  using accessor_dispatch =
+      std::integral_constant<specfem::data_access::AccessorType,
+                             IndexType::accessor_type>;
   container
       .template get_interface_container<AccessorType::interface_tag,
                                         AccessorType::boundary_tag,
                                         AccessorType::connection_tag>()
-      .template impl_load<true>(index, accessor);
+      .template impl_load<true>(accessor_dispatch(), index, accessor);
+
+  return;
 }
 } // namespace specfem::assembly
