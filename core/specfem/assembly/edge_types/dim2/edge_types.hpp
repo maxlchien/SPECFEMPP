@@ -134,9 +134,7 @@ public:
   edge_types(
       const int ngllx, const int ngllz,
       const specfem::assembly::mesh<dimension_tag> &mesh,
-      const specfem::assembly::element_types<dimension_tag> &element_types,
-      const specfem::mesh::coupled_interfaces<dimension_tag>
-          &coupled_interfaces);
+      const specfem::assembly::element_types<dimension_tag> &element_types);
 
   edge_types() = default;
 

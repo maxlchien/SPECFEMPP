@@ -12,9 +12,7 @@ using EdgeViewType =
 specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
     const int ngllx, const int ngllz,
     const specfem::assembly::mesh<dimension_tag> &mesh,
-    const specfem::assembly::element_types<dimension_tag> &element_types,
-    const specfem::mesh::coupled_interfaces<dimension_tag>
-        &coupled_interfaces) {
+    const specfem::assembly::element_types<dimension_tag> &element_types) {
 
   if (ngllz <= 0 || ngllx <= 0) {
     KOKKOS_ABORT_WITH_LOCATION("Invalid GLL grid size");
