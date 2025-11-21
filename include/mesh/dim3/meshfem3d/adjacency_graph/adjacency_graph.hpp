@@ -252,23 +252,6 @@ public:
   const Graph &graph() const { return *graph_; }
 
   /**
-   * @brief Check if the adjacency graph is empty
-   *
-   * Determines whether the graph contains any spectral elements (vertices).
-   * An empty graph has no vertices and therefore no edges.
-   *
-   * @return true if the graph contains no vertices, false otherwise
-   *
-   * @code
-   * if (adj_graph.empty()) {
-   *     // Graph needs to be populated from MESHFEM3D data
-   *     load_adjacency_from_meshfem3d(adj_graph);
-   * }
-   * @endcode
-   */
-  bool empty() const { return boost::num_vertices(*graph_) == 0; }
-
-  /**
    * @brief Verify graph symmetry for undirected adjacency relationships
    *
    * Validates that the adjacency graph correctly represents undirected

@@ -89,6 +89,12 @@ struct properties_container<specfem::dimension::type::dim3, MediumTag,
       const specfem::mesh::materials<dimension_tag> &materials,
       const specfem::kokkos::HostView1d<int> property_index_mapping);
 
+  properties_container(
+      const Kokkos::View<int *, Kokkos::DefaultHostExecutionSpace> elements,
+      const int nspec, const int ngllz, const int nglly, const int ngllx,
+      const specfem::mesh::meshfem3d::Materials<dimension_tag> &materials,
+      const specfem::kokkos::HostView1d<int> property_index_mapping);
+
   template <typename PointValues, typename IndexType>
   KOKKOS_FORCEINLINE_FUNCTION void
   add_device_values(const IndexType &index, PointValues &values) const = delete;

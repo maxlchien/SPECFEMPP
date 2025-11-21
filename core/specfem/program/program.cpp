@@ -238,7 +238,7 @@ void program_3d(
   auto start_time = std::chrono::system_clock::now();
   specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
   const auto database_filename = setup.get_databases();
-  const auto mesh_parameters_filename = setup.get_mesh_parameters();
+
   specfem::Logger::info(setup.print_header(start_time));
 
   // Get simulation parameters
@@ -253,8 +253,8 @@ void program_3d(
   specfem::Logger::info("Reading the mesh...");
   specfem::Logger::info("===================");
   const auto quadrature = setup.instantiate_quadrature();
-  const auto mesh = specfem::io::read_3d_mesh(mesh_parameters_filename,
-                                              database_filename, mpi);
+  const auto mesh =
+      specfem::io::meshfem3d::read_3d_mesh(database_filename, mpi);
   std::chrono::duration<double> elapsed_seconds =
       std::chrono::system_clock::now() - start_time;
   specfem::Logger::info("Time to read mesh: " +
