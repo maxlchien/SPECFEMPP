@@ -56,11 +56,6 @@ void check_adjacency_graph(
     const specfem::mesh::adjacency_graph<specfem::dimension::type::dim2> &graph,
     const specfem::mesh::control_nodes<specfem::dimension::type::dim2>
         &control_nodes) {
-
-  if (graph.empty()) {
-    return; // No edges to check
-  }
-
   // Get xmin and xmax from the control nodes
   type_real xmin = std::numeric_limits<type_real>::max();
   type_real xmax = std::numeric_limits<type_real>::lowest();
@@ -108,9 +103,9 @@ void check_adjacency_graph(
       const auto jedge = g[returned_edge].orientation;
 
       const auto corners1 = convert_corners_to_mesher_index(
-          specfem::mesh_entity::dim2::corners_of_edge(iedge));
+          specfem::mesh_entity::corners_of_edge(iedge));
       const auto corners2 = convert_corners_to_mesher_index(
-          specfem::mesh_entity::dim2::corners_of_edge(jedge));
+          specfem::mesh_entity::corners_of_edge(jedge));
 
       std::set<int> control_nodes1 = {
         control_nodes.knods(corners1[0], ispec_mesh),

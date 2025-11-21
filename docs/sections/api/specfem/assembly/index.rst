@@ -8,13 +8,10 @@
 .. doxygennamespace:: specfem::assembly
     :desc-only:
 
-
-``specfem::assembly::assembly``
--------------------------------
-
 .. toctree::
     :maxdepth: 1
 
+    assembly
     boundary/boundary
     coupled_interfaces/coupled_interfaces
     fields/fields
@@ -24,7 +21,3 @@
     properties/properties
     receivers/index
     sources/index
-
-
-.. doxygenclass:: specfem::assembly::assembly
-    :members:

@@ -287,6 +287,7 @@ add_library(
         src/enumerations/dim3/connections.cpp
         src/enumerations/dim3/mesh_entities.cpp
         src/enumerations/dim2/mesh_entities.cpp
+        src/enumerations/dim2/connections.cpp
         src/enumerations/coupled_interface.cpp
 )
 
@@ -473,6 +474,7 @@ target_link_libraries(
         Kokkos::kokkos
         timescheme
         kokkos_kernels
+        periodic_tasks
 )
 
 add_library(
