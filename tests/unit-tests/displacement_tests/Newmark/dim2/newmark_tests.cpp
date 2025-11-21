@@ -8,6 +8,8 @@
 #include "quadrature/interface.hpp"
 #include "solver/solver.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/logger.hpp"
+#include "specfem/mpi.hpp"
 #include "specfem/timescheme.hpp"
 #include "yaml-cpp/yaml.h"
 #include <algorithm>
@@ -130,8 +132,7 @@ TEST_P(Newmark, 2D) {
       source_node, nsteps, setup.get_t0(), dt, setup.get_simulation_type());
 
   for (auto &source : sources) {
-    if (mpi->main_proc())
-      std::cout << source->print() << std::endl;
+    specfem::Logger::info(source->print());
   }
 
   setup.update_t0(t0);
@@ -144,8 +145,7 @@ TEST_P(Newmark, 2D) {
   std::cout << "  Receiver information\n";
   std::cout << "------------------------------" << std::endl;
   for (auto &receiver : receivers) {
-    if (mpi->main_proc())
-      std::cout << receiver->print() << std::endl;
+    specfem::Logger::info(receiver->print());
   }
 
   const auto seismogram_types = setup.get_seismogram_types();
@@ -172,8 +172,7 @@ TEST_P(Newmark, 2D) {
   auto time_scheme = setup.instantiate_timescheme(assembly.fields);
 
   // User output
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
+  specfem::Logger::info(time_scheme->print());
 
   std::shared_ptr<specfem::solver::solver> solver =
       setup.instantiate_solver<5>(setup.get_dt(), assembly, time_scheme, {});

@@ -41,7 +41,7 @@ specfem::io::mesh::impl::fortran::dim2::read_mesh_parameters(
       &nnodes_tangential_curve, &nelem_on_the_axis);
   // ----------------------------------------------------------------------
 
-  mpi->sync_all();
+  specfem::MPI_new::sync_all();
 
   return { numat,
            ngnod,

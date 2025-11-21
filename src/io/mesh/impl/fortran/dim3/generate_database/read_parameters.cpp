@@ -244,7 +244,7 @@ specfem::io::mesh::impl::fortran::dim3::read_mesh_parameters(
   /// Read test parameter
   check_read_test_value(stream, 9992);
 
-  mpi->sync_all();
+  specfem::MPI_new::sync_all();
 
   return parameters;
 }

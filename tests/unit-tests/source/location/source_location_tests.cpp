@@ -58,8 +58,8 @@ struct solution {
   //   // communicate correct size from main proc
   //   mpi->bcast(count);
   //   // resize sources for rest of processors
-  //   if (!mpi->main_proc())
-  //     sources.resize(count);
+  //   specfem::Logger::info("Sources size: " +
+  //   std::to_string(sources.resize(count)));
 
   //   specfem::MPI::datatype mpi_source_type = source.get_mpi_type();
 
@@ -187,7 +187,7 @@ TEST(SOURCES, compute_source_locations) {
   bool tested = false;
 
   for (solution &solution : solutions) {
-    if (mpi->get_size() == solution.nnodes) {
+    if (specfem::MPI_new::get_size() == solution.nnodes) {
       tested = true;
       ASSERT_EQ(sources.size(), solution.sources.size());
 
@@ -210,7 +210,8 @@ TEST(SOURCES, compute_source_locations) {
   }
 
   if (!tested)
-    FAIL() << "Solution doesn't exist for current nnodes = " << mpi->get_size();
+    FAIL() << "Solution doesn't exist for current nnodes = "
+           << specfem::MPI_new::get_size();
 }
 
 int main(int argc, char *argv[]) {

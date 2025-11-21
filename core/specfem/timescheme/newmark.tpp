@@ -268,8 +268,8 @@ int specfem::time_scheme::newmark<AssemblyFields,
 
 
 template <typename AssemblyFields>
-void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::forward>::print(
-    std::ostream &message) const {
+std::string specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::forward>::print() const {
+  std::ostringstream message;
   message << "  Time Scheme:\n"
           << "------------------------------\n"
           << "- Newmark\n"
@@ -278,11 +278,19 @@ void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::fo
           << "\n"
           // << "    number of time steps = " << this->nstep << "\n"
           << "    Start time = " << this->t0 << "\n";
+  return message.str();
+}
+
+
+template <typename AssemblyFields>
+void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::forward>::print(
+    std::ostream &message) const {
+  message << this->print();
 }
 
 template <typename AssemblyFields>
-void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::combined>::print(
-    std::ostream &message) const {
+std::string specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::combined>::print() const {
+  std::ostringstream message;
   message << "  Time Scheme:\n"
           << "------------------------------\n"
           << "- Newmark\n"
@@ -291,4 +299,11 @@ void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::co
           << "\n"
           // << "    number of time steps = " << this->nstep << "\n"
           << "    Start time = " << this->t0 << "\n";
+  return message.str();
+}
+
+template <typename AssemblyFields>
+void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::combined>::print(
+    std::ostream &message) const {
+  message << this->print();
 }

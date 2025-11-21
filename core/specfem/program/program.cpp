@@ -124,8 +124,7 @@ void program_2d(
   // --------------------------------------------------------------
   const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
 
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
+  specfem::Logger::info(time_scheme->print());
 
   // --------------------------------------------------------------
 
@@ -317,10 +316,7 @@ void program_3d(
   // --------------------------------------------------------------
   const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
 
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
-
-  specfem::Logger::info(assembly.print());
+  specfem::Logger::info(time_scheme->print());
 
   // --------------------------------------------------------------
   // NOTE: Full 3D solver and writer support is not yet implemented

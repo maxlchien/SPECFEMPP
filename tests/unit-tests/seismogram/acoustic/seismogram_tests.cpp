@@ -37,7 +37,7 @@ test_config parse_test_config(std::string test_configuration_file,
   const YAML::Node &serial = tests["serial"];
 
   test_config test_config;
-  if (mpi->get_size() == 1) {
+  if (specfem::MPI_new::get_size() == 1) {
     serial >> test_config;
   }
 
