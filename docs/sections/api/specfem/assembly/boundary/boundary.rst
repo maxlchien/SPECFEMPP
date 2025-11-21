@@ -19,7 +19,7 @@ Data Access Functions
 .. doxygengroup:: BoundaryConditionDataAccess
     :content-only:
 
-Implemetation Details
+Implementation Details
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::

@@ -3,7 +3,5 @@
 ``specfem::assembly::sources_impl::source_medium``
 ==================================================
 
-
 .. doxygenstruct:: specfem::assembly::sources_impl::source_medium
     :members:
-    :no-link:
