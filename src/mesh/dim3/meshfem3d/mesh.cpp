@@ -2,10 +2,6 @@
 
 void specfem::mesh::meshfem3d::mesh<
     specfem::dimension::type::dim3>::setup_coupled_interfaces() {
-  if (this->adjacency_graph.empty()) {
-    return;
-  }
-
   auto &graph = this->adjacency_graph.graph();
   auto &materials = this->materials;
 

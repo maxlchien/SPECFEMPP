@@ -141,9 +141,9 @@ specfem::io::read_3d_mesh(const std::string &mesh_parameters_file,
 
   // These print the coordinate array layout for the first spectral element
   // for debugging the array layout (Fortran v. C)
-  specfem::Logger::trace(mesh.coordinates.print(0, mesh.mapping, "x"));
-  specfem::Logger::trace(mesh.coordinates.print(0, mesh.mapping, "y"));
-  specfem::Logger::trace(mesh.coordinates.print(0, mesh.mapping, "z"));
+  // specfem::Logger::trace(mesh.coordinates.print(0, mesh.mapping, "x"));
+  // specfem::Logger::trace(mesh.coordinates.print(0, mesh.mapping, "y"));
+  // specfem::Logger::trace(mesh.coordinates.print(0, mesh.mapping, "z"));
 #endif
 
   // Initialize irregular element number array
@@ -216,9 +216,9 @@ specfem::io::read_3d_mesh(const std::string &mesh_parameters_file,
 
   // These print the Jacobian matrix array layout for the first spectral
   // element for debugging the array layout (Fortran v. C)
-  specfem::Logger::trace(mesh.jacobian_matrix.print(0, "xix"));
-  specfem::Logger::trace(mesh.jacobian_matrix.print(0, "etay"));
-  specfem::Logger::trace(mesh.jacobian_matrix.print(0, "gammaz"));
+  // specfem::Logger::trace(mesh.jacobian_matrix.print(0, "xix"));
+  // specfem::Logger::trace(mesh.jacobian_matrix.print(0, "etay"));
+  // specfem::Logger::trace(mesh.jacobian_matrix.print(0, "gammaz"));
 #endif
 
   // Marker that should be 10000
@@ -408,8 +408,8 @@ specfem::io::read_3d_mesh(const std::string &mesh_parameters_file,
 
     // Print the absorbing boundaries for the first face
     // for debugging the array layout (Fortran v. C)
-    specfem::Logger::trace(mesh.boundaries.absorbing_boundary.print_ijk(0));
-    specfem::Logger::trace(mesh.boundaries.absorbing_boundary.print_ijk(num_abs_boundary_faces
+    // specfem::Logger::trace(mesh.boundaries.absorbing_boundary.print_ijk(0));
+    // specfem::Logger::trace(mesh.boundaries.absorbing_boundary.print_ijk(num_abs_boundary_faces
     // - 1));
 #endif
   }
@@ -508,9 +508,9 @@ specfem::io::read_3d_mesh(const std::string &mesh_parameters_file,
 
   // Print the free surface for the first face
   // for debugging the array layout (Fortran v. C)
-  specfem::Logger::trace(mesh.acoustic_free_surface.print_ijk(0));
-  specfem::Logger::trace(mesh.acoustic_free_surface.print_ijk(num_free_surface_faces -
-  // 1));
+  // specfem::Logger::trace(mesh.acoustic_free_surface.print_ijk(0));
+  // specfem::Logger::trace(mesh.acoustic_free_surface.print_ijk(num_free_surface_faces
+  // - 1));
 #endif
 
   // Create the coupled interfaces object
