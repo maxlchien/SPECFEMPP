@@ -149,6 +149,18 @@ template <> struct mesh<specfem::dimension::type::dim2> {
    *
    */
   void check_consistency() const;
+
+  /**
+   * @brief Setup and check coupled interfaces in the mesh
+   *
+   * This function checks whether the coupled interfaces are correctly defined
+   * in the mesh data structure and are contistent with the adjacency graph.
+   *
+   * @note This function should be called after the mesh has been fully
+   * initialized and all components (control nodes, materials, boundaries)
+   * have been populated from MESHFEM2D database files.
+   */
+  void setup_coupled_interfaces();
 };
 } // namespace mesh
 } // namespace specfem

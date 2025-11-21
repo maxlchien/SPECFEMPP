@@ -50,93 +50,50 @@ specfem::assembly::edge_types<specfem::dimension::type::dim2>::edge_types(
 
         const auto &graph = mesh.graph();
 
-        if (_connection_tag_ == specfem::connections::type::weakly_conforming) {
-          // Filter out strongly conforming connections
-          auto filter = [&graph](const auto &edge) {
-            return graph[edge].connection ==
-                   specfem::connections::type::strongly_conforming;
-          };
+        // Filter out corresponding connections
+        auto filter = [&graph](const auto &edge) {
+          return graph[edge].connection == _connection_tag_;
+        };
 
-          // Create a filtered graph view
-          const auto &nc_graph = boost::make_filtered_graph(graph, filter);
-
-          for (const auto &edge :
-               boost::make_iterator_range(boost::edges(nc_graph))) {
-            const int ispec1 = boost::source(edge, nc_graph);
-            const int ispec2 = boost::target(edge, nc_graph);
-            const auto boundary_tag = element_types.get_boundary_tag(ispec1);
-            const auto medium1 = element_types.get_medium_tag(ispec1);
-            const auto medium2 = element_types.get_medium_tag(ispec2);
-            if (boundary_tag == _boundary_tag_ && medium1 == self_medium &&
-                medium2 == coupled_medium && medium1 != medium2) {
-              const specfem::mesh_entity::dim2::type self_orientation =
-                  nc_graph[edge].orientation;
-              const auto [edge_inv, exists] =
-                  boost::edge(ispec2, ispec1, nc_graph);
-              if (!exists) {
-                throw std::runtime_error("Non-symmetric adjacency graph "
-                                         "detected in `compute_intersection`.");
-              }
-              const specfem::mesh_entity::dim2::type coupled_orientation =
-                  nc_graph[edge_inv].orientation;
-              if (specfem::mesh_entity::contains(
-                      specfem::mesh_entity::dim2::corners, self_orientation) ||
-                  specfem::mesh_entity::contains(
-                      specfem::mesh_entity::dim2::corners,
-                      coupled_orientation)) {
-                // skip corner connections
-                continue;
-              }
-              count++;
-              // we do not need orientation flipping -- that's handled by
-              // the transfer function
-              self_collect.push_back(
-                  { ispec1, edge_index, self_orientation, false });
-              coupled_collect.push_back(
-                  { ispec2, edge_index, coupled_orientation, false });
-              edge_index++;
+        // Create a filtered graph view
+        const auto &nc_graph = boost::make_filtered_graph(graph, filter);
+        for (const auto &edge :
+             boost::make_iterator_range(boost::edges(nc_graph))) {
+          const int ispec1 = boost::source(edge, nc_graph);
+          const int ispec2 = boost::target(edge, nc_graph);
+          const auto boundary_tag = element_types.get_boundary_tag(ispec1);
+          const auto medium1 = element_types.get_medium_tag(ispec1);
+          const auto medium2 = element_types.get_medium_tag(ispec2);
+          if (boundary_tag == _boundary_tag_ && medium1 == self_medium &&
+              medium2 == coupled_medium && medium1 != medium2) {
+            const specfem::mesh_entity::dim2::type self_orientation =
+                nc_graph[edge].orientation;
+            const auto [edge_inv, exists] =
+                boost::edge(ispec2, ispec1, nc_graph);
+            if (!exists) {
+              throw std::runtime_error("Non-symmetric adjacency graph "
+                                       "detected in `compute_intersection`.");
             }
-          }
-        } else if (_connection_tag_ ==
-                   specfem::connections::type::nonconforming) {
-          // Filter out strongly conforming connections
-          auto filter = [&graph](const auto &edge) {
-            return graph[edge].connection ==
-                   specfem::connections::type::nonconforming;
-          };
-
-          // Create a filtered graph view
-          const auto &nc_graph = boost::make_filtered_graph(graph, filter);
-
-          for (const auto &edge :
-               boost::make_iterator_range(boost::edges(nc_graph))) {
-            const int ispec1 = boost::source(edge, nc_graph);
-            const int ispec2 = boost::target(edge, nc_graph);
-            const auto boundary_tag = element_types.get_boundary_tag(ispec1);
-            const auto medium1 = element_types.get_medium_tag(ispec1);
-            const auto medium2 = element_types.get_medium_tag(ispec2);
-            if (boundary_tag == _boundary_tag_ && medium1 == self_medium &&
-                medium2 == coupled_medium) {
-
-              const specfem::mesh_entity::dim2::type self_orientation =
-                  nc_graph[edge].orientation;
-              const auto [edge_inv, exists] =
-                  boost::edge(ispec2, ispec1, nc_graph);
-              if (!exists) {
-                throw std::runtime_error("Non-symmetric adjacency graph "
-                                         "detected in `compute_intersection`.");
-              }
-              const specfem::mesh_entity::dim2::type coupled_orientation =
-                  nc_graph[edge_inv].orientation;
-              count++;
-              // we do not need orientation flipping -- that's handled by
-              // the transfer function
-              self_collect.push_back(
-                  { ispec1, edge_index, self_orientation, false });
-              coupled_collect.push_back(
-                  { ispec2, edge_index, coupled_orientation, false });
-              edge_index++;
+            const specfem::mesh_entity::dim2::type coupled_orientation =
+                nc_graph[edge_inv].orientation;
+            if (_connection_tag_ ==
+                    specfem::connections::type::weakly_conforming &&
+                (specfem::mesh_entity::contains(
+                     specfem::mesh_entity::dim2::corners, self_orientation) ||
+                 specfem::mesh_entity::contains(
+                     specfem::mesh_entity::dim2::corners,
+                     coupled_orientation))) {
+              // skip corner connections
+              continue;
             }
+            count++;
+            // we do not need orientation flipping -- that's handled by
+            // the transfer function
+            self_collect.push_back(
+                { ispec1, edge_index, self_orientation, false });
+            coupled_collect.push_back(
+                { ispec2, edge_index, coupled_orientation, false });
+            edge_index++;
           }
         }
 
