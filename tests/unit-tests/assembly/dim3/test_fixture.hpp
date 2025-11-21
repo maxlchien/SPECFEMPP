@@ -3,7 +3,7 @@
 #include "MPI_environment.hpp"
 #include "enumerations/interface.hpp"
 #include "io/interface.hpp"
-#include "mesh/dim3/meshfem3d/mesh.hpp"
+#include "mesh/mesh.hpp"
 #include "specfem/assembly.hpp"
 #include <gtest/gtest.h>
 #include <string>
@@ -17,7 +17,7 @@ struct Assembly3D {
   Assembly3D() = default;
 
   Assembly3D(const std::string &database_file, const specfem::MPI::MPI *mpi) {
-    const auto mesh = specfem::io::meshfem3d::read_3d_mesh(database_file, mpi);
+    const auto mesh = specfem::io::read_3d_mesh(database_file, mpi);
 
     const int nspec = mesh.nspec;
     const int ngnod = mesh.control_nodes.ngnod;

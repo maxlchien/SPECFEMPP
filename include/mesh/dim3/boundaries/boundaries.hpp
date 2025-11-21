@@ -2,7 +2,7 @@
  * @file boundaries.hpp
  * @brief Domain boundary management for 3D spectral element meshes
  *
- * This file contains the Boundaries template specialization for 3D meshes.
+ * This file contains the boundaries template specialization for 3D meshes.
  * The class manages all boundary face information read from MESHFEM3D
  * database files, including absorbing boundaries that implement Stacey
  * absorbing boundary conditions, as well as other domain boundaries such
@@ -14,14 +14,8 @@
 #include "enumerations/interface.hpp"
 #include <Kokkos_Core.hpp>
 
-namespace specfem::mesh::meshfem3d {
+namespace specfem::mesh {
 
-/**
- * @brief Template structure for managing domain boundaries in spectral
- * element meshes
- *
- * @tparam DimensionTag Dimension type tag for template specialization
- */
 template <specfem::dimension::type DimensionTag> struct Boundaries;
 
 /**
@@ -68,7 +62,7 @@ template <specfem::dimension::type DimensionTag> struct Boundaries;
  * }
  * @endcode
  */
-template <> struct Boundaries<specfem::dimension::type::dim3> {
+template <> struct boundaries<specfem::dimension::type::dim3> {
 private:
   /** @brief Enumeration of face directions for 3D boundaries */
   enum class face_direction : int {
@@ -107,7 +101,7 @@ public:
    * Use this constructor when boundaries are not required or will be
    * populated later through IO operations or explicit assignment.
    */
-  Boundaries() = default;
+  boundaries() = default;
 
   /**
    * @brief Parameterized constructor for domain boundaries
@@ -127,7 +121,7 @@ public:
    *
    * @code
    * // Create boundaries container for 120 faces in a mesh with 1000 elements
-   * specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>
+   * specfem::mesh::boundaries<specfem::dimension::type::dim3>
    *     boundaries(120, 1000);
    *
    * // Views are now allocated and ready for data from MESHFEM3D
@@ -137,11 +131,11 @@ public:
    * assert(boundaries.face_type.extent(0) == 120);
    * @endcode
    */
-  Boundaries(const int nfaces, const int nspec)
+  boundaries(const int nfaces, const int nspec)
       : nfaces(nfaces), nspec(nspec),
-        index_mapping("specfem::mesh::Boundaries::index_mapping", nfaces),
-        face_type("specfem::mesh::Boundaries::face_type", nfaces),
-        face_direction("specfem::mesh::Boundaries::face_direction", nfaces) {}
+        index_mapping("specfem::mesh::boundaries::index_mapping", nfaces),
+        face_type("specfem::mesh::boundaries::face_type", nfaces),
+        face_direction("specfem::mesh::boundaries::face_direction", nfaces) {}
 
   /** @brief Total number of domain boundary faces */
   int nfaces;
@@ -199,7 +193,7 @@ public:
    * @code
    * // Example: Get all faces on the X_MIN boundary
    * auto [indices, faces] = boundaries.filter(
-   *     specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>::face_direction::X_MIN);
+   *     specfem::mesh::boundaries<specfem::dimension::type::dim3>::face_direction::X_MIN);
    *
    * // Process each face on the X_MIN boundary
    * for (size_t i = 0; i < indices.extent(0); ++i) {
@@ -233,4 +227,4 @@ public:
   }
 };
 
-} // namespace specfem::mesh::meshfem3d
+} // namespace specfem::mesh

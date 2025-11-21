@@ -57,8 +57,7 @@ struct ExpectedMaterials3D {
                       const std::initializer_list<ElementMaterial> &elements)
       : total_materials(total_materials), element_materials(elements) {}
 
-  void
-  check(const specfem::mesh::meshfem3d::Materials<dimension> &materials) const {
+  void check(const specfem::mesh::materials<dimension> &materials) const {
     // Verify total number of material
     if (materials.n_materials != total_materials.nmaterials) {
       FAIL() << "Total number of materials mismatch. "

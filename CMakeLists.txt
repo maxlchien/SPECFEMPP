@@ -250,13 +250,13 @@ add_library(
         src/io/mesh/impl/fortran/dim2/read_parameters.cpp
         src/io/mesh/impl/fortran/dim2/read_adjacency_graph.cpp
         # Fortran 3D meshfem part
-        src/io/mesh/impl/fortran/dim3/meshfem3d/mesh.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_boundaries.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_materials.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_mpi_interfaces.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_pml_boundaries.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_adjacency_graph.cpp
+        src/io/mesh/impl/fortran/dim3/mesh.cpp
+        src/io/mesh/impl/fortran/dim3/read_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/read_control_nodes.cpp
+        src/io/mesh/impl/fortran/dim3/read_materials.cpp
+        src/io/mesh/impl/fortran/dim3/read_mpi_interfaces.cpp
+        src/io/mesh/impl/fortran/dim3/read_pml_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/read_adjacency_graph.cpp
 )
 
 target_link_libraries(
@@ -352,9 +352,9 @@ add_library(
         src/mesh/dim2/adjacency_graph/assert_symmetry.cpp
         # 3-D
 
-        src/mesh/dim3/meshfem3d/adjacency_graph/assert_symmetry.cpp
-        src/mesh/dim3/meshfem3d/tags/tags.cpp
-        src/mesh/dim3/meshfem3d/mesh.cpp
+        src/mesh/dim3/adjacency_graph/assert_symmetry.cpp
+        src/mesh/dim3/tags/tags.cpp
+        src/mesh/dim3/mesh.cpp
 )
 
 target_link_libraries(

@@ -101,7 +101,7 @@ struct ExpectedTags3D {
    *
    * @param tags Mesh tags object to validate
    */
-  void check(const specfem::mesh::meshfem3d::tags<dimension> &tags) const {
+  void check(const specfem::mesh::tags<dimension> &tags) const {
     // Validate mesh dimensions
     if (tags.nspec != nspec) {
       FAIL() << "Number of spectral elements mismatch. Expected: " << nspec

@@ -1,9 +1,9 @@
-#include "io/mesh/impl/fortran/dim3/meshfem3d/read_pml_boundaries.hpp"
+#include "io/mesh/impl/fortran/dim3/read_pml_boundaries.hpp"
 #include "io/fortranio/interface.hpp"
 #include "specfem_mpi/interface.hpp"
 #include <fstream>
 
-void specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_pml_boundaries(
+void specfem::io::mesh::impl::fortran::dim3::read_pml_boundaries(
     std::ifstream &stream, const specfem::MPI::MPI *mpi) {
 
   int num_pml_boundaries;

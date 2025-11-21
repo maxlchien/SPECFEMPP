@@ -7,7 +7,7 @@
 #include <fstream>
 #include <tuple>
 
-namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
+namespace specfem::io::mesh::impl::fortran::dim3 {
 
 /**
  * @brief Read material properties and control node indices from MESHFEM3D
@@ -35,8 +35,8 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  */
 std::tuple<int, int, int, int,
            Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
-           specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
+           specfem::mesh::materials<specfem::dimension::type::dim3> >
 read_materials(std::ifstream &stream, const int ngnod,
                const specfem::MPI::MPI *mpi);
 
-} // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d
+} // namespace specfem::io::mesh::impl::fortran::dim3

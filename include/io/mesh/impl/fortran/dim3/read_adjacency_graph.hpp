@@ -5,10 +5,10 @@
 #include "specfem_mpi/interface.hpp"
 #include <fstream>
 
-namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
+namespace specfem::io::mesh::impl::fortran::dim3 {
 
-specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
+specfem::mesh::adjacency_graph<specfem::dimension::type::dim3>
 read_adjacency_graph(std::ifstream &stream, const int nspec,
                      const specfem::MPI::MPI *mpi);
 
-} // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d
+} // namespace specfem::io::mesh::impl::fortran::dim3

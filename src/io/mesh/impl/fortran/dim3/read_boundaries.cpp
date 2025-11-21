@@ -1,4 +1,4 @@
-#include "io/mesh/impl/fortran/dim3/meshfem3d/read_boundaries.hpp"
+#include "io/mesh/impl/fortran/dim3/read_boundaries.hpp"
 #include "io/fortranio/interface.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem/point.hpp"
@@ -31,7 +31,7 @@
  *       for mesh quality assessment and numerical stability calculations.
  */
 type_real characteristic_length(
-    const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
+    const specfem::mesh::control_nodes<specfem::dimension::type::dim3>
         &control_nodes,
     const int element_index) {
   const int nodes_per_element = control_nodes.ngnod;
@@ -80,7 +80,7 @@ type_real characteristic_length(
  * tolerance or if an invalid face type is encountered
  */
 specfem::mesh_entity::dim3::type find_face_from_nodes(
-    const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
+    const specfem::mesh::control_nodes<specfem::dimension::type::dim3>
         &control_nodes,
     const int element_index, const std::vector<int> &face_nodes) {
 
@@ -173,10 +173,10 @@ specfem::mesh_entity::dim3::type find_face_from_nodes(
   return closest_face;
 }
 
-specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>
-specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_boundaries(
+specfem::mesh::boundaries<specfem::dimension::type::dim3>
+specfem::io::mesh::impl::fortran::dim3::read_boundaries(
     std::ifstream &stream, const int nspec,
-    const specfem::mesh::meshfem3d::ControlNodes<specfem::dimension::type::dim3>
+    const specfem::mesh::control_nodes<specfem::dimension::type::dim3>
         &control_nodes,
     const specfem::MPI::MPI *mpi) {
 
@@ -184,7 +184,7 @@ specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_boundaries(
   std::array<int, 6> nfaces_per_direction;
 
   using BoundaryType =
-      specfem::mesh::meshfem3d::Boundaries<specfem::dimension::type::dim3>;
+      specfem::mesh::boundaries<specfem::dimension::type::dim3>;
 
   using face_direction = BoundaryType::FaceDirection;
 

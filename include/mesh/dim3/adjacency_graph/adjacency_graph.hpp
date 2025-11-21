@@ -4,19 +4,9 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <memory>
 
-namespace specfem::mesh::meshfem3d {
+namespace specfem::mesh {
 
-/**
- * @brief Template structure for element adjacency graph management in MESHFEM3D
- *
- * Generic template declaration for adjacency graph structures that manage
- * element connectivity information from MESHFEM3D-generated mesh databases.
- * The adjacency graph encodes neighbor relationships and connection properties
- * between spectral elements.
- *
- * @tparam Dimension Spatial dimension type tag for template specialization
- */
-template <specfem::dimension::type Dimension> struct adjacency_graph;
+template <specfem::dimension::type DimensionTag> struct adjacency_graph;
 
 /**
  * @brief 3D adjacency graph for MESHFEM3D spectral element connectivity
@@ -45,7 +35,7 @@ template <specfem::dimension::type Dimension> struct adjacency_graph;
  *
  * @code
  * // Example: Building adjacency graph from MESHFEM3D data
- * specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
+ * specfem::mesh::adjacency_graph<specfem::dimension::type::dim3>
  *     adj_graph(nspec);
  *
  * // Add element connections with properties
@@ -177,7 +167,7 @@ public:
    * Elements and connections must be added explicitly after construction.
    *
    * @code
-   * specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
+   * specfem::mesh::adjacency_graph<specfem::dimension::type::dim3>
    *     empty_graph;
    * // Graph must be populated with add_vertex/add_edge operations
    * @endcode
@@ -195,7 +185,7 @@ public:
    *
    * @code
    * // Create graph for mesh with 1000 spectral elements
-   * specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
+   * specfem::mesh::adjacency_graph<specfem::dimension::type::dim3>
    *     graph(1000);
    * // Vertices 0-999 are pre-allocated and ready for edge addition
    * @endcode
@@ -291,4 +281,4 @@ public:
   void assert_symmetry() const;
 };
 
-} // namespace specfem::mesh::meshfem3d
+} // namespace specfem::mesh

@@ -3,7 +3,7 @@
 #include "specfem_mpi/interface.hpp"
 #include <fstream>
 
-namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
+namespace specfem::io::mesh::impl::fortran::dim3 {
 
 /**
  * @brief Read MPI interface data from MESHFEM3D database file
@@ -37,7 +37,7 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  *
  * // Read MPI interfaces (currently validates only)
  * try {
- *     specfem::io::mesh_impl::fortran::dim3::meshfem3d::read_mpi_interfaces(database_stream,
+ *     specfem::io::mesh::impl::fortran::dim3::read_mpi_interfaces(database_stream,
  * &mpi); } catch (const std::runtime_error& e) {
  *     // Handle unsupported MPI interface data
  *     mpi.cout("MPI interfaces not supported: " + std::string(e.what()));
@@ -50,4 +50,4 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  */
 void read_mpi_interfaces(std::ifstream &stream, const specfem::MPI::MPI *mpi);
 
-} // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d
+} // namespace specfem::io::mesh::impl::fortran::dim3

@@ -3,7 +3,7 @@
 #include "specfem_mpi/interface.hpp"
 #include <fstream>
 
-namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
+namespace specfem::io::mesh::impl::fortran::dim3 {
 
 /**
  * @brief Read PML boundary data from MESHFEM3D database file
@@ -37,7 +37,7 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  *
  * // Read PML boundaries (currently validates only)
  * try {
- *     specfem::io::mesh_impl::fortran::dim3::meshfem3d::read_pml_boundaries(database_stream,
+ *     specfem::io::mesh::impl::fortran::dim3::read_pml_boundaries(database_stream,
  * &mpi); } catch (const std::runtime_error& e) {
  *     // Handle unsupported PML boundary data
  *     mpi.cout("PML boundaries not supported: " + std::string(e.what()));
@@ -53,4 +53,4 @@ namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d {
  */
 void read_pml_boundaries(std::ifstream &stream, const specfem::MPI::MPI *mpi);
 
-} // namespace specfem::io::mesh::impl::fortran::dim3::meshfem3d
+} // namespace specfem::io::mesh::impl::fortran::dim3

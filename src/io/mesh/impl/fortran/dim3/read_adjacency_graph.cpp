@@ -1,20 +1,19 @@
-#include "io/mesh/impl/fortran/dim3/meshfem3d/read_adjacency_graph.hpp"
+#include "io/mesh/impl/fortran/dim3/read_adjacency_graph.hpp"
 #include "io/fortranio/interface.hpp"
 #include "mesh/mesh.hpp"
 
-specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
-specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_adjacency_graph(
+specfem::mesh::adjacency_graph<specfem::dimension::type::dim3>
+specfem::io::mesh::impl::fortran::dim3::read_adjacency_graph(
     std::ifstream &stream, const int nspec, const specfem::MPI::MPI *mpi) {
 
-  specfem::mesh::meshfem3d::adjacency_graph<specfem::dimension::type::dim3>
-      graph(nspec);
+  specfem::mesh::adjacency_graph<specfem::dimension::type::dim3> graph(nspec);
 
   auto &g = graph.graph();
 
   int total_adjacencies;
   specfem::io::fortran_read_line(stream, &total_adjacencies);
 
-  using EdgeProperties = specfem::mesh::meshfem3d::adjacency_graph<
+  using EdgeProperties = specfem::mesh::adjacency_graph<
       specfem::dimension::type::dim3>::EdgeProperties;
 
   for (int i = 0; i < total_adjacencies; ++i) {

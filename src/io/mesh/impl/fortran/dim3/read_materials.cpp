@@ -1,4 +1,4 @@
-#include "io/mesh/impl/fortran/dim3/meshfem3d/read_materials.hpp"
+#include "io/mesh/impl/fortran/dim3/read_materials.hpp"
 #include "io/fortranio/interface.hpp"
 #include "medium/material.hpp"
 #include "mesh/mesh.hpp"
@@ -9,12 +9,12 @@
 
 std::tuple<int, int, int, int,
            Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
-           specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3> >
-specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_materials(
+           specfem::mesh::materials<specfem::dimension::type::dim3> >
+specfem::io::mesh::impl::fortran::dim3::read_materials(
     std::ifstream &stream, const int ngnod, const specfem::MPI::MPI *mpi) {
 
   using MaterialsType =
-      specfem::mesh::meshfem3d::Materials<specfem::dimension::type::dim3>;
+      specfem::mesh::materials<specfem::dimension::type::dim3>;
 
   MaterialsType materials;
 

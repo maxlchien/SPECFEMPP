@@ -4,7 +4,7 @@
 #include "mesh/mesh.hpp"
 
 specfem::assembly::assembly<specfem::dimension::type::dim3>::assembly(
-    const specfem::mesh::meshfem3d::mesh<dimension_tag> &mesh,
+    const specfem::mesh::mesh<dimension_tag> &mesh,
     const specfem::quadrature::quadratures &quadratures,
     std::vector<std::shared_ptr<specfem::sources::source<dimension_tag> > >
         &sources,

@@ -7,16 +7,8 @@
 #include "materials/materials.hpp"
 #include "tags/tags.hpp"
 
-namespace specfem::mesh::meshfem3d {
+namespace specfem::mesh {
 
-/**
- * @brief Template structure for MESHFEM3D mesh data management
- *
- * Generic template declaration for mesh structures that handle
- * MESHFEM3D-generated mesh databases across different spatial dimensions.
- *
- * @tparam DimensionTag Spatial dimension type tag for template specialization
- */
 template <specfem::dimension::type DimensionTag> struct mesh;
 
 /**
@@ -34,9 +26,9 @@ template <specfem::dimension::type DimensionTag> struct mesh;
  * dimension
  *
  * @see specfem::io::meshfem3d::read_3d_mesh
- * @see specfem::mesh::meshfem3d::ControlNodes
- * @see specfem::mesh::meshfem3d::Materials
- * @see specfem::mesh::meshfem3d::AbsorbingBoundaries
+ * @see specfem::mesh::control_nodes
+ * @see specfem::mesh::materials
+ * @see specfem::mesh::boundaries
  *
  * @code
  * // Example: Reading a MESHFEM3D database
@@ -78,9 +70,9 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    * are read from MESHFEM3D database files and represent the high-order
    * geometric mapping points used in spectral element discretization.
    *
-   * @see specfem::mesh::meshfem3d::ControlNodes
+   * @see specfem::mesh::control_nodes
    */
-  specfem::mesh::meshfem3d::ControlNodes<dimension_tag> control_nodes;
+  specfem::mesh::control_nodes<dimension_tag> control_nodes;
 
   /**
    * @brief Material properties database
@@ -90,9 +82,9 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    * medium type and property characteristics, enabling efficient material
    * property lookup during spectral element computations.
    *
-   * @see specfem::mesh::meshfem3d::Materials
+   * @see specfem::mesh::materials
    */
-  specfem::mesh::meshfem3d::Materials<dimension_tag> materials;
+  specfem::mesh::materials<dimension_tag> materials;
 
   /**
    * @brief Absorbing boundary condition specifications
@@ -102,9 +94,9 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    * prevent spurious wave reflections at domain edges by absorbing outgoing
    * seismic waves.
    *
-   * @see specfem::mesh::meshfem3d::Boundaries
+   * @see specfem::mesh::boundaries
    */
-  specfem::mesh::meshfem3d::Boundaries<dimension_tag> boundaries;
+  specfem::mesh::boundaries<dimension_tag> boundaries;
 
   /**
    * @brief Element adjacency graph
@@ -112,16 +104,16 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    * Represents the connectivity relationships between spectral elements in
    * the mesh.
    *
-   * @see specfem::mesh::meshfem3d::adjacency_graph
+   * @see specfem::mesh::adjacency_graph
    */
-  specfem::mesh::meshfem3d::adjacency_graph<dimension_tag> adjacency_graph;
+  specfem::mesh::adjacency_graph<dimension_tag> adjacency_graph;
 
   /** @brief Tags associated with each spectral element
    *
    * Stores the tags for each spectral element, which specify medium type,
    * property type, and boundary conditions.
    */
-  specfem::mesh::meshfem3d::tags<dimension_tag> tags;
+  specfem::mesh::tags<dimension_tag> tags;
 
   /**
    * @brief Setup coupled interfaces in the mesh
@@ -144,7 +136,7 @@ template <> struct mesh<specfem::dimension::type::dim3> {
    *
    * @code
    * // Internal usage in IO routines
-   * specfem::mesh::meshfem3d::mesh<specfem::dimension::type::dim3> mesh;
+   * specfem::mesh::mesh<specfem::dimension::type::dim3> mesh;
    * mesh.control_nodes = read_control_nodes(stream, mpi);
    * mesh.materials = read_materials(stream, mpi);
    * mesh.absorbing_boundaries = read_absorbing_boundaries(stream, mpi);
@@ -162,4 +154,4 @@ template <> struct mesh<specfem::dimension::type::dim3> {
   ~mesh() = default;
 };
 
-} // namespace specfem::mesh::meshfem3d
+} // namespace specfem::mesh
