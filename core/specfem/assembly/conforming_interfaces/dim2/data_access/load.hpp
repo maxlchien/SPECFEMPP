@@ -1,6 +1,6 @@
 #pragma once
 
-#include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/conforming_interfaces.hpp"
 #include "specfem/data_access.hpp"
 
 namespace specfem::assembly {
@@ -37,15 +37,15 @@ template <
     typename IndexType, typename ContainerType, typename AccessorType,
     typename std::enable_if_t<
         ((specfem::data_access::is_edge_index<IndexType>::value) &&
-         (specfem::data_access::is_coupled_interface<ContainerType>::value)),
+         (specfem::data_access::is_conforming_interface<ContainerType>::value)),
         int> = 0>
 inline void load_on_host(const IndexType &index, const ContainerType &container,
                          AccessorType &accessor) {
 
-  //   static_assert(
-  //       specfem::data_access::CheckCompatibility<IndexType, ContainerType,
-  //                                                AccessorType>::value,
-  //       "Incompatible types in load_on_host");
+  static_assert(
+      specfem::data_access::CheckCompatibility<IndexType, ContainerType,
+                                               AccessorType>::value,
+      "Incompatible types in load_on_host");
 
   using accessor_dispatch =
       std::integral_constant<specfem::data_access::AccessorType,
@@ -84,15 +84,15 @@ template <
     typename IndexType, typename ContainerType, typename AccessorType,
     typename std::enable_if_t<
         ((specfem::data_access::is_edge_index<IndexType>::value) &&
-         (specfem::data_access::is_coupled_interface<ContainerType>::value)),
+         (specfem::data_access::is_conforming_interface<ContainerType>::value)),
         int> = 0>
 KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
                                                 const ContainerType &container,
                                                 AccessorType &accessor) {
-  //   static_assert(
-  //       specfem::data_access::CheckCompatibility<IndexType, ContainerType,
-  //                                                AccessorType>::value,
-  //       "Incompatible types in load_on_device");
+  static_assert(
+      specfem::data_access::CheckCompatibility<IndexType, ContainerType,
+                                               AccessorType>::value,
+      "Incompatible types in load_on_device");
 
   using accessor_dispatch =
       std::integral_constant<specfem::data_access::AccessorType,
