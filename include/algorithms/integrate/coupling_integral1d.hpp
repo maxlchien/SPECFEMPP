@@ -1,3 +1,10 @@
+#pragma once
+
+#include "enumerations/interface.hpp"
+#include "execution/for_each_level.hpp"
+#include "execution/team_thread_md_range_iterator.hpp"
+#include "specfem/assembly.hpp"
+#include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem::algorithms {
@@ -50,8 +57,6 @@ coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
       IntersectionFactor::n_quad_intersection, dimension_tag,
       IntersectionFactor::interface_tag, IntersectionFactor::boundary_tag>;
 
-  // an is_invocable static check here prevents autos
-
   constexpr int ncomp = PointFieldType::components;
   constexpr int nquad_intersection = IntersectionFactor::n_quad_intersection;
 
@@ -73,7 +78,6 @@ coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
           result(icomp) = 0;
         }
         const int &iedge = self_index_local.iedge;
-        const int &ipoint = self_index_local.ipoint;
 
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
 #pragma unroll
