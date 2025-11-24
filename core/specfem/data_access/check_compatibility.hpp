@@ -153,16 +153,6 @@ struct is_edge_index<
     : std::true_type {};
 
 template <typename T, typename = void>
-struct is_coupled_interface : std::false_type {};
-
-template <typename T>
-struct is_coupled_interface<
-    T,
-    std::enable_if_t<T::data_class ==
-                     specfem::data_access::DataClassType::coupled_interface> >
-    : std::true_type {};
-
-template <typename T, typename = void>
 struct is_intersection_factor : std::false_type {};
 
 template <typename T>

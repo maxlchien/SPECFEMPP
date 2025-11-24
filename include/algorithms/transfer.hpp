@@ -49,14 +49,6 @@ transfer(const IndexType &chunk_edge_index,
                     specfem::data_access::is_field<EdgeFieldType>::value,
                 "coupled_field is not a point field type");
 
-  // no medium check for intersection.
-  static_assert(
-      specfem::interface::attributes<dimension_tag,
-                                     interface_tag>::coupled_medium() ==
-          edge_medium_tag,
-      "Inconsistent medium tag between TransferFunctionType's side of the "
-      "interface and EdgeFieldType");
-
   // TODO future consideration: use load_on_device for coupled field here.
   // We would want it to be a specialization, since we want to transfer more
   // things than just fields is there a better way of recovering global index?

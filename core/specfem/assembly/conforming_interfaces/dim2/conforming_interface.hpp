@@ -14,7 +14,7 @@
 namespace specfem::assembly {
 
 /**
- * @brief 2D coupled interfaces container for spectral element computations.
+ * @brief 2D conforming interfaces container for spectral element computations.
  *
  * This class manages the storage and access of data required to compute
  * coupling between elements connected via weakly conforming edges in a 2D
@@ -68,7 +68,7 @@ private:
 
 public:
   /**
-   * @brief Constructor for 2D coupled interfaces container
+   * @brief Constructor for 2D conforming interfaces container
    *
    * Initializes all interface containers for the supported combinations of
    * media types and boundary conditions.
