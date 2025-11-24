@@ -30,27 +30,9 @@ struct properties<specfem::dimension::type::dim3>
    */
   properties() = default;
 
-  /**
-   * @brief Construct a new properties object from mesh information
-   *
-   * @param nspec Number of spectral elements
-   * @param ngllz Number of quadrature points in z direction
-   * @param nglly Number of quadrature points in y direction
-   * @param ngllx Number of quadrature points in x direction
-   * @param mapping Mapping of spectral element index from mesh to assembly
-   * @param tags Element Tags for every spectral element
-   * @param materials Material properties for every spectral element
-   * assignment if true)
-   */
   properties(
       const int nspec, const int ngllz, const int nglly, const int ngllx,
-      const specfem::assembly::element_types<dimension_tag> &element_types,
-      const specfem::assembly::mesh<dimension_tag> &mesh,
-      const specfem::mesh::materials<dimension_tag> &materials);
-
-  properties(
-      const int nspec, const int ngllz, const int nglly, const int ngllx,
-      const specfem::mesh::meshfem3d::Materials<dimension_tag> &materials,
+      const specfem::mesh::materials<dimension_tag> &materials,
       const specfem::assembly::element_types<dimension_tag> &element_types);
 
   ///@}

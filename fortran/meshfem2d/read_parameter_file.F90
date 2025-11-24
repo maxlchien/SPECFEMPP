@@ -75,43 +75,6 @@ subroutine read_parameter_file(imesher,BROADCAST_AFTER_READ)
       endif
       call read_parameter_file_receiversets()
 
-      ! only mesher needs to reads this
-      if (imesher == 1) then
-         ! reads material definitions
-         ! call read_material_table()
-
-         ! mesher reads in internal region table for setting up mesh elements
-         if (.not. read_external_mesh) then
-            ! internal meshing
-            ! user output
-            write(IMAIN,*)
-            write(IMAIN,*) 'Mesh from internal meshing:'
-            write(IMAIN,*)
-            call flush_IMAIN()
-
-            ! reads interface definitions from interface file (we need to have nxread & nzread value for checking regions)
-            call read_interfaces_file()
-
-            ! internal meshing
-            nx_elem_internal = nxread
-            nz_elem_internal = nzread
-
-            ! setup mesh array
-            ! multiply by 2 if elements have 9 nodes
-            if (NGNOD == 9) then
-               nx_elem_internal = nx_elem_internal * 2
-               nz_elem_internal = nz_elem_internal * 2
-               nz_layer(:) = nz_layer(:) * 2
-            endif
-
-            ! total number of elements
-            nelmnts = nxread * nzread
-
-            ! reads material regions defined in Par_file
-            call read_regions()
-         endif
-      endif
-
       ! closes file Par_file
       call close_parameter_file()
    endif
