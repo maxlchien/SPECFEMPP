@@ -182,7 +182,7 @@ public:
   std::tuple<specfem::element::medium_tag, specfem::element::property_tag>
   get_material_type(const int index) const {
 #ifndef NDEBUG
-    if (index < 0 || index >= this->nspec) {
+    if (index < 0 || index >= this->material_index_mapping.size()) {
       KOKKOS_ABORT_WITH_LOCATION(
           "Element index out of range in get_material_type");
     }
