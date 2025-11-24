@@ -214,16 +214,16 @@ The output image should look like this:
 
 If you compare these traces with that found in the
 ``fluid-solid-interface`` example, you will notice a relative error
-reaching up to 5% in the ``S0001`` trace, but 18% in the ``S0002``
-trace. Since the ``S0002`` seismogram is right at the interface, which
-is resolved at a much lower resolution on the elastic side, significant
-errors are expected. So, be sure to continue respecting domain geometry
-when choosing mesh sizes.
+reaching up to 3% in the ``S0001`` trace and 4% in the ``S0002`` trace.
+Since the elastic side is at a much lower resolution, errors due to
+bathymetric resolution are expected (note that due to ``ngnod==9``, the
+exponent on grid size for numerical truncation error is lower than the
+solver). So, be sure to continue respecting domain geometry when
+choosing mesh sizes.
 
 .. image:: conforming_nonconforming_compare.svg
    :width: 100%
    :alt: Seismograms from the simulation
-
 
 ********************************************
  [Optional] Creating animated visualization
