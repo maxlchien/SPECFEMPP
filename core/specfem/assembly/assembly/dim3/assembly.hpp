@@ -146,21 +146,6 @@ template <> struct assembly<specfem::dimension::type::dim3> {
       const bool allocate_boundary_values,
       const std::shared_ptr<specfem::io::reader> &property_reader);
 
-  assembly(
-      const specfem::mesh::meshfem3d::mesh<dimension_tag> &mesh,
-      const specfem::quadrature::quadratures &quadratures,
-      std::vector<std::shared_ptr<specfem::sources::source<dimension_tag> > >
-          &sources,
-      const std::vector<
-          std::shared_ptr<specfem::receivers::receiver<dimension_tag> > >
-          &receivers,
-      const std::vector<specfem::wavefield::type> &stypes, const type_real t0,
-      const type_real dt, const int max_timesteps, const int max_sig_step,
-      const int nsteps_between_samples,
-      const specfem::simulation::type simulation,
-      const bool allocate_boundary_values,
-      const std::shared_ptr<specfem::io::reader> &property_reader);
-
   assembly() = default;
 
   /**

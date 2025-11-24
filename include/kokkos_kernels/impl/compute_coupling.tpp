@@ -9,6 +9,7 @@
 #include "medium/compute_coupling.hpp"
 #include "parallel_configuration/chunk_edge_config.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/macros.hpp"
 #include "specfem/chunk_edge.hpp"
 #include "specfem/point.hpp"
 #include "specfem/point/interface_index.hpp"
@@ -43,7 +44,12 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
 
-  if (self_edges.extent(0) == 0 && coupled_edges.extent(0) == 0)
+  if (self_edges.n_edges != coupled_edges.n_edges) {
+    KOKKOS_ABORT_WITH_LOCATION(
+        "Mismatch in number of self and coupled edges in compute_coupling.");
+  }
+
+  if (self_edges.n_edges == 0 && coupled_edges.n_edges == 0)
     return;
 
   const auto &field =
@@ -64,7 +70,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       specfem::point::boundary<boundary_tag, dimension_tag, false>;
 
   specfem::execution::ChunkedIntersectionIterator chunk(
-      parallel_config(), self_edges, coupled_edges, num_points);
+      parallel_config(), self_edges, coupled_edges);
 
   specfem::execution::for_all(
       "specfem::kokkos_kernels::impl::compute_coupling", chunk,
@@ -123,7 +129,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
 
-  if (self_edges.extent(0) == 0 && coupled_edges.extent(0) == 0)
+  if (self_edges.n_edges == 0 && coupled_edges.n_edges == 0)
     return;
 
   const auto field = assembly.fields.template get_simulation_field<wavefield>();
@@ -179,7 +185,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
   specfem::execution::ChunkedIntersectionIterator chunk(
-      parallel_config(), self_edges, coupled_edges, num_points);
+      parallel_config(), self_edges, coupled_edges);
 
   int scratch_size = CoupledFieldType::shmem_size() +
                      CoupledTransferFunctionType::shmem_size() +

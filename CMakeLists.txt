@@ -205,7 +205,7 @@ set(CMAKE_MESSAGE_LOG_LEVEL ${_saved_CMAKE_MESSAGE_LOG_LEVEL})
 # =================================
 
 # ========== MESHFEM3D ==============
-message(STATUS "Configuring xmeshfem3D & xgenerate_databases")
+message(STATUS "Configuring xmeshfem3D")
 set(_saved_CMAKE_MESSAGE_LOG_LEVEL ${CMAKE_MESSAGE_LOG_LEVEL})
 set(CMAKE_MESSAGE_LOG_LEVEL ${SUBDIR_LOG_LEVEL})
 add_subdirectory(fortran/meshfem3d)
@@ -249,20 +249,14 @@ add_library(
         src/io/mesh/impl/fortran/dim2/read_interfaces.cpp
         src/io/mesh/impl/fortran/dim2/read_parameters.cpp
         src/io/mesh/impl/fortran/dim2/read_adjacency_graph.cpp
-        # Fortran 3D part
-        src/io/mesh/impl/fortran/dim3/generate_database/mesh.cpp
-        src/io/mesh/impl/fortran/dim3/generate_database/read_parameters.cpp
-        src/io/mesh/impl/fortran/dim3/generate_database/read_coordinates.cpp
-        src/io/mesh/impl/fortran/dim3/generate_database/read_jacobian_matrix.cpp
-        src/io/mesh/impl/fortran/dim3/generate_database/utilities.cpp
         # Fortran 3D meshfem part
-        src/io/mesh/impl/fortran/dim3/meshfem3d/mesh.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_boundaries.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_control_nodes.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_materials.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_mpi_interfaces.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_pml_boundaries.cpp
-        src/io/mesh/impl/fortran/dim3/meshfem3d/read_adjacency_graph.cpp
+        src/io/mesh/impl/fortran/dim3/mesh.cpp
+        src/io/mesh/impl/fortran/dim3/read_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/read_control_nodes.cpp
+        src/io/mesh/impl/fortran/dim3/read_materials.cpp
+        src/io/mesh/impl/fortran/dim3/read_mpi_interfaces.cpp
+        src/io/mesh/impl/fortran/dim3/read_pml_boundaries.cpp
+        src/io/mesh/impl/fortran/dim3/read_adjacency_graph.cpp
 )
 
 target_link_libraries(
@@ -293,6 +287,7 @@ add_library(
         src/enumerations/dim3/connections.cpp
         src/enumerations/dim3/mesh_entities.cpp
         src/enumerations/dim2/mesh_entities.cpp
+        src/enumerations/dim2/connections.cpp
         src/enumerations/coupled_interface.cpp
 )
 
@@ -357,23 +352,10 @@ add_library(
         src/mesh/dim2/tags/tags.cpp
         src/mesh/dim2/adjacency_graph/assert_symmetry.cpp
         # 3-D
-        src/mesh/dim3/generate_database/mesh.cpp
-        src/mesh/dim3/generate_database/boundaries/absorbing_boundary.cpp
-        src/mesh/dim3/generate_database/boundaries/acoustic_free_surface.cpp
-        src/mesh/dim3/generate_database/coupled_interfaces/coupled_interfaces.cpp
-        src/mesh/dim3/generate_database/element_types/element_types.cpp
-        src/mesh/dim3/generate_database/parameters/parameters.cpp
-        src/mesh/dim3/generate_database/parameters/parameters.cpp
-        src/mesh/dim3/generate_database/mapping/mapping.cpp
-        src/mesh/dim3/generate_database/materials/materials.cpp
-        src/mesh/dim3/generate_database/coordinates/coordinates.cpp
-        src/mesh/dim3/generate_database/jacobian_matrix/jacobian_matrix.cpp
-        src/mesh/dim3/generate_database/control_nodes/control_nodes.cpp
-        src/mesh/dim3/generate_database/tags/tags.cpp
 
-        src/mesh/dim3/meshfem3d/adjacency_graph/assert_symmetry.cpp
-        src/mesh/dim3/meshfem3d/tags/tags.cpp
-        src/mesh/dim3/meshfem3d/mesh.cpp
+        src/mesh/dim3/adjacency_graph/assert_symmetry.cpp
+        src/mesh/dim3/tags/tags.cpp
+        src/mesh/dim3/mesh.cpp
 )
 
 target_link_libraries(
@@ -492,6 +474,7 @@ target_link_libraries(
         Kokkos::kokkos
         timescheme
         kokkos_kernels
+        periodic_tasks
 )
 
 add_library(
@@ -662,7 +645,7 @@ if (SPECFEM_INSTALL)
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Organizing specfem++ executables into: ${CMAKE_INSTALL_PREFIX}"
         # Make this run after your main targets
-        DEPENDS specfem2d specfem3d xmeshfem2D xmeshfem3D xadj_seismogram xgenerate_databases # list all your targets here
+        DEPENDS specfem2d specfem3d xmeshfem2D xmeshfem3D xadj_seismogram # list all your targets here
     )
 
     # Add the prefix directory to the clean target

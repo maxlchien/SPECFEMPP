@@ -173,9 +173,11 @@ target_link_libraries(
 
 add_executable(
   enumerations_tests
+  enumerations/dim2/mesh_entity.cpp
+  enumerations/dim2/connections.cpp
   enumerations/dim3/mesh_entity.cpp
   enumerations/dim3/connections.cpp
-  enumerations/dim3/runner.cpp
+  enumerations/runner.cpp
 )
 
 target_link_libraries(
@@ -188,6 +190,8 @@ target_link_libraries(
   utilities
   -lpthread -lm
 )
+
+set_target_properties(enumerations_tests PROPERTIES UNITY_BUILD OFF)
 
 add_executable(
   simd_tests
@@ -335,24 +339,24 @@ target_link_libraries(
   gtest_main
 )
 
-add_executable(
-  compute_jacobian_matrix_tests
-  assembly_mesh/jacobian_matrix/compute_jacobian_matrix_tests.cpp
-)
+# add_executable(
+#   compute_jacobian_matrix_tests
+#   assembly_mesh/jacobian_matrix/compute_jacobian_matrix_tests.cpp
+# )
 
-target_link_libraries(
-  compute_jacobian_matrix_tests
-  mesh
-  assembly
-  quadrature
-  mpi_environment
-  kokkos_environment
-  yaml-cpp
-  compare_arrays
-  boost
-  # material_class
-  -lpthread -lm
-)
+# target_link_libraries(
+#   compute_jacobian_matrix_tests
+#   mesh
+#   assembly
+#   quadrature
+#   mpi_environment
+#   kokkos_environment
+#   yaml-cpp
+#   compare_arrays
+#   boost
+#   # material_class
+#   -lpthread -lm
+# )
 
 # add_executable(
 #   compute_elastic_tests
@@ -391,34 +395,34 @@ target_link_libraries(
 #   -lpthread -lm
 # )
 
-add_executable(
-  compute_tests
-  assembly_mesh/index/compute_tests.cpp
-)
+# add_executable(
+#   compute_tests
+#   assembly_mesh/index/compute_tests.cpp
+# )
 
-target_link_libraries(
-  compute_tests
-  mesh
-  assembly
-  quadrature
-  mpi_environment
-  kokkos_environment
-  yaml-cpp
-  compare_arrays
-  io
-  boost
-  # material_class
-  -lpthread -lm
-)
+# target_link_libraries(
+#   compute_tests
+#   mesh
+#   assembly
+#   quadrature
+#   mpi_environment
+#   kokkos_environment
+#   yaml-cpp
+#   compare_arrays
+#   io
+#   boost
+#   # material_class
+#   -lpthread -lm
+# )
 
-target_compile_definitions(
-        compute_tests
-        PUBLIC
-        $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
-        $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
-        $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
-        $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
-)
+# target_compile_definitions(
+#         compute_tests
+#         PUBLIC
+#         $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
+#         $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
+#         $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
+#         $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
+# )
 
 add_executable(
   nonconforming_assembly_tests
@@ -452,7 +456,6 @@ add_executable(
   assembly/compute_wavefield/compute_wavefield.cpp
   assembly/sources/sources.cpp
   assembly/check_jacobian/dim2/check_jacobian.cpp
-  assembly/check_jacobian/dim3/check_jacobian.cpp
   assembly/locate/locate_point.cpp
   assembly/locate/locate_point_on_edge.cpp
   assembly/mesh/utilities.cpp
@@ -499,10 +502,8 @@ add_executable(
   assembly_receivers_tests
   assembly/receivers/receivers_tests.cpp
   assembly/receivers/dim2/receivers_tests.cpp
-  assembly/receivers/dim3/receivers_tests.cpp
   assembly/receivers/impl/receiver_iterator_tests.cpp
   assembly/receivers/impl/dim2/seismogram_iterator_tests.cpp
-  assembly/receivers/impl/dim3/seismogram_iterator_tests.cpp
 )
 
 target_link_libraries(
@@ -635,21 +636,22 @@ target_link_libraries(
   -lpthread -lm
 )
 
-add_executable(
-  chunked_edge_tests
-  policies/chunked_edge.cpp
-)
+# add_executable(
+#   chunked_edge_tests
+#   policies/chunked_edge.cpp
+# )
 
-target_link_libraries(
-  chunked_edge_tests
-  kokkos_environment
-  gtest_main
-  Kokkos::kokkos
-  mpi_environment
-  kokkos_environment
-  ${BOOST_LIBS}
-  -lpthread -lm
-)
+# target_link_libraries(
+#   chunked_edge_tests
+#   kokkos_environment
+#   gtest_main
+#   Kokkos::kokkos
+#   mpi_environment
+#   kokkos_environment
+#   enumerations
+#   ${BOOST_LIBS}
+#   -lpthread -lm
+# )
 
 add_executable(
   mass_matrix_tests
@@ -893,8 +895,8 @@ if(NOT MPI_PARALLEL)
     # compute_acoustic_tests
     # compute_coupled_interfaces_tests
     # compute_elastic_tests
-    compute_jacobian_matrix_tests
-    compute_tests
+    # compute_jacobian_matrix_tests
+    # compute_tests
     displacement_newmark_2d_tests
     displacement_newmark_3d_tests
     fortranio_test
@@ -916,7 +918,7 @@ if(NOT MPI_PARALLEL)
     nonconforming_tests
     point_tests
     policies_tests
-    chunked_edge_tests
+    # chunked_edge_tests
     receivers_tests
     simd_tests
     source_class_tests

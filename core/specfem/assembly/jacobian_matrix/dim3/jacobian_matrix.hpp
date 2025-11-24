@@ -153,47 +153,13 @@ struct jacobian_matrix<specfem::dimension::type::dim3>
                   const int ngllz);
 
   /**
-   * @brief Construct Jacobian matrix from 3D mesh Jacobian information
+   * @brief Construct Jacobian matrix from assembly mesh
    *
-   * Computes and initializes all Jacobian matrix components from mesh geometry.
-   * This constructor:
-   * - Computes coordinate transformation derivatives at all quadrature points
-   * - Calculates Jacobian determinants for integration weights
-   * - Sets up efficient device/host memory layouts
-   * - Validates mesh geometry and transformation quality
    *
-   * @param mesh_jacobian 3D mesh Jacobian containing element connectivity,
-   *                     node coordinates, and geometric information
-   *
-   * @code
-   * specfem::mesh::jacobian_matrix<specfem::dimension::type::dim3> mesh_jac;
-   * // ... initialize mesh_jac
-   * specfem::assembly::jacobian_matrix<specfem::dimension::type::dim3>
-   * jac(mesh_jac);
-   * @endcode
-   */
-  jacobian_matrix(
-      const specfem::mesh::jacobian_matrix<dimension_tag> &mesh_jacobian);
-
-  /**
-   * @brief Construct Jacobian matrix from 3D assembly mesh information
-   *
-   * Computes and initializes all Jacobian matrix components from assembly mesh
-   * geometry. This constructor:
-   * - Computes coordinate transformation derivatives at all quadrature points
-   * - Calculates Jacobian determinants for integration weights
-   * - Sets up efficient device/host memory layouts
-   * - Validates mesh geometry and transformation quality
-   *
-   * @param assembly_mesh 3D finite element mesh containing element
-   * connectivity, node coordinates, and geometric information
-   *
-   * @code
-   * specfem::assembly::mesh<specfem::dimension::type::dim3> mesh;
-   * // ... initialize mesh
-   * specfem::assembly::jacobian_matrix<specfem::dimension::type::dim3>
-   * jac(mesh);
-   * @endcode
+   * @param assembly_mesh Reference to the assembly mesh containing geometric
+   *                      and discretization information for the computational
+   *                      domain. Must be properly initialized with valid
+   *                      spectral element and quadrature point data.
    */
   jacobian_matrix(const specfem::assembly::mesh<dimension_tag> &assembly_mesh);
   ///@}
