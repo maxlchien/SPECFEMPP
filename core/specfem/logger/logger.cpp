@@ -91,7 +91,7 @@ void Logger::set_log_file(const std::string &filename, bool per_rank,
     }
   }
 
-  output_filename += ".txt";
+  output_filename += ".log";
 
   config_.log_file.open(output_filename, std::ios::out | std::ios::trunc);
 
