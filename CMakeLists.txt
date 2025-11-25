@@ -340,17 +340,15 @@ endif()
 add_library(
         mesh
         # 2-D
-        src/mesh/dim2/mesh.cpp
         src/mesh/dim2/boundaries/forcing_boundaries.cpp
         src/mesh/dim2/boundaries/absorbing_boundaries.cpp
         src/mesh/dim2/boundaries/acoustic_free_surface.cpp
         src/mesh/dim2/elements/tangential_elements.cpp
         src/mesh/dim2/elements/axial_elements.cpp
         # src/mesh/mpi_interfaces/mpi_interfaces.cpp
-        src/mesh/dim2/coupled_interfaces/interface_container.cpp
-        src/mesh/dim2/coupled_interfaces/coupled_interfaces.cpp
         src/mesh/dim2/tags/tags.cpp
         src/mesh/dim2/adjacency_graph/assert_symmetry.cpp
+        src/mesh/dim2/mesh.cpp
         # 3-D
 
         src/mesh/dim3/adjacency_graph/assert_symmetry.cpp

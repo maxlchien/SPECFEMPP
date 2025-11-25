@@ -111,8 +111,9 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
     throw;
   }
 
+  std::vector<std::vector<std::array<int, 2> > > coupled_interfaces;
   try {
-    mesh.coupled_interfaces =
+    coupled_interfaces =
         specfem::io::mesh::impl::fortran::dim2::read_coupled_interfaces(
             stream, mesh.parameters.num_fluid_solid_edges,
             mesh.parameters.num_fluid_poro_edges,
