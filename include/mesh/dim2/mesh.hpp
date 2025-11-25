@@ -154,7 +154,8 @@ template <> struct mesh<specfem::dimension::type::dim2> {
    * initialized and all components (control nodes, materials, boundaries)
    * have been populated from MESHFEM2D database files.
    */
-  void setup_coupled_interfaces();
+  void setup_coupled_interfaces(
+      const std::set<std::pair<int, int> > &coupled_interfaces);
 };
 } // namespace mesh
 } // namespace specfem

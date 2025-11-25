@@ -246,7 +246,6 @@ add_library(
         src/io/mesh/impl/fortran/dim2/read_elements.cpp
         src/io/mesh/impl/fortran/dim2/read_material_properties.cpp
         src/io/mesh/impl/fortran/dim2/read_mesh_database.cpp
-        src/io/mesh/impl/fortran/dim2/read_interfaces.cpp
         src/io/mesh/impl/fortran/dim2/read_parameters.cpp
         src/io/mesh/impl/fortran/dim2/read_adjacency_graph.cpp
         # Fortran 3D meshfem part
