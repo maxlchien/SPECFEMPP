@@ -154,6 +154,9 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
 
   stream.close();
 
+  // Setup and verify coupled interfaces
+  mesh.setup_coupled_interfaces();
+
   // Print material properties
 
   mpi->cout("Material systems:\n"
