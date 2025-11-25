@@ -21,6 +21,7 @@
 #include "specfem/chunk_element.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
+#include <type_traits>
 
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType, int NGLL,
@@ -76,13 +77,14 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
 #endif
 
   using simd = specfem::datatype::simd<type_real, using_simd>;
-  using parallel_config = specfem::parallel_config::default_chunk_config<
-      dimension_tag, simd, Kokkos::DefaultExecutionSpace>;
+
+  using ParallelConfig = specfem::parallel_config::default_chunk_config<
+                  dimension_tag, simd, Kokkos::DefaultExecutionSpace>;
 
   using ChunkElementFieldType = specfem::chunk_element::displacement<
-      parallel_config::chunk_size, ngll, dimension_tag, medium_tag, using_simd>;
+      ParallelConfig::chunk_size, ngll, dimension_tag, medium_tag, using_simd>;
   using ChunkStressIntegrandType = specfem::chunk_element::stress_integrand<
-      parallel_config::chunk_size, ngll, dimension_tag, medium_tag,
+      ParallelConfig::chunk_size, ngll, dimension_tag, medium_tag,
       specfem::kokkos::DevScratchSpace, Kokkos::MemoryTraits<Kokkos::Unmanaged>,
       using_simd>;
   using ElementQuadratureType = specfem::quadrature::lagrange_derivative<
@@ -111,7 +113,8 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
                      ChunkStressIntegrandType::shmem_size() +
                      ElementQuadratureType::shmem_size();
 
-  specfem::execution::ChunkedDomainIterator chunk(parallel_config(), elements,
+
+  specfem::execution::ChunkedDomainIterator chunk(ParallelConfig(), elements,
                                                   element_grid);
 
   Kokkos::Profiling::pushRegion("Compute Stiffness Interaction");

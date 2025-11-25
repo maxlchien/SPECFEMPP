@@ -204,7 +204,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
   // ymin = front, ymax = back
 
   face_coordinates[specfem::mesh_entity::dim3::type::bottom] =
-      [*this](const int ipoint, const int jpoint) {
+      [this](const int ipoint, const int jpoint) {
         const int iz = 0;
         const int iy = ipoint;
         const int ix = jpoint;
@@ -212,7 +212,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   face_coordinates[specfem::mesh_entity::dim3::type::top] =
-      [*this](const int ipoint, const int jpoint) {
+      [this](const int ipoint, const int jpoint) {
         const int iz = this->ngllz - 1;
         const int iy = ipoint;
         const int ix = jpoint;
@@ -220,7 +220,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   face_coordinates[specfem::mesh_entity::dim3::type::front] =
-      [*this](const int ipoint, const int jpoint) {
+      [this](const int ipoint, const int jpoint) {
         const int iz = ipoint;
         const int iy = 0;
         const int ix = jpoint;
@@ -228,7 +228,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   face_coordinates[specfem::mesh_entity::dim3::type::back] =
-      [*this](const int ipoint, const int jpoint) {
+      [this](const int ipoint, const int jpoint) {
         const int iz = ipoint;
         const int iy = this->nglly - 1;
         const int ix = jpoint;
@@ -236,7 +236,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   face_coordinates[specfem::mesh_entity::dim3::type::left] =
-      [*this](const int ipoint, const int jpoint) {
+      [this](const int ipoint, const int jpoint) {
         const int iz = ipoint;
         const int iy = jpoint;
         const int ix = 0;
@@ -244,7 +244,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   face_coordinates[specfem::mesh_entity::dim3::type::right] =
-      [*this](const int ipoint, const int jpoint) {
+      [this](const int ipoint, const int jpoint) {
         const int iz = ipoint;
         const int iy = jpoint;
         const int ix = this->ngllx - 1;
@@ -252,7 +252,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::front_bottom] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = 0;
         const int iy = 0;
         const int ix = point;
@@ -260,7 +260,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::back_bottom] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = 0;
         const int iy = this->nglly - 1;
         const int ix = point;
@@ -268,7 +268,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::front_top] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = this->ngllz - 1;
         const int iy = 0;
         const int ix = point;
@@ -276,7 +276,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::back_top] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = this->ngllz - 1;
         const int iy = this->nglly - 1;
         const int ix = point;
@@ -284,7 +284,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::bottom_left] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = 0;
         const int iy = point;
         const int ix = 0;
@@ -292,7 +292,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::bottom_right] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = 0;
         const int iy = point;
         const int ix = this->ngllx - 1;
@@ -300,7 +300,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::top_left] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = this->ngllz - 1;
         const int iy = point;
         const int ix = 0;
@@ -308,7 +308,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::top_right] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = this->ngllz - 1;
         const int iy = point;
         const int ix = this->ngllx - 1;
@@ -316,7 +316,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::front_left] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = point;
         const int iy = 0;
         const int ix = 0;
@@ -324,7 +324,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::front_right] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = point;
         const int iy = 0;
         const int ix = this->ngllx - 1;
@@ -332,7 +332,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::back_left] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = point;
         const int iy = this->nglly - 1;
         const int ix = 0;
@@ -340,7 +340,7 @@ specfem::mesh_entity::element<specfem::dimension::type::dim3>::element(
       };
 
   edge_coordinates[specfem::mesh_entity::dim3::type::back_right] =
-      [*this](const int point) {
+      [this](const int point) {
         const int iz = point;
         const int iy = this->nglly - 1;
         const int ix = this->ngllx - 1;

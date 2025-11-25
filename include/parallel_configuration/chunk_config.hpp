@@ -10,6 +10,7 @@ namespace parallel_config {
 
 namespace impl {
 constexpr int cuda_chunk_size = 32;
+constexpr int cuda_chunk_size_3d = 4;
 constexpr int hip_chunk_size = 64;
 constexpr int openmp_chunk_size = 1;
 constexpr int serial_chunk_size = 1;
@@ -78,8 +79,8 @@ struct default_chunk_config<specfem::dimension::type::dim2, SIMD, Kokkos::Cuda>
 
 template <typename SIMD>
 struct default_chunk_config<specfem::dimension::type::dim3, SIMD, Kokkos::Cuda>
-    : chunk_config<specfem::dimension::type::dim3, impl::cuda_chunk_size,
-                   impl::cuda_chunk_size, 512, 1, SIMD, Kokkos::Cuda> {};
+    : chunk_config<specfem::dimension::type::dim3, impl::cuda_chunk_size_3d,
+                   impl::cuda_chunk_size_3d, 512, 1, SIMD, Kokkos::Cuda> {};
 #endif
 
 #if defined(KOKKOS_ENABLE_HIP)

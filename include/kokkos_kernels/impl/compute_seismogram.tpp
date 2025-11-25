@@ -66,24 +66,26 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
   constexpr int nthreads = 32;
   constexpr int lane_size = 1;
+  constexpr int chunk_size = (dimension_tag == specfem::dimension::type::dim2) ? 16 : 4;
 #else
   constexpr int nthreads = 1;
   constexpr int lane_size = 1;
 #endif
 
+  // nthreads unused?
   using ParallelConfig =
-      specfem::parallel_config::chunk_config<dimension_tag, 1, 1, nthreads,
+      specfem::parallel_config::chunk_config<dimension_tag, chunk_size, 1, nthreads,
                                              lane_size, no_simd,
                                              Kokkos::DefaultExecutionSpace>;
 
   using ChunkDisplacementType =
-      specfem::chunk_element::displacement<parallel_config::chunk_size, ngll,
+      specfem::chunk_element::displacement<ParallelConfig::chunk_size, ngll,
                                            dimension_tag, medium_tag, using_simd>;
   using ChunkVelocityType =
-      specfem::chunk_element::velocity<parallel_config::chunk_size, ngll,
+      specfem::chunk_element::velocity<ParallelConfig::chunk_size, ngll,
                                        dimension_tag, medium_tag, using_simd>;
   using ChunkAccelerationType =
-      specfem::chunk_element::acceleration<parallel_config::chunk_size, ngll,
+      specfem::chunk_element::acceleration<ParallelConfig::chunk_size, ngll,
                                            dimension_tag, medium_tag, using_simd>;
   using ElementQuadratureType = specfem::quadrature::lagrange_derivative<
       ngll, dimension_tag, specfem::kokkos::DevScratchSpace,
