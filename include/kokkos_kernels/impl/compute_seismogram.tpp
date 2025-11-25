@@ -70,6 +70,7 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
 #else
   constexpr int nthreads = 1;
   constexpr int lane_size = 1;
+  constexpr int chunk_size = 1;
 #endif
 
   // nthreads unused?
