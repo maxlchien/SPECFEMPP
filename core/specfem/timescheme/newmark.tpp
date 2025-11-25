@@ -29,7 +29,7 @@ int corrector_phase_impl(
       specfem::point::velocity<DimensionTag, MediumTag,
                                using_simd>;
 
-  using parallel_config = specfem::parallel_config::default_range_config<
+  using parallel_config = specfem::parallel_configuration::default_range_config<
       specfem::datatype::simd<type_real, using_simd>,
       Kokkos::DefaultExecutionSpace>;
 
@@ -88,7 +88,7 @@ int predictor_phase_impl(
       specfem::point::displacement<DimensionTag, MediumTag,
                                    using_simd>;
 
-  using parallel_config = specfem::parallel_config::default_range_config<
+  using parallel_config = specfem::parallel_configuration::default_range_config<
       specfem::datatype::simd<type_real, using_simd>,
       Kokkos::DefaultExecutionSpace>;
 

@@ -74,7 +74,7 @@ void specfem::kokkos_kernels::impl::compute_source_interaction(
 #endif
 
   using ParallelConfig =
-      specfem::parallel_config::chunk_config<dimension, 1, 1, nthreads,
+      specfem::parallel_configuration::chunk_config<dimension, 1, 1, nthreads,
                                              lane_size, simd,
                                              Kokkos::DefaultExecutionSpace>;
 

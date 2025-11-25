@@ -691,10 +691,9 @@ execute(const Jacobian &jacobian_matrix, const Quadrature3D &quadrature,
   const auto element_indices = Kokkos::create_mirror_view_and_copy(
       Kokkos::DefaultExecutionSpace(), h_element_indices);
 
-  using ParallelConfig =
-      specfem::parallel_config::chunk_config<specfem::dimension::type::dim3, 1,
-                                             1, 1, 1, simd,
-                                             Kokkos::DefaultExecutionSpace>;
+  using ParallelConfig = specfem::parallel_configuration::chunk_config<
+      specfem::dimension::type::dim3, 1, 1, 1, 1, simd,
+      Kokkos::DefaultExecutionSpace>;
 
   const specfem::mesh_entity::element_grid element_grid(ngll, ngll, ngll);
 

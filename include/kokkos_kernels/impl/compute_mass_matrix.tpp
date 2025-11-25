@@ -62,7 +62,7 @@ void specfem::kokkos_kernels::impl::compute_mass_matrix(
 #endif
 
   using simd = specfem::datatype::simd<type_real, using_simd>;
-  using parallel_config = specfem::parallel_config::default_chunk_config<
+  using parallel_config = specfem::parallel_configuration::default_chunk_config<
       dimension_tag, simd, Kokkos::DefaultExecutionSpace>;
 
   using PointMassType =

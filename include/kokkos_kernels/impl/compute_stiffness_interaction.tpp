@@ -78,7 +78,7 @@ int specfem::kokkos_kernels::impl::compute_stiffness_interaction(
 
   using simd = specfem::datatype::simd<type_real, using_simd>;
 
-  using ParallelConfig = specfem::parallel_config::default_chunk_config<
+  using ParallelConfig = specfem::parallel_configuration::default_chunk_config<
                   dimension_tag, simd, Kokkos::DefaultExecutionSpace>;
 
   using ChunkElementFieldType = specfem::chunk_element::displacement<

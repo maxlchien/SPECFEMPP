@@ -6,7 +6,7 @@
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
-namespace parallel_config {
+namespace parallel_configuration {
 
 namespace impl {
 constexpr int cuda_chunk_size = 32;
@@ -61,7 +61,7 @@ struct chunk_config {
  * Execution space.
  *
  * Defines chunk size, tile size, number of threads, number of vector lanes
- * defaults for @ref specfem::parallel_config::chunk_config
+ * defaults for @ref specfem::parallel_configuration::chunk_config
  *
  * @tparam DimensionTag Dimension type of the elements within a chunk.
  * @tparam SIMD SIMD type to use simd operations. @ref specfem::datatypes::simd
@@ -146,5 +146,5 @@ struct default_chunk_config<specfem::dimension::type::dim3, SIMD,
     : default_chunk_config<specfem::dimension::type::dim3, SIMD,
                            Kokkos::Serial> {};
 #endif
-} // namespace parallel_config
+} // namespace parallel_configuration
 } // namespace specfem

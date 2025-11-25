@@ -74,7 +74,7 @@ void specfem::kokkos_kernels::impl::compute_seismograms(
 
   // nthreads unused?
   using ParallelConfig =
-      specfem::parallel_config::chunk_config<dimension_tag, chunk_size, 1, nthreads,
+      specfem::parallel_configuration::chunk_config<dimension_tag, chunk_size, 1, nthreads,
                                              lane_size, no_simd,
                                              Kokkos::DefaultExecutionSpace>;
 
