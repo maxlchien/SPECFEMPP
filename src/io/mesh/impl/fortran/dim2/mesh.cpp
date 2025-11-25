@@ -10,7 +10,6 @@
 #include "io/mesh/impl/fortran/dim2/read_material_properties.hpp"
 #include "io/mesh/impl/fortran/dim2/read_mesh_database.hpp"
 #include "io/mesh/impl/fortran/dim2/read_parameters.hpp"
-#include "io/mesh/impl/fortran/dim3/generate_database/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "medium/material.hpp"
 #include "specfem/logger.hpp"
@@ -155,6 +154,9 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
   }
 
   stream.close();
+
+  // Setup and verify coupled interfaces
+  mesh.setup_coupled_interfaces();
 
   // Print material properties
 

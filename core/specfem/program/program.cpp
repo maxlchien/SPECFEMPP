@@ -252,8 +252,7 @@ void program_3d(
   specfem::Logger::info("Reading the mesh...");
   specfem::Logger::info("===================");
   const auto quadrature = setup.instantiate_quadrature();
-  const auto mesh =
-      specfem::io::meshfem3d::read_3d_mesh(database_filename, mpi);
+  const auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
   std::chrono::duration<double> elapsed_seconds =
       std::chrono::system_clock::now() - start_time;
   specfem::Logger::info("Time to read mesh: " +

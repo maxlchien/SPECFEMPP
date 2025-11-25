@@ -86,8 +86,7 @@ template <> Assembly<specfem::dimension::type::dim3>::Assembly() {
         Test.get_databases();
 
     // For 3D, we need different mesh and source reading functions
-    const auto mesh = specfem::io::read_3d_mesh(mesh_parameters_file,
-                                                mesh_database_file, mpi);
+    const auto mesh = specfem::io::read_3d_mesh(mesh_database_file, mpi);
 
     this->Meshes.push_back(mesh);
     this->suffixes.push_back(Test.suffix);
