@@ -100,6 +100,17 @@ target_compile_definitions(
     $<$<NOT:$<BOOL:${SPECFEM_ENABLE_ADIOS2}>>:-DNO_ADIOS2>
 )
 
+add_executable(
+  abort_tests
+  program/abort_tests.cpp
+)
+
+target_link_libraries(
+  abort_tests
+  specfem::program
+  gtest_main
+  Kokkos::kokkos
+)
 
 add_executable(
   is_close_tests
@@ -865,6 +876,7 @@ target_link_libraries(
 if(NOT MPI_PARALLEL)
   include(GoogleTest)
   set(TEST_TARGETS
+    abort_tests
     assembly_receivers_tests
     assembly_tests
     # compute_acoustic_tests
