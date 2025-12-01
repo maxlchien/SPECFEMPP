@@ -135,6 +135,12 @@ include("${CMAKE_SOURCE_DIR}/cmake/adios2.cmake")
 # the pugixml dependency than ADIOS2)
 include("${CMAKE_SOURCE_DIR}/cmake/vtk.cmake")
 
+# Find MPI if enabled
+if (SPECFEM_ENABLE_MPI)
+    find_package(MPI REQUIRED)
+    message(STATUS "MPI enabled - found MPI::MPI_CXX")
+endif()
+
 if (SPECFEM_ENABLE_SIMD)
     message(STATUS "Enabling SIMD")
     add_compile_definitions(SPECFEM_ENABLE_SIMD)
@@ -310,6 +316,11 @@ target_compile_definitions(
         specfem_mpi
         PUBLIC
         $<$<BOOL:${SPECFEM_ENABLE_MPI}>:-DMPI_PARALLEL>
+)
+
+target_link_libraries(specfem_mpi
+        PUBLIC
+        $<$<BOOL:${SPECFEM_ENABLE_MPI}>:MPI::MPI_CXX>
 )
 
 if (SPECFEM_ENABLE_MPI)

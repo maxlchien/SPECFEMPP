@@ -40,4 +40,5 @@ bool execute(
 
 } // namespace specfem::program
 
+#include "program/abort.hpp"
 #include "program/context.hpp"

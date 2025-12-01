@@ -60,9 +60,9 @@ public:
    *
    */
 
-  template <typename T> void cout(T s, bool root_only) const {
+  template <typename T> static void cout(T s, bool root_only = true) {
 #ifdef MPI_PARALLEL
-    if (my_rank == 0 || !root_only) {
+    if (rank == 0 || !root_only) {
       std::cout << s << std::endl;
     }
 #else
@@ -70,7 +70,7 @@ public:
 #endif
   }
 
-  template <typename T> void print(T s) const { this->cout(s, true); }
+  template <typename T> static void print(T s) { cout(s, true); }
 
 private:
   MPI_new() = default;
