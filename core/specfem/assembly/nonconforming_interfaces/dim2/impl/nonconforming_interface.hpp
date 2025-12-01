@@ -209,7 +209,9 @@ private:
 
       if constexpr (specfem::data_access::is_intersection_factor<
                         edge_t>::value) {
-        edge(index(0), index(1)) = factor_subview(index(0), index(1));
+        const int iedge = index(0);
+        const int iquad = index(1);
+        edge(iedge, iquad) = factor_subview(iedge, iquad);
       }
     };
 
@@ -219,8 +221,9 @@ private:
       if constexpr (specfem::data_access::is_intersection_normal<
                         edge_t>::value) {
         for (int iquad = 0; iquad < nquad_intersection; iquad++) {
-          edge(index(0), index(1), iquad) =
-              normal_subview(index(0), index(1), iquad);
+          const int iedge = index(0);
+          const int iquad = index(1);
+          edge(iedge, iquad, iquad) = normal_subview(iedge, iquad, iquad);
         }
       }
     };

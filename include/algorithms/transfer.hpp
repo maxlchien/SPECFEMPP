@@ -75,6 +75,8 @@ transfer(const IndexType &chunk_edge_index,
       specfem::execution::TeamThreadMDRangeIterator(
           team, num_edges, TransferFunctionType::n_quad_intersection),
       [&](const auto &index) {
+        const int iedge = index(0);
+        const int iquad = index(1);
         VectorPointViewType intersection_point_view;
 
         for (int icomp = 0; icomp < ncomp; icomp++) {
@@ -84,8 +86,8 @@ transfer(const IndexType &chunk_edge_index,
                ipoint_edge < TransferFunctionType::n_quad_element;
                ipoint_edge++) {
             intersection_point_view(icomp) +=
-                coupled_field(index(0), ipoint_edge, icomp) *
-                transfer_function(index(0), ipoint_edge, index(1));
+                coupled_field(iedge, ipoint_edge, icomp) *
+                transfer_function(iedge, ipoint_edge, iquad);
           }
         }
 

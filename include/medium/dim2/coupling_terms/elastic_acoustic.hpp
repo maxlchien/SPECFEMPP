@@ -66,10 +66,12 @@ KOKKOS_INLINE_FUNCTION void compute_coupling(
   specfem::algorithms::transfer(
       chunk_edge_index, transfer_function, coupled_field,
       [&](const auto &index, const auto &point) {
-        intersection_field(index(0), index(1), 0) =
-            intersection_normal(index(0), index(1), 0) * point(0);
-        intersection_field(index(0), index(1), 1) =
-            intersection_normal(index(0), index(1), 1) * point(0);
+        const int iedge = index(0);
+        const int iquad = index(1);
+        intersection_field(iedge, iquad, 0) =
+            intersection_normal(iedge, iquad, 0) * point(0);
+        intersection_field(iedge, iquad, 1) =
+            intersection_normal(iedge, iquad, 1) * point(0);
       });
 }
 
