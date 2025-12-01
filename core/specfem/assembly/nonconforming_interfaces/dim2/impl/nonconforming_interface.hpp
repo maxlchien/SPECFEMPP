@@ -103,177 +103,201 @@ public:
   /** @brief Default constructor */
   interface_container() = default;
 
-  /**
-   * @brief Loads interface data at specified index into point
-   *
-   * Template function that loads edge factor and normal vector data
-   * from either device or host memory into the provided point object.
-   *
-   * @tparam on_device If true, loads from device memory; if false, from host
-   * @tparam IndexType Type of index (must have iedge and ipoint members)
-   * @tparam PointType Type of point (must have intersection_factor and
-   * intersection_normal)
-   * @param index Edge and point indices for data location
-   * @param point Output point object to store loaded data
-   */
-  template <bool on_device, typename IndexType, typename PointType,
-            typename std::enable_if_t<
-                specfem::data_access::is_point<PointType>::value, int> = 0>
-  KOKKOS_FORCEINLINE_FUNCTION void impl_load(const IndexType &index,
-                                             PointType &point) const {
-
-    if constexpr (specfem::assembly::coupled_interfaces_impl::
-                      stores_transfer_function_self<PointType>::value ||
-                  specfem::assembly::coupled_interfaces_impl::
-                      stores_transfer_function_coupled<PointType>::value) {
-
-      const int &container_slot = index.iedge;
-      const int &ipoint = index.ipoint;
-
-      if constexpr (on_device) {
-        for (int i = 0; i < PointType::n_quad_intersection; i++) {
-          if constexpr (specfem::assembly::coupled_interfaces_impl::
-                            stores_transfer_function_self<PointType>::value) {
-            point.transfer_function_self(i) =
-                transfer_function(container_slot, i, ipoint);
-          }
-          if constexpr (specfem::assembly::coupled_interfaces_impl::
-                            stores_transfer_function_coupled<
-                                PointType>::value) {
-            point.transfer_function_coupled(i) =
-                transfer_function_other(container_slot, i, ipoint);
-          }
-        }
-      } else {
-        for (int i = 0; i < PointType::n_quad_intersection; i++) {
-          if constexpr (specfem::assembly::coupled_interfaces_impl::
-                            stores_transfer_function_self<PointType>::value) {
-            point.transfer_function_self(i) =
-                h_transfer_function(container_slot, i, ipoint);
-          }
-          if constexpr (specfem::assembly::coupled_interfaces_impl::
-                            stores_transfer_function_coupled<
-                                PointType>::value) {
-            point.transfer_function_coupled(i) =
-                h_transfer_function_other(container_slot, i, ipoint);
-          }
-        }
-      }
+private:
+  template <bool on_device>
+  auto
+  get_value(std::integral_constant<
+                specfem::data_access::DataClassType,
+                specfem::data_access::DataClassType::transfer_function_self>,
+            const int iedge, const int ipoint, const int iquad) const {
+    if constexpr (on_device) {
+      return transfer_function(iedge, iquad, ipoint);
+    } else {
+      return h_transfer_function(iedge, iquad, ipoint);
     }
   }
 
-  /**
-   * @brief Loads interface data at specified index into edge
-   *
-   * Template function that loads edge factor and normal vector data
-   * from either device or host memory into the provided edge object.
-   *
-   * @tparam on_device If true, loads from device memory; if false, from host
-   * @tparam IndexType Type of index
-   * @tparam EdgeType Type of edge (must have intersection_factor and
-   * intersection_normal)
-   * @param index Edge and point indices for data location
-   * @param edge Output edge object to store loaded data
-   */
-  template <bool on_device, typename IndexType, typename EdgeType,
-            typename std::enable_if_t<
-                specfem::data_access::is_chunk_edge<EdgeType>::value, int> = 0>
-  KOKKOS_FORCEINLINE_FUNCTION void impl_load(const IndexType &index,
-                                             EdgeType &edge) const {
-    // is there a better way of recovering global index?
-    const auto team = index.get_policy_index();
-    const int &offset = team.league_rank() * EdgeType::chunk_size;
-    const int &num_edges = index.nedges();
-
-    if constexpr (specfem::assembly::coupled_interfaces_impl::
-                      stores_intersection_factor<EdgeType>::value ||
-                  specfem::assembly::coupled_interfaces_impl::
-                      stores_intersection_normal<EdgeType>::value) {
-      Kokkos::parallel_for(
-          Kokkos::TeamThreadRange(team,
-                                  num_edges * EdgeType::n_quad_intersection),
-          [&](const int &ichunkmortar) {
-            const int imortar = ichunkmortar % EdgeType::n_quad_intersection;
-            const int iedge = ichunkmortar / EdgeType::n_quad_intersection;
-
-            const int &local_slot = iedge;
-            const int &container_slot = offset + iedge;
-
-            if constexpr (specfem::assembly::coupled_interfaces_impl::
-                              stores_intersection_factor<EdgeType>::value) {
-              if constexpr (on_device) {
-                edge.intersection_factor(local_slot, imortar) =
-                    intersection_factor(container_slot, imortar);
-              } else {
-                edge.intersection_factor(local_slot, imortar) =
-                    h_intersection_factor(container_slot, imortar);
-              }
-            }
-
-            if constexpr (specfem::assembly::coupled_interfaces_impl::
-                              stores_intersection_normal<EdgeType>::value) {
-              if constexpr (on_device) {
-                edge.intersection_normal(local_slot, imortar, 0) =
-                    intersection_normal(container_slot, imortar, 0);
-                edge.intersection_normal(local_slot, imortar, 1) =
-                    intersection_normal(container_slot, imortar, 1);
-              } else {
-                edge.intersection_normal(local_slot, imortar, 0) =
-                    h_intersection_normal(container_slot, imortar, 0);
-                edge.intersection_normal(local_slot, imortar, 1) =
-                    h_intersection_normal(container_slot, imortar, 1);
-              }
-            }
-          });
+  template <bool on_device>
+  auto
+  get_value(std::integral_constant<
+                specfem::data_access::DataClassType,
+                specfem::data_access::DataClassType::transfer_function_coupled>,
+            const int iedge, const int ipoint, const int iquad) const {
+    if constexpr (on_device) {
+      return transfer_function_other(iedge, iquad, ipoint);
+    } else {
+      return h_transfer_function_other(iedge, iquad, ipoint);
     }
+  }
 
-    if constexpr (specfem::assembly::coupled_interfaces_impl::
-                      stores_transfer_function_self<EdgeType>::value ||
-                  specfem::assembly::coupled_interfaces_impl::
-                      stores_transfer_function_coupled<EdgeType>::value) {
-      specfem::execution::for_each_level(
-          index.get_iterator(),
-          [&](const typename IndexType::iterator_type::index_type
-                  &iterator_index) {
-            const auto &local_index = iterator_index.get_local_index();
-            const auto &index = iterator_index.get_index();
-            const int &local_slot = local_index.iedge;
-            const int &container_slot = index.iedge;
-            const int &ipoint = index.ipoint;
+  template <bool on_device, typename IndexType, typename... PointTypes>
+  KOKKOS_FORCEINLINE_FUNCTION void impl_load_after_expansion(
+      const std::integral_constant<
+          specfem::data_access::AccessorType,
+          specfem::data_access::AccessorType::point> /* AccessorType */,
+      const IndexType &index, PointTypes &...points) const {
 
-            if constexpr (on_device) {
-              for (int i = 0; i < EdgeType::n_quad_intersection; i++) {
-                if constexpr (specfem::assembly::coupled_interfaces_impl::
-                                  stores_transfer_function_self<
-                                      EdgeType>::value) {
-                  edge.transfer_function_self(local_slot, ipoint, i) =
-                      transfer_function(container_slot, i, ipoint);
-                }
-                if constexpr (specfem::assembly::coupled_interfaces_impl::
-                                  stores_transfer_function_coupled<
-                                      EdgeType>::value) {
-                  edge.transfer_function_coupled(local_slot, ipoint, i) =
-                      transfer_function_other(container_slot, i, ipoint);
-                }
-              }
-            } else {
-              for (int i = 0; i < EdgeType::n_quad_intersection; i++) {
-                if constexpr (specfem::assembly::coupled_interfaces_impl::
-                                  stores_transfer_function_self<
-                                      EdgeType>::value) {
-                  edge.transfer_function_self(local_slot, ipoint, i) =
-                      h_transfer_function(container_slot, i, ipoint);
-                }
-                if constexpr (specfem::assembly::coupled_interfaces_impl::
-                                  stores_transfer_function_coupled<
-                                      EdgeType>::value) {
-                  edge.transfer_function_coupled(local_slot, ipoint, i) =
-                      h_transfer_function_other(container_slot, i, ipoint);
-                }
-              }
-            }
-          });
+    static_assert((specfem::data_access::is_point<PointTypes>::value && ...),
+                  "impl_load only supports point accessors");
+
+    static_assert(specfem::data_access::is_point<IndexType>::value,
+                  "impl_load requires point type for IndexType");
+
+    static_assert(specfem::data_access::is_edge_index<IndexType>::value,
+                  "impl_load requires edge_index type for IndexType");
+
+    constexpr int nquad_intersection =
+        std::tuple_element_t<0,
+                             std::tuple<PointTypes...> >::n_quad_intersection;
+
+    const auto assign = [*this](auto &point, auto &iquad, auto &index) {
+      using PointType = std::decay_t<decltype(point)>;
+
+      point(iquad) = this->get_value<on_device>(
+          std::integral_constant<specfem::data_access::DataClassType,
+                                 PointType::data_class>(),
+          index.iedge, index.ipoint, iquad);
+    };
+
+    for (int iquad = 0; iquad < nquad_intersection; iquad++) {
+      (assign(points, iquad, index), ...);
     }
+  }
+
+  template <bool on_device, typename IndexType, typename... EdgeTypes>
+  KOKKOS_FORCEINLINE_FUNCTION void impl_load_after_expansion(
+      const std::integral_constant<
+          specfem::data_access::AccessorType,
+          specfem::data_access::AccessorType::chunk_edge> /* AccessorType */,
+      const IndexType &index, EdgeTypes &...edges) const {
+
+    static_assert(
+        (specfem::data_access::is_chunk_edge<EdgeTypes>::value && ...),
+        "impl_load only supports chunk_edge accessors");
+
+    static_assert(specfem::data_access::is_edge_index<IndexType>::value,
+                  "impl_load requires edge_index type for IndexType");
+
+    static_assert(specfem::data_access::is_chunk_edge<IndexType>::value,
+                  "impl_load requires chunk_edge type for IndexType");
+
+    constexpr int nquad_intersection =
+        std::tuple_element_t<0, std::tuple<EdgeTypes...> >::n_quad_intersection;
+
+    const auto factor_subview = [&]() {
+      if constexpr (on_device) {
+        return Kokkos::subview(intersection_factor, index.get_range(),
+                               Kokkos::ALL);
+      } else {
+        return Kokkos::subview(h_intersection_factor, index.get_range(),
+                               Kokkos::ALL);
+      }
+    }();
+
+    const auto normal_subview = [&]() {
+      if constexpr (on_device) {
+        return Kokkos::subview(intersection_normal, index.get_range(),
+                               Kokkos::ALL, Kokkos::ALL);
+      } else {
+        return Kokkos::subview(h_intersection_normal, index.get_range(),
+                               Kokkos::ALL, Kokkos::ALL);
+      }
+    }();
+
+    const auto factor_call = [&](auto &edge, auto &index) {
+      using edge_t = std::decay_t<decltype(edge)>;
+
+      if constexpr (specfem::data_access::is_intersection_factor<
+                        edge_t>::value) {
+        edge(index(0), index(1)) = factor_subview(index(0), index(1));
+      }
+    };
+
+    const auto normal_call = [&](auto &edge, auto &index) {
+      using edge_t = std::decay_t<decltype(edge)>;
+
+      if constexpr (specfem::data_access::is_intersection_normal<
+                        edge_t>::value) {
+        for (int iquad = 0; iquad < nquad_intersection; iquad++) {
+          edge(index(0), index(1), iquad) =
+              normal_subview(index(0), index(1), iquad);
+        }
+      }
+    };
+
+    const auto transfer_call = [*this](auto &edge, auto &local_index,
+                                       auto &index) {
+      using edge_t = std::decay_t<decltype(edge)>;
+
+      if constexpr (specfem::data_access::is_transfer_function_self<
+                        edge_t>::value ||
+                    specfem::data_access::is_transfer_function_coupled<
+                        edge_t>::value) {
+        for (int iquad = 0; iquad < nquad_intersection; iquad++) {
+          edge(local_index.iedge, local_index.ipoint, iquad) =
+              this->get_value<on_device>(
+                  std::integral_constant<specfem::data_access::DataClassType,
+                                         edge_t::data_class>(),
+                  index.iedge, index.ipoint, iquad);
+        }
+      }
+    };
+
+    specfem::execution::for_each_level(
+        specfem::execution::TeamThreadMDRangeIterator(
+            index.get_policy_index(), index.nedges(), nquad_intersection),
+        [&](const auto index) {
+          (factor_call(edges, index), ...);
+          (normal_call(edges, index), ...);
+        });
+
+    specfem::execution::for_each_level(
+        index.get_iterator(),
+        [&](const typename IndexType::iterator_type::index_type
+                &iterator_index) {
+          const auto &local_index = iterator_index.get_local_index();
+          const auto &index = iterator_index.get_index();
+
+          (transfer_call(edges, local_index, index), ...);
+        });
+  }
+
+  template <bool on_device, typename DispatchType, typename IndexType,
+            typename AccessorType, std::size_t... Is>
+  KOKKOS_FORCEINLINE_FUNCTION void
+  impl_load_expand(const DispatchType dispatch, const IndexType &index,
+                   AccessorType &accessor,
+                   std::index_sequence<Is...> /* index sequence */) const {
+    impl_load_after_expansion<on_device>(
+        dispatch, index,
+        static_cast<typename std::tuple_element_t<
+            Is, typename AccessorType::packed_accessors> &>(accessor)...);
+  }
+
+public:
+  template <bool on_device, typename DispatchType, typename IndexType,
+            typename AccessorType,
+            std::enable_if_t<
+                (specfem::data_access::is_packed_accessor<AccessorType>::value),
+                int> = 0>
+  KOKKOS_FORCEINLINE_FUNCTION void impl_load(const DispatchType dispatch,
+                                             const IndexType &index,
+                                             AccessorType &accessor) const {
+
+    impl_load_expand<on_device>(
+        dispatch, index, accessor,
+        std::make_index_sequence<AccessorType::n_accessors>{});
+  }
+
+  template <bool on_device, typename DispatchType, typename IndexType,
+            typename AccessorType,
+            std::enable_if_t<(!specfem::data_access::is_packed_accessor<
+                                 AccessorType>::value),
+                             int> = 0>
+  KOKKOS_FORCEINLINE_FUNCTION void impl_load(const DispatchType dispatch,
+                                             const IndexType &index,
+                                             AccessorType &accessor) const {
+    impl_load_after_expansion<on_device>(dispatch, index, accessor);
   }
 };
 } // namespace specfem::assembly::coupled_interfaces_impl

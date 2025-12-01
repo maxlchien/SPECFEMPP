@@ -29,35 +29,31 @@ namespace specfem::algorithms {
  * @param callback - callback function to capture integral values
  */
 template <specfem::dimension::type dimension_tag, typename IndexType,
-          typename IntersectionFieldViewType,
-          typename ChunkEdgeWeightJacobianType, typename CallableType>
+          typename IntersectionFieldViewType, typename IntersectionFactor,
+          typename CallableType>
 KOKKOS_FUNCTION void
 coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
                   const IndexType &chunk_index,
                   const IntersectionFieldViewType &intersection_field,
-                  const ChunkEdgeWeightJacobianType &weight_jacobian,
+                  const IntersectionFactor &intersection_factor,
                   const CallableType &callback) {
 
   constexpr auto self_medium_tag = specfem::interface::attributes<
-      dimension_tag, ChunkEdgeWeightJacobianType::interface_tag>::self_medium();
+      dimension_tag, IntersectionFactor::interface_tag>::self_medium();
 
   using PointIndexType =
       typename IndexType::iterator_type::index_type::index_type;
   using PointFieldType =
       specfem::point::acceleration<dimension_tag, self_medium_tag,
                                    IntersectionFieldViewType::using_simd>;
-  using SelfTransferFunctionType =
-      typename specfem::point::nonconforming_transfer_function<
-          true, ChunkEdgeWeightJacobianType::n_quad_intersection, dimension_tag,
-          ChunkEdgeWeightJacobianType::connection_tag,
-          ChunkEdgeWeightJacobianType::interface_tag,
-          ChunkEdgeWeightJacobianType::boundary_tag>;
+  using SelfTransferFunctionType = specfem::point::transfer_function_self<
+      IntersectionFactor::n_quad_intersection, dimension_tag,
+      IntersectionFactor::interface_tag, IntersectionFactor::boundary_tag>;
 
   // an is_invocable static check here prevents autos
 
   constexpr int ncomp = PointFieldType::components;
-  constexpr int nquad_intersection =
-      ChunkEdgeWeightJacobianType::n_quad_intersection;
+  constexpr int nquad_intersection = IntersectionFactor::n_quad_intersection;
 
   specfem::execution::for_each_level(
       chunk_index.get_iterator(),
@@ -88,10 +84,9 @@ coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
 #pragma unroll
 #endif
           for (int icomp = 0; icomp < ncomp; icomp++) {
-            result(icomp) +=
-                intersection_field(iedge, iquad, icomp) *
-                weight_jacobian.intersection_factor(iedge, iquad) *
-                transfer_function_self.transfer_function_self(iquad);
+            result(icomp) += intersection_field(iedge, iquad, icomp) *
+                             intersection_factor(iedge, iquad) *
+                             transfer_function_self(iquad);
           }
         }
 
