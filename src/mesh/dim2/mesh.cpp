@@ -219,11 +219,13 @@ void specfem::mesh::mesh<specfem::dimension::type::dim2>::check_consistency()
   check_adjacency_graph(this->adjacency_graph, this->control_nodes);
 }
 
-void specfem::mesh::mesh<
-    specfem::dimension::type::dim2>::setup_coupled_interfaces() {
+void specfem::mesh::mesh<specfem::dimension::type::dim2>::
+    setup_coupled_interfaces(
+        const std::set<std::pair<int, int> > &coupled_interfaces) {
   auto &graph = this->adjacency_graph.graph();
   auto &materials = this->materials;
 
+  int n_matched = 0;
   for (const auto v : boost::make_iterator_range(boost::vertices(graph))) {
     for (const auto e :
          boost::make_iterator_range(boost::out_edges(v, graph))) {
@@ -238,8 +240,21 @@ void specfem::mesh::mesh<
            specfem::connections::type::strongly_conforming)) {
         // Change strongly conforming to weakly conforming if media differ
         edge_props.connection = specfem::connections::type::weakly_conforming;
+        if (coupled_interfaces.count(std::make_pair(v, target))) {
+          n_matched++;
+        }
       }
     }
+  }
+
+  if (n_matched != static_cast<int>(coupled_interfaces.size())) {
+    std::cout << "Number of coupled interfaces specified: "
+              << coupled_interfaces.size() << "\n";
+    std::cout << "Number of coupled interfaces matched in the mesh: "
+              << n_matched << "\n";
+    throw std::runtime_error(
+        "Not all coupled interfaces were matched in the mesh adjacency "
+        "graph.");
   }
 
   this->adjacency_graph.assert_symmetry();
