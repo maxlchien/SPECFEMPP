@@ -197,8 +197,6 @@ void specfem::kokkos_kernels::impl::compute_coupling(
         specfem::assembly::load_on_device(coupled_chunk_index, field,
                                           coupled_field);
 
-        // TODO add point access for mortar transfer function and replace self
-        // side of this:
         CouplingTermsPack interface_data(team);
 
         specfem::assembly::load_on_device(

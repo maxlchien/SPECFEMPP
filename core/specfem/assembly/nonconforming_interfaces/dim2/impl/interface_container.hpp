@@ -28,7 +28,7 @@ struct interface_container<specfem::dimension::type::dim2, InterfaceTag,
                            specfem::connections::type::nonconforming>
     : public specfem::data_access::Container<
           specfem::data_access::ContainerType::edge,
-          specfem::data_access::DataClassType::coupled_interface,
+          specfem::data_access::DataClassType::nonconforming_interface,
           specfem::dimension::type::dim2> {
 public:
   /** @brief Dimension tag for 2D specialization */
@@ -50,7 +50,7 @@ public:
   /** @brief Base container type alias */
   using base_type = specfem::data_access::Container<
       specfem::data_access::ContainerType::edge,
-      specfem::data_access::DataClassType::coupled_interface,
+      specfem::data_access::DataClassType::nonconforming_interface,
       specfem::dimension::type::dim2>;
   /** @brief View type for edge scaling factors */
   using EdgeFactorView = typename base_type::scalar_type<

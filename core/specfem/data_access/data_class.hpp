@@ -18,7 +18,6 @@ enum DataClassType {
   stress,
   stress_integrand,
   boundary,
-  coupled_interface,
   lagrange_derivative,
   weights,
   transfer_function_self,
