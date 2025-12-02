@@ -39,7 +39,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       specfem::interface::attributes<dimension_tag,
                                      interface_tag>::self_medium();
 
-  const auto &coupled_interfaces = assembly.coupled_interfaces;
+  const auto &conforming_interfaces = assembly.conforming_interfaces;
   const auto [self_edges, coupled_edges] =
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
@@ -81,8 +81,8 @@ void specfem::kokkos_kernels::impl::compute_coupling(
         specfem::point::conforming_interface<dimension_tag, interface_tag,
                                              boundary_tag>
             point_interface_data;
-        specfem::assembly::load_on_device(index.self_index, coupled_interfaces,
-                                          point_interface_data);
+        specfem::assembly::load_on_device(
+            index.self_index, conforming_interfaces, point_interface_data);
 
         CoupledFieldType coupled_field;
         specfem::assembly::load_on_device(index.coupled_index, field,
@@ -127,7 +127,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
   constexpr static auto interface_tag = InterfaceTag;
   constexpr static auto boundary_tag = BoundaryTag;
   constexpr static auto wavefield = WavefieldType;
-  const auto &coupled_interfaces = assembly.coupled_interfaces;
+  const auto &nonconforming_interfaces = assembly.nonconforming_interfaces;
   const auto [self_edges, coupled_edges] =
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
@@ -201,8 +201,8 @@ void specfem::kokkos_kernels::impl::compute_coupling(
         // side of this:
         CouplingTermsPack interface_data(team);
 
-        specfem::assembly::load_on_device(self_chunk_index, coupled_interfaces,
-                                          interface_data);
+        specfem::assembly::load_on_device(
+            self_chunk_index, nonconforming_interfaces, interface_data);
         InterfaceFieldViewType interface_field(team.team_scratch(0));
 
         team.team_barrier();
@@ -211,8 +211,8 @@ void specfem::kokkos_kernels::impl::compute_coupling(
 
         IntegrationFactor integration_factor(team);
 
-        specfem::assembly::load_on_device(self_chunk_index, coupled_interfaces,
-                                          integration_factor);
+        specfem::assembly::load_on_device(
+            self_chunk_index, nonconforming_interfaces, integration_factor);
 
         team.team_barrier();
 

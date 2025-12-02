@@ -4,13 +4,10 @@
 #include "enumerations/interface.hpp"
 #include "execution/for_each_level.hpp"
 #include "specfem/assembly/edge_types.hpp"
-#include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/data_access.hpp"
 
-#include "specfem/assembly/coupled_interfaces/dim2/data_access/impl/load_access_compatibility.hpp"
-
-namespace specfem::assembly::coupled_interfaces_impl {
+namespace specfem::assembly::nonconforming_interfaces_impl {
 
 /**
  * @brief Container for 2D nonconforming interface data storage and access
@@ -97,7 +94,6 @@ public:
       const int ngllz, const int ngllx,
       const specfem::assembly::edge_types<specfem::dimension::type::dim2>
           &edge_types,
-      const specfem::assembly::jacobian_matrix<dimension_tag> &jacobian_matrix,
       const specfem::assembly::mesh<dimension_tag> &mesh);
 
   /** @brief Default constructor */
@@ -300,4 +296,4 @@ public:
     impl_load_after_expansion<on_device>(dispatch, index, accessor);
   }
 };
-} // namespace specfem::assembly::coupled_interfaces_impl
+} // namespace specfem::assembly::nonconforming_interfaces_impl

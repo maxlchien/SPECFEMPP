@@ -4,7 +4,7 @@
 
 namespace specfem::assembly {
 
-namespace coupled_interfaces_impl {
+namespace nonconforming_interfaces_impl {
 
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
@@ -12,14 +12,15 @@ template <specfem::dimension::type DimensionTag,
           specfem::connections::type ConnectionTag>
 struct interface_container;
 
-} // namespace coupled_interfaces_impl
+} // namespace nonconforming_interfaces_impl
 
 /**
  * @brief Information on coupled interfaces between two mediums
  * @tparam DimensionTag Dimension of spectral elements
  */
-template <specfem::dimension::type DimensionTag> struct coupled_interfaces;
+template <specfem::dimension::type DimensionTag>
+struct nonconforming_interfaces;
 
 } // namespace specfem::assembly
 
-#include "coupled_interfaces/dim2/coupled_interface.hpp"
+#include "nonconforming_interfaces/dim2/nonconforming_interfaces.hpp"

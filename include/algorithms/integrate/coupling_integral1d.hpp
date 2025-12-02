@@ -67,8 +67,9 @@ coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
         const auto self_index_local = index.get_local_index();
 
         SelfTransferFunctionType transfer_function_self;
-        specfem::assembly::load_on_device(
-            self_index, assembly.coupled_interfaces, transfer_function_self);
+        specfem::assembly::load_on_device(self_index,
+                                          assembly.nonconforming_interfaces,
+                                          transfer_function_self);
 
         PointFieldType result;
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)

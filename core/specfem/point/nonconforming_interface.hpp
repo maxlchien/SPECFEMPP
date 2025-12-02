@@ -71,8 +71,13 @@ struct NonconformingAccessorPack
           specfem::dimension::type::dim2, false>,
       public Accessors... {
 
-  constexpr static auto dimension_tag =
-      std::tuple_element_t<0, std::tuple<Accessors...> >::dimension_tag;
+private:
+  using accessor_base = specfem::data_access::Accessor<
+      specfem::data_access::AccessorType::point,
+      specfem::data_access::DataClassType::nonconforming_interface,
+      specfem::dimension::type::dim2, false>;
+
+public:
   constexpr static auto interface_tag =
       std::tuple_element_t<0, std::tuple<Accessors...> >::interface_tag;
   constexpr static auto boundary_tag =
@@ -82,8 +87,10 @@ struct NonconformingAccessorPack
   constexpr static auto connection_tag =
       specfem::connections::type::nonconforming;
 
-  constexpr static auto data_class =
-      specfem::data_access::DataClassType::nonconforming_interface;
+  constexpr static auto dimension_tag = accessor_base::dimension_tag;
+  constexpr static auto data_class = accessor_base::data_class;
+  constexpr static auto accessor_type = accessor_base::accessor_type;
+  constexpr static bool using_simd = accessor_base::using_simd;
 
   static_assert(
       (std::is_same_v<
@@ -112,8 +119,10 @@ struct NonconformingAccessorPack
       "All Accessors in NonconformingAccessorPack must have the same "
       "boundary_tag");
 
+  KOKKOS_INLINE_FUNCTION
   NonconformingAccessorPack() = default;
 
+  KOKKOS_INLINE_FUNCTION
   NonconformingAccessorPack(const Accessors &...accessors)
       : Accessors(accessors)... {};
 

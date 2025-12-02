@@ -6,8 +6,6 @@
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
-// TODO replace when this gets reworked.
-#include "specfem/assembly/coupled_interfaces/dim2/data_access/impl/load_access_compatibility.hpp"
 namespace specfem::medium::impl {
 
 template <typename CoupledInterfaceType, typename CoupledFieldType,
