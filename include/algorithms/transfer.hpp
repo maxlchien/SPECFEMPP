@@ -2,6 +2,7 @@
 
 #include "enumerations/interface.hpp"
 #include "execution/for_each_level.hpp"
+#include "execution/team_thread_md_range_iterator.hpp"
 #include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
@@ -33,10 +34,10 @@ template <
                                   specfem::connections::type::nonconforming,
                               int> = 0>
 KOKKOS_INLINE_FUNCTION void
-transfer_coupled(const IndexType &chunk_edge_index,
-                 const TransferFunctionType &transfer_function,
-                 const EdgeFieldType &coupled_field,
-                 const IntersectionReturnCallback &callback) {
+transfer(const IndexType &chunk_edge_index,
+         const TransferFunctionType &transfer_function,
+         const EdgeFieldType &coupled_field,
+         const IntersectionReturnCallback &callback) {
 
   constexpr auto dimension_tag = EdgeFieldType::dimension_tag;
   constexpr auto edge_medium_tag = EdgeFieldType::medium_tag;
@@ -67,27 +68,15 @@ transfer_coupled(const IndexType &chunk_edge_index,
   using VectorPointViewType = specfem::datatype::VectorPointViewType<
       type_real, EdgeFieldType::components, EdgeFieldType::using_simd>;
 
-  static_assert(std::is_invocable_v<IntersectionReturnCallback, int, int,
-                                    VectorPointViewType>,
-                "CallableType must be invocable with arguments (int (iedge), "
-                "int (iintersection), "
-                "specfem::datatype::VectorPointViewType<type_real, components> "
-                "(field evaluated at intersection))");
-
   constexpr int ncomp =
       specfem::element::attributes<dimension_tag, edge_medium_tag>::components;
 
-  Kokkos::parallel_for(
-      Kokkos::TeamThreadRange(
-          team, num_edges * TransferFunctionType::n_quad_intersection),
-      [&](const int &ichunkmortar) {
-        const int ipoint_intersection =
-            ichunkmortar % TransferFunctionType::n_quad_intersection;
-        const int iedge =
-            ichunkmortar / TransferFunctionType::n_quad_intersection;
-
-        const int &local_slot = iedge;
-
+  specfem::execution::for_each_level(
+      specfem::execution::TeamThreadMDRangeIterator(
+          team, num_edges, TransferFunctionType::n_quad_intersection),
+      [&](const auto &index) {
+        const int iedge = index(0);
+        const int iquad = index(1);
         VectorPointViewType intersection_point_view;
 
         for (int icomp = 0; icomp < ncomp; icomp++) {
@@ -98,11 +87,11 @@ transfer_coupled(const IndexType &chunk_edge_index,
                ipoint_edge++) {
             intersection_point_view(icomp) +=
                 coupled_field(iedge, ipoint_edge, icomp) *
-                transfer_function(iedge, ipoint_edge, ipoint_intersection);
+                transfer_function(iedge, ipoint_edge, iquad);
           }
         }
 
-        callback(iedge, ipoint_intersection, intersection_point_view);
+        callback(index, intersection_point_view);
       });
 }
 

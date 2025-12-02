@@ -159,9 +159,6 @@ void specfem::kokkos_kernels::impl::compute_coupling(
                                         dimension_tag, coupled_medium,
                                         using_simd> >;
 
-  using SelfFieldType =
-      specfem::point::acceleration<dimension_tag, self_medium, using_simd>;
-
   using CouplingTermsPack = specfem::chunk_edge::coupling_terms_pack<
       dimension_tag, interface_tag, boundary_tag, parallel_config::chunk_size,
       NGLL, NQuad_intersection>;
@@ -221,7 +218,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
 
         specfem::algorithms::coupling_integral(
             assembly, self_chunk_index, interface_field, integration_factor,
-            [&](const auto &self_index, SelfFieldType &self_field) {
+            [&](const auto &self_index, auto &self_field) {
               specfem::point::boundary<boundary_tag, dimension_tag, false>
                   point_boundary;
               specfem::assembly::load_on_device(self_index, assembly.boundaries,
