@@ -101,7 +101,7 @@ public:
 
 private:
   template <bool on_device>
-  auto
+  KOKKOS_FORCEINLINE_FUNCTION auto
   get_value(std::integral_constant<
                 specfem::data_access::DataClassType,
                 specfem::data_access::DataClassType::transfer_function_self>,
@@ -114,7 +114,7 @@ private:
   }
 
   template <bool on_device>
-  auto
+  KOKKOS_FORCEINLINE_FUNCTION auto
   get_value(std::integral_constant<
                 specfem::data_access::DataClassType,
                 specfem::data_access::DataClassType::transfer_function_coupled>,
