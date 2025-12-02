@@ -1,7 +1,7 @@
 #pragma once
 
 namespace specfem {
-namespace parallel_config {
+namespace parallel_configuration {
 
 /**
  * @brief Parallel configuration for edge policy.
@@ -58,5 +58,5 @@ struct default_edge_config<specfem::dimension::type::dim2, Kokkos::Serial>
     : edge_config<specfem::dimension::type::dim2, 1, 1, Kokkos::Serial> {};
 #endif
 
-} // namespace parallel_config
+} // namespace parallel_configuration
 } // namespace specfem
