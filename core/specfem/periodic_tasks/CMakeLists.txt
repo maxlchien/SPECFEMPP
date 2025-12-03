@@ -8,9 +8,13 @@ add_library(specfem::periodic_tasks ALIAS periodic_tasks)
 
 target_link_libraries(
         periodic_tasks
+        PUBLIC
+        $<$<BOOL:${SPECFEM_ENABLE_VTK}>:${VTK_LIBRARIES}>
+        PRIVATE
         reader
         writer
         io
+        assembly
 )
 
 target_compile_definitions(
@@ -18,10 +22,4 @@ target_compile_definitions(
         PUBLIC
         $<$<NOT:$<BOOL:${SPECFEM_ENABLE_VTK}>>:-DNO_VTK>
         $<$<BOOL:${__APPLE__}>:__APPLE__>
-)
-
-target_link_libraries(
-        periodic_tasks
-        assembly
-        $<$<BOOL:${SPECFEM_ENABLE_VTK}>:${VTK_LIBRARIES}>
 )

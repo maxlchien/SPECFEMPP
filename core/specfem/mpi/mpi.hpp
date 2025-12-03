@@ -9,6 +9,15 @@
 
 namespace specfem {
 
+#ifdef MPI_PARALLEL
+using reduce_type = MPI_Op;
+const static reduce_type sum = MPI_SUM;
+const static reduce_type min = MPI_MIN;
+const static reduce_type max = MPI_MAX;
+#else
+enum reduce_type { sum, min, max };
+#endif
+
 // Forward declaration
 namespace program {
 class Context;
@@ -56,21 +65,96 @@ public:
   }
 
   /**
-   * @brief Print strings from the head node
+   * @brief Synchronize all MPI processes (alias for sync())
    *
+   * @throws Exits with error code 1 if called outside Context scope
    */
+  static void sync_all() { sync(); }
 
-  template <typename T> static void cout(T s, bool root_only = true) {
-#ifdef MPI_PARALLEL
-    if (rank == 0 || !root_only) {
-      std::cout << s << std::endl;
-    }
-#else
-    std::cout << s << std::endl;
-#endif
+  /**
+   * @brief Get MPI rank
+   *
+   * @return int Current MPI rank
+   * @throws Exits with error code 1 if called outside Context scope
+   */
+  static int get_rank() {
+    check_context();
+    return rank;
   }
 
-  template <typename T> static void print(T s) { cout(s, true); }
+  /**
+   * @brief Get MPI world size
+   *
+   * @return int Total number of MPI processes
+   * @throws Exits with error code 1 if called outside Context scope
+   */
+  static int get_size() {
+    check_context();
+    return size;
+  }
+
+  /**
+   * @brief Check if current process is the main process (rank 0)
+   *
+   * @return bool True if rank == 0
+   * @throws Exits with error code 1 if called outside Context scope
+   */
+  static bool main_proc() {
+    check_context();
+    return rank == 0;
+  }
+
+  /**
+   * @brief MPI reduce operation
+   *
+   * @param lvalue Local value to reduce
+   * @param reduce_op Reduction operation (specfem::sum, specfem::min,
+   * specfem::max)
+   * @return Reduced value (only valid on root process)
+   * @throws Exits with error code 1 if called outside Context scope
+   */
+  static int reduce(int lvalue, specfem::reduce_type reduce_op) {
+    check_context();
+    int result = lvalue;
+#ifdef MPI_PARALLEL
+    MPI_Reduce(&lvalue, &result, 1, MPI_INT, reduce_op, 0, MPI_COMM_WORLD);
+#endif
+    return result;
+  }
+
+  /**
+   * @brief MPI reduce operation for float
+   *
+   * @param lvalue Local value to reduce
+   * @param reduce_op Reduction operation
+   * @return Reduced value (only valid on root process)
+   * @throws Exits with error code 1 if called outside Context scope
+   */
+  static float reduce(float lvalue, specfem::reduce_type reduce_op) {
+    check_context();
+    float result = lvalue;
+#ifdef MPI_PARALLEL
+    MPI_Reduce(&lvalue, &result, 1, MPI_FLOAT, reduce_op, 0, MPI_COMM_WORLD);
+#endif
+    return result;
+  }
+
+  /**
+   * @brief MPI reduce operation for double
+   *
+   * @param lvalue Local value to reduce
+   * @param reduce_op Reduction operation
+   * @return Reduced value (only valid on root process)
+   * @throws Exits with error code 1 if called outside Context scope
+   */
+  static double reduce(double lvalue, specfem::reduce_type reduce_op) {
+    check_context();
+    double result = lvalue;
+#ifdef MPI_PARALLEL
+    MPI_Reduce(&lvalue, &result, 1, MPI_DOUBLE, reduce_op, 0, MPI_COMM_WORLD);
+#endif
+    return result;
+  }
 
 private:
   MPI_new() = default;

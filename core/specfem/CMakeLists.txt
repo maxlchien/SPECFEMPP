@@ -1,6 +1,7 @@
 # Add existing subdirectories
 add_subdirectory(mpi)
 add_subdirectory(logger)
+add_subdirectory(macros)
 add_subdirectory(assembly)
 add_subdirectory(point)
 add_subdirectory(receivers)

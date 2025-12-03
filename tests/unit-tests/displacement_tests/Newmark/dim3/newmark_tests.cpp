@@ -1,5 +1,4 @@
-#include "../../../Kokkos_Environment.hpp"
-#include "../../../MPI_environment.hpp"
+#include "../../../SPECFEM_Environment.hpp"
 #include "../../../utilities/include/interface.hpp"
 #include "constants.hpp"
 #include "io/interface.hpp"
@@ -9,6 +8,7 @@
 #include "quadrature/interface.hpp"
 #include "solver/solver.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/logger.hpp"
 #include "specfem/timescheme.hpp"
 #include "yaml-cpp/yaml.h"
 #include <algorithm>
@@ -71,7 +71,7 @@ struct TestConfig3D {
 
 std::vector<std::string>
 parse_3D_test_directories(const std::string &tests_file) {
-  YAML::Node yaml = YAML::LoadFile(tests_file);
+  YAML::Node yaml = YAML::LoadFile(tests_file)["tests3d"];
 
   std::vector<std::string> test_names;
 
@@ -106,14 +106,13 @@ TEST_P(Newmark, 3D) {
             << "-------------------------------------------------------\n\n"
             << std::endl;
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   const auto parameter_file = Test.specfem_config;
 
   specfem::runtime_configuration::setup setup(parameter_file, __default_file__);
 
   const auto database_filename = setup.get_databases();
-  const auto mesh_parameters_filename = setup.get_mesh_parameters();
   const auto source_node = setup.get_sources();
   const auto stations_node = setup.get_stations();
 
@@ -121,8 +120,7 @@ TEST_P(Newmark, 3D) {
   const auto quadratures = setup.instantiate_quadrature();
 
   // Read mesh generated MESHFEM
-  auto mesh = specfem::io::read_3d_mesh(mesh_parameters_filename,
-                                        database_filename, mpi);
+  auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
   const type_real dt = setup.get_dt();
   const int nsteps = setup.get_nsteps();
 
@@ -133,8 +131,7 @@ TEST_P(Newmark, 3D) {
       source_node, nsteps, setup.get_t0(), dt, setup.get_simulation_type());
 
   for (auto &source : sources) {
-    if (mpi->main_proc())
-      std::cout << source->print() << std::endl;
+    specfem::Logger::info(source->print());
   }
 
   setup.update_t0(t0);
@@ -146,16 +143,14 @@ TEST_P(Newmark, 3D) {
   // Read receivers from stations file
   auto receivers = specfem::io::read_3d_receivers(stations_node);
 
-  mpi->cout("Receiver Information:");
-  mpi->cout("-------------------------------");
-
-  if (mpi->main_proc()) {
-    std::cout << "Number of receivers : " << receivers.size() << "\n"
-              << std::endl;
-  }
+  std::cout << "Receiver Information:" << std::endl;
+  std::cout << "-------------------------------" << std::endl;
+  std::cout << "Number of receivers : " + std::to_string(receivers.size())
+            << "\n"
+            << std::endl;
 
   for (auto &receiver : receivers) {
-    mpi->cout(receiver->print());
+    std::cout << receiver->print();
   }
 
   const auto seismogram_types = setup.get_seismogram_types();
@@ -184,8 +179,7 @@ TEST_P(Newmark, 3D) {
   auto it = setup.instantiate_timescheme(assembly.fields);
 
   // User output
-  if (mpi->main_proc())
-    std::cout << *it << std::endl;
+  specfem::Logger::info(it->print());
 
   // std::shared_ptr<specfem::solver::solver> solver =
   //     setup.instantiate_solver<5>(setup.get_dt(), assembly, it, {});
@@ -410,7 +404,6 @@ INSTANTIATE_TEST_SUITE_P(DisplacementTests, Newmark,
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }
