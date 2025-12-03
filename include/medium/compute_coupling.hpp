@@ -43,7 +43,7 @@ compute_coupling(const CoupledInterfaceType &interface_data,
 
   static_assert(specfem::data_access::is_conforming_interface<
                     CoupledInterfaceType>::value,
-                "interface_data is not a coupled interface type");
+                "interface_data is not a conforming interface type");
   constexpr auto dimension_tag = CoupledInterfaceType::dimension_tag;
   constexpr auto interface_tag = CoupledInterfaceType::interface_tag;
   constexpr auto connection_tag = CoupledInterfaceType::connection_tag;
