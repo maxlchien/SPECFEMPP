@@ -71,7 +71,7 @@ struct TestConfig3D {
 
 std::vector<std::string>
 parse_3D_test_directories(const std::string &tests_file) {
-  YAML::Node yaml = YAML::LoadFile(tests_file);
+  YAML::Node yaml = YAML::LoadFile(tests_file)["tests3d"];
 
   std::vector<std::string> test_names;
 
@@ -120,7 +120,7 @@ TEST_P(Newmark, 3D) {
   const auto quadratures = setup.instantiate_quadrature();
 
   // Read mesh generated MESHFEM
-  auto mesh = specfem::io::meshfem3d::read_3d_mesh(database_filename, mpi);
+  auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
   const type_real dt = setup.get_dt();
   const int nsteps = setup.get_nsteps();
 

@@ -146,7 +146,7 @@ private:
         std::tuple_element_t<0,
                              std::tuple<PointTypes...> >::n_quad_intersection;
 
-    const auto assign = [*this](auto &point, auto &iquad, auto &index) {
+    const auto assign = [&](auto &point, auto &iquad, auto &index) {
       using PointType = std::decay_t<decltype(point)>;
 
       point(iquad) = this->get_value<on_device>(
@@ -221,8 +221,7 @@ private:
       }
     };
 
-    const auto transfer_call = [*this](auto &edge, auto &local_index,
-                                       auto &index) {
+    const auto transfer_call = [&](auto &edge, auto &local_index, auto &index) {
       using edge_t = std::decay_t<decltype(edge)>;
 
       if constexpr (specfem::data_access::is_transfer_function_self<
