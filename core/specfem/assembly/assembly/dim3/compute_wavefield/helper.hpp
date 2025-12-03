@@ -49,20 +49,20 @@ public:
       return;
     }
 
-    using ParallelConfig = specfem::parallel_config::default_chunk_config<
-        dimension_tag, specfem::datatype::simd<type_real, false>,
-        Kokkos::DefaultExecutionSpace>;
+    using ParallelConfig =
+        specfem::parallel_configuration::default_chunk_config<
+            dimension_tag, specfem::datatype::simd<type_real, false>,
+            Kokkos::DefaultExecutionSpace>;
 
     using ChunkDisplacementType = specfem::chunk_element::displacement<
-        specfem::parallel_config::chunk_size, ngll, dimension_tag, medium_tag,
-        using_simd>;
-    using ChunkVelocityType =
-        specfem::chunk_element::velocity<specfem::parallel_config::chunk_size,
-                                         ngll, dimension_tag, medium_tag,
-                                         using_simd>;
+        specfem::parallel_configuration::chunk_size, ngll, dimension_tag,
+        medium_tag, using_simd>;
+    using ChunkVelocityType = specfem::chunk_element::velocity<
+        specfem::parallel_configuration::chunk_size, ngll, dimension_tag,
+        medium_tag, using_simd>;
     using ChunkAccelerationType = specfem::chunk_element::acceleration<
-        specfem::parallel_config::chunk_size, ngll, dimension_tag, medium_tag,
-        using_simd>;
+        specfem::parallel_configuration::chunk_size, ngll, dimension_tag,
+        medium_tag, using_simd>;
 
     using QuadratureType = specfem::quadrature::lagrange_derivative<
         ngll, dimension_tag, specfem::kokkos::DevScratchSpace,

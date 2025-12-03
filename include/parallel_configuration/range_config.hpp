@@ -3,7 +3,7 @@
 #include <cstddef>
 
 namespace specfem {
-namespace parallel_config {
+namespace parallel_configuration {
 
 /**
  * @brief Parallel configuration for range policy
@@ -30,5 +30,5 @@ struct range_config {
 template <typename SIMD, typename ExecutionSpace>
 using default_range_config = range_config<SIMD, ExecutionSpace, 1, 1>;
 
-} // namespace parallel_config
+} // namespace parallel_configuration
 } // namespace specfem

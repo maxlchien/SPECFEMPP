@@ -15,8 +15,9 @@
 // Base fixture for common functionality
 class ChunkedIteratorTestBase {
 public:
-  using ParallelConfig = specfem::parallel_config::default_chunk_edge_config<
-      specfem::dimension::type::dim2, Kokkos::DefaultExecutionSpace>;
+  using ParallelConfig =
+      specfem::parallel_configuration::default_chunk_edge_config<
+          specfem::dimension::type::dim2, Kokkos::DefaultExecutionSpace>;
 
   constexpr static int num_points = 5;
   using StorageViewType =

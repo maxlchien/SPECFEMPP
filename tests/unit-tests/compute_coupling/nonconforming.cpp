@@ -377,8 +377,9 @@ struct EdgeToInterfaceCouplingTestParams {
   template <specfem::dimension::type DimensionTag,
             specfem::interface::interface_tag InterfaceTag,
             std::size_t nquad_edge, std::size_t nquad_intersection,
-            int num_edges = specfem::parallel_config::default_chunk_edge_config<
-                DimensionTag, Kokkos::DefaultExecutionSpace>::chunk_size>
+            int num_edges =
+                specfem::parallel_configuration::default_chunk_edge_config<
+                    DimensionTag, Kokkos::DefaultExecutionSpace>::chunk_size>
   static EdgeToInterfaceCouplingTestParams
   from(const std::string &name, const type_real (&edge)[nquad_edge],
        const type_real (&intersection)[nquad_intersection]) {

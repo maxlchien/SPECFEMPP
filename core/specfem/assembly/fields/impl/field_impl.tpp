@@ -30,7 +30,7 @@ void assign_assembly_index_mapping<specfem::dimension::type::dim2>(
 
   int count = 0;
 
-  constexpr int chunk_size = specfem::parallel_config::storage_chunk_size;
+  constexpr int chunk_size = specfem::parallel_configuration::storage_chunk_size;
   for (int ichunk = 0; ichunk < nspec; ichunk += chunk_size) {
     for (int ix = 0; ix < ngllx; ix++) {
       for (int iz = 0; iz < ngllz; iz++) {

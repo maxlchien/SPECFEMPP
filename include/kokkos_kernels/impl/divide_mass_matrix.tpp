@@ -31,7 +31,7 @@ void specfem::kokkos_kernels::impl::divide_mass_matrix(
   using PointMassInverseType =
       specfem::point::mass_inverse<dimension, medium_tag, using_simd>;
 
-  using parallel_config = specfem::parallel_config::default_range_config<
+  using parallel_config = specfem::parallel_configuration::default_range_config<
       specfem::datatype::simd<type_real, using_simd>,
       Kokkos::DefaultExecutionSpace>;
 
