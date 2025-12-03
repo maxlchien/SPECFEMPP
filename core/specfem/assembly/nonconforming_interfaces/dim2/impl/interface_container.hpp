@@ -87,7 +87,6 @@ public:
    * @param ngllz Number of GLL points in z-direction
    * @param ngllx Number of GLL points in x-direction
    * @param edge_types Edge type information from mesh
-   * @param jacobian_matrix Jacobian transformation data
    * @param mesh Mesh connectivity and geometry
    */
   interface_container(
