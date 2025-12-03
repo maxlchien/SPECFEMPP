@@ -67,7 +67,7 @@ public:
 #ifndef NDEBUG
     // Debug check: abort if no matching specialization found
     KOKKOS_ABORT_WITH_LOCATION(
-        "specfem::assembly::coupled_interfaces::get_interface_container(): No "
+        "specfem::assembly::nonconforming_interfaces::get_interface_container(): No "
         "matching specialization found.");
 #endif
 
