@@ -16,11 +16,17 @@ public:
       Kokkos::View<type_real ***, Kokkos::LayoutLeft,
                    Kokkos::DefaultExecutionSpace>;
 
+  using ControlNodeIndexView =
+      Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::DefaultExecutionSpace>;
+
   int nspec;
   int ngnod;
 
   ControlNodeCoordinatesView control_node_coordinates;
   ControlNodeCoordinatesView::HostMirror h_control_node_coordinates;
+
+  ControlNodeIndexView control_node_index;
+  ControlNodeIndexView::HostMirror h_control_node_index;
 
   control_nodes() = default;
 

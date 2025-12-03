@@ -18,12 +18,10 @@ transfer_position_to_mortar(const TransferView &transfer_function,
                                                                             0);
   const int ngllz = coord_view.extent(2);
   const int ngllx = coord_view.extent(3);
-  const auto connection_mapping =
-      specfem::connections::connection_mapping(ngllx, ngllz);
+  const auto element = specfem::mesh_entity::element(ngllz, ngllx);
 
   for (int ipoint = 0; ipoint < transfer_function.extent(2); ipoint++) {
-    const auto [iz, ix] =
-        connection_mapping.coordinates_at_edge(edge_type, ipoint);
+    const auto [iz, ix] = element.map_coordinates(edge_type, ipoint);
     const type_real transfer = transfer_function(iedge, imortar, ipoint);
     coords.x += transfer * coord_view(0, ispec, iz, ix);
     coords.z += transfer * coord_view(1, ispec, iz, ix);
@@ -185,7 +183,7 @@ void test_nonconforming_container_transfers(
           specfem::interface::interface_tag::acoustic_elastic,
           specfem::element::boundary_tag::none);
 
-  const int nedges = acoustic_edges.size();
+  const int nedges = acoustic_edges.n_edges;
   ASSERT_EQ(nc_interface_acoustic_elastic.h_transfer_function.extent(0), nedges)
       << "acoustic side of the the acoustic-elastic interface does not have "
          "the correct number of intersections.";
@@ -247,10 +245,10 @@ void test_nonconforming_container_transfers(
       el_coorg("el_coorg", assembly.mesh.ngnod);
 
   for (int iedge = 0; iedge < nedges; iedge++) {
-    const int ac_spec = acoustic_edges(iedge).ispec;
+    const int ac_spec = acoustic_edges(iedge).element_index;
     const specfem::mesh_entity::dim2::type ac_edgetype =
         acoustic_edges(iedge).edge_type;
-    const int el_spec = elastic_edges(iedge).ispec;
+    const int el_spec = elastic_edges(iedge).element_index;
     const specfem::mesh_entity::dim2::type el_edgetype =
         elastic_edges(iedge).edge_type;
     for (int i = 0; i < assembly.mesh.ngnod; i++) {
@@ -260,6 +258,12 @@ void test_nonconforming_container_transfers(
       el_coorg(i).z = assembly.mesh.h_control_node_coord(1, el_spec, i);
     }
 
+    // verify that the transfer function weights sum to the intersection
+    // length (integrate 1 ds)
+    type_real intersection_length = estimate_intersection_length(
+        ac_coorg, ac_spec, ac_edgetype, el_coorg, el_spec, el_edgetype);
+    type_real ac_weight_sum = 0;
+    type_real el_weight_sum = 0;
     for (int imortar = 0; imortar < nquad_mortar; imortar++) {
 
       // interpolated positions on acoustic-elastic interface
@@ -290,46 +294,54 @@ void test_nonconforming_container_transfers(
           << "elastic-acoustic and acoustic-elastic interface do not agree in "
              "coordinates.";
 
-      // verify that the transfer function weights sum to the intersection
-      // length (integrate 1 ds)
-      type_real intersection_length = estimate_intersection_length(
-          ac_coorg, ac_spec, ac_edgetype, el_coorg, el_spec, el_edgetype);
-      type_real ac_weight_sum = 0;
-      type_real el_weight_sum = 0;
+      ac_weight_sum +=
+          nc_interface_acoustic_elastic.h_intersection_factor(iedge, imortar);
+      el_weight_sum +=
+          nc_interface_elastic_acoustic.h_intersection_factor(iedge, imortar);
+
+      type_real ac_coord = 0;
+      type_real el_coord = 0;
+      // compute edge coordinates by interpolating x (transfer id function)
       for (int ipoint = 0; ipoint < ngll; ipoint++) {
-        ac_weight_sum +=
-            nc_interface_acoustic_elastic.h_intersection_factor(iedge, ipoint);
-        el_weight_sum +=
-            nc_interface_elastic_acoustic.h_intersection_factor(iedge, ipoint);
+        ac_coord += nc_interface_acoustic_elastic.h_transfer_function(
+                        iedge, imortar, ipoint) *
+                    assembly.mesh.h_xi(ipoint);
+        ac_coord += nc_interface_elastic_acoustic.h_transfer_function(
+                        iedge, imortar, ipoint) *
+                    assembly.mesh.h_xi(ipoint);
       }
-      EXPECT_TRUE(std::abs(ac_weight_sum - intersection_length) < 1e-3)
-          << "acoustic-elastic interface has transfer functions with weights "
-             "that do not sum to the intersection length. Weights sum to "
-          << ac_weight_sum << " but intersection length is "
-          << intersection_length << ".";
-      EXPECT_TRUE(std::abs(el_weight_sum - intersection_length) < 1e-3)
-          << "elastic-acoustic interface has transfer functions with weights "
-             "that do not sum to the intersection length. Weights sum to "
-          << el_weight_sum << " but intersection length is "
-          << intersection_length << ".";
+
+      // verify interface normals
+      estimate_verify_normal(
+          ac_coorg, ac_spec, ac_edgetype, ac_coord,
+          nc_interface_acoustic_elastic.h_intersection_normal(iedge, imortar,
+                                                              0),
+          nc_interface_acoustic_elastic.h_intersection_normal(iedge, imortar,
+                                                              1));
+      estimate_verify_normal(
+          el_coorg, el_spec, el_edgetype, el_coord,
+          nc_interface_elastic_acoustic.h_intersection_normal(iedge, imortar,
+                                                              0),
+          nc_interface_elastic_acoustic.h_intersection_normal(iedge, imortar,
+                                                              1));
     }
+    EXPECT_TRUE(std::abs(ac_weight_sum - intersection_length) < 1e-3)
+        << "acoustic-elastic interface has transfer functions with weights "
+           "that do not sum to the intersection length. Weights sum to "
+        << ac_weight_sum << " but intersection length is "
+        << intersection_length << ".";
+    EXPECT_TRUE(std::abs(el_weight_sum - intersection_length) < 1e-3)
+        << "elastic-acoustic interface has transfer functions with weights "
+           "that do not sum to the intersection length. Weights sum to "
+        << el_weight_sum << " but intersection length is "
+        << intersection_length << ".";
 
     // test if edge_normal is correct
-    for (int ipoint = 0; ipoint < ngll; ipoint++) {
-      estimate_verify_normal(
-          ac_coorg, ac_spec, ac_edgetype, assembly.mesh.h_xi(ipoint),
-          nc_interface_acoustic_elastic.h_edge_normal(iedge, ipoint, 0),
-          nc_interface_acoustic_elastic.h_edge_normal(iedge, ipoint, 1));
-      estimate_verify_normal(
-          el_coorg, el_spec, el_edgetype, assembly.mesh.h_xi(ipoint),
-          nc_interface_elastic_acoustic.h_edge_normal(iedge, ipoint, 0),
-          nc_interface_elastic_acoustic.h_edge_normal(iedge, ipoint, 1));
-    }
   }
 }
 
 TEST(NonconformingInterfaces, ContainerInitialization) {
-  std::string database_file("data/mesh/3_elem_nonconforming/database.bin");
+  std::string database_file("data/dim2/3_elem_nonconforming/database.bin");
   specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
 
   const auto mesh = specfem::io::read_2d_mesh(

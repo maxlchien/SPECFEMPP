@@ -103,6 +103,7 @@ public:
 
   type_real dt; ///< Time step
 
+private:
 #ifndef NO_VTK
 
   // VTK objects that need to persist between calls
@@ -118,11 +119,19 @@ public:
   vtkSmartPointer<vtkLookupTable> lut;
   vtkSmartPointer<vtkNamedColors> colors;
 
+#ifndef NO_HDF5
+  // VTK HDF5 file handling members
+  std::string hdf5_filename; // Store filename for reopening
+  int current_timestep;
+  int numPoints;          // Number of points in grid
+  int numCells;           // Number of cells in grid
+  int numConnectivityIds; // Number of connectivity IDs
+#endif
+
   // Separated grid and wavefield functions
   void create_quad_grid();
   void create_biquad_grid();
   void create_lagrange_quad_grid();
-
   vtkSmartPointer<vtkFloatArray> compute_wavefield_scalars(
       specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
   vtkSmartPointer<vtkDataSetMapper> map_materials_with_color();
@@ -132,14 +141,16 @@ public:
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
 
-#ifndef NO_HDF5
-  // VTK HDF5 file handling members
-  std::string hdf5_filename; // Store filename for reopening
-  int current_timestep;
-  int numPoints;          // Number of points in grid
-  int numCells;           // Number of cells in grid
-  int numConnectivityIds; // Number of connectivity IDs
-#endif
+  template <specfem::display::format format>
+  void initialize(vtkSmartPointer<vtkFloatArray> &scalars);
+
+  void initialize_display(vtkSmartPointer<vtkFloatArray> &scalars);
+
+  template <specfem::display::format format>
+  void run(vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
+
+  // Friend function for rendering
+  void run_render(vtkSmartPointer<vtkFloatArray> &scalars);
 
 #endif // NO_VTK
 };

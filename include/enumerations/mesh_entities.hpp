@@ -10,6 +10,8 @@ namespace specfem::mesh_entity {
  */
 template <specfem::dimension::type DimensionTag> struct edge;
 
+template <specfem::dimension::type DimensionTag> struct element_grid;
+
 /**
  * @brief Mesh element structure for a specific dimension
  *
@@ -21,3 +23,18 @@ template <specfem::dimension::type DimensionTag> struct element;
 
 #include "dim2/mesh_entities.hpp"
 #include "dim3/mesh_entities.hpp"
+
+// CTAD guides
+namespace specfem::mesh_entity {
+
+element_grid(const int, const int)
+    -> element_grid<specfem::dimension::type::dim2>;
+
+element_grid(const int, const int, const int)
+    -> element_grid<specfem::dimension::type::dim3>;
+
+element(const int, const int) -> element<specfem::dimension::type::dim2>;
+
+element(const int, const int, const int)
+    -> element<specfem::dimension::type::dim3>;
+} // namespace specfem::mesh_entity

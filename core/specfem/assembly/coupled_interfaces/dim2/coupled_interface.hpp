@@ -1,8 +1,6 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "enumerations/interface_definitions.hpp"
-#include "enumerations/material_definitions.hpp"
 #include "impl/interface_container.hpp"
 #include "specfem/assembly/coupled_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
@@ -10,6 +8,7 @@
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/assembly/nonconforming_interfaces/dim2/impl/nonconforming_interface.hpp"
 #include "specfem/data_access.hpp"
+#include "specfem/macros.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
@@ -131,7 +130,8 @@ public:
       InterfaceContainerType<InterfaceTag, BoundaryTag, ConnectionTag> &
       get_interface_container() const {
     // Compile-time dispatch using FOR_EACH_IN_PRODUCT macro
-    FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
+    FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2),
+                         CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
                          INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
                          BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
                                       COMPOSITE_STACEY_DIRICHLET)),
@@ -151,104 +151,11 @@ public:
 #endif
 
     // Unreachable code - satisfy compiler return requirements
-    return {};
+
+    SUPPRESS_TEMPORARY_REF(return {};)
   }
 };
 
-/**
- * @defgroup CoupledInterfaceDataAccess
- * @brief Data access functions for coupled interface computation data
- *
- */
-
-/**
- * @brief Load interface data from container to point on host
- *
- * Loads coupled interface data using compile-time dispatch based on the point's
- * template parameters (connection, interface, and boundary types).
- *
- * @ingroup CoupledInterfaceDataAccess
- *
- * @tparam IndexType Edge index type
- * @tparam ContainerType Coupled interfaces container type
- * @tparam PointType Interface point type
- *
- * @param index Edge index specifying the interface location
- * @param container Coupled interfaces container holding interface data
- * @param point Point object where loaded data will be stored
- *
- * @pre index refers to valid mesh edge
- * @pre container is properly initialized
- * @pre point type matches supported interface combinations
- *
- * @note For host-side computations only. Use load_on_device for device code.
- */
-template <
-    typename IndexType, typename ContainerType, typename PointType,
-    typename std::enable_if_t<
-        ((specfem::data_access::is_edge_index<IndexType>::value) &&
-         (specfem::data_access::is_coupled_interface<ContainerType>::value)),
-        int> = 0>
-inline void load_on_host(const IndexType &index, const ContainerType &container,
-                         PointType &point) {
-
-  static_assert(
-      specfem::data_access::CheckCompatibility<IndexType, ContainerType,
-                                               PointType>::value,
-      "Incompatible types in load_on_host");
-
-  container
-      .template get_interface_container<PointType::interface_tag,
-                                        PointType::boundary_tag>()
-      .template impl_load<false>(index, point);
-}
-
-/**
- * @brief Load interface data from container to point on device
- *
- * Loads coupled interface data using compile-time dispatch based on the point's
- * template parameters (connection, interface, and boundary types).
- *
- * @ingroup CoupledInterfaceDataAccess
- *
- * @tparam IndexType Edge index type
- * @tparam ContainerType Coupled interfaces container type
- * @tparam PointType Interface point type
- *
- * @param index Edge index specifying the interface location
- * @param container Coupled interfaces container holding interface data
- * @param point Point object where loaded data will be stored
- *
- * @pre index refers to valid mesh edge
- * @pre container is properly initialized
- * @pre point type matches supported interface combinations
- *
- * @note For device-side computations only. Use load_on_host for host code.
- */
-template <
-    typename IndexType, typename ContainerType, typename PointType,
-    typename std::enable_if_t<
-        ((specfem::data_access::is_edge_index<IndexType>::value) &&
-         (specfem::data_access::is_coupled_interface<ContainerType>::value)),
-        int> = 0>
-KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
-                                                const ContainerType &container,
-                                                PointType &point) {
-
-  static_assert(
-      specfem::data_access::CheckCompatibility<IndexType, ContainerType,
-                                               PointType>::value,
-      "Incompatible types in load_on_host");
-
-  container
-      .template get_interface_container<
-          PointType::interface_tag, PointType::boundary_tag,
-          specfem::connections::type::
-              weakly_conforming // TODO replace with
-                                // PointType::connection_tag
-                                // later
-          >()
-      .template impl_load<true>(index, point);
-}
-
 } // namespace specfem::assembly
+
+#include "data_access/load.hpp"
