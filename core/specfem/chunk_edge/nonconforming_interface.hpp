@@ -248,9 +248,9 @@ struct NonconformingAccessorPack
       "All Accessors in NonconformingAccessorPack must have the same "
       "boundary_tag");
 
-  NonconformingAccessorPack() = default;
+  KOKKOS_INLINE_FUNCTION NonconformingAccessorPack() = default;
 
-  NonconformingAccessorPack(const Accessors &...accessors)
+  KOKKOS_INLINE_FUNCTION NonconformingAccessorPack(const Accessors &...accessors)
       : Accessors(accessors)... {};
 
   template <typename... Indices>
