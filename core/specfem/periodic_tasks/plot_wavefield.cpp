@@ -471,7 +471,7 @@ specfem::periodic_tasks::plot_wavefield::compute_wavefield_scalars(
                     specfem::wavefield::type::intrinsic_rotation ||
                 wavefield_type == specfem::wavefield::type::curl) {
               scalars->InsertNextValue(
-                  std::abs(wavefield_data(ispec, iz_pos, ix_pos, 0)));
+                  wavefield_data(ispec, iz_pos, ix_pos, 0));
             } else {
               scalars->InsertNextValue(
                   std::sqrt((wavefield_data(ispec, iz_pos, ix_pos, 0) *
@@ -513,7 +513,7 @@ specfem::periodic_tasks::plot_wavefield::compute_wavefield_scalars(
             wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
             wavefield_type == specfem::wavefield::type::curl) {
           scalars->InsertNextValue(
-              std::abs(wavefield_data(icell, z_index[i], x_index[i], 0)));
+              wavefield_data(icell, z_index[i], x_index[i], 0));
         } else {
           scalars->InsertNextValue(
               std::sqrt((wavefield_data(icell, z_index[i], x_index[i], 0) *
@@ -537,8 +537,7 @@ specfem::periodic_tasks::plot_wavefield::compute_wavefield_scalars(
               wavefield_type == specfem::wavefield::type::rotation ||
               wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
               wavefield_type == specfem::wavefield::type::curl) {
-            scalars->InsertNextValue(
-                std::abs(wavefield_data(ispec, iz, ix, 0)));
+            scalars->InsertNextValue(wavefield_data(ispec, iz, ix, 0));
           } else {
             scalars->InsertNextValue(
                 std::sqrt((wavefield_data(ispec, iz, ix, 0) *
@@ -858,6 +857,12 @@ void specfem::periodic_tasks::plot_wavefield::initialize<
 
 void specfem::periodic_tasks::plot_wavefield::initialize_display(
     vtkSmartPointer<vtkFloatArray> &scalars) {
+  const auto wavefield_type = get_wavefield_type();
+  bool nonnegative_field =
+      !(wavefield_type == specfem::wavefield::type::pressure ||
+        wavefield_type == specfem::wavefield::type::rotation ||
+        wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
+        wavefield_type == specfem::wavefield::type::curl);
 
   // Create VTK objects that will persist between calls
   this->colors = vtkSmartPointer<vtkNamedColors>::New();
@@ -881,16 +886,31 @@ void specfem::periodic_tasks::plot_wavefield::initialize_display(
   this->wavefield_mapper->SetScalarVisibility(1);
 
   // Set the range of the lookup table
-  double range[2];
-  scalars->GetRange(range);
-  this->wavefield_mapper->SetScalarRange(range[0], range[1]);
-  this->lut->SetRange(range[0], range[1]);
+  if (nonnegative_field) {
+    double range[2];
+    scalars->GetRange(range);
+    this->wavefield_mapper->SetScalarRange(range[0], range[1]);
+    this->lut->SetRange(range[0], range[1]);
 
-  // set color gradient from white to black
-  for (int i = 0; i < 256; ++i) {
-    double t = static_cast<double>(i) / 255.0;
-    double transparency = this->sigmoid(t);
-    this->lut->SetTableValue(i, 1.0 - t, 1.0 - t, 1.0 - t, transparency);
+    // set color gradient from white to black
+    for (int i = 0; i < 256; ++i) {
+      double t = static_cast<double>(i) / 255.0;
+      double transparency = this->sigmoid(t);
+      this->lut->SetTableValue(i, 1.0 - t, 1.0 - t, 1.0 - t, transparency);
+    }
+  } else {
+    double range[2];
+    scalars->GetRange(range);
+    double abs_max = std::max(std::abs(range[0]), std::abs(range[1]));
+    this->wavefield_mapper->SetScalarRange(-abs_max, abs_max);
+    this->lut->SetRange(-abs_max, abs_max);
+
+    for (int i = 0; i < 256; ++i) {
+      double t = static_cast<double>(i) / 255.0;
+      double transparency = 2.0 * std::abs(0.5 - t);
+      double step = t > 0.5 ? 1.0 : 0.0;
+      this->lut->SetTableValue(i, step, 0.0, 1.0 - step, transparency);
+    }
   }
 
   // Create an actor
@@ -1012,13 +1032,26 @@ void specfem::periodic_tasks::plot_wavefield::initialize(
 
 void specfem::periodic_tasks::plot_wavefield::run_render(
     vtkSmartPointer<vtkFloatArray> &scalars) {
+
+  const auto wavefield_type = get_wavefield_type();
+  bool nonnegative_field =
+      !(wavefield_type == specfem::wavefield::type::pressure ||
+        wavefield_type == specfem::wavefield::type::rotation ||
+        wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
+        wavefield_type == specfem::wavefield::type::curl);
+
   // Get range of scalar values
   double range[2];
   scalars->GetRange(range);
-  this->wavefield_mapper->SetScalarRange(range[0], range[1]);
 
-  // Update lookup table range
-  this->lut->SetRange(range[0], range[1]);
+  if (nonnegative_field) {
+    this->wavefield_mapper->SetScalarRange(range[0], range[1]);
+    this->lut->SetRange(range[0], range[1]);
+  } else {
+    double abs_max = std::max(std::abs(range[0]), std::abs(range[1]));
+    this->wavefield_mapper->SetScalarRange(-abs_max, abs_max);
+    this->lut->SetRange(-abs_max, abs_max);
+  }
   this->lut->Build();
 
   // Render
