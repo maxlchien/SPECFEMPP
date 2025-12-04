@@ -1,6 +1,6 @@
 include: "../../../specfem2d.smk"
 
-stations = [f"S{i:04d}" for i in range(1, 21)]
+stations = [f"S{i:04d}" for i in range(1, 15)]
 seismograms = {"BXX": ["semd", "semv", "sema"], "BXZ": ["semd", "semv", "sema"], "PRE": ["semp"]}
 
 traces = [
