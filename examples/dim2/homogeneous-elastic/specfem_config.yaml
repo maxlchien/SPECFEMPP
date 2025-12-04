@@ -21,7 +21,7 @@ parameters:
         time-scheme:
           type: Newmark
           dt: 1.1e-3
-          nstep: 300
+          nstep: 1600
 
     simulation-mode:
       forward:
@@ -42,10 +42,7 @@ parameters:
     stations: "OUTPUT_FILES/STATIONS"
     angle: 0.0
     seismogram-type:
-      - displacement
       - velocity
-      - acceleration
-      - pressure
     nstep_between_samples: 1
 
   ## Runtime setup
