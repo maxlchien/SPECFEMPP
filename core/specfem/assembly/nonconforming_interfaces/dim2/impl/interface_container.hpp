@@ -213,9 +213,9 @@ private:
 
       if constexpr (specfem::data_access::is_intersection_normal<
                         edge_t>::value) {
-        for (int iquad = 0; iquad < nquad_intersection; iquad++) {
-          edge(index(0), index(1), iquad) =
-              normal_subview(index(0), index(1), iquad);
+        for (int icomponent = 0; icomponent < 2; icomponent++) {
+          edge(index(0), index(1), icomponent) =
+              normal_subview(index(0), index(1), icomponent);
         }
       }
     };
