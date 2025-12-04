@@ -61,7 +61,7 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
 } // namespace fields_impl
 
 /**
- * @brief High-performance device-side field data loading for spectral elements
+ * @brief Device-side field data loading for spectral elements
  *
  * Public interface for loading field data from simulation fields into accessors
  * on GPU devices. This function provides a unified interface for retrieving
