@@ -40,7 +40,7 @@ KOKKOS_FORCEINLINE_FUNCTION void add_on_device(const IndexType &index,
 /**
  * @brief High-performance device-side field accumulation for spectral elements
  *
- * Public interface for accumulating values into simulation fields on GPU
+ * Public interface for accumulating values into simulation fields on default compute device (GPU when compiled with GPU enabled)
  * devices. This function provides a unified interface for adding values to
  * multiple field components simultaneously.
  *
