@@ -62,7 +62,7 @@ void initialize_jacobian_matrix(
 
         specfem::assembly::store_on_device(
             specfem::point::index<dimension_tag, false>(ispec, iz, iy, ix),
-            point_jacobian, jacobian_matrix);
+            jacobian_matrix, point_jacobian);
       });
 
   Kokkos::fence();
