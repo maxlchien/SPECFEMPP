@@ -35,8 +35,7 @@ atomic_add_on_device(const IndexType &index, const ContainerType &field,
 } // namespace fields_impl
 
 /**
- * @brief Thread-safe atomic field accumulation for spectral elements on GPU
- * devices
+ * @brief Atomic field accumulation for spectral elements on device.
  *
  * Public interface for atomically accumulating values into simulation fields on
  * GPU devices. This function provides a unified interface for adding values to
