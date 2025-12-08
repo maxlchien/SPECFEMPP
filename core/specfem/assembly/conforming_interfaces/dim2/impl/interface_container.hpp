@@ -7,7 +7,7 @@
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/data_access.hpp"
 
-namespace specfem::assembly::coupled_interfaces_impl {
+namespace specfem::assembly::conforming_interfaces_impl {
 
 /**
  * @brief Container for 2D coupled interface data storage and access
@@ -26,7 +26,7 @@ struct interface_container<specfem::dimension::type::dim2, InterfaceTag,
                            specfem::connections::type::weakly_conforming>
     : public specfem::data_access::Container<
           specfem::data_access::ContainerType::edge,
-          specfem::data_access::DataClassType::coupled_interface,
+          specfem::data_access::DataClassType::conforming_interface,
           specfem::dimension::type::dim2> {
 public:
   /** @brief Dimension tag for 2D specialization */
@@ -48,7 +48,7 @@ private:
   /** @brief Base container type alias */
   using base_type = specfem::data_access::Container<
       specfem::data_access::ContainerType::edge,
-      specfem::data_access::DataClassType::coupled_interface,
+      specfem::data_access::DataClassType::conforming_interface,
       specfem::dimension::type::dim2>;
   /** @brief View type for edge scaling factors */
   using EdgeFactorView = typename base_type::scalar_type<
@@ -100,8 +100,25 @@ public:
    * @param point Output point object to store loaded data
    */
   template <bool on_device, typename IndexType, typename PointType>
-  KOKKOS_FORCEINLINE_FUNCTION void impl_load(const IndexType &index,
-                                             PointType &point) const {
+  KOKKOS_FORCEINLINE_FUNCTION void
+  impl_load(const std::integral_constant<
+                specfem::data_access::AccessorType,
+                specfem::data_access::AccessorType::point> /* AccessorType */,
+            const IndexType &index, PointType &point) const {
+
+    static_assert(specfem::data_access::is_point<PointType>::value,
+                  "impl_load only supports point accessors");
+
+    static_assert(specfem::data_access::is_point<IndexType>::value,
+                  "impl_load requires point type for IndexType");
+
+    static_assert(specfem::data_access::is_edge_index<IndexType>::value,
+                  "impl_load requires edge index type for IndexType");
+
+    static_assert(
+        specfem::data_access::is_conforming_interface<PointType>::value,
+        "impl_load requires conforming interface point type for PointType");
+
     if constexpr (on_device) {
       point.edge_factor = edge_factor(index.iedge, index.ipoint);
       point.edge_normal(0) = edge_normal(index.iedge, index.ipoint, 0);
@@ -114,4 +131,4 @@ public:
     return;
   }
 };
-} // namespace specfem::assembly::coupled_interfaces_impl
+} // namespace specfem::assembly::conforming_interfaces_impl

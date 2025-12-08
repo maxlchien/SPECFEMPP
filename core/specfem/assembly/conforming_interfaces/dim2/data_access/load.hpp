@@ -1,6 +1,6 @@
 #pragma once
 
-#include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/conforming_interfaces.hpp"
 #include "specfem/data_access.hpp"
 
 namespace specfem::assembly {
@@ -37,7 +37,7 @@ template <
     typename IndexType, typename ContainerType, typename AccessorType,
     typename std::enable_if_t<
         ((specfem::data_access::is_edge_index<IndexType>::value) &&
-         (specfem::data_access::is_coupled_interface<ContainerType>::value)),
+         (specfem::data_access::is_conforming_interface<ContainerType>::value)),
         int> = 0>
 inline void load_on_host(const IndexType &index, const ContainerType &container,
                          AccessorType &accessor) {
@@ -47,11 +47,15 @@ inline void load_on_host(const IndexType &index, const ContainerType &container,
                                                AccessorType>::value,
       "Incompatible types in load_on_host");
 
+  using accessor_dispatch =
+      std::integral_constant<specfem::data_access::AccessorType,
+                             IndexType::accessor_type>;
+
   container
       .template get_interface_container<AccessorType::interface_tag,
                                         AccessorType::boundary_tag,
                                         AccessorType::connection_tag>()
-      .template impl_load<false>(index, accessor);
+      .template impl_load<false>(accessor_dispatch(), index, accessor);
 }
 
 /**
@@ -80,7 +84,7 @@ template <
     typename IndexType, typename ContainerType, typename AccessorType,
     typename std::enable_if_t<
         ((specfem::data_access::is_edge_index<IndexType>::value) &&
-         (specfem::data_access::is_coupled_interface<ContainerType>::value)),
+         (specfem::data_access::is_conforming_interface<ContainerType>::value)),
         int> = 0>
 KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
                                                 const ContainerType &container,
@@ -89,10 +93,16 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
       specfem::data_access::CheckCompatibility<IndexType, ContainerType,
                                                AccessorType>::value,
       "Incompatible types in load_on_device");
+
+  using accessor_dispatch =
+      std::integral_constant<specfem::data_access::AccessorType,
+                             IndexType::accessor_type>;
   container
       .template get_interface_container<AccessorType::interface_tag,
                                         AccessorType::boundary_tag,
                                         AccessorType::connection_tag>()
-      .template impl_load<true>(index, accessor);
+      .template impl_load<true>(accessor_dispatch(), index, accessor);
+
+  return;
 }
 } // namespace specfem::assembly

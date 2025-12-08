@@ -2,11 +2,10 @@
 
 #include "enumerations/interface.hpp"
 #include "impl/interface_container.hpp"
-#include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/conforming_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
-#include "specfem/assembly/nonconforming_interfaces/dim2/impl/nonconforming_interface.hpp"
 #include "specfem/data_access.hpp"
 #include "specfem/macros.hpp"
 #include <Kokkos_Core.hpp>
@@ -15,7 +14,7 @@
 namespace specfem::assembly {
 
 /**
- * @brief 2D coupled interfaces container for spectral element computations.
+ * @brief 2D conforming interfaces container for spectral element computations.
  *
  * This class manages the storage and access of data required to compute
  * coupling between elements connected via weakly conforming edges in a 2D
@@ -30,16 +29,16 @@ namespace specfem::assembly {
  *       is declared elsewhere and specialized here for dimension-specific
  *       optimizations.
  *
- * @see specfem::assembly::coupled_interfaces_impl::interface_container
+ * @see specfem::assembly::conforming_interfaces_impl::interface_container
  * @see specfem::assembly::edge_types
  * @see specfem::assembly::jacobian_matrix
  * @see specfem::assembly::mesh
  */
 template <>
-class coupled_interfaces<specfem::dimension::type::dim2>
+class conforming_interfaces<specfem::dimension::type::dim2>
     : public specfem::data_access::Container<
           specfem::data_access::ContainerType::edge,
-          specfem::data_access::DataClassType::coupled_interface,
+          specfem::data_access::DataClassType::conforming_interface,
           specfem::dimension::type::dim2> {
 public:
   /**
@@ -55,21 +54,21 @@ private:
             specfem::element::boundary_tag BoundaryTag,
             specfem::connections::type ConnectionTag>
   using InterfaceContainerType =
-      specfem::assembly::coupled_interfaces_impl::interface_container<
+      specfem::assembly::conforming_interfaces_impl::interface_container<
           dimension_tag, InterfaceTag, BoundaryTag, ConnectionTag>;
 
-  FOR_EACH_IN_PRODUCT(
-      (DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
-       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
-       BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
-                    COMPOSITE_STACEY_DIRICHLET)),
-      DECLARE(((InterfaceContainerType,
-                (_INTERFACE_TAG_, _BOUNDARY_TAG_, _CONNECTION_TAG_)),
-               interface_container)))
+  FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
+                       INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
+                       BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
+                                    COMPOSITE_STACEY_DIRICHLET)),
+                      DECLARE(((InterfaceContainerType,
+                                (_INTERFACE_TAG_, _BOUNDARY_TAG_,
+                                 _CONNECTION_TAG_)),
+                               interface_container)))
 
 public:
   /**
-   * @brief Constructor for 2D coupled interfaces container
+   * @brief Constructor for 2D conforming interfaces container
    *
    * Initializes all interface containers for the supported combinations of
    * media types and boundary conditions.
@@ -95,13 +94,13 @@ public:
    * @see specfem::assembly::jacobian_matrix
    * @see specfem::assembly::mesh
    */
-  coupled_interfaces(
+  conforming_interfaces(
       const int ngllz, const int ngllx,
       const specfem::assembly::edge_types<dimension_tag> &edge_types,
       const specfem::assembly::jacobian_matrix<dimension_tag> &jacobian_matrix,
       const specfem::assembly::mesh<dimension_tag> &mesh);
 
-  coupled_interfaces() = default;
+  conforming_interfaces() = default;
 
   /**
    * @brief Get interface container for specific coupling and boundary types
@@ -130,8 +129,7 @@ public:
       InterfaceContainerType<InterfaceTag, BoundaryTag, ConnectionTag> &
       get_interface_container() const {
     // Compile-time dispatch using FOR_EACH_IN_PRODUCT macro
-    FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2),
-                         CONNECTION_TAG(WEAKLY_CONFORMING, NONCONFORMING),
+    FOR_EACH_IN_PRODUCT((DIMENSION_TAG(DIM2), CONNECTION_TAG(WEAKLY_CONFORMING),
                          INTERFACE_TAG(ELASTIC_ACOUSTIC, ACOUSTIC_ELASTIC),
                          BOUNDARY_TAG(NONE, ACOUSTIC_FREE_SURFACE, STACEY,
                                       COMPOSITE_STACEY_DIRICHLET)),
@@ -145,9 +143,9 @@ public:
 
 #ifndef NDEBUG
     // Debug check: abort if no matching specialization found
-    KOKKOS_ABORT_WITH_LOCATION(
-        "specfem::assembly::coupled_interfaces::get_interface_container(): No "
-        "matching specialization found.");
+    KOKKOS_ABORT_WITH_LOCATION("specfem::assembly::conforming_interfaces::get_"
+                               "interface_container(): No "
+                               "matching specialization found.");
 #endif
 
     // Unreachable code - satisfy compiler return requirements

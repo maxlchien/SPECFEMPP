@@ -1,5 +1,6 @@
 #pragma once
 
+#include "datatypes/impl/register_array.hpp"
 #include "policy.hpp"
 #include "void_iterator.hpp"
 #include <Kokkos_Core.hpp>

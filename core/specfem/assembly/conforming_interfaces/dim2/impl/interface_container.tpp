@@ -1,7 +1,7 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/conforming_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
@@ -10,7 +10,7 @@
 
 template <specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag>
-specfem::assembly::coupled_interfaces_impl::interface_container<
+specfem::assembly::conforming_interfaces_impl::interface_container<
     specfem::dimension::type::dim2, InterfaceTag, BoundaryTag,
     specfem::connections::type::weakly_conforming>::
     interface_container(

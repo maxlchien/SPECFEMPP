@@ -6,13 +6,14 @@
 #include "specfem/assembly/boundaries.hpp"
 #include "specfem/assembly/boundary_values.hpp"
 #include "specfem/assembly/compute_source_array.hpp"
-#include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/conforming_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
 #include "specfem/assembly/element_types.hpp"
 #include "specfem/assembly/fields.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/kernels.hpp"
 #include "specfem/assembly/mesh.hpp"
+#include "specfem/assembly/nonconforming_interfaces.hpp"
 #include "specfem/assembly/properties.hpp"
 #include "specfem/assembly/receivers.hpp"
 #include "specfem/assembly/sources.hpp"
@@ -111,13 +112,24 @@ template <> struct assembly<specfem::dimension::type::dim2> {
   specfem::assembly::boundaries<dimension_tag> boundaries;
 
   /**
-   * @brief Information about coupled interfaces between 2 media in the mesh.
+   * @brief Information about conforming interfaces between 2 media in the mesh.
    *
    * The container stores data required to implement coupling terms between 2
    * media (e.g., fluid-solid interface).
    *
    */
-  specfem::assembly::coupled_interfaces<dimension_tag> coupled_interfaces;
+  specfem::assembly::conforming_interfaces<dimension_tag> conforming_interfaces;
+
+  /**
+   * @brief Information about non-conforming interfaces between 2 media in the
+   * mesh.
+   *
+   * The container stores data required to implement coupling terms between 2
+   * media (e.g., fluid-solid interface).
+   *
+   */
+  specfem::assembly::nonconforming_interfaces<dimension_tag>
+      nonconforming_interfaces;
 
   /**
    * @brief Wavefield values at every distinct quadrature point in the mesh,

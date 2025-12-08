@@ -1,28 +1,24 @@
 #pragma once
 
-#include "enumerations/coupled_interface.hpp"
 #include "enumerations/interface.hpp"
-#include "enumerations/medium.hpp"
-#include "kokkos_abstractions.h"
-#include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/nonconforming_interfaces.hpp"
 #include "specfem/assembly/edge_types.hpp"
-#include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/mesh.hpp"
-#include "specfem/assembly/nonconforming_interfaces/dim2/impl/compute_intersection.tpp"
+#include "compute_intersection.hpp"
+#include "compute_intersection.tpp"
 #include "specfem/data_access.hpp"
+#include "specfem/jacobian.hpp"
 #include "specfem/macros.hpp"
 
 template <specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag>
-specfem::assembly::coupled_interfaces_impl::interface_container<
+specfem::assembly::nonconforming_interfaces_impl::interface_container<
     specfem::dimension::type::dim2, InterfaceTag, BoundaryTag,
     specfem::connections::type::nonconforming>::
     interface_container(
         const int ngllz, const int ngllx,
         const specfem::assembly::edge_types<specfem::dimension::type::dim2>
             &edge_types,
-        const specfem::assembly::jacobian_matrix<dimension_tag>
-            &jacobian_matrix,
         const specfem::assembly::mesh<dimension_tag> &mesh) {
 
   // TODO: make this a parameter for now, use same gll quadrature

@@ -18,8 +18,13 @@ enum DataClassType {
   stress,
   stress_integrand,
   boundary,
-  coupled_interface,
   lagrange_derivative,
-  weights
+  weights,
+  transfer_function_self,
+  transfer_function_coupled,
+  intersection_factor,
+  intersection_normal,
+  nonconforming_interface,
+  conforming_interface
 };
 } // namespace specfem::data_access

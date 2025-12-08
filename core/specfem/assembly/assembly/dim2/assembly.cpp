@@ -57,9 +57,13 @@ specfem::assembly::assembly<specfem::dimension::type::dim2>::assembly(
                        mesh,
                        this->mesh,
                        this->jacobian_matrix };
-  this->coupled_interfaces = { this->mesh.element_grid.ngllz,
-                               this->mesh.element_grid.ngllx, this->edge_types,
-                               this->jacobian_matrix, this->mesh };
+  this->conforming_interfaces = { this->mesh.element_grid.ngllz,
+                                  this->mesh.element_grid.ngllx,
+                                  this->edge_types, this->jacobian_matrix,
+                                  this->mesh };
+  this->nonconforming_interfaces = { this->mesh.element_grid.ngllz,
+                                     this->mesh.element_grid.ngllx,
+                                     this->edge_types, this->mesh };
   this->fields = { this->mesh, this->element_types, simulation };
 
   if (allocate_boundary_values)
