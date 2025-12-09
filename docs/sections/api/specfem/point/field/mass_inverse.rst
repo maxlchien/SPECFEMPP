@@ -8,3 +8,12 @@ Datatype used to store inverse of mass matrix field values at a quadrature point
 
 .. doxygenclass:: specfem::point::mass_inverse
     :members:
+
+
+Implementation Details
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. toctree::
+    :maxdepth: 1
+
+    field

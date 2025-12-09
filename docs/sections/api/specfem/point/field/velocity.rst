@@ -8,3 +8,12 @@ Datatype used to store velocity field values at a quadrature point.
 
 .. doxygenclass:: specfem::point::velocity
     :members:
+
+
+Implementation Details
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. toctree::
+    :maxdepth: 1
+
+    field

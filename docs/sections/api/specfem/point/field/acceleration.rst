@@ -8,3 +8,12 @@ Datatype used to store acceleration field values at a quadrature point.
 
 .. doxygenclass:: specfem::point::acceleration
     :members:
+
+
+Implementation Details
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. toctree::
+    :maxdepth: 1
+
+    field
