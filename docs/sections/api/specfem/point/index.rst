@@ -17,10 +17,7 @@ functions used to represent and manipulate points in the SPECFEM++ framework.
     coordinates/index
     assembly_index/index
     boundary/index
-    field/displacement
-    field/velocity
-    field/acceleration
-    field/mass_inverse
+    field/index
     field_derivatives/index
     index/index
     kernels/index
