@@ -30,7 +30,7 @@ namespace specfem::assembly {
  // clang-format off
  * @code
  * // Example: Load elastic kernels during adjoint simulation
- * const int specfem::point::index<...> index = ...; // Current element and GLL
+ * const specfem::point::index<...> index = ...; // Current element and GLL
  * point specfem::point::kernels<...> point_kernels = ...;
  * const auto kernels = assembly.kernels; // Global kernels container
  * load_on_host(index, kernels, point_kernels);
