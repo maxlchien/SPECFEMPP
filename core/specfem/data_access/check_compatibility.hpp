@@ -153,13 +153,66 @@ struct is_edge_index<
     : std::true_type {};
 
 template <typename T, typename = void>
-struct is_coupled_interface : std::false_type {};
+struct is_intersection_factor : std::false_type {};
 
 template <typename T>
-struct is_coupled_interface<
+struct is_intersection_factor<
     T,
     std::enable_if_t<T::data_class ==
-                     specfem::data_access::DataClassType::coupled_interface> >
+                     specfem::data_access::DataClassType::intersection_factor> >
+    : std::true_type {};
+
+template <typename T, typename = void>
+struct is_intersection_normal : std::false_type {};
+
+template <typename T>
+struct is_intersection_normal<
+    T,
+    std::enable_if_t<T::data_class ==
+                     specfem::data_access::DataClassType::intersection_normal> >
+    : std::true_type {};
+
+template <typename T, typename = void>
+struct is_transfer_function_self : std::false_type {};
+
+template <typename T>
+struct is_transfer_function_self<
+    T, std::enable_if_t<T::data_class == specfem::data_access::DataClassType::
+                                             transfer_function_self> >
+    : std::true_type {};
+
+template <typename T, typename = void>
+struct is_transfer_function_coupled : std::false_type {};
+
+template <typename T>
+struct is_transfer_function_coupled<
+    T, std::enable_if_t<T::data_class == specfem::data_access::DataClassType::
+                                             transfer_function_coupled> >
+    : std::true_type {};
+
+template <typename T, typename = void>
+struct is_nonconforming_interface : std::false_type {};
+
+template <typename T>
+struct is_nonconforming_interface<
+    T, std::enable_if_t<T::data_class == specfem::data_access::DataClassType::
+                                             nonconforming_interface> >
+    : std::true_type {};
+
+template <typename T, typename = void>
+struct is_conforming_interface : std::false_type {};
+
+template <typename T>
+struct is_conforming_interface<
+    T, std::enable_if_t<T::data_class == specfem::data_access::DataClassType::
+                                             conforming_interface> >
+    : std::true_type {};
+
+template <typename T, typename = void>
+struct is_packed_accessor : std::false_type {};
+
+template <typename T>
+struct is_packed_accessor<T, std::enable_if_t<T::n_accessors >= 1> >
     : std::true_type {};
 
 } // namespace specfem::data_access

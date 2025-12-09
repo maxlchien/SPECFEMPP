@@ -84,15 +84,8 @@ struct properties_container<specfem::dimension::type::dim3, MediumTag,
 
   properties_container(
       const Kokkos::View<int *, Kokkos::DefaultHostExecutionSpace> elements,
-      const specfem::assembly::mesh<dimension_tag> &mesh, const int ngllz,
-      const int nglly, const int ngllx,
-      const specfem::mesh::materials<dimension_tag> &materials,
-      const specfem::kokkos::HostView1d<int> property_index_mapping);
-
-  properties_container(
-      const Kokkos::View<int *, Kokkos::DefaultHostExecutionSpace> elements,
       const int nspec, const int ngllz, const int nglly, const int ngllx,
-      const specfem::mesh::meshfem3d::Materials<dimension_tag> &materials,
+      const specfem::mesh::materials<dimension_tag> &materials,
       const specfem::kokkos::HostView1d<int> property_index_mapping);
 
   template <typename PointValues, typename IndexType>

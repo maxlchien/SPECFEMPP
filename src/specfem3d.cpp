@@ -82,8 +82,7 @@ void execute(const YAML::Node parameter_dict, const YAML::Node default_dict,
   mpi->cout("Reading the mesh:");
   mpi->cout("-----------------");
   auto start_time = std::chrono::system_clock::now();
-  const auto mesh =
-      specfem::io::meshfem3d::read_3d_mesh(database_filename, mpi);
+  const auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
   std::chrono::duration<double> elapsed_seconds =
       std::chrono::system_clock::now() - start_time;
   mpi->cout("Time to read mesh: " + std::to_string(elapsed_seconds.count()) +

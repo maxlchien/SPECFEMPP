@@ -239,11 +239,10 @@ public:
   KOKKOS_INLINE_FUNCTION
   ChunkedEdgeIntersectionIterator(const TeamMemberType &team_member,
                                   const ViewType &self_edges,
-                                  const ViewType &coupled_edges,
-                                  const int num_points)
-      : base_type(team_member, self_edges.extent(0) * num_points),
-        self_iterator(team_member, self_edges, num_points),
-        coupled_iterator(team_member, coupled_edges, num_points) {}
+                                  const ViewType &coupled_edges)
+      : base_type(team_member, self_edges.n_edges * self_edges.n_points),
+        self_iterator(team_member, self_edges),
+        coupled_iterator(team_member, coupled_edges) {}
 
   /**
    * @brief Get the self edge iterator
@@ -391,13 +390,11 @@ public:
   KOKKOS_INLINE_FUNCTION
   ChunkEdgeIntersectionIndex(const ViewType &self_edges,
                              const ViewType &coupled_edges,
-                             const int num_points,
                              const KokkosIndexType &kokkos_index)
       : kokkos_index(kokkos_index),
-        iterator(kokkos_index, self_edges, coupled_edges, num_points),
-        self_index(self_edges, num_points, kokkos_index),
-        coupled_index(coupled_edges, num_points, kokkos_index) {}
-
+        iterator(kokkos_index, self_edges, coupled_edges),
+        self_index(self_edges, kokkos_index),
+        coupled_index(coupled_edges, kokkos_index) {}
   /**
    * @brief Get the chunk index for self edges
    *
@@ -550,12 +547,8 @@ public:
       policy_index_type; ///< Policy index type.
                          ///< Evaluates to
                          ///< @c Kokkos::TeamPolicy::member_type
-  using index_type =
-      ChunkEdgeIntersectionIndex<ParallelConfig::dimension,
-                                 decltype(Kokkos::subview(
-                                     std::declval<ViewType>(),
-                                     std::declval<Kokkos::pair<int, int> >())),
-                                 policy_index_type>;
+  using index_type = ChunkEdgeIntersectionIndex<ParallelConfig::dimension,
+                                                ViewType, policy_index_type>;
 
   using execution_space =
       typename base_type::execution_space; ///< Execution space type.
@@ -575,15 +568,12 @@ public:
    * @param self_edges View of self mesh edges (first side of intersection)
    * @param coupled_edges View of coupled mesh edges (second side of
    * intersection)
-   * @param num_points Number of GLL points per edge
    */
   ChunkedIntersectionIterator(const ViewType self_edges,
-                              const ViewType coupled_edges,
-                              const int num_points)
+                              const ViewType coupled_edges)
       : self_edges(self_edges), coupled_edges(coupled_edges),
-        num_points(num_points),
-        base_type(((self_edges.extent(0) / chunk_size) +
-                   ((self_edges.extent(0) % chunk_size) != 0)),
+        base_type(((self_edges.n_edges / chunk_size) +
+                   ((self_edges.n_edges % chunk_size) != 0)),
                   Kokkos::AUTO, Kokkos::AUTO) {}
 
   /**
@@ -594,12 +584,10 @@ public:
    * @param self_edges View of self mesh edges (first side of intersection)
    * @param coupled_edges View of coupled mesh edges (second side of
    * intersection)
-   * @param num_points Number of GLL points per edge
    */
   ChunkedIntersectionIterator(const ParallelConfig, const ViewType self_edges,
-                              const ViewType coupled_edges,
-                              const int num_points)
-      : ChunkedIntersectionIterator(self_edges, coupled_edges, num_points) {}
+                              const ViewType coupled_edges)
+      : ChunkedIntersectionIterator(self_edges, coupled_edges) {}
 
   /**
    * @brief Team operator for intersection chunk processing
@@ -615,14 +603,12 @@ public:
   const index_type operator()(const policy_index_type &team) const {
     const auto league_id = team.league_rank();
     const int start = league_id * chunk_size;
-    const int end = ((start + chunk_size) > self_edges.extent(0))
-                        ? self_edges.extent(0)
+    const int end = ((start + chunk_size) > self_edges.n_edges)
+                        ? self_edges.n_edges
                         : (start + chunk_size);
-    const auto my_self_edges =
-        Kokkos::subview(self_edges, Kokkos::make_pair(start, end));
-    const auto my_coupled_edges =
-        Kokkos::subview(coupled_edges, Kokkos::make_pair(start, end));
-    return index_type(my_self_edges, my_coupled_edges, num_points, team);
+    const auto my_self_edges = self_edges(Kokkos::make_pair(start, end));
+    const auto my_coupled_edges = coupled_edges(Kokkos::make_pair(start, end));
+    return index_type(my_self_edges, my_coupled_edges, team);
   }
 
   /**
@@ -646,7 +632,6 @@ private:
   ViewType self_edges;    ///< View of self edges (first side of intersections)
   ViewType coupled_edges; ///< View of coupled edges (second side of
                           ///< intersections)
-  int num_points;         ///< Number of GLL points per edge
 };
 
 } // namespace specfem::execution

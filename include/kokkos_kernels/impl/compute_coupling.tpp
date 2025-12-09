@@ -10,6 +10,7 @@
 #include "parallel_configuration/chunk_edge_config.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/chunk_edge.hpp"
+#include "specfem/macros.hpp"
 #include "specfem/point.hpp"
 #include "specfem/point/interface_index.hpp"
 #include <Kokkos_Core.hpp>
@@ -38,12 +39,17 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       specfem::interface::attributes<dimension_tag,
                                      interface_tag>::self_medium();
 
-  const auto &coupled_interfaces = assembly.coupled_interfaces;
+  const auto &conforming_interfaces = assembly.conforming_interfaces;
   const auto [self_edges, coupled_edges] =
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
 
-  if (self_edges.extent(0) == 0 && coupled_edges.extent(0) == 0)
+  if (self_edges.n_edges != coupled_edges.n_edges) {
+    KOKKOS_ABORT_WITH_LOCATION(
+        "Mismatch in number of self and coupled edges in compute_coupling.");
+  }
+
+  if (self_edges.n_edges == 0 && coupled_edges.n_edges == 0)
     return;
 
   const auto &field =
@@ -64,21 +70,23 @@ void specfem::kokkos_kernels::impl::compute_coupling(
       specfem::point::boundary<boundary_tag, dimension_tag, false>;
 
   specfem::execution::ChunkedIntersectionIterator chunk(
-      parallel_config(), self_edges, coupled_edges, num_points);
+      parallel_config(), self_edges, coupled_edges);
 
   specfem::execution::for_all(
       "specfem::kokkos_kernels::impl::compute_coupling", chunk,
-      KOKKOS_LAMBDA(const typename decltype(chunk)::base_index_type &iterator_index) {
+      KOKKOS_LAMBDA(
+          const typename decltype(chunk)::base_index_type &iterator_index) {
         const auto index = iterator_index.get_index();
 
-        specfem::point::coupled_interface<dimension_tag, connection_tag,
-                                          interface_tag, boundary_tag>
+        specfem::point::conforming_interface<dimension_tag, interface_tag,
+                                             boundary_tag>
             point_interface_data;
-        specfem::assembly::load_on_device(index.self_index, coupled_interfaces,
-                                          point_interface_data);
+        specfem::assembly::load_on_device(
+            index.self_index, conforming_interfaces, point_interface_data);
 
         CoupledFieldType coupled_field;
-        specfem::assembly::load_on_device(index.coupled_index, field, coupled_field);
+        specfem::assembly::load_on_device(index.coupled_index, field,
+                                          coupled_field);
         SelfFieldType self_field;
 
         specfem::medium::compute_coupling(point_interface_data, coupled_field,
@@ -93,7 +101,8 @@ void specfem::kokkos_kernels::impl::compute_coupling(
               point_boundary, self_field);
         }
 
-        specfem::assembly::atomic_add_on_device(index.self_index, field, self_field);
+        specfem::assembly::atomic_add_on_device(index.self_index, field,
+                                                self_field);
       });
 
   return;
@@ -118,12 +127,12 @@ void specfem::kokkos_kernels::impl::compute_coupling(
   constexpr static auto interface_tag = InterfaceTag;
   constexpr static auto boundary_tag = BoundaryTag;
   constexpr static auto wavefield = WavefieldType;
-  const auto &coupled_interfaces = assembly.coupled_interfaces;
+  const auto &nonconforming_interfaces = assembly.nonconforming_interfaces;
   const auto [self_edges, coupled_edges] =
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
                                               boundary_tag);
 
-  if (self_edges.extent(0) == 0 && coupled_edges.extent(0) == 0)
+  if (self_edges.n_edges == 0 && coupled_edges.n_edges == 0)
     return;
 
   const auto field = assembly.fields.template get_simulation_field<wavefield>();
@@ -150,41 +159,25 @@ void specfem::kokkos_kernels::impl::compute_coupling(
                                         dimension_tag, coupled_medium,
                                         using_simd> >;
 
-  using SelfFieldType =
-      specfem::point::acceleration<dimension_tag, self_medium, using_simd>;
-  using CoupledInterfaceDataType =
-      typename specfem::chunk_edge::nonconforming_coupled_interface<
-          parallel_config::chunk_size, NGLL, NQuad_intersection, dimension_tag,
-          connection_tag, interface_tag, boundary_tag,
-          specfem::kokkos::DevScratchSpace,
-          Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
-  using CoupledTransferFunctionType =
-      typename specfem::chunk_edge::nonconforming_transfer_and_normal<
-          false, parallel_config::chunk_size, NGLL, NQuad_intersection,
-          dimension_tag, connection_tag, interface_tag, boundary_tag,
-          specfem::kokkos::DevScratchSpace,
-          Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
-  using IntersectionFactorType =
-      typename specfem::chunk_edge::nonconforming_intersection_factor<
-          parallel_config::chunk_size, NQuad_intersection,
-          dimension_tag, connection_tag, interface_tag, boundary_tag,
-          specfem::kokkos::DevScratchSpace,
-          Kokkos::MemoryTraits<Kokkos::Unmanaged>>;
+  using CouplingTermsPack = specfem::chunk_edge::coupling_terms_pack<
+      dimension_tag, interface_tag, boundary_tag, parallel_config::chunk_size,
+      NGLL, NQuad_intersection>;
+  using IntegrationFactor = specfem::chunk_edge::intersection_factor<
+      dimension_tag, interface_tag, boundary_tag, parallel_config::chunk_size,
+      NQuad_intersection>;
 
   using InterfaceFieldViewType = specfem::datatype::VectorChunkEdgeViewType<
-      type_real, dimension_tag, parallel_config::chunk_size,
-      NQuad_intersection,
+      type_real, dimension_tag, parallel_config::chunk_size, NQuad_intersection,
       specfem::element::attributes<DimensionTag, self_medium>::components,
       using_simd, specfem::kokkos::DevScratchSpace,
       Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
   specfem::execution::ChunkedIntersectionIterator chunk(
-      parallel_config(), self_edges, coupled_edges, num_points);
+      parallel_config(), self_edges, coupled_edges);
 
-  int scratch_size = CoupledFieldType::shmem_size() +
-                     CoupledTransferFunctionType::shmem_size() +
-                     InterfaceFieldViewType::shmem_size()
-                     +IntersectionFactorType::shmem_size();
+  int scratch_size =
+      CoupledFieldType::shmem_size() + CouplingTermsPack::shmem_size() +
+      InterfaceFieldViewType::shmem_size() + IntegrationFactor::shmem_size();
 
   specfem::execution::for_each_level(
       "specfem::kokkos_kernels::impl::compute_coupling",
@@ -204,31 +197,26 @@ void specfem::kokkos_kernels::impl::compute_coupling(
         specfem::assembly::load_on_device(coupled_chunk_index, field,
                                           coupled_field);
 
+        CouplingTermsPack interface_data(team);
 
-        // TODO add point access for mortar transfer function and replace self
-        // side of this:
-        CoupledTransferFunctionType coupled_transfer_function(team);
-
-        specfem::assembly::load_on_device(self_chunk_index, coupled_interfaces,
-                                          coupled_transfer_function);
+        specfem::assembly::load_on_device(
+            self_chunk_index, nonconforming_interfaces, interface_data);
         InterfaceFieldViewType interface_field(team.team_scratch(0));
 
         team.team_barrier();
-        specfem::medium::compute_coupling(self_chunk_index,
-                                          coupled_transfer_function,
+        specfem::medium::compute_coupling(self_chunk_index, interface_data,
                                           coupled_field, interface_field);
 
-        IntersectionFactorType intersection_factor(team);
+        IntegrationFactor integration_factor(team);
 
-        specfem::assembly::load_on_device(self_chunk_index, coupled_interfaces,
-                                          intersection_factor);
+        specfem::assembly::load_on_device(
+            self_chunk_index, nonconforming_interfaces, integration_factor);
 
         team.team_barrier();
 
         specfem::algorithms::coupling_integral(
-            assembly, self_chunk_index, interface_field, intersection_factor, [&](
-                const auto& self_index, SelfFieldType& self_field){
-
+            assembly, self_chunk_index, interface_field, integration_factor,
+            [&](const auto &self_index, auto &self_field) {
               specfem::point::boundary<boundary_tag, dimension_tag, false>
                   point_boundary;
               specfem::assembly::load_on_device(self_index, assembly.boundaries,
@@ -241,9 +229,7 @@ void specfem::kokkos_kernels::impl::compute_coupling(
 
               specfem::assembly::atomic_add_on_device(self_index, field,
                                                       self_field);
-
-            }
-        );
+            });
       });
 
   return;
