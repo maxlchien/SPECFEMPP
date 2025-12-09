@@ -32,7 +32,7 @@ specfem::point::mass_inverse
 
 
 Implementation Details
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
     :maxdepth: 1
