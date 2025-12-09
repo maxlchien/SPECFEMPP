@@ -72,19 +72,27 @@ class velocity
                          specfem::data_access::DataClassType::velocity,
                          UseSIMD> {
 private:
-  /// @brief Type alias for the base field implementation
+  /**
+   * @brief Type alias for the base field implementation.
+   */
   using base_type =
       impl::field<DimensionTag, MediumTag,
                   specfem::data_access::DataClassType::velocity, UseSIMD>;
 
 public:
-  /// @brief SIMD type for vectorized velocity operations
+  /**
+   * @brief SIMD type for vectorized velocity operations.
+   */
   using simd = typename base_type::simd;
 
-  /// @brief Vector type for storing velocity component values
+  /**
+   * @brief Vector type for storing velocity component values.
+   */
   using value_type = typename base_type::value_type;
 
-  /// @brief Inherit all constructors from the base field implementation
+  /**
+   * @brief Inherit all constructors from the base field implementation.
+   */
   using base_type::base_type;
 };
 
