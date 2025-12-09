@@ -68,7 +68,7 @@ public:
           const specfem::assembly::element_types<dimension_tag> &element_types);
 
   /**
-   * @brief Default destructor
+   * @brief Default constructor
    *
    */
   kernels() = default;
