@@ -31,8 +31,8 @@ namespace specfem::assembly {
  // clang-format off
  * @code
  * // Example: Store elastic kernels during adjoint simulation
- * const int specfem::point::index<...> index = ...; // Current element and GLL
- * point const specfem::point::kernels<...> point_kernels = ...;
+ * const specfem::point::index<...> index = ...; // Current element and GLL point
+ * const specfem::point::kernels<...> point_kernels = ...;
  * const auto kernels = assembly.kernels; // Global kernels container
  * store_on_device(index, point_kernels, kernels);
  * @endcode
