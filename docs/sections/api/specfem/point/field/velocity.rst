@@ -1,8 +1,8 @@
 
 .. _specfem_point_field_velocity:
 
-Velocity
-========
+specfem::point::velocity
+========================
 
 Datatype used to store velocity field values at a quadrature point.
 

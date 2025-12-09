@@ -1,8 +1,8 @@
 
 .. _specfem_point_field_displacement:
 
-Displacement
-============
+specfem::point::displacement
+============================
 
 Datatype used to store displacement field values at a quadrature point.
 

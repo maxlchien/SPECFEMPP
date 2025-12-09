@@ -64,6 +64,7 @@ namespace specfem::point {
  *
  * @see specfem::point::displacement for displacement field accessor
  * @see specfem::point::acceleration for acceleration field accessor
+ * @see specfem::point::mass_inverse for inverse mass matrix field accessor
  */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag, bool UseSIMD>

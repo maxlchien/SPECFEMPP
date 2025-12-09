@@ -1,8 +1,8 @@
 
 .. _specfem_point_field_mass_inverse:
 
-Mass Matrix Inverse
-===================
+specfem::point::mass_inverse
+============================
 
 Datatype used to store inverse of mass matrix field values at a quadrature point.
 

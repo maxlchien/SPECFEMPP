@@ -1,8 +1,8 @@
 
 .. _specfem_point_field_acceleration:
 
-Acceleration
-============
+specfem::point::acceleration
+============================
 
 Datatype used to store acceleration field values at a quadrature point.
 
