@@ -45,6 +45,7 @@ void specfem::kokkos_kernels::impl::compute_material_derivatives(
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
   constexpr bool using_simd = false;
 #else
+  // TODO(Rohit : DIM3_SIMD) Enable simd execution for dim3 solver
   constexpr bool using_simd = (DimensionTag == specfem::dimension::type::dim2) ? true : false;
 #endif
 
