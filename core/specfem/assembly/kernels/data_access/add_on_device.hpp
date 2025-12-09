@@ -32,7 +32,7 @@ namespace specfem::assembly {
  // clang-format off
  * @code
  * // Example: Accumulate elastic kernels during adjoint simulation
- * const int specfem::point::index<...> index = ...; // Current element and GLL
+ * const specfem::point::index<...> index = ...; // Current element and GLL
  * point const specfem::point::kernels<...> point_kernels = ...;
  * const auto kernels = assembly.kernels; // Global kernels container
  * add_on_device(index, point_kernels, kernels);
