@@ -17,7 +17,7 @@ UTM_PROJECTION_ZONE             = 11
 SUPPRESS_UTM_PROJECTION         = .true.
 
 # file that contains the interfaces of the model / mesh
-INTERFACES_FILE                 = ./DATA/meshfem3D_files/interfaces.txt
+INTERFACES_FILE                 = ./interfaces.txt
 
 # file that contains the cavity
 CAVITY_FILE                     = no_cavity.dat
@@ -61,13 +61,13 @@ NZ_DOUBLING_2                   = 48
 # create mesh files for visualisation or further checking
 CREATE_ABAQUS_FILES             = .false.
 CREATE_DX_FILES                 = .false.
-CREATE_VTK_FILES                = .true.
+CREATE_VTK_FILES                = .false.
 
 # stores mesh files as cubit-exported files into directory MESH/ (for single process run)
 SAVE_MESH_AS_CUBIT              = .false.
 
 # path to store the databases files
-LOCAL_PATH                      = ./OUTPUT_FILES/DATABASES_MPI
+LOCAL_PATH                      = ./OUTPUT_FILES/
 
 #-----------------------------------------------------------
 #

@@ -234,7 +234,7 @@ TEST_P(Newmark, 3D) {
 
       // Depending on wavefield, and timestep, get the correct filenames
       filenames = channel_generator.get_station_filenames(
-          network_name, station_name, "", seismogram_type);
+          network_name, station_name, "S3", seismogram_type);
 
       // Get the number of components for this seismogram type
       const int ncomponents = filenames.size();

@@ -1,6 +1,9 @@
 configfile: "dim2/tests.yaml"
+configfile: "dim3/tests.yaml"
 
-tests = config["tests2d"]
+tests2d = config["tests2d"]
+tests3d = config["tests3d"]
+
 
 rule all:
     input:
@@ -19,10 +22,24 @@ for test_name in tests:
 
     use rule * from test_name as alias*
 
+for test_name in tests3d:
+    alias = f'{test_name}_'
+
+    module:
+        name: test_name
+        snakefile: f"serial/dim3/{test_name}/Snakefile"
+        pathvars:
+            cwd=f"serial/dim3/{test_name}"
+
+    use rule * from test_name as alias*
+
 rule clean:
     shell:
         """
         rm -rf serial/dim2/*/specfem2d_workdir
         rm -rf serial/dim2/*/database.bin
         rm -rf serial/dim2/*/traces
+        rm -rf serial/dim3/*/specfem3d_workdir
+        rm -rf serial/dim3/*/database.bin
+        rm -rf serial/dim3/*/traces
         """
