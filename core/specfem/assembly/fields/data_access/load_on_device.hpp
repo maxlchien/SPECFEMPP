@@ -102,8 +102,8 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(const IndexType &index,
  * load_on_device(simd_index, elastic_field, disp, vel);
  *
  * // Access loaded values
- * auto disp_x = displacement(0);
- * auto disp_z = displacement(1);
+ * auto disp_x = disp(0);
+ * auto disp_z = disp(1);
  *
  * // Use in device kernels for field retrieval
  * Kokkos::parallel_for("load_kernel", range, KOKKOS_LAMBDA(int i) {
