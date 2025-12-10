@@ -74,9 +74,9 @@ KOKKOS_FORCEINLINE_FUNCTION void store_on_device(const IndexType &index,
  * auto vel = specfem::point::velocity<...>(...);
  *
  * // Update accessor values
- * displacement(0) = computed_disp_x;
- * displacement(1) = computed_disp_z;
- * velocity(0) = computed_vel_x;
+ * disp(0) = computed_disp_x;
+ * disp(1) = computed_disp_z;
+ * vel(0) = computed_vel_x;
  *
  * // Single kernel call stores multiple components to field
  * store_on_device(assembly_index, elastic_field, disp, vel);
