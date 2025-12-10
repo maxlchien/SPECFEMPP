@@ -160,9 +160,9 @@ public:
    * medium
    *
    * @code
-   * auto elastic_field =
-   * field.get_field<specfem::element::medium_tag::elastic_psv>(); auto
-   * displacement = elastic_field.displacement;
+   * auto elastic_field = field.get_field<specfem::element::medium_tag::elastic_psv>();
+   * auto displacement = elastic_field.displacement;
+   * // Now you can use displacement for further computations
    * @endcode
    */
   template <specfem::element::medium_tag MediumTag>
