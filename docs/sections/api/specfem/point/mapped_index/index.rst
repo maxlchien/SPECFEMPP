@@ -1,7 +1,7 @@
 .. _specfem_point_mapped_index:
 
-Mapped Index
-============
+specfem::point::mapped_index
+============================
 
 .. doxygenstruct:: specfem::point::mapped_index
    :members:

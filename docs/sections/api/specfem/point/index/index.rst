@@ -1,7 +1,7 @@
 .. _specfem_point_index:
 
-Index
-=====
+specfem::point::index
+=====================
 
 Datatype used to store the global coordinates of a point within the mesh.
 

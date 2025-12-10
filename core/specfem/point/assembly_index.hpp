@@ -7,6 +7,7 @@ namespace specfem {
 namespace point {
 
 /**
+ * @struct assembly_index
  * @brief Struct to store the assembled index for a quadrature point
  *
  * @tparam using_simd Flag to indicate if this is a simd index
@@ -14,6 +15,7 @@ namespace point {
 template <bool using_simd = false> struct assembly_index;
 
 /**
+ * @struct assembly_index<false>
  * @brief Struct to store the assembled index for a quadrature point
  *
  * This struct stores a 1D index that corresponds to a global numbering of the
@@ -26,24 +28,34 @@ struct assembly_index<false>
           specfem::data_access::AccessorType::point,
           specfem::data_access::DataClassType::assembly_index,
           specfem::dimension::type::dim2, false> {
-  int iglob; ///< Global index number of the quadrature point
+  /**
+   * @brief Global index number of the quadrature point.
+   *
+   * This index uniquely identifies the quadrature point within the global mesh
+   * numbering system. It is used for gathering and scattering data to global
+   * arrays.
+   */
+  int iglob;
 
   /**
    * @name Constructors
-   *
+   * @brief Constructors for initializing the assembly index.
    */
   ///@{
   /**
-   * @brief Default constructor
+   * @brief Default constructor.
    *
+   * Initializes an empty assembly index.
    */
   KOKKOS_FUNCTION
   assembly_index() = default;
 
   /**
-   * @brief Constructor with values
+   * @brief Constructor with global index.
    *
-   * @param iglob Global index number of the quadrature point
+   * Initializes the assembly index with a specific global index.
+   *
+   * @param iglob Global index number of the quadrature point.
    */
   KOKKOS_FUNCTION
   assembly_index(const int &iglob) : iglob(iglob) {}
@@ -51,6 +63,7 @@ struct assembly_index<false>
 };
 
 /**
+ * @struct assembly_index<true>
  * @brief Struct to store the SIMD assembled indices for a quadrature point
  *
  * SIMD indices are intended to be used for loading @c load_on_device and
@@ -64,46 +77,63 @@ struct assembly_index<true>
           specfem::data_access::AccessorType::point,
           specfem::data_access::DataClassType::assembly_index,
           specfem::dimension::type::dim2, true> {
-  int number_points; ///< Number of points in the SIMD vector
-  int iglob;         ///< Global index number of the quadrature point
+  /**
+   * @brief Number of active points in the SIMD vector.
+   *
+   * Indicates how many lanes in the SIMD vector contain valid data.
+   * This is used for masking operations at boundaries or when the number of
+   * points is not a multiple of the SIMD width.
+   */
+  int number_points;
 
   /**
-   * @brief Mask function to determine if a lane is valid
+   * @brief Global index number of the first quadrature point in the SIMD batch.
    *
-   * @param lane Lane index
+   * Represents the starting global index. Subsequent points in the SIMD vector
+   * are typically assumed to be contiguous or strided based on the access
+   * pattern.
+   */
+  int iglob;
+
+  /**
+   * @brief Mask function to determine if a SIMD lane is valid.
+   *
+   * Checks if the given lane index is within the valid range of points
+   * for this SIMD batch.
+   *
+   * @param lane The SIMD lane index to check (0 to vector_width-1).
+   * @return true if the lane is active/valid, false otherwise.
    */
   KOKKOS_FUNCTION
   bool mask(const std::size_t &lane) const { return int(lane) < number_points; }
 
   /**
    * @name Constructors
-   *
+   * @brief Constructors for initializing the SIMD assembly index.
    */
   ///@{
   /**
-   * @brief Default constructor
+   * @brief Default constructor.
    *
+   * Initializes an empty SIMD assembly index.
    */
   KOKKOS_FUNCTION
   assembly_index() = default;
 
   /**
-   * @brief Constructor with values
+   * @brief Constructor with values.
    *
-   * @param iglob Global index number of the quadrature point
-   * @param number_points Number of points in the SIMD vector
+   * Initializes the SIMD assembly index with a starting global index and
+   * the number of valid points.
+   *
+   * @param iglob Global index number of the first quadrature point.
+   * @param number_points Number of valid points in the SIMD vector.
    */
   KOKKOS_FUNCTION
   assembly_index(const int &iglob, const int &number_points)
       : number_points(number_points), iglob(iglob) {}
   ///@}
 };
-
-/**
- * @brief Type alias for the SIMD assembly index
- *
- */
-using simd_assembly_index = assembly_index<true>;
 
 } // namespace point
 } // namespace specfem

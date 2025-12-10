@@ -17,12 +17,19 @@ namespace specfem::point {
  */
 template <specfem::dimension::type DimensionTag> class interface_index {
 public:
-  /** @brief Edge index on the self side of the interface */
+  /**
+   * @brief Edge index on the self side of the interface.
+   */
   specfem::point::edge_index<DimensionTag> self_index;
-  /** @brief Edge index on the coupled side of the interface */
+
+  /**
+   * @brief Edge index on the coupled side of the interface.
+   */
   specfem::point::edge_index<DimensionTag> coupled_index;
 
-  /** @brief Default constructor */
+  /**
+   * @brief Default constructor.
+   */
   KOKKOS_INLINE_FUNCTION
   interface_index() = default;
 
