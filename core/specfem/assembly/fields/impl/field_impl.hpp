@@ -186,7 +186,7 @@ public:
   constexpr static int components =
       specfem::element::attributes<DimensionTag, MediumTag>::components;
 
-  // Import get_value methods from all base field types for unified access
+  // Bring get_value methods from base classes into scope for unified field access
   using acceleration_base_type::get_value; ///< Access acceleration field values
   using displacement_base_type::get_value; ///< Access displacement field values
   using mass_inverse_base_type::get_value; ///< Access mass matrix field values
