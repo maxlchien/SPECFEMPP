@@ -163,9 +163,9 @@ public:
    * @return Const reference to the 3D field implementation for elastic medium
    *
    * @code
-   * auto elastic_field =
-   * field.get_field<specfem::element::medium_tag::elastic>(); auto displacement
-   * = elastic_field.displacement;
+   * const auto& elastic_field =
+   * field.get_field<specfem::element::medium_tag::elastic>(); 
+   * const auto& displacement = elastic_field.displacement;
    * @endcode
    */
   template <specfem::element::medium_tag MediumTag>
