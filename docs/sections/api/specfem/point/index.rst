@@ -16,6 +16,7 @@ functions used to represent and manipulate points in the SPECFEM++ framework.
 
     assembly_index/index
     boundary/index
+    conforming_interface/index
     coordinates/index
     edge_index/index
     field/index
@@ -25,6 +26,7 @@ functions used to represent and manipulate points in the SPECFEM++ framework.
     jacobian_matrix/index
     kernels/index
     mapped_index/index
+    nonconforming_interface/index
     properties/index
     source/index
     stress/index
