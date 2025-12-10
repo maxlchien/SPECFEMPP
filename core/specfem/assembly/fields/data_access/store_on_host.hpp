@@ -96,8 +96,8 @@ void store_on_host(const IndexType &index, const ContainerType &field,
  * auto vel = specfem::point::velocity<...>(...);
  *
  * // Set initial or computed values
- * displacement(0) = initial_disp_x;
- * displacement(1) = initial_disp_z;
+ * disp(0) = initial_disp_x;
+ * disp(1) = initial_disp_z;
  * velocity(0) = initial_vel_x;
  *
  * // Store values to field on host
