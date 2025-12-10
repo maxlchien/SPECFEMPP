@@ -70,8 +70,8 @@ KOKKOS_FORCEINLINE_FUNCTION void add_on_device(const IndexType &index,
  * auto vel = specfem::point::velocity<...>(...);
  *
  * // Update fields at a specific quadrature point
- * displacement(0) += delta_disp_x;
- * displacement(1) += delta_disp_z;
+ * disp(0) += delta_disp_x;
+ * disp(1) += delta_disp_z;
  *
  * // Single kernel call updates multiple components
  * add_on_device(assembly_index, elastic_field, disp, vel);
