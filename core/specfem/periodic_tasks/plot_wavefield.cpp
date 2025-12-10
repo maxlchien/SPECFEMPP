@@ -901,15 +901,17 @@ void specfem::periodic_tasks::plot_wavefield::initialize_display(
   } else {
     double range[2];
     scalars->GetRange(range);
-    double abs_max = std::max(std::abs(range[0]), std::abs(range[1]));
+    double abs_max = (std::abs(range[0]) + std::abs(range[1])) / 2.0;
     this->wavefield_mapper->SetScalarRange(-abs_max, abs_max);
     this->lut->SetRange(-abs_max, abs_max);
 
     for (int i = 0; i < 256; ++i) {
       double t = static_cast<double>(i) / 255.0;
-      double transparency = 2.0 * std::abs(0.5 - t);
-      double step = t > 0.5 ? 1.0 : 0.0;
-      this->lut->SetTableValue(i, step, 0.0, 1.0 - step, transparency);
+      double transparency = this->sigmoid(2.0 * std::abs(0.5 - t));
+      double blue_frac = std::min(2.0 - 2.0 * t, 1.0);
+      double red_frac = std::min(2.0 * t, 1.0);
+      this->lut->SetTableValue(i, red_frac, std::min(blue_frac, red_frac),
+                               blue_frac, transparency);
     }
   }
 
@@ -1048,7 +1050,7 @@ void specfem::periodic_tasks::plot_wavefield::run_render(
     this->wavefield_mapper->SetScalarRange(range[0], range[1]);
     this->lut->SetRange(range[0], range[1]);
   } else {
-    double abs_max = std::max(std::abs(range[0]), std::abs(range[1]));
+    double abs_max = (std::abs(range[0]), std::abs(range[1])) / 2.0;
     this->wavefield_mapper->SetScalarRange(-abs_max, abs_max);
     this->lut->SetRange(-abs_max, abs_max);
   }
