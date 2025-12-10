@@ -101,8 +101,8 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_host(const IndexType &index,
  * load_on_host(assembly_index, elastic_field, disp);
  *
  * // Access loaded values for debugging
- * std::cout << "Displacement X: " << displacement(0) << std::endl;
- * std::cout << "Displacement Z: " << displacement(1) << std::endl;
+ * std::cout << "Displacement X: " << disp(0) << std::endl;
+ * std::cout << "Displacement Z: " << disp(1) << std::endl;
  *
  * // Host-based field processing
  * for (int i = 0; i < num_points; ++i) {
