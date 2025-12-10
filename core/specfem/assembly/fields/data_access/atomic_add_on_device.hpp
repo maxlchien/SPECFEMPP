@@ -80,8 +80,8 @@ atomic_add_on_device(const IndexType &index, const ContainerType &field,
  * auto vel = specfem::point::velocity<...>(...);
  *
  * // Update field values in accessor
- * displacement(0) += delta_disp_x;
- * displacement(1) += delta_disp_z;
+ * disp(0) += delta_disp_x;
+ * disp(1) += delta_disp_z;
  *
  * // Single atomic kernel call updates multiple components thread-safely
  * atomic_add_on_device(simd_index, elastic_field, disp, vel);
