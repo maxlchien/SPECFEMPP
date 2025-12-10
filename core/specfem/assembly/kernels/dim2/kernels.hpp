@@ -48,6 +48,12 @@ struct kernels<specfem::dimension::type::dim2>
                                     specfem::medium::kernels_container> {
 public:
   /**
+   * @brief Default constructor
+   *
+   */
+  kernels() = default;
+
+  /**
    * @brief Construct 2D kernels container from mesh and element information.
    *
    * Initializes the complete kernels storage system for a 2D spectral element
@@ -66,12 +72,6 @@ public:
    */
   kernels(const int nspec, const int ngllz, const int ngllx,
           const specfem::assembly::element_types<dimension_tag> &element_types);
-
-  /**
-   * @brief Default constructor
-   *
-   */
-  kernels() = default;
 
   /**
    * @brief Copy all kernel data from device to host memory.
