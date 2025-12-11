@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.12"
 
 [[package]]
@@ -1408,7 +1407,7 @@ wheels = [
 
 [[package]]
 name = "snakemake"
-version = "9.11.2"
+version = "9.13.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "appdirs" },
@@ -1442,9 +1441,9 @@ dependencies = [
     { name = "wrapt" },
     { name = "yte" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/67/88cbc1c18f0c97f07b7e2a0d722f4297a2398f7e6c095a30ec80d75b2126/snakemake-9.11.2.tar.gz", hash = "sha256:d0905992f6db8f887bb40234336a7979d9088886a7cabfb4334557c400d66ec9", size = 6724674 }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/d1/4e9a69a0607131dc724b3666ed7724f329c8ed2e2395da42691e0c2c3a31/snakemake-9.13.4.tar.gz", hash = "sha256:5e88682f3e55670950483bc76cfb1bedff32e368177a0a02891efd00da9af923", size = 6737383 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/12/4da80db9cc71d6b5c5514dc53c4cb51a147cd22065596020ec98aeb7ab33/snakemake-9.11.2-py3-none-any.whl", hash = "sha256:9e55db7a53deef728b4ee558a5bf8207e7ffcf604edce4f1271678dec9557171", size = 1124593 },
+    { url = "https://files.pythonhosted.org/packages/49/e1/cd9c80e3bfacf7acd9e4c29944c598847b3d1655ff2d656f10724a318ae6/snakemake-9.13.4-py3-none-any.whl", hash = "sha256:2638491fd84ec3787143ddb6db71a2924a028e634c1af8e16c15f58e615a4c2e", size = 1129933 },
 ]
 
 [[package]]
@@ -1690,7 +1689,7 @@ all = [
     { name = "rtree", specifier = "==1.4.1" },
     { name = "ruff", specifier = "==0.9.1" },
     { name = "scipy", specifier = "==1.15.2" },
-    { name = "snakemake", specifier = "==9.11.2" },
+    { name = "snakemake", specifier = "==9.13.4" },
     { name = "snakemake-executor-plugin-slurm", specifier = "==0.10.2" },
     { name = "sphinx-copybutton", specifier = "==0.4.0" },
     { name = "sphinx-design", specifier = "==0.6.1" },
@@ -1733,7 +1732,7 @@ examples = [
     { name = "obspy", specifier = "==1.4.1" },
     { name = "pyyaml", specifier = "==6.0.2" },
     { name = "scipy", specifier = "==1.15.2" },
-    { name = "snakemake", specifier = "==9.11.2" },
+    { name = "snakemake", specifier = "==9.13.4" },
     { name = "snakemake-executor-plugin-slurm", specifier = "==0.10.2" },
 ]
 nightly-benchmarks = [
@@ -1745,7 +1744,7 @@ nightly-benchmarks = [
     { name = "pandas", specifier = "==2.3.2" },
     { name = "pyyaml", specifier = "==6.0.2" },
     { name = "scipy", specifier = "==1.15.2" },
-    { name = "snakemake", specifier = "==9.11.2" },
+    { name = "snakemake", specifier = "==9.13.4" },
     { name = "snakemake-executor-plugin-slurm", specifier = "==0.10.2" },
 ]
 scripts = [

@@ -1,5 +1,5 @@
 #include "../test_fixture.hpp"
-#include "MPI_environment.hpp"
+#include "SPECFEM_Environment.hpp"
 #include "enumerations/connections.hpp"
 #include "enumerations/interface.hpp"
 #include "enumerations/mesh_entities.hpp"
@@ -39,8 +39,8 @@ struct ExpectedMapping {
   check(const specfem::assembly::mesh_impl::points<dimension> &points) const {
 
     // Get the mesh
-    const auto expected_mesh = specfem::io::meshfem3d::read_3d_mesh(
-        database_file, MPIEnvironment::get_mpi());
+    const auto expected_mesh =
+        specfem::io::read_3d_mesh(database_file, SPECFEMEnvironment::get_mpi());
 
     ASSERT_EQ(points.nspec, total_quadrature_points.nelements)
         << "Number of spectral elements mismatch. "

@@ -7,6 +7,7 @@
 #include "parameter_parser/interface.hpp"
 #include "solver/solver.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/logger.hpp"
 #include "specfem/receivers.hpp"
 #include "specfem/source.hpp"
 #include "specfem/timescheme.hpp"
@@ -56,7 +57,7 @@ void program_2d(
   specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
   const auto database_filename = setup.get_databases();
 
-  mpi->cout(setup.print_header(start_time));
+  specfem::Logger::info(setup.print_header(start_time));
 
   // --------------------------------------------------------------
 
@@ -83,26 +84,22 @@ void program_2d(
   const auto angle = setup.get_receiver_angle();
   auto receivers = specfem::io::read_2d_receivers(stations_node, angle);
 
-  mpi->cout("Source Information:");
-  mpi->cout("-------------------------------");
-  if (mpi->main_proc()) {
-    std::cout << "Number of sources : " << sources.size() << "\n" << std::endl;
-  }
+  specfem::Logger::info("Source Information:");
+  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info(
+      "Number of sources : " + std::to_string(sources.size()) + "\n");
 
   for (auto &source : sources) {
-    mpi->cout(source->print());
+    specfem::Logger::info(source->print());
   }
 
-  mpi->cout("Receiver Information:");
-  mpi->cout("-------------------------------");
-
-  if (mpi->main_proc()) {
-    std::cout << "Number of receivers : " << receivers.size() << "\n"
-              << std::endl;
-  }
+  specfem::Logger::info("Receiver Information:");
+  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info(
+      "Number of receivers : " + std::to_string(receivers.size()) + "\n");
 
   for (auto &receiver : receivers) {
-    mpi->cout(receiver->print());
+    specfem::Logger::info(receiver->print());
   }
   // --------------------------------------------------------------
 
@@ -118,9 +115,7 @@ void program_2d(
       nstep_between_samples, setup.get_simulation_type(),
       setup.allocate_boundary_values(), setup.instantiate_property_reader());
 
-  if (mpi->main_proc()) {
-    mpi->cout(assembly.print());
-  }
+  specfem::Logger::info(assembly.print());
 
   // --------------------------------------------------------------
 
@@ -129,8 +124,7 @@ void program_2d(
   // --------------------------------------------------------------
   const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
 
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
+  specfem::Logger::info(time_scheme->print());
 
   // --------------------------------------------------------------
 
@@ -139,8 +133,8 @@ void program_2d(
   // --------------------------------------------------------------
   const auto property_writer = setup.instantiate_property_writer();
   if (property_writer) {
-    mpi->cout("Writing model files:");
-    mpi->cout("-------------------------------");
+    specfem::Logger::info("Writing model files:");
+    specfem::Logger::info("-------------------------------");
 
     property_writer->write(assembly);
     return;
@@ -151,14 +145,7 @@ void program_2d(
   //                   Read wavefields
   // --------------------------------------------------------------
   const auto wavefield_reader = setup.instantiate_wavefield_reader();
-  // if (wavefield_reader) {
-  //   mpi->cout("Reading wavefield files:");
-  //   mpi->cout("-------------------------------");
 
-  //   wavefield_reader->read(assembly);
-  //   // Transfer the buffer field to device
-  //   assembly.fields.buffer.copy_to_device();
-  // }
   if (wavefield_reader) {
     tasks.push_back(wavefield_reader);
   }
@@ -194,8 +181,8 @@ void program_2d(
   //                   Execute Solver
   // --------------------------------------------------------------
   // Time the solver
-  mpi->cout("Executing time loop:");
-  mpi->cout("-------------------------------");
+  specfem::Logger::info("Executing time loop:");
+  specfem::Logger::info("-------------------------------");
 
   const auto solver_start_time = std::chrono::system_clock::now();
   solver->run();
@@ -210,31 +197,20 @@ void program_2d(
   // --------------------------------------------------------------
   const auto seismogram_writer = setup.instantiate_seismogram_writer();
   if (seismogram_writer) {
-    mpi->cout("Writing seismogram files:");
-    mpi->cout("-------------------------------");
+    specfem::Logger::info("Writing seismogram files:");
+    specfem::Logger::info("-------------------------------");
 
     seismogram_writer->write(assembly);
   }
   // --------------------------------------------------------------
-
-  // // --------------------------------------------------------------
-  // //                  Write Forward Wavefields
-  // // --------------------------------------------------------------
-  // if (wavefield_writer) {
-  //   mpi->cout("Writing wavefield files:");
-  //   mpi->cout("-------------------------------");
-
-  //   wavefield_writer->write(assembly);
-  // }
-  // // --------------------------------------------------------------
 
   // --------------------------------------------------------------
   //                Write Kernels
   // --------------------------------------------------------------
   const auto kernel_writer = setup.instantiate_kernel_writer();
   if (kernel_writer) {
-    mpi->cout("Writing kernel files:");
-    mpi->cout("-------------------------------");
+    specfem::Logger::info("Writing kernel files:");
+    specfem::Logger::info("-------------------------------");
 
     kernel_writer->write(assembly);
   }
@@ -243,7 +219,7 @@ void program_2d(
   // --------------------------------------------------------------
   //                   Print End Message
   // --------------------------------------------------------------
-  mpi->cout(print_end_message(start_time, solver_time));
+  specfem::Logger::info(print_end_message(start_time, solver_time));
   // --------------------------------------------------------------
 
   return;
@@ -261,8 +237,8 @@ void program_3d(
   auto start_time = std::chrono::system_clock::now();
   specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
   const auto database_filename = setup.get_databases();
-  const auto mesh_parameters_filename = setup.get_mesh_parameters();
-  mpi->cout(setup.print_header(start_time));
+
+  specfem::Logger::info(setup.print_header(start_time));
 
   // Get simulation parameters
   const specfem::simulation::type simulation_type = setup.get_simulation_type();
@@ -273,15 +249,14 @@ void program_3d(
   // --------------------------------------------------------------
   //                   Read mesh and materials
   // --------------------------------------------------------------
-  mpi->cout("Reading the mesh...");
-  mpi->cout("===================");
+  specfem::Logger::info("Reading the mesh...");
+  specfem::Logger::info("===================");
   const auto quadrature = setup.instantiate_quadrature();
-  const auto mesh = specfem::io::read_3d_mesh(mesh_parameters_filename,
-                                              database_filename, mpi);
+  const auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
   std::chrono::duration<double> elapsed_seconds =
       std::chrono::system_clock::now() - start_time;
-  mpi->cout("Time to read mesh: " + std::to_string(elapsed_seconds.count()) +
-            " seconds");
+  specfem::Logger::info("Time to read mesh: " +
+                        std::to_string(elapsed_seconds.count()) + " seconds");
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
@@ -301,26 +276,22 @@ void program_3d(
           specfem::receivers::receiver<specfem::dimension::type::dim3> >(
           "NET", "STA", 50000.0, 40000.0, 0.0));
 
-  mpi->cout("Source Information:");
-  mpi->cout("-------------------------------");
-  if (mpi->main_proc()) {
-    std::cout << "Number of sources : " << sources.size() << "\n" << std::endl;
-  }
+  specfem::Logger::info("Source Information:");
+  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info(
+      "Number of sources : " + std::to_string(sources.size()) + "\n");
 
   for (auto &source : sources) {
-    mpi->cout(source->print());
+    specfem::Logger::info(source->print());
   }
 
-  mpi->cout("Receiver Information:");
-  mpi->cout("-------------------------------");
-
-  if (mpi->main_proc()) {
-    std::cout << "Number of receivers : " << receivers.size() << "\n"
-              << std::endl;
-  }
+  specfem::Logger::info("Receiver Information:");
+  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info(
+      "Number of receivers : " + std::to_string(receivers.size()) + "\n");
 
   for (auto &receiver : receivers) {
-    mpi->cout(receiver->print());
+    specfem::Logger::info(receiver->print());
   }
   // --------------------------------------------------------------
 
@@ -335,9 +306,7 @@ void program_3d(
       nstep_between_samples, setup.get_simulation_type(),
       setup.allocate_boundary_values(), setup.instantiate_property_reader());
 
-  if (mpi->main_proc()) {
-    mpi->cout(assembly.print());
-  }
+  specfem::Logger::info(assembly.print());
 
   // --------------------------------------------------------------
 
@@ -346,11 +315,7 @@ void program_3d(
   // --------------------------------------------------------------
   const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
 
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
-
-  if (mpi->main_proc())
-    mpi->cout(assembly.print());
+  specfem::Logger::info(time_scheme->print());
 
   // --------------------------------------------------------------
   // NOTE: Full 3D solver and writer support is not yet implemented

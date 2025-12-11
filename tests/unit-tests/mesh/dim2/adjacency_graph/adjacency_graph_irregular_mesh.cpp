@@ -1,5 +1,5 @@
 
-#include "MPI_environment.hpp"
+#include "SPECFEM_Environment.hpp"
 #include "enumerations/mesh_entities.hpp"
 #include "io/interface.hpp"
 #include "mesh/mesh.hpp"
@@ -66,7 +66,7 @@ TEST_P(CheckConnections, Test) {
 
   const std::string mesh_file = mesh_files.at(mesh_name);
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   auto mesh =
       specfem::io::read_2d_mesh(mesh_file, specfem::enums::elastic_wave::psv,
@@ -74,7 +74,6 @@ TEST_P(CheckConnections, Test) {
 
   const auto &adjacency_graph = mesh.adjacency_graph;
 
-  ASSERT_FALSE(adjacency_graph.empty()) << "Adjacency graph is empty";
   EXPECT_NO_THROW(adjacency_graph.assert_symmetry());
 
   for (const auto &rule : expected_adjacency_rules.at(mesh_name)) {

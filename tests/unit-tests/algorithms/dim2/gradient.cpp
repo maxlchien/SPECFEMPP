@@ -27,8 +27,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "Kokkos_Environment.hpp"
-#include "MPI_environment.hpp"
+#include "SPECFEM_Environment.hpp"
 #include "algorithms/gradient.hpp"
 #include "datatypes/point_view.hpp"
 #include "datatypes/simd.hpp"
@@ -828,7 +827,6 @@ TYPED_TEST(GradientTestFixture2D, TestGradientComputation) {
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

@@ -188,6 +188,8 @@ public:
 
   virtual void print(std::ostream &out) const = 0;
 
+  virtual std::string print() const = 0;
+
   virtual type_real get_timestep() const = 0;
 
   /**
