@@ -29,7 +29,6 @@ namespace specfem::assembly {
  * correlation
  * @param kernels Global kernels container to accumulate values into
  *
- // clang-format off
  * @code
  * // Example: Accumulate elastic kernels during adjoint simulation
  * const specfem::point::index<...> index = ...; // Current element and GLL
@@ -37,7 +36,6 @@ namespace specfem::assembly {
  * const auto kernels = assembly.kernels; // Global kernels container
  * add_on_device(index, point_kernels, kernels);
  * @endcode
- // clang-format on
  */
 template <typename IndexType, typename PointKernelType,
           typename std::enable_if<IndexType::using_simd ==

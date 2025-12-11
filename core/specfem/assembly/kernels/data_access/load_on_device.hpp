@@ -29,15 +29,13 @@ namespace specfem::assembly {
  * @param kernels Global kernels container to load values from
  * @param point_kernels Point-wise kernel values loaded from global container
  *
- // clang-format off
  * @code
  * // Example: Load elastic kernels during adjoint simulation
- * const auto index = /* specfem::point::index<...> */ ...; // Current element and GLL
- * point specfem::point::kernels<...> point_kernels = ...;
- * const auto kernels = assembly.kernels; // Global kernels container
- * load_on_device(index, kernels, point_kernels);
+ * const auto index = specfem::point::index<...>  ...; // Current element and
+ * GLL point specfem::point::kernels<...> point_kernels = ...; const auto
+ * kernels = assembly.kernels; // Global kernels container load_on_device(index,
+ * kernels, point_kernels);
  * @endcode
- // clang-format on
  */
 template <typename PointKernelType, typename IndexType,
           typename std::enable_if<IndexType::using_simd ==

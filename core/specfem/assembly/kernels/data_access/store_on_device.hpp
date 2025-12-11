@@ -28,15 +28,13 @@ namespace specfem::assembly {
  * @param point_kernels Point-wise kernel values to store into global container
  * @param kernels Global kernels container to store values into
  *
- // clang-format off
  * @code
  * // Example: Store elastic kernels during adjoint simulation
- * const specfem::point::index<...> index = ...; // Current element and GLL point
- * const specfem::point::kernels<...> point_kernels = ...;
- * const auto kernels = assembly.kernels; // Global kernels container
+ * const specfem::point::index<...> index = ...; // Current element and GLL
+ * point const specfem::point::kernels<...> point_kernels = ...; const auto
+ * kernels = assembly.kernels; // Global kernels container
  * store_on_device(index, point_kernels, kernels);
  * @endcode
- // clang-format on
  */
 template <typename PointKernelType, typename IndexType,
           typename std::enable_if<IndexType::using_simd ==
