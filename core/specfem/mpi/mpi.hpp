@@ -12,7 +12,9 @@ namespace specfem {
 // Forward declaration
 namespace program {
 class Context;
-}
+void abort(const std::string &message, int error_code, const int line,
+           const char *file);
+} // namespace program
 
 /**
  * @class MPI
@@ -103,14 +105,17 @@ private:
    * Verifies that rank and size are valid (not -1).
    * Exits with error code 1 if check fails.
    */
-  static void check_context() {
+  static bool check_context() {
     if (rank == -1 || size == -1) {
       std::cerr << "ERROR: MPI used outside Context scope" << std::endl;
       std::exit(1);
     }
+    return true;
   }
 
   friend class specfem::program::Context;
+  friend void specfem::program::abort(const std::string &, int, const int,
+                                      const char *);
 };
 
 } // namespace specfem

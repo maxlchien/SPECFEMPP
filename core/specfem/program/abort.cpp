@@ -26,8 +26,11 @@ void abort(const std::string &message, int error_code, const int line,
 
   // Print/log error message if provided
   if (!full_message.empty()) {
-    // Check if we're inside a valid program context
-    if (specfem::MPI_new::rank != -1 && specfem::MPI_new::size != -1) {
+    // Determine if we are inside a valid program context WITHOUT exiting
+    const bool have_context =
+        (specfem::MPI_new::rank != -1 && specfem::MPI_new::size != -1);
+
+    if (have_context) {
       // Context exists, use Logger
       try {
         specfem::Logger::error(full_message, false); // Print on all ranks
@@ -41,8 +44,10 @@ void abort(const std::string &message, int error_code, const int line,
     }
   }
 
-  // Check if we're inside a valid program context by checking MPI_new state
-  if (specfem::MPI_new::rank != -1 && specfem::MPI_new::size != -1) {
+  // Check if we're inside a valid program context by directly inspecting state
+  const bool have_context =
+      (specfem::MPI_new::rank != -1 && specfem::MPI_new::size != -1);
+  if (have_context) {
     // MPI is initialized, use MPI_Abort for proper parallel cleanup
 #ifdef MPI_PARALLEL
     MPI_Abort(MPI_COMM_WORLD, error_code);
