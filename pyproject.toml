@@ -12,7 +12,7 @@ authors = [
   { name = "Lucas Sawade", email = "lsawade@princeton.edu" },
   { name = "Congyue Cui", email = "ccui@princeton.edu" }
 ]
-requires-python = ">=3.12"
+requires-python = "==3.12"
 
 [tool.uv]
 package = false
