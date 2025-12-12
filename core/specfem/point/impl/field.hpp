@@ -74,28 +74,40 @@ class field : public specfem::data_access::Accessor<
                   specfem::data_access::AccessorType::point, DataClass,
                   DimensionTag, UseSIMD> {
 private:
-  /// @brief Type alias for the base accessor class
+  /**
+   * @brief Type alias for the base accessor class.
+   */
   using base_type =
       specfem::data_access::Accessor<specfem::data_access::AccessorType::point,
                                      DataClass, DimensionTag, UseSIMD>;
 
 public:
-  /// @brief Number of field components based on dimension and medium type
+  /**
+   * @brief Number of field components based on dimension and medium type.
+   */
   constexpr static int components =
       specfem::element::attributes<DimensionTag, MediumTag>::components;
 
-  /// @brief SIMD type for vectorized operations
+  /**
+   * @brief SIMD type for vectorized operations.
+   */
   using simd = typename base_type::template simd<type_real>;
 
-  /// @brief Vector type for storing field component values
+  /**
+   * @brief Vector type for storing field component values.
+   */
   using value_type =
       typename base_type::template vector_type<type_real, components>;
 
-  /// @brief Medium tag identifying the physical medium type
+  /**
+   * @brief Medium tag identifying the physical medium type.
+   */
   constexpr static auto medium_tag = MediumTag;
 
 private:
-  /// @brief Internal storage for field component values
+  /**
+   * @brief Internal storage for field component values.
+   */
   value_type m_data;
 
 public:
