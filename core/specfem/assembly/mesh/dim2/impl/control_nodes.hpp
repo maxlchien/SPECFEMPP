@@ -36,15 +36,16 @@ public:
    * @brief Kokkos view type for integer index mappings.
    *
    */
-  using IndexMappingViewType =
+  using ControlNodeIndexView =
       Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::DefaultExecutionSpace>;
 
   /**
    * @brief Kokkos view type for real-valued coordinate data.
    *
    */
-  using CoordViewType = Kokkos::View<type_real ***, Kokkos::LayoutLeft,
-                                     Kokkos::DefaultExecutionSpace>;
+  using ControlNodeCoordinatesView =
+      Kokkos::View<type_real ***, Kokkos::LayoutLeft,
+                   Kokkos::DefaultExecutionSpace>;
 
   /**
    * @brief Device view containing control node indices in compute ordering.
@@ -52,7 +53,7 @@ public:
    * Dimensions: [nspec, ngnod]. Maps from compute-ordered spectral elements
    * to global control node indices.
    */
-  IndexMappingViewType control_node_mapping;
+  ControlNodeIndexView control_node_mapping;
 
   /**
    * @brief Device view containing control node coordinates.
@@ -60,19 +61,19 @@ public:
    * Dimensions: [ndim, nspec, ngnod] where ndim=2 for 2D problems.
    * Stores (x, y) coordinates for each control node of each spectral element.
    */
-  CoordViewType control_node_coord;
+  ControlNodeCoordinatesView control_node_coord;
 
   /**
    * @brief Host mirror view of control node index mapping.
    *
    */
-  IndexMappingViewType::HostMirror h_control_node_mapping;
+  ControlNodeIndexView::HostMirror h_control_node_mapping;
 
   /**
    * @brief Host mirror view of control node coordinates.
    *
    */
-  CoordViewType::HostMirror h_control_node_coord;
+  ControlNodeCoordinatesView::HostMirror h_control_node_coord;
 
   /**
    * @brief Construct control nodes in from mesh control nodes.
