@@ -1,4 +1,4 @@
-file(GLOB POINT_SOURCE_FILES "./*.cpp")
+file(GLOB_RECURSE POINT_SOURCE_FILES "./*.cpp")
 
 add_library(
         periodic_tasks

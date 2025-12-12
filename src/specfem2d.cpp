@@ -50,7 +50,8 @@ int main(int argc, char **argv) {
       const std::string default_file = vm["default_file"].as<std::string>();
       const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
       const YAML::Node default_dict = YAML::LoadFile(default_file);
-      std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
+      std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
+          specfem::dimension::type::dim2> > >
           tasks;
       execute(parameter_dict, default_dict, tasks, mpi);
     }

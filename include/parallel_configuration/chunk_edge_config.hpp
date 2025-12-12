@@ -4,7 +4,7 @@
 #include "enumerations/dimension.hpp"
 #include <Kokkos_Core.hpp>
 
-namespace specfem::parallel_config {
+namespace specfem::parallel_configuration {
 
 template <specfem::dimension::type DimensionTag, int ChunkSize,
           typename ExecutionSpace>
@@ -44,4 +44,4 @@ template <specfem::dimension::type DimensionTag>
 struct default_chunk_edge_config<DimensionTag, Kokkos::HostSpace>
     : default_chunk_edge_config<DimensionTag, Kokkos::Serial> {};
 #endif
-} // namespace specfem::parallel_config
+} // namespace specfem::parallel_configuration
