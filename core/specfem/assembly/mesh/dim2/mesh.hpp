@@ -13,10 +13,7 @@
 #include <vector>
 
 namespace specfem::assembly {
-/**
- * @brief Information on an assembled mesh
- *
- */
+
 template <>
 struct mesh<specfem::dimension::type::dim2>
     : public specfem::assembly::mesh_impl::points<
@@ -33,16 +30,10 @@ struct mesh<specfem::dimension::type::dim2>
           specfem::dimension::type::dim2> {
 
 public:
-  constexpr static auto dimension_tag =
-      specfem::dimension::type::dim2; ///< Dimension
-  int nspec;                          ///< Number of spectral
-                                      ///< elements
-  int ngnod;                          ///< Number of control
-                                      ///< nodes
-  specfem::mesh_entity::element_grid<dimension_tag> element_grid; ///< Element
-                                                                  ///< number of
-                                                                  ///< GLL
-                                                                  ///< points
+  constexpr static auto dimension_tag = specfem::dimension::type::dim2;
+  int nspec;
+  int ngnod;
+  specfem::mesh_entity::element_grid<dimension_tag> element_grid;
 
   mesh() = default;
 
