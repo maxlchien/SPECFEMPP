@@ -1,7 +1,6 @@
 #include "constants.hpp"
 #include "specfem/periodic_tasks.hpp"
-#include "specfem/simulation.hpp"
-#include "specfem/simulation/context.hpp"
+#include "specfem/program.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
@@ -52,13 +51,12 @@ int main(int argc, char **argv) {
     return (parse_result == 0) ? 0 : 1; // 0 for help, 1 for error
   }
 
-  // Use ContextGuard for automatic RAII-based initialization and cleanup
+  // Use Context for automatic RAII-based initialization and cleanup
   int result = 0;
 
   try {
-    // Initialize context with RAII guard
-    specfem::ContextGuard guard(argc, argv);
-    auto &context = guard.get_context();
+    // Initialize context with RAII
+    specfem::program::Context context(argc, argv);
 
     // Extract parameters
     const std::string parameters_file = vm["parameters_file"].as<std::string>();
@@ -74,9 +72,9 @@ int main(int argc, char **argv) {
         std::make_shared<specfem::periodic_tasks::check_signal>(10);
     tasks.push_back(signal_task);
 
-    // Execute simulation for 3D
-    const auto success = specfem::simulation::execute(
-        "3d", guard.get_mpi(), parameter_dict, default_dict, tasks);
+    // Execute program for 3D
+    const auto success = specfem::program::execute(
+        "3d", context.get_mpi(), parameter_dict, default_dict, tasks);
 
     // Check execution result
     if (!success) {

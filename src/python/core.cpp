@@ -1,5 +1,5 @@
-#include "specfem/simulation.hpp"
-#include "specfem/simulation/context.hpp"
+#include "specfem/program.hpp"
+#include "specfem/program/context.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #define STRINGIFY(x) #x
@@ -9,11 +9,11 @@
 
 namespace py = pybind11;
 
-// Global ContextGuard to manage Context lifetime in Python
-static std::unique_ptr<specfem::ContextGuard> global_context_guard = nullptr;
+// Global Context to manage Context lifetime in Python
+static std::unique_ptr<specfem::program::Context> global_context = nullptr;
 
 bool _initialize(py::list py_argv) {
-  if (global_context_guard) {
+  if (global_context) {
     return false; // Already initialized
   }
 
@@ -24,7 +24,7 @@ bool _initialize(py::list py_argv) {
   }
 
   try {
-    global_context_guard = std::make_unique<specfem::ContextGuard>(args);
+    global_context = std::make_unique<specfem::program::Context>(args);
     return true;
   } catch (const std::exception &) {
     return false;
@@ -33,11 +33,9 @@ bool _initialize(py::list py_argv) {
 
 bool _execute(const std::string &parameter_string,
               const std::string &default_string) {
-  if (global_context_guard == nullptr) {
+  if (global_context == nullptr) {
     return false;
   }
-
-  auto &context = global_context_guard->get_context();
 
   const YAML::Node parameter_dict = YAML::Load(parameter_string);
   const YAML::Node default_dict = YAML::Load(default_string);
@@ -54,20 +52,19 @@ bool _execute(const std::string &parameter_string,
     py::gil_scoped_release release;
     // For now, default to 2D execution for backward compatibility
     // Later we can add a dimension parameter to the Python interface
-    success =
-        specfem::simulation::execute("2d", global_context_guard->get_mpi(),
-                                     parameter_dict, default_dict, tasks);
+    success = specfem::program::program("2d", global_context->get_mpi(),
+                                        parameter_dict, default_dict, tasks);
   }
   return success;
 }
 
 bool _finalize() {
-  if (global_context_guard == nullptr) {
+  if (global_context == nullptr) {
     return false;
   }
 
-  // Explicitly destroy the ContextGuard, which triggers proper cleanup
-  global_context_guard.reset();
+  // Explicitly destroy the Context, which triggers proper cleanup
+  global_context.reset();
   return true;
 }
 

@@ -6,15 +6,9 @@
 
 specfem::assembly::properties<specfem::dimension::type::dim3>::properties(
     const int nspec, const int ngllz, const int nglly, const int ngllx,
-    const specfem::assembly::element_types<specfem::dimension::type::dim3>
-        &element_types,
-    const specfem::assembly::mesh<specfem::dimension::type::dim3> &mesh,
-    const specfem::mesh::materials<specfem::dimension::type::dim3> &materials) {
-
-  this->nspec = nspec;
-  this->ngllz = ngllz;
-  this->nglly = nglly;
-  this->ngllx = ngllx;
+    const specfem::mesh::materials<dimension_tag> &materials,
+    const specfem::assembly::element_types<dimension_tag> &element_types)
+    : nspec(nspec), ngllz(ngllz), nglly(nglly), ngllx(ngllx) {
 
   this->property_index_mapping =
       Kokkos::View<int *, Kokkos::DefaultExecutionSpace>(
@@ -32,10 +26,9 @@ specfem::assembly::properties<specfem::dimension::type::dim3>::properties(
         _value_ = specfem::medium::properties_container<
             _dimension_tag_, _medium_tag_, _property_tag_>(
             element_types.get_elements_on_host(_medium_tag_, _property_tag_),
-            mesh, ngllz, nglly, ngllx, materials, h_property_index_mapping);
+            nspec, ngllz, nglly, ngllx, materials, h_property_index_mapping);
       })
 
   Kokkos::deep_copy(property_index_mapping, h_property_index_mapping);
-
   return;
 }

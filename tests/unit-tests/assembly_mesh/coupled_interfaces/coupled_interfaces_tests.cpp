@@ -1,5 +1,4 @@
-#include "../../Kokkos_Environment.hpp"
-#include "../../MPI_environment.hpp"
+#include "../../SPECFEM_Environment.hpp"
 #include "../../utilities/include/interface.hpp"
 #include "edge/interface.hpp"
 #include "io/interface.hpp"
@@ -161,7 +160,7 @@ void test_edges(
 
 TEST(ASSEMBLY_MESH, coupled_interfaces_tests) {
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
+  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
 
   std::string config_filename =
       "assembly_mesh/coupled_interfaces/test_config.yaml";
@@ -316,7 +315,6 @@ TEST(ASSEMBLY_MESH, coupled_interfaces_tests) {
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

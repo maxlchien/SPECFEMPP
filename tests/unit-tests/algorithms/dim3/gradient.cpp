@@ -32,8 +32,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "Kokkos_Environment.hpp"
-#include "MPI_environment.hpp"
+#include "SPECFEM_Environment.hpp"
 #include "algorithms/gradient.hpp"
 #include "datatypes/point_view.hpp"
 #include "datatypes/simd.hpp"
