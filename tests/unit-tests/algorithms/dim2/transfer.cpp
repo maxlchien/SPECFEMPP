@@ -105,9 +105,14 @@ std::vector<
 init_transfer_function<TransferFunctionInitializer2D::Zero>() {
   return std::vector<
       std::array<std::array<type_real, n_quad_intersection>, n_quad_element> >(
-      1, std::array<std::array<type_real, n_quad_intersection>, n_quad_element>{
-             std::array<type_real, n_quad_intersection>{
-                 static_cast<type_real>(0.0) } });
+      1, [] {
+        std::array<std::array<type_real, n_quad_intersection>, n_quad_element>
+            arr{};
+        for (auto &inner : arr) {
+          inner.fill(static_cast<type_real>(0.0));
+        }
+        return arr;
+      }());
 }
 
 /**
@@ -187,15 +192,13 @@ template <>
 std::vector<std::array<std::array<type_real, n_components>, n_quad_element> >
 init_function<EdgeFunctionInitializer2D::Uniform>() {
   return std::vector<
-      std::array<std::array<type_real, n_components>, n_quad_element> >(
-      1,
-      []{
-        std::array<std::array<type_real, n_components>, n_quad_element> arr{};
-        for (auto& inner : arr) {
-          inner.fill(static_cast<type_real>(1.0));
-        }
-        return arr;
-      }());
+      std::array<std::array<type_real, n_components>, n_quad_element> >(1, [] {
+    std::array<std::array<type_real, n_components>, n_quad_element> arr{};
+    for (auto &inner : arr) {
+      inner.fill(static_cast<type_real>(1.0));
+    }
+    return arr;
+  }());
 }
 
 /**
@@ -296,8 +299,11 @@ std::vector<std::array<type_real, n_components> > compute_transferred_function(
     const EdgeFunction2D<EdgeFunctionInitializer2D::Uniform> &field) {
   // Result field is a zero field
   const int n_edges = field.get_edges();
-  return std::vector<std::array<type_real, n_components> >(
-      n_edges, std::array<type_real, n_components>{ 0.0 });
+  return std::vector<std::array<type_real, n_components> >(n_edges, [] {
+    std::array<type_real, n_components> arr{};
+    arr.fill(static_cast<type_real>(0.0));
+    return arr;
+  }());
 }
 
 /**
@@ -399,7 +405,6 @@ TYPED_TEST_SUITE(TransferFunctionTest2D, TransferFunctionTestTypes2D);
 
 TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) {
   execute(this->transfer_function, this->function);
-
 }
 
 int main(int argc, char *argv[]) {

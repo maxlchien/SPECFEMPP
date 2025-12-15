@@ -47,7 +47,7 @@ private:
 public:
   template <typename U = TransferViewType,
             typename std::enable_if_t<
-                std::is_convertible<U, TransferViewType>::value, int> = 0>
+                std::is_convertible<TransferViewType, U>::value, int> = 0>
   KOKKOS_INLINE_FUNCTION transfer_function(const U &transfer_function)
       : data_(transfer_function) {}
 
@@ -127,7 +127,7 @@ public:
   template <
       typename U = IntersectionFactorViewType,
       typename std::enable_if_t<
-          std::is_convertible<U, IntersectionFactorViewType>::value, int> = 0>
+          std::is_convertible<IntersectionFactorViewType, U>::value, int> = 0>
   KOKKOS_INLINE_FUNCTION intersection_factor(const U &intersection_factor)
       : data_(intersection_factor) {}
 
@@ -191,7 +191,7 @@ public:
   template <
       typename U = IntersectionNormalViewType,
       typename std::enable_if_t<
-          std::is_convertible<U, IntersectionNormalViewType>::value, int> = 0>
+          std::is_convertible<IntersectionNormalViewType, U>::value, int> = 0>
   KOKKOS_INLINE_FUNCTION intersection_normal(const U &intersection_normal)
       : data_(intersection_normal) {}
 
