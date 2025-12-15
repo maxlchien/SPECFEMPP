@@ -30,7 +30,7 @@
 .. doxygenstruct:: specfem::parallel_configuration::range_config
     :members:
 
-Architecuture-specific default configurations
+Architecture-specific default configurations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. doxygenstruct:: specfem::parallel_configuration::default_chunk_config
