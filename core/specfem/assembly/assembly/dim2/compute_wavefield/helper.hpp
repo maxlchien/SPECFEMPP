@@ -6,17 +6,18 @@
 #include "medium/medium.hpp"
 #include "parallel_configuration/chunk_config.hpp"
 #include "specfem/assembly/assembly.hpp"
+#include "specfem/assembly/assembly/impl/helper.hpp"
 #include "specfem/chunk_element.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
-namespace impl {
+namespace specfem::assembly::assembly_impl {
 
 template <specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, int NGLL>
-class helper {
+class helper<specfem::dimension::type::dim2, MediumTag, PropertyTag, NGLL> {
 public:
-  constexpr static auto dimension = specfem::dimension::type::dim2;
+  constexpr static auto dimension_tag = specfem::dimension::type::dim2;
   constexpr static auto medium_tag = MediumTag;
   constexpr static auto property_tag = PropertyTag;
   constexpr static auto ngll = NGLL;
@@ -48,33 +49,31 @@ public:
       return;
     }
 
-    using ParallelConfig = specfem::parallel_config::default_chunk_config<
-        specfem::dimension::type::dim2,
-        specfem::datatype::simd<type_real, false>,
-        Kokkos::DefaultExecutionSpace>;
+    using ParallelConfig =
+        specfem::parallel_configuration::default_chunk_config<
+            dimension_tag, specfem::datatype::simd<type_real, false>,
+            Kokkos::DefaultExecutionSpace>;
 
     using ChunkDisplacementType = specfem::chunk_element::displacement<
-        specfem::parallel_config::chunk_size, ngll, dimension, medium_tag,
-        using_simd>;
-    using ChunkVelocityType =
-        specfem::chunk_element::velocity<specfem::parallel_config::chunk_size,
-                                         ngll, dimension, medium_tag,
-                                         using_simd>;
+        specfem::parallel_configuration::chunk_size, ngll, dimension_tag,
+        medium_tag, using_simd>;
+    using ChunkVelocityType = specfem::chunk_element::velocity<
+        specfem::parallel_configuration::chunk_size, ngll, dimension_tag,
+        medium_tag, using_simd>;
     using ChunkAccelerationType = specfem::chunk_element::acceleration<
-        specfem::parallel_config::chunk_size, ngll, dimension, medium_tag,
-        using_simd>;
+        specfem::parallel_configuration::chunk_size, ngll, dimension_tag,
+        medium_tag, using_simd>;
 
     using QuadratureType = specfem::quadrature::lagrange_derivative<
-        ngll, specfem::dimension::type::dim2, specfem::kokkos::DevScratchSpace,
+        ngll, dimension_tag, specfem::kokkos::DevScratchSpace,
         Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
 
     using PointPropertyType =
-        specfem::point::properties<specfem::dimension::type::dim2, medium_tag,
-                                   property_tag, false>;
+        specfem::point::properties<dimension_tag, medium_tag, property_tag,
+                                   false>;
 
     using PointFieldDerivativesType =
-        specfem::point::field_derivatives<specfem::dimension::type::dim2,
-                                          medium_tag, false>;
+        specfem::point::field_derivatives<dimension_tag, medium_tag, false>;
 
     int scratch_size =
         ChunkDisplacementType::shmem_size() + ChunkVelocityType::shmem_size() +
@@ -106,7 +105,8 @@ public:
               Kokkos::subview(wavefield_on_entire_grid, chunk_index.get_range(),
                               Kokkos::ALL, Kokkos::ALL, Kokkos::ALL);
 
-          specfem::medium::compute_wavefield<MediumTag, PropertyTag>(
+          specfem::medium::compute_wavefield<dimension_tag, MediumTag,
+                                             PropertyTag>(
               chunk_index, assembly, lagrange_derivative, displacement,
               velocity, acceleration, wavefield_type, wavefield);
         });
@@ -115,10 +115,10 @@ public:
   }
 
 private:
-  const specfem::assembly::assembly<specfem::dimension::type::dim2> assembly;
+  const specfem::assembly::assembly<dimension_tag> assembly;
   Kokkos::View<type_real ****, Kokkos::LayoutLeft,
                Kokkos::DefaultExecutionSpace>
       wavefield_on_entire_grid;
 };
 
-} // namespace impl
+} // namespace specfem::assembly::assembly_impl

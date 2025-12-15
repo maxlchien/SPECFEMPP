@@ -125,20 +125,12 @@ struct EdgeToInterfaceParams : EdgeToInterfaceParamsBase {
    * the interpolation and the transfer are exact.
    */
   virtual void run_test(const std::string &testname) const {
-    using SelfTransferType =
-        specfem::chunk_edge::nonconforming_transfer_function<
-            true, num_edges, nquad_edge, nquad_intersection, dimension_tag,
-            specfem::connections::type::nonconforming, interface_tag,
-            specfem::element::boundary_tag::none,
-            specfem::kokkos::DevScratchSpace,
-            Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
-    using CoupledTransferType =
-        specfem::chunk_edge::nonconforming_transfer_function<
-            false, num_edges, nquad_edge, nquad_intersection, dimension_tag,
-            specfem::connections::type::nonconforming, interface_tag,
-            specfem::element::boundary_tag::none,
-            specfem::kokkos::DevScratchSpace,
-            Kokkos::MemoryTraits<Kokkos::Unmanaged> >;
+    using SelfTransferType = specfem::chunk_edge::transfer_function_self<
+        dimension_tag, interface_tag, specfem::element::boundary_tag::none,
+        num_edges, nquad_intersection, nquad_edge>;
+    using CoupledTransferType = specfem::chunk_edge::transfer_function_coupled<
+        dimension_tag, interface_tag, specfem::element::boundary_tag::none,
+        num_edges, nquad_intersection, nquad_edge>;
 
     constexpr auto self_medium =
         specfem::interface::attributes<dimension_tag,
@@ -236,10 +228,8 @@ struct EdgeToInterfaceParams : EdgeToInterfaceParamsBase {
                     type_real eval = eval_lagrange(
                         edge_quadrature_points, ipoint,
                         intersection_quadrature_points[iintersection]);
-                    self_transfer.transfer_function_self(iedge, ipoint,
-                                                         iintersection) = eval;
-                    coupled_transfer.transfer_function_coupled(
-                        iedge, ipoint, iintersection) = eval;
+                    self_transfer(iedge, ipoint, iintersection) = eval;
+                    coupled_transfer(iedge, ipoint, iintersection) = eval;
                   }
                 }
               });
@@ -272,30 +262,30 @@ struct EdgeToInterfaceParams : EdgeToInterfaceParamsBase {
           // validate (self and coupled are independent, so we shouldn't need a
           // barrier in between them)
 
-          specfem::algorithms::transfer_self(
+          specfem::algorithms::transfer(
               ChunkEdgeIndexSimulator<dimension_tag>(num_edges, team),
               self_transfer, self_disp,
-              [&](const int &iedge, const int &iinterface,
-                  const PointSelfDisplacementType &point) {
+              [&](const auto &index, const PointSelfDisplacementType &point) {
                 for (int icomp = 0; icomp < SelfDisplacementType::components;
                      icomp++)
-                  self_on_interface(iedge, iinterface, icomp) = point(icomp);
+                  self_on_interface(index(0), index(1), icomp) = point(icomp);
               });
-          specfem::algorithms::transfer_coupled(
+          specfem::algorithms::transfer(
               ChunkEdgeIndexSimulator<dimension_tag>(num_edges, team),
               coupled_transfer, coupled_disp,
-              [&](const int &iedge, const int &iinterface,
+              [&](const auto &index,
                   const PointCoupledDisplacementType &point) {
                 for (int icomp = 0; icomp < CoupledDisplacementType::components;
                      icomp++)
-                  coupled_on_interface(iedge, iinterface, icomp) = point(icomp);
+                  coupled_on_interface(index(0), index(1), icomp) =
+                      point(icomp);
               });
 
           team.team_barrier();
 
-          // transfer should send polys to themselves, but in the new basis.
-          // the expectation is just the intersection quadrature point to the
-          // same power.
+          // transfer should send polys to themselves, but in the new
+          // basis. the expectation is just the intersection quadrature
+          // point to the same power.
           Kokkos::parallel_for(
               Kokkos::TeamThreadRange(team, num_edges), [&](const auto &iedge) {
                 for (int iintersection = 0; iintersection < nquad_intersection;
@@ -377,8 +367,9 @@ struct EdgeToInterfaceCouplingTestParams {
   template <specfem::dimension::type DimensionTag,
             specfem::interface::interface_tag InterfaceTag,
             std::size_t nquad_edge, std::size_t nquad_intersection,
-            int num_edges = specfem::parallel_config::default_chunk_edge_config<
-                DimensionTag, Kokkos::DefaultExecutionSpace>::chunk_size>
+            int num_edges =
+                specfem::parallel_configuration::default_chunk_edge_config<
+                    DimensionTag, Kokkos::DefaultExecutionSpace>::chunk_size>
   static EdgeToInterfaceCouplingTestParams
   from(const std::string &name, const type_real (&edge)[nquad_edge],
        const type_real (&intersection)[nquad_intersection]) {

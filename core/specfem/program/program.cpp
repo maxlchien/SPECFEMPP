@@ -19,7 +19,7 @@
 
 #include <sstream>
 
-namespace {
+namespace specfem::program {
 
 std::string
 print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
@@ -47,7 +47,9 @@ print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
 // Internal function for 2D simulations
 void program_2d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
+    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
+        specfem::dimension::type::dim2> > >
+        tasks,
     specfem::MPI::MPI *mpi) {
 
   // --------------------------------------------------------------
@@ -123,10 +125,7 @@ void program_2d(
   //                   Instantiate Timescheme
   // --------------------------------------------------------------
   const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
-
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
-
+  specfem::Logger::info(time_scheme->to_string());
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
@@ -145,8 +144,8 @@ void program_2d(
   // --------------------------------------------------------------
   //                   Read wavefields
   // --------------------------------------------------------------
-  const auto wavefield_reader = setup.instantiate_wavefield_reader();
-
+  const auto wavefield_reader =
+      setup.instantiate_wavefield_reader<specfem::dimension::type::dim2>();
   if (wavefield_reader) {
     tasks.push_back(wavefield_reader);
   }
@@ -155,7 +154,8 @@ void program_2d(
   // --------------------------------------------------------------
   //                  Write Forward Wavefields
   // --------------------------------------------------------------
-  const auto wavefield_writer = setup.instantiate_wavefield_writer();
+  const auto wavefield_writer =
+      setup.instantiate_wavefield_writer<specfem::dimension::type::dim2>();
   if (wavefield_writer) {
     tasks.push_back(wavefield_writer);
   }
@@ -229,7 +229,9 @@ void program_2d(
 // Internal function for 3D simulations
 void program_3d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks,
+    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
+        specfem::dimension::type::dim3> > >
+        tasks,
     specfem::MPI::MPI *mpi) {
 
   // --------------------------------------------------------------
@@ -253,8 +255,7 @@ void program_3d(
   specfem::Logger::info("Reading the mesh...");
   specfem::Logger::info("===================");
   const auto quadrature = setup.instantiate_quadrature();
-  const auto mesh =
-      specfem::io::meshfem3d::read_3d_mesh(database_filename, mpi);
+  const auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
   std::chrono::duration<double> elapsed_seconds =
       std::chrono::system_clock::now() - start_time;
   specfem::Logger::info("Time to read mesh: " +
@@ -262,24 +263,15 @@ void program_3d(
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
-  //                   Read Sources and Receivers
+  //                   Get Sources
   // --------------------------------------------------------------
   auto [sources, t0] =
       specfem::io::read_3d_sources(setup.get_sources(), nsteps, setup.get_t0(),
                                    setup.get_dt(), simulation_type);
   setup.update_t0(t0); // Update t0 in case it was changed
 
-  // TODO: Replace hardcoded receiver with proper 3D receiver reading
-  std::vector<std::shared_ptr<
-      specfem::receivers::receiver<specfem::dimension::type::dim3> > >
-      receivers;
-  receivers.emplace_back(
-      std::make_shared<
-          specfem::receivers::receiver<specfem::dimension::type::dim3> >(
-          "NET", "STA", 50000.0, 40000.0, 0.0));
-
   specfem::Logger::info("Source Information:");
-  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info("---------------------");
   specfem::Logger::info(
       "Number of sources : " + std::to_string(sources.size()) + "\n");
 
@@ -287,19 +279,26 @@ void program_3d(
     specfem::Logger::info(source->print());
   }
 
+  // --------------------------------------------------------------
+  //                   Get receivers
+  // --------------------------------------------------------------
+  // create single receiver receivers vector for now
+  auto receivers = specfem::io::read_3d_receivers(setup.get_stations());
+
   specfem::Logger::info("Receiver Information:");
-  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info("---------------------");
   specfem::Logger::info(
       "Number of receivers : " + std::to_string(receivers.size()) + "\n");
 
   for (auto &receiver : receivers) {
     specfem::Logger::info(receiver->print());
   }
-  // --------------------------------------------------------------
 
   // --------------------------------------------------------------
   //                   Generate Assembly
   // --------------------------------------------------------------
+  specfem::Logger::info("Generating Assembly:");
+  specfem::Logger::info("-------------------------------");
   const int max_seismogram_time_step = setup.get_max_seismogram_step();
   const int nstep_between_samples = setup.get_nstep_between_samples();
   specfem::assembly::assembly<specfem::dimension::type::dim3> assembly(
@@ -316,51 +315,113 @@ void program_3d(
   //                   Instantiate Timescheme
   // --------------------------------------------------------------
   const auto time_scheme = setup.instantiate_timescheme(assembly.fields);
-
-  if (mpi->main_proc())
-    std::cout << *time_scheme << std::endl;
-
-  specfem::Logger::info(assembly.print());
+  specfem::Logger::info(time_scheme->to_string());
+  // --------------------------------------------------------------
 
   // --------------------------------------------------------------
-  // NOTE: Full 3D solver and writer support is not yet implemented
-  // TODO: Implement the following for 3D:
-  //   - Property writer
-  //   - Wavefield reader/writer
-  //   - Wavefield plotter
-  //   - Solver instantiation and execution
-  //   - Seismogram writer
-  //   - Kernel writer
+  //                   Instantiate plotter
+  // --------------------------------------------------------------
+  specfem::Logger::info("(If set) Instantiate wavefield plotter");
+  specfem::Logger::info("-------------------------------");
+  const auto wavefield_plotter =
+      setup.instantiate_wavefield_plotter(assembly, dt, mpi);
+  if (wavefield_plotter) {
+    tasks.push_back(wavefield_plotter);
+  }
+
+  // --------------------------------------------------------------
+  //                   Instantiate Solver
+  // --------------------------------------------------------------
+  specfem::Logger::info("Instantiate solver");
+  specfem::Logger::info("-------------------------------");
+  std::shared_ptr<specfem::solver::solver> solver =
+      setup.instantiate_solver<5>(dt, assembly, time_scheme, tasks);
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Execute Solver
+  // --------------------------------------------------------------
+  // Time the solver
+  specfem::Logger::info("Executing time loop:");
+  specfem::Logger::info("-------------------------------");
+
+  const auto solver_start_time = std::chrono::system_clock::now();
+  solver->run();
+  const auto solver_end_time = std::chrono::system_clock::now();
+
+  std::chrono::duration<double> solver_time =
+      solver_end_time - solver_start_time;
+
+  specfem::Logger::info("Solver time: " + std::to_string(solver_time.count()) +
+                        " seconds.");
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Write Seismograms
+  // --------------------------------------------------------------
+  const auto seismogram_writer = setup.instantiate_seismogram_writer();
+  if (seismogram_writer) {
+    specfem::Logger::info("Writing seismogram files.");
+    seismogram_writer->write(assembly);
+  }
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Print End Message
+  // --------------------------------------------------------------
+  specfem::Logger::info(print_end_message(start_time, solver_time));
   // --------------------------------------------------------------
 
   return;
 }
 
-} // anonymous namespace
-
-bool specfem::program::execute(
-    const std::string &dimension, specfem::MPI::MPI *mpi,
-    const YAML::Node &parameter_dict, const YAML::Node &default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
-        &tasks) {
+bool execute(const std::string &dimension, specfem::MPI::MPI *mpi,
+             const YAML::Node &parameter_dict, const YAML::Node &default_dict) {
   try {
     // Use simulation model enumeration for validation
     specfem::simulation::model simulation_model =
         specfem::simulation::from_string(dimension);
 
     switch (simulation_model) {
-    case specfem::simulation::model::Cartesian2D:
+    case specfem::simulation::model::Cartesian2D: {
+      // Setup periodic tasks (signal checking)
+      const auto dimension_tag = specfem::dimension::type::dim2;
+      std::vector<std::shared_ptr<
+          specfem::periodic_tasks::periodic_task<dimension_tag> > >
+          tasks;
+      const auto signal_task = std::make_shared<
+          specfem::periodic_tasks::check_signal<dimension_tag> >(10);
+      tasks.push_back(signal_task);
+
+      // Run 2D Cartesian program
       program_2d(parameter_dict, default_dict, tasks, mpi);
+
       return true;
-    case specfem::simulation::model::Cartesian3D:
+    }
+    case specfem::simulation::model::Cartesian3D: {
+      // Setup periodic tasks (signal checking)
+      const auto dimension_tag = specfem::dimension::type::dim3;
+      std::vector<std::shared_ptr<
+          specfem::periodic_tasks::periodic_task<dimension_tag> > >
+          tasks;
+      const auto signal_task = std::make_shared<
+          specfem::periodic_tasks::check_signal<dimension_tag> >(10);
+      tasks.push_back(signal_task);
+
+      // Run 3D Cartesian program
       program_3d(parameter_dict, default_dict, tasks, mpi);
+
       return true;
-    default:
+    }
+    default: {
       std::cerr << "Unsupported simulation model" << std::endl;
       return false;
+    }
     }
   } catch (const std::exception &e) {
     std::cerr << "Error during execution: " << e.what() << std::endl;
     return false;
   }
 }
+
+} // namespace specfem::program

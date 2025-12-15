@@ -173,6 +173,8 @@ public:
   inline static constexpr int components = 1;
 
   constexpr static bool has_damping_force = false;
+  inline constexpr static bool has_cosserat_stress = false;
+  inline constexpr static bool has_cosserat_couple_stress = false;
 };
 
 template <>
@@ -183,6 +185,8 @@ public:
   inline static constexpr int components = 3;
 
   constexpr static bool has_damping_force = false;
+  inline constexpr static bool has_cosserat_stress = false;
+  inline constexpr static bool has_cosserat_couple_stress = false;
 };
 
 const std::string to_string(const medium_tag &medium,

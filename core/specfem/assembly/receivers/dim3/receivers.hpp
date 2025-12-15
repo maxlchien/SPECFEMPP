@@ -47,7 +47,7 @@ private:
                    Kokkos::DefaultExecutionSpace>; ///< View to store the
                                                    ///< Lagrange interpolant for
                                                    ///< every receiver (nrec,
-                                                   ///< nglly, ngllz, ngllx, 3)
+                                                   ///< ngllz, nglly, ngllx, 3)
 
 public:
   /**
@@ -56,20 +56,6 @@ public:
    */
   receivers() = default;
 
-  /**
-   * @brief Construct a new receivers object
-   *
-   * @param max_sig_step Maximum number seismogram sample points
-   * @param dt Time increament
-   * @param t0 Initial time
-   * @param nsteps_between_samples Number of time steps between samples
-   * @param receivers Vector of receivers
-   * @param stypes Vector of seismogram types (displacement, velocity,
-   * acceleration, pressure, or rotation)
-   * @param mesh Mesh object
-   * @param tags Tags for every element in the mesh
-   * @param properties Properties object
-   */
   receivers(
       const int max_sig_step, const type_real dt, const type_real t0,
       const int nsteps_between_samples,
@@ -79,17 +65,6 @@ public:
       const std::vector<specfem::wavefield::type> &stypes,
       const specfem::assembly::mesh<dimension_tag> &mesh,
       const specfem::mesh::tags<dimension_tag> &tags,
-      const specfem::assembly::element_types<dimension_tag> &element_types);
-
-  receivers(
-      const int max_sig_step, const type_real dt, const type_real t0,
-      const int nsteps_between_samples,
-      const std::vector<
-          std::shared_ptr<specfem::receivers::receiver<dimension_tag> > >
-          &receivers,
-      const std::vector<specfem::wavefield::type> &stypes,
-      const specfem::assembly::mesh<dimension_tag> &mesh,
-      const specfem::mesh::meshfem3d::tags<dimension_tag> &tags,
       const specfem::assembly::element_types<dimension_tag> &element_types);
 
   /**
@@ -230,7 +205,7 @@ load_on_device(const ChunkIndexType &chunk_index,
 
 #ifndef NDEBUG
 
-        if (index.ispec >= receivers.nspec) {
+        if (ielement >= receivers.nspec) {
           std::string message = "Invalid element detected in kernel at " +
                                 std::string(__FILE__) + ":" +
                                 std::to_string(__LINE__);
@@ -240,14 +215,14 @@ load_on_device(const ChunkIndexType &chunk_index,
 #endif
 
         // Load all three components for 3D
-        lagrange_interpolant(ielement, index.iy, index.iz, index.ix, 0) =
-            receivers.lagrange_interpolant(irec, index.iy, index.iz, index.ix,
+        lagrange_interpolant(ielement, index.iz, index.iy, index.ix, 0) =
+            receivers.lagrange_interpolant(irec, index.iz, index.iy, index.ix,
                                            0);
-        lagrange_interpolant(ielement, index.iy, index.iz, index.ix, 1) =
-            receivers.lagrange_interpolant(irec, index.iy, index.iz, index.ix,
+        lagrange_interpolant(ielement, index.iz, index.iy, index.ix, 1) =
+            receivers.lagrange_interpolant(irec, index.iz, index.iy, index.ix,
                                            1);
-        lagrange_interpolant(ielement, index.iy, index.iz, index.ix, 2) =
-            receivers.lagrange_interpolant(irec, index.iy, index.iz, index.ix,
+        lagrange_interpolant(ielement, index.iz, index.iy, index.ix, 2) =
+            receivers.lagrange_interpolant(irec, index.iz, index.iy, index.ix,
                                            2);
       });
 

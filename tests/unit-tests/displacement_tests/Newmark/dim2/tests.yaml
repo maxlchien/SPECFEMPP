@@ -4,6 +4,7 @@ tests2d:
   - "AcousticElasticCoupledDomain"
   - "AcousticElasticNonconformingCoupledDomain"
 # - "AcousticElasticCoupledDomainVariant2"
+  - "HomogeneousElasticDomainMomentTensor"
   - "HomogeneousAcousticDomainDirichletBC"
   - "HomogeneousElasticDomainStaceyBC"
   - "HomogeneousElasticDomainStaceyDirichletBC"

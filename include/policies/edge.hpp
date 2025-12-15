@@ -185,7 +185,7 @@ namespace policy {
  * between 2 elements.
  *
  * @tparam ParallelConfig Parallel configuration for element edge policy. @ref
- * specfem::parallel_config::edge_config
+ * specfem::parallel_configuration::edge_config
  */
 template <typename ParallelConfig>
 struct element_edge

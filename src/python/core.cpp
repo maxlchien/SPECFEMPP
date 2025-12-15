@@ -39,9 +39,15 @@ bool _execute(const std::string &parameter_string,
 
   const YAML::Node parameter_dict = YAML::Load(parameter_string);
   const YAML::Node default_dict = YAML::Load(default_string);
-  std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks;
+
+  // Setup periodic tasks (signal checking)
+  const auto dimension_tag = specfem::dimension::type::dim2;
+  std::vector<
+      std::shared_ptr<specfem::periodic_tasks::periodic_task<dimension_tag> > >
+      tasks;
   const auto signal_task =
-      std::make_shared<specfem::periodic_tasks::check_signal>(10);
+      std::make_shared<specfem::periodic_tasks::check_signal<dimension_tag> >(
+          10);
   tasks.push_back(signal_task);
 
   // Releasing the GIL in a scoped section
@@ -50,10 +56,13 @@ bool _execute(const std::string &parameter_string,
   bool success;
   {
     py::gil_scoped_release release;
+
     // For now, default to 2D execution for backward compatibility
     // Later we can add a dimension parameter to the Python interface
-    success = specfem::program::program("2d", global_context->get_mpi(),
-                                        parameter_dict, default_dict, tasks);
+    // Run 2D Cartesian program
+    program_2d(parameter_dict, default_dict, tasks, mpi);
+
+    success = true;
   }
   return success;
 }

@@ -1,5 +1,4 @@
 #include "constants.hpp"
-#include "specfem/periodic_tasks.hpp"
 #include "specfem/program.hpp"
 #include "specfem/program/context.hpp"
 #include <boost/program_options.hpp>
@@ -98,15 +97,9 @@ int main(int argc, char **argv) {
     const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
     const YAML::Node default_dict = YAML::LoadFile(default_file);
 
-    // Setup periodic tasks (signal checking)
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> > tasks;
-    const auto signal_task =
-        std::make_shared<specfem::periodic_tasks::check_signal>(10);
-    tasks.push_back(signal_task);
-
     // Execute program with the specified dimension
     const auto success = specfem::program::execute(
-        dimension, context.get_mpi(), parameter_dict, default_dict, tasks);
+        dimension, context.get_mpi(), parameter_dict, default_dict);
 
     // Check execution result
     if (!success) {

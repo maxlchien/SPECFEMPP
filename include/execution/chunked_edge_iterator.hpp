@@ -14,7 +14,8 @@
  * #include "execution/chunked_edge_iterator.hpp"
  * #include "execution/for_all.hpp"
  *
- * using ParallelConfig = specfem::parallel_config::default_chunk_edge_config<
+ * using ParallelConfig =
+ * specfem::parallel_configuration::default_chunk_edge_config<
  *     specfem::dimension::type::dim2, Kokkos::DefaultExecutionSpace>;
  *
  * // Create views for storage and edges
@@ -326,14 +327,22 @@ public:
    */
   KOKKOS_INLINE_FUNCTION
   ChunkEdgeIndex(const ViewType &edges, const KokkosIndexType &kokkos_index)
-      : kokkos_index(kokkos_index), iterator(kokkos_index, edges) {}
+      : kokkos_index(kokkos_index), iterator(kokkos_index, edges),
+        edges(edges) {}
 
   KOKKOS_INLINE_FUNCTION int nedges() const { return iterator.nedges; }
+
+  KOKKOS_INLINE_FUNCTION
+  Kokkos::pair<std::size_t, std::size_t> get_range() const {
+    return Kokkos::make_pair(edges(0).edge_index,
+                             edges(edges.n_edges - 1).edge_index + 1);
+  }
 
 private:
   KokkosIndexType kokkos_index; ///< Kokkos team member for this chunk
   iterator_type iterator; ///< Team-level iterator for edge processing within
                           ///< chunk
+  ViewType edges;         ///< View of mesh edges in this chunk
 };
 
 /**
@@ -362,7 +371,8 @@ private:
  * #include "execution/for_all.hpp"
  *
  * // Define parallel configuration
- * using ParallelConfig = specfem::parallel_config::default_chunk_edge_config<
+ * using ParallelConfig =
+ * specfem::parallel_configuration::default_chunk_edge_config<
  *     specfem::dimension::type::dim2, Kokkos::DefaultExecutionSpace>;
  *
  * // Create edge view and initialize

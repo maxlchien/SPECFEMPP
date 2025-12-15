@@ -166,13 +166,13 @@ void test_nonconforming_container_transfers(
   const int ngllz = assembly.mesh.element_grid.ngllz;
 
   const auto &nc_interface_acoustic_elastic =
-      assembly.coupled_interfaces.get_interface_container<
+      assembly.nonconforming_interfaces.get_interface_container<
           specfem::interface::interface_tag::acoustic_elastic,
           specfem::element::boundary_tag::none,
           specfem::connections::type::nonconforming>();
 
   const auto &nc_interface_elastic_acoustic =
-      assembly.coupled_interfaces.get_interface_container<
+      assembly.nonconforming_interfaces.get_interface_container<
           specfem::interface::interface_tag::elastic_acoustic,
           specfem::element::boundary_tag::none,
           specfem::connections::type::nonconforming>();

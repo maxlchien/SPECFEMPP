@@ -462,15 +462,34 @@ private:
   int ngll2d;
   int ngll;
 
-  std::unordered_map<specfem::mesh_entity::dim3::type,
-                     std::function<std::tuple<int, int, int>(int, int)> >
-      face_coordinates; ///< Maps face types to coordinate functions
-  std::unordered_map<specfem::mesh_entity::dim3::type,
-                     std::function<std::tuple<int, int, int>(int)> >
-      edge_coordinates; ///< Maps edge types to coordinate functions
-  std::unordered_map<specfem::mesh_entity::dim3::type,
-                     std::tuple<int, int, int> >
-      corner_coordinates; ///< Maps corner types to coordinates
+  /**
+   * @brief Get face coordinates using switch-based dispatch
+   * @param face The face type
+   * @param ipoint First point index
+   * @param jpoint Second point index
+   * @return Tuple of (iz, iy, ix) coordinates
+   */
+  std::tuple<int, int, int>
+  get_face_coordinates(const specfem::mesh_entity::dim3::type &face,
+                       const int ipoint, const int jpoint) const;
+
+  /**
+   * @brief Get edge coordinates using switch-based dispatch
+   * @param edge The edge type
+   * @param point Point index along the edge
+   * @return Tuple of (iz, iy, ix) coordinates
+   */
+  std::tuple<int, int, int>
+  get_edge_coordinates(const specfem::mesh_entity::dim3::type &edge,
+                       const int point) const;
+
+  /**
+   * @brief Get corner coordinates using switch-based dispatch
+   * @param corner The corner type
+   * @return Tuple of (iz, iy, ix) coordinates
+   */
+  std::tuple<int, int, int>
+  get_corner_coordinates(const specfem::mesh_entity::dim3::type &corner) const;
 };
 
 /**

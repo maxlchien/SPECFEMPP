@@ -7,6 +7,7 @@ target_link_libraries(
         assembly
         PUBLIC
         specfem::macros
+        $<$<BOOL:${SPECFEM_ENABLE_VTK}>:${VTK_LIBRARIES}>
         PRIVATE
         algorithms
         enumerations
@@ -29,18 +30,11 @@ set_target_properties(assembly PROPERTIES
     UNITY_BUILD_BATCH_SIZE $<IF:$<BOOL:${__INTEL_LLVM__}>,0,8>
 )
 
-
-if (NOT SPECFEM_ENABLE_VTK)
-        target_compile_definitions(
-                assembly
-                PUBLIC -DNO_VTK
-        )
-else ()
-        # Only define the __APPLE__ compile definition if it is defined
-        if (__APPLE__)
-        target_compile_definitions(assembly PRIVATE __APPLE__)
-        endif(__APPLE__)
-endif()
+target_compile_definitions(
+    assembly
+    PUBLIC
+    $<$<NOT:$<BOOL:${SPECFEM_ENABLE_VTK}>>:-DNO_VTK>
+)
 
 target_include_directories(
         assembly

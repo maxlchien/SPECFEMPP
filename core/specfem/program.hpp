@@ -32,11 +32,8 @@ namespace specfem::program {
  * @param tasks Vector of periodic tasks
  * @return true if execution successful, false otherwise
  */
-bool execute(
-    const std::string &dimension, specfem::MPI::MPI *mpi,
-    const YAML::Node &parameter_dict, const YAML::Node &default_dict,
-    std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task> >
-        &tasks);
+bool execute(const std::string &dimension, specfem::MPI::MPI *mpi,
+             const YAML::Node &parameter_dict, const YAML::Node &default_dict);
 
 } // namespace specfem::program
 

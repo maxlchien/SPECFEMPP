@@ -6,7 +6,7 @@
 #include "specfem/assembly/boundaries.hpp"
 #include "specfem/assembly/boundary_values.hpp"
 #include "specfem/assembly/compute_source_array.hpp"
-#include "specfem/assembly/coupled_interfaces.hpp"
+#include "specfem/assembly/conforming_interfaces.hpp"
 #include "specfem/assembly/fields.hpp"
 #include "specfem/assembly/jacobian_matrix.hpp"
 #include "specfem/assembly/kernels.hpp"
@@ -96,19 +96,19 @@ template <> struct assembly<specfem::dimension::type::dim3> {
    */
   specfem::assembly::fields<dimension_tag> fields;
 
-  // specfem::assembly::boundaries<dimension_tag> boundaries; ///< Boundary
-  //                                                 ///< conditions
+  specfem::assembly::boundaries<dimension_tag> boundaries; ///< Boundary
+                                                           ///< conditions
   // specfem::assembly::coupled_interfaces<dimension_tag>
   // coupled_interfaces;                          ///< Coupled
   //                                         ///< interfaces
   //                                         ///< between 2
   //                                         ///< media
 
-  // specfem::assembly::boundary_values<dimension_tag>
-  // boundary_values; ///< Field
-  //             ///< values at
-  //             ///< the
-  //             ///< boundaries
+  specfem::assembly::boundary_values<dimension_tag>
+      boundary_values; ///< Field
+                       ///< values at
+                       ///< the
+                       ///< boundaries
 
   ///@}
 
@@ -133,21 +133,6 @@ template <> struct assembly<specfem::dimension::type::dim3> {
    */
   assembly(
       const specfem::mesh::mesh<dimension_tag> &mesh,
-      const specfem::quadrature::quadratures &quadratures,
-      std::vector<std::shared_ptr<specfem::sources::source<dimension_tag> > >
-          &sources,
-      const std::vector<
-          std::shared_ptr<specfem::receivers::receiver<dimension_tag> > >
-          &receivers,
-      const std::vector<specfem::wavefield::type> &stypes, const type_real t0,
-      const type_real dt, const int max_timesteps, const int max_sig_step,
-      const int nsteps_between_samples,
-      const specfem::simulation::type simulation,
-      const bool allocate_boundary_values,
-      const std::shared_ptr<specfem::io::reader> &property_reader);
-
-  assembly(
-      const specfem::mesh::meshfem3d::mesh<dimension_tag> &mesh,
       const specfem::quadrature::quadratures &quadratures,
       std::vector<std::shared_ptr<specfem::sources::source<dimension_tag> > >
           &sources,
