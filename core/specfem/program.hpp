@@ -37,4 +37,5 @@ bool execute(const std::string &dimension, specfem::MPI::MPI *mpi,
 
 } // namespace specfem::program
 
+#include "program/abort.hpp"
 #include "program/context.hpp"

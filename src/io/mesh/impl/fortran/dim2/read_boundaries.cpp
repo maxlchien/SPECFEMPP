@@ -295,7 +295,7 @@ read_acoustic_free_surface(std::ifstream &stream,
     }
   }
 
-  mpi->sync_all();
+  specfem::MPI_new::sync_all();
 
   return acoustic_free_surface;
 }

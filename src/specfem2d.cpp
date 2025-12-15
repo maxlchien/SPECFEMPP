@@ -1,7 +1,6 @@
 #include "constants.hpp"
 #include "specfem/periodic_tasks.hpp"
 #include "specfem/program.hpp"
-#include "specfem/program/context.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
 #include <yaml-cpp/yaml.h>

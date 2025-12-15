@@ -133,8 +133,7 @@ TEST_P(Newmark, 3D) {
       source_node, nsteps, setup.get_t0(), dt, setup.get_simulation_type());
 
   for (auto &source : sources) {
-    if (mpi->main_proc())
-      std::cout << source->print() << std::endl;
+    specfem::Logger::info(source->print());
   }
 
   setup.update_t0(t0);
@@ -191,8 +190,7 @@ TEST_P(Newmark, 3D) {
   auto it = setup.instantiate_timescheme(assembly.fields);
 
   // User output
-  if (mpi->main_proc())
-    std::cout << *it << std::endl;
+  specfem::Logger::info(it->to_string());
 
   std::shared_ptr<specfem::solver::solver> solver =
       setup.instantiate_solver<5>(setup.get_dt(), assembly, it, {});
