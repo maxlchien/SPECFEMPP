@@ -10,7 +10,7 @@ Datatype used to store index of a quadrature point within an assembled mesh.
    :members:
 
 SIMD and Non-SIMD Specializations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. doxygenstruct:: specfem::point::assembly_index< false >
     :members:

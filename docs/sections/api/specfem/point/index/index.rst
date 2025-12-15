@@ -13,7 +13,7 @@ Datatype used to store the global coordinates of a point within the mesh.
 
 
 2D Specialization
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 .. doxygenstruct:: specfem::point::index< specfem::dimension::type::dim2, false >
    :members:
@@ -23,7 +23,7 @@ Datatype used to store the global coordinates of a point within the mesh.
 
 
 3D Specialization
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 .. doxygenstruct:: specfem::point::index< specfem::dimension::type::dim3, false >
    :members:

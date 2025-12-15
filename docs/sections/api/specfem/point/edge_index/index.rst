@@ -8,7 +8,7 @@ specfem::point::edge_index
 
 
 Dimension-specific Specializations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. doxygenstruct:: specfem::point::edge_index< specfem::dimension::type::dim2 >
     :members:
