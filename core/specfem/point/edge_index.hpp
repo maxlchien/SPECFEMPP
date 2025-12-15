@@ -149,7 +149,7 @@ struct edge_index<specfem::dimension::type::dim3>
    * @brief Constructs edge index with all indices.
    *
    * @param ispec_ Element index.
-   * @param iedge_ Edge index (0-3 for 2D quad elements).
+   * @param iedge_ Edge index (0-11 for 3D hexahedral elements).
    * @param ipoint_ Point index along edge.
    * @param iz_ Local z-coordinate index.
    * @param iy_ Local y-coordinate index.
