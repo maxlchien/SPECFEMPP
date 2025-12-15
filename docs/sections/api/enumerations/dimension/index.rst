@@ -1,5 +1,5 @@
 
-.. _specfem_api_enumeration_dimension:
+.. _specfem_api_enumerations_dimension:
 
 ``specfem::dimension::type``
 ============================
