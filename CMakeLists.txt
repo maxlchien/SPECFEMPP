@@ -297,17 +297,6 @@ target_link_libraries(
         Kokkos::kokkos
 )
 
-
-add_library(
-        edge
-        src/edge/interface.cpp
-)
-
-target_link_libraries(
-        edge
-        Kokkos::kokkos
-)
-
 add_library(
         specfem_mpi
         src/specfem_mpi/specfem_mpi.cpp
