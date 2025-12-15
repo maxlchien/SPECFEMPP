@@ -187,8 +187,13 @@ init_function<EdgeFunctionInitializer2D::Uniform>() {
   return std::vector<
       std::array<std::array<type_real, n_components>, n_quad_element> >(
       1,
-      std::array<std::array<type_real, n_components>, n_quad_element>{
-          std::array<type_real, n_components>{ static_cast<type_real>(1.0) } });
+      []{
+        std::array<std::array<type_real, n_components>, n_quad_element> arr{};
+        for (auto& inner : arr) {
+          inner.fill(static_cast<type_real>(1.0));
+        }
+        return arr;
+      }());
 }
 
 /**
