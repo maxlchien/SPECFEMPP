@@ -5,6 +5,10 @@
 namespace specfem {
 namespace execution {
 
+/**
+ * @brief Enumeration for different policy types used in execution iterators.
+ *
+ */
 enum class PolicyType {
   KokkosPolicy, ///< Indicates a Kokkos policy
   TilePolicy,   ///< Indicates a tile policy

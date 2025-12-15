@@ -1,7 +1,7 @@
-.. _execution_pattern_for_each_level:
+.. _specfem_api_execution_pattern_for_each_level:
 
-For Each Level Execution Pattern
-================================
+``specfem::execution::for_each_level``
+======================================
 
 .. doxygenfunction:: specfem::execution::for_each_level( const std::string &name, const IteratorType &iterator, const ClosureType &closure )
 
