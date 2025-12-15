@@ -225,13 +225,15 @@ public:
    */
   FieldView get_view() const {
     FieldView view("field_view", _field.size());
+    auto host_view = Kokkos::create_mirror_view(view);
     for (size_t i = 0; i < _field.size(); ++i) {
       for (size_t j = 0; j < n_quad_element; ++j) {
         for (size_t k = 0; k < n_components; ++k) {
-          view(i, j, k) = _field[i][j][k];
+          host_view(i, j, k) = _field[i][j][k];
         }
       }
     }
+    Kokkos::deep_copy(view, host_view);
     return view;
   }
 
