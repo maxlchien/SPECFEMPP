@@ -127,7 +127,7 @@ public:
   template <
       typename U = IntersectionFactorViewType,
       typename std::enable_if_t<
-          std::is_convertible<IntersectionFactorViewType, U>::value, int> = 0>
+          std::is_convertible<U, IntersectionFactorViewType>::value, int> = 0>
   KOKKOS_INLINE_FUNCTION intersection_factor(const U &intersection_factor)
       : data_(intersection_factor) {}
 
