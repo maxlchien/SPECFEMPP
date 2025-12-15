@@ -398,7 +398,6 @@ TYPED_TEST_SUITE(TransferFunctionTest2D, TransferFunctionTestTypes2D);
 TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) {
   execute(this->transfer_function, this->function);
 
-  SUCCEED();
 }
 
 int main(int argc, char *argv[]) {
