@@ -191,7 +191,7 @@ public:
   template <
       typename U = IntersectionNormalViewType,
       typename std::enable_if_t<
-          std::is_convertible<IntersectionNormalViewType, U>::value, int> = 0>
+          std::is_convertible<U, IntersectionNormalViewType>::value, int> = 0>
   KOKKOS_INLINE_FUNCTION intersection_normal(const U &intersection_normal)
       : data_(intersection_normal) {}
 
