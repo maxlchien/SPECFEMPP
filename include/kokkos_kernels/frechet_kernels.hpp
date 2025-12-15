@@ -1,5 +1,4 @@
-#ifndef _SPECFEM_KERNELS_FRECHET_KERNELS_HPP
-#define _SPECFEM_KERNELS_FRECHET_KERNELS_HPP
+#pragma once
 
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
@@ -50,9 +49,13 @@ public:
   }
 
 private:
-  specfem::assembly::assembly<dimension_tag> assembly; ///< Assembly object.
+  /**
+   * @brief SPECFEM++ assembly object containing mesh and simulation data
+   *
+   * Assembly object provide the computational kernels access to mesh
+   * connectivity, element properties, and other necessary simulation data.
+   */
+  specfem::assembly::assembly<dimension_tag> assembly;
 };
 } // namespace kokkos_kernels
 } // namespace specfem
-
-#endif /* _SPECFEM_KERNELS_FRECHET_KERNELS_HPP */
