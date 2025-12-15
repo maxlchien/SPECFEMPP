@@ -4,6 +4,7 @@
 namespace specfem::point {
 
 /**
+ * @struct edge_index
  * @brief Primary template for edge index in spectral element meshes
  * @tparam DimensionTag Spatial dimension (dim2 or dim3)
  */

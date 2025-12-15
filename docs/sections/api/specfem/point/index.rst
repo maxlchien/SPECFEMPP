@@ -24,7 +24,6 @@ functions used to represent and manipulate points in the SPECFEM++ framework.
     interface_index/index
     jacobian_matrix/index
     kernels/index
-    mapped_index/index
     properties/index
     source/index
     stress/index
