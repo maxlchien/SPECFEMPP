@@ -1061,6 +1061,13 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
         wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
         wavefield_type == specfem::wavefield::type::curl);
 
+  const auto wavefield_type = get_wavefield_type();
+  bool nonnegative_field =
+      !(wavefield_type == specfem::wavefield::type::pressure ||
+        wavefield_type == specfem::wavefield::type::rotation ||
+        wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
+        wavefield_type == specfem::wavefield::type::curl);
+
   // Get range of scalar values
   double range[2];
   scalars->GetRange(range);
