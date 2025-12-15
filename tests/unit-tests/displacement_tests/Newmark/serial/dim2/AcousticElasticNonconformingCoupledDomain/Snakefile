@@ -29,11 +29,27 @@ rule all:
     localrule: True
 
 
-rule specfempp_external_mesher:
+rule specfempp_mesher_setup:
     input:
+        Par_file="<cwd>/provenance/Par_file_specfempp",
         topography="<cwd>/provenance/topography_specfempp.dat",
     output:
-        external_mesh=directory("<cwd>/specfem2d_workdir/MESH"),
+        Par_file="<cwd>/specfem2d_workdir/specfempp/DATA/Par_file",
+        topography="<cwd>/specfem2d_workdir/specfempp/DATA/topography.dat",
+        cwd=directory("<cwd>/specfem2d_workdir/specfempp"),
+    localrule: True,
+    shell:
+        """
+            mkdir -p {output.cwd}
+            cp {input.Par_file} {output.Par_file}
+            cp {input.topography} {output.topography}
+        """
+
+rule specfempp_external_mesher:
+    input:
+        topography=rules.specfempp_mesher_setup.output.topography,
+    output:
+        external_mesh=directory("<cwd>/specfem2d_workdir/specfempp/MESH"),
     shell:
         """
             python $SPECFEMPP_SCRIPTS_DIR/gmshlayerbuilder {input.topography} {output.external_mesh}
@@ -41,16 +57,17 @@ rule specfempp_external_mesher:
 
 rule specfempp_mesher_using_external_mesh:
     input:
-        par_file="<cwd>/provenance/Par_file_specfempp",
+        Par_file=rules.specfempp_mesher_setup.output.Par_file,
         external_mesh_dir=directory(rules.specfempp_external_mesher.output.external_mesh),
         external_mesh=rules.specfempp_external_mesher.output.external_mesh,
-        cwd="<cwd>/specfem2d_workdir",
+        cwd="<cwd>/specfem2d_workdir/specfempp",
     output:
-        database="<cwd>/specfem2d_workdir/OUTPUT_FILES/database.bin",
+        database="<cwd>/specfem2d_workdir/specfempp/OUTPUT_FILES/database.bin",
     shell:
         """
-            cd {input.external_mesh}
-            $SPECFEMPP_BINDIR/xmeshfem2D -p {input.par_file}
+            cd {input.cwd}
+            pwd
+            $SPECFEMPP_BINDIR/xmeshfem2D -p DATA/Par_file
         """
 
 ruleorder: specfempp_mesher_using_external_mesh > specfempp_mesher

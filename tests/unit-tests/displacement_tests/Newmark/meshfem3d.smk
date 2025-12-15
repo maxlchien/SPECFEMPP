@@ -97,7 +97,7 @@ rule specfempp_mesher:
         """
             cd {input.cwd}
             mkdir -p OUTPUT_FILES
-            $SPECFEMPP_BINDIR/xmeshfem3D -p {input.mesh_par_file}
+            $SPECFEMPP_BINDIR/xmeshfem3D -p Mesh_Par_file
         """
 
 rule specfempp_move_database:
