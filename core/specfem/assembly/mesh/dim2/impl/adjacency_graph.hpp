@@ -10,7 +10,7 @@ namespace specfem::assembly::mesh_impl {
  * Inherits from specfem::mesh::adjacency_graph but uses compute-optimized
  * element indices instead of mesh ordering for better assembly performance.
  *
- * @see specfem::mesh::adjacency_graph,
+ * @see specfem::mesh::adjacency_graph
  */
 template <>
 class adjacency_graph<specfem::dimension::type::dim2>
