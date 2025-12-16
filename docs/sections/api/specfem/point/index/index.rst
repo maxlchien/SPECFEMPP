@@ -3,8 +3,6 @@
 ``specfem::point::index``
 =========================
 
-Datatype used to store the global coordinates of a point within the mesh.
-
 .. doxygenstruct:: specfem::point::index
    :members:
 
