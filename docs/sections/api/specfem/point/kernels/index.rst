@@ -10,12 +10,23 @@ Datatype to store the misfit kernels at a quadrature point.
     :members:
     :private-members:
 
-Implementation Details
-----------------------
+Medium-specific Specializations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. toctree::
-    :maxdepth: 1
+.. doxygengroup:: specfem_point_kernels_dim2_acoustic_isotropic
+   :content-only:
 
-    dim2/acoustic_isotropic.rst
-    dim2/elastic_isotropic.rst
-    dim2/poroelastic_isotropic.rst
+.. doxygengroup:: specfem_point_kernels_elastic_isotropic
+   :content-only:
+
+.. doxygengroup:: specfem_point_kernels_dim2_elastic_anisotropic
+   :content-only:
+
+.. doxygengroup:: specfem_point_kernels_dim2_elastic_isotropic_cosserat
+   :content-only:
+
+.. doxygengroup:: specfem_point_kernels_dim2_electromagnetic
+   :content-only:
+
+.. doxygengroup:: specfem_point_kernels_dim2_poroelastic_isotropic
+   :content-only:
