@@ -1,7 +1,7 @@
 .. _specfem_point_nonconforming_interface:
 
-specfem::point::nonconforming_interface
-=======================================
+``specfem::point::nonconforming_interface``
+===========================================
 
 .. doxygenstruct:: specfem::point::NonconformingAccessorPack
     :members:

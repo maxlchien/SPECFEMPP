@@ -1,7 +1,7 @@
 .. _specfem_point_conforming_interface:
 
-specfem::point::conforming_interface
-====================================
+``specfem::point::conforming_interface``
+========================================
 
 .. doxygenstruct:: specfem::point::conforming_interface
     :members:
