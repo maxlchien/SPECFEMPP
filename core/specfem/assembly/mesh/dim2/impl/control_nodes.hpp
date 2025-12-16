@@ -59,7 +59,7 @@ public:
    * @brief Device view containing control node coordinates.
    *
    * Dimensions: [ndim, nspec, ngnod] where ndim=2 for 2D problems.
-   * Stores (x, y) coordinates for each control node of each spectral element.
+   * Stores (x, z) coordinates for each control node of each spectral element.
    */
   ControlNodeCoordinatesView control_node_coord;
 
