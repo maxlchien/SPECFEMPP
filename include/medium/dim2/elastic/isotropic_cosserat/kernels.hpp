@@ -14,8 +14,8 @@ namespace specfem::point::impl::kernels {
 /**
  * @brief Placeholder container for 2D elastic isotropic cosserat media
  *
- * @tparam MediumTag
- * @tparam UseSIMD
+ * @tparam MediumTag The medium tag
+ * @tparam UseSIMD Boolean indicating whether to use SIMD intrinsics
  */
 template <specfem::element::medium_tag MediumTag, bool UseSIMD>
 struct data_container<
