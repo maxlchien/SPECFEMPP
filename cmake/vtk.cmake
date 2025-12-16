@@ -8,6 +8,8 @@ if (SPECFEM_ENABLE_VTK)
     find_package(VTK COMPONENTS
         CommonColor
         CommonCore
+        FiltersGeometry
+        FiltersModeling
         FiltersSources
         InteractionStyle
         RenderingContextOpenGL2

@@ -142,6 +142,8 @@ private:
 
   double sigmoid(double x);
 
+  double double_sigmoid(double x, double scale = 20, double offset = 0.1);
+
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
 
