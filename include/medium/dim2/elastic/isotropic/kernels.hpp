@@ -7,7 +7,6 @@ namespace specfem::point::impl::kernels {
 
 /**
  * @defgroup specfem_point_kernels_elastic_isotropic 2D Elastic Isotropic
- * Kernels
  * @{
  */
 /**

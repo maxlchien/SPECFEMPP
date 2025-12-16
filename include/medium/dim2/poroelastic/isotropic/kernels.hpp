@@ -7,7 +7,6 @@ namespace specfem::point::impl::kernels {
 
 /**
  * @defgroup specfem_point_kernels_dim2_poroelastic_isotropic 2D Poroelastic
- * Kernels
  * @{
  */
 

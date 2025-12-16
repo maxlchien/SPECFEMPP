@@ -7,7 +7,6 @@ namespace specfem::point::impl::kernels {
 
 /**
  * @defgroup specfem_point_kernels_dim2_elastic_isotropic_cosserat 2D Cosserat
- * Kernels
  * @{
  */
 
