@@ -123,15 +123,43 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
             &assembly,
         const specfem::display::format &output_format,
         const specfem::wavefield::type &wavefield_type,
-        const specfem::wavefield::simulation_field &wavefield,
-        const type_real &dt, const int &time_interval,
-        const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi)
-    : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
+        const specfem::wavefield::simulation_field &simulation_wavefield_type,
+        const specfem::display::component &component, const type_real &dt,
+        const int &time_interval, const boost::filesystem::path &output_folder,
+        specfem::MPI::MPI *mpi)
+    : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
+      wavefield_type(wavefield_type),
       plotter<specfem::dimension::type::dim2>(time_interval),
       output_format(output_format), output_folder(output_folder),
-      nspec(assembly.mesh.nspec), dt(dt),
+      component(component), nspec(assembly.mesh.nspec), dt(dt),
       ngllx(assembly.mesh.element_grid.ngllx),
-      ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi){};
+      ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
+
+  // Deciding if the field to be plotted should have a non-negative range
+  // and hence colormapping.
+  if ((wavefield_type == specfem::wavefield::type::displacement) ||
+      (wavefield_type == specfem::wavefield::type::velocity) ||
+      (wavefield_type == specfem::wavefield::type::acceleration)) {
+    if (component == specfem::display::component::magnitude) {
+      this->nonnegative_field = true;
+    } else {
+      this->nonnegative_field = false;
+    }
+  } else {
+    this->nonnegative_field = false;
+  }
+
+  std::cout << "Plotting wavefield of type: "
+            << specfem::wavefield::to_string(wavefield_type)
+            << " with component: " << specfem::display::to_string(component)
+            << std::endl;
+  std::cout << "Non-negative field: "
+            << (this->nonnegative_field ? "true" : "false") << std::endl;
+  std::cout << "Output format: " << specfem::display::to_string(output_format)
+            << std::endl;
+  std::cout << "Output folder: " << output_folder.string() << std::endl;
+  std::cout << "Time interval: " << time_interval << " steps" << std::endl;
+};
 
 // Sigmoid function centered at 0.0
 double specfem::periodic_tasks::plot_wavefield<
@@ -181,15 +209,15 @@ vtkSmartPointer<vtkDataSetMapper> specfem::periodic_tasks::plot_wavefield<
 
   const std::unordered_map<specfem::element::medium_tag, std::array<int, 3> >
       material_colors = {
-        { specfem::element::medium_tag::acoustic, // aqua color
+        { specfem::element::medium_tag::acoustic, // white color
           { white, white, white } },
-        { specfem::element::medium_tag::elastic_psv, // sienna color
+        { specfem::element::medium_tag::elastic_psv, // light gray color
           { light_gray, light_gray, light_gray } },
-        { specfem::element::medium_tag::elastic_sh, // sienna color
+        { specfem::element::medium_tag::elastic_sh, // light gray color
           { light_gray, light_gray, light_gray } },
-        { specfem::element::medium_tag::elastic_psv_t, // sienna color
+        { specfem::element::medium_tag::elastic_psv_t, // light gray color
           { light_gray, light_gray, light_gray } },
-        { specfem::element::medium_tag::poroelastic, // off navy color
+        { specfem::element::medium_tag::poroelastic, // gray color
           { gray, gray, gray } },
         { specfem::element::medium_tag::electromagnetic_te, // dark gray color
           { dark_gray, dark_gray, dark_gray } },
@@ -472,13 +500,10 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
     plot_wavefield<specfem::dimension::type::dim2>::compute_wavefield_scalars(
         specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
   const auto wavefield_type = get_wavefield_type();
-  const auto &wavefield_data =
-      assembly.generate_wavefield_on_entire_grid(wavefield, wavefield_type);
+  const auto &wavefield_data = assembly.generate_wavefield_on_entire_grid(
+      simulation_wavefield_type, wavefield_type);
 
   auto scalars = vtkSmartPointer<vtkFloatArray>::New();
-
-  // Placeholder for potential component selection
-  std::string component = "magnitude";
 
   // For quad grid
   if (unstructured_grid->GetCellType(0) == VTK_QUAD) {
@@ -503,18 +528,25 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
               scalars->InsertNextValue(
                   wavefield_data(ispec, iz_pos, ix_pos, 0));
             } else {
-              if (component == "x") {
-                scalars->InsertNextValue(
-                    wavefield_data(ispec, iz_pos, ix_pos, 0));
-              } else if (component == "z") {
-                scalars->InsertNextValue(
-                    wavefield_data(ispec, iz_pos, ix_pos, 1));
-              } else {
+              if (this->component == specfem::display::component::magnitude) {
                 scalars->InsertNextValue(
                     std::sqrt((wavefield_data(ispec, iz_pos, ix_pos, 0) *
                                wavefield_data(ispec, iz_pos, ix_pos, 0)) +
                               (wavefield_data(ispec, iz_pos, ix_pos, 1) *
                                wavefield_data(ispec, iz_pos, ix_pos, 1))));
+                scalars->InsertNextValue(
+                    wavefield_data(ispec, iz_pos, ix_pos, 0));
+              } else if (this->component == specfem::display::component::x) {
+                scalars->InsertNextValue(
+                    wavefield_data(ispec, iz_pos, ix_pos, 0));
+              } else if (this->component == specfem::display::component::z) {
+                scalars->InsertNextValue(
+                    wavefield_data(ispec, iz_pos, ix_pos, 1));
+              } else {
+                throw std::runtime_error(
+                    "Invalid component,'" +
+                    specfem::display::to_string(this->component) +
+                    "', for wavefield plotting in 2D.");
               }
             }
           }
@@ -546,6 +578,7 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
 
     for (int icell = 0; icell < nspec; ++icell) {
       for (int i = 0; i < cell_points; ++i) {
+
         if (wavefield_type == specfem::wavefield::type::pressure ||
             wavefield_type == specfem::wavefield::type::rotation ||
             wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
@@ -553,18 +586,23 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
           scalars->InsertNextValue(
               wavefield_data(icell, z_index[i], x_index[i], 0));
         } else {
-          if (component == "x") {
+          if (component == specfem::display::component::x) {
             scalars->InsertNextValue(
                 wavefield_data(icell, z_index[i], x_index[i], 0));
-          } else if (component == "z") {
+          } else if (component == specfem::display::component::z) {
             scalars->InsertNextValue(
                 wavefield_data(icell, z_index[i], x_index[i], 1));
-          } else {
+          } else if (component == specfem::display::component::magnitude) {
             scalars->InsertNextValue(
                 std::sqrt((wavefield_data(icell, z_index[i], x_index[i], 0) *
                            wavefield_data(icell, z_index[i], x_index[i], 0)) +
                           (wavefield_data(icell, z_index[i], x_index[i], 1) *
                            wavefield_data(icell, z_index[i], x_index[i], 1))));
+          } else {
+            throw std::runtime_error(
+                "Invalid component,'" +
+                specfem::display::to_string(this->component) +
+                "', for wavefield plotting in 2D.");
           }
         }
       }
@@ -586,16 +624,21 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
             scalars->InsertNextValue(wavefield_data(ispec, iz, ix, 0));
           } else {
 
-            if (component == "x") {
+            if (component == specfem::display::component::x) {
               scalars->InsertNextValue(wavefield_data(ispec, iz, ix, 0));
-            } else if (component == "z") {
+            } else if (component == specfem::display::component::z) {
               scalars->InsertNextValue(wavefield_data(ispec, iz, ix, 1));
-            } else {
+            } else if (component == specfem::display::component::magnitude) {
               scalars->InsertNextValue(
                   std::sqrt((wavefield_data(ispec, iz, ix, 0) *
                              wavefield_data(ispec, iz, ix, 0)) +
                             (wavefield_data(ispec, iz, ix, 1) *
                              wavefield_data(ispec, iz, ix, 1))));
+            } else {
+              throw std::runtime_error(
+                  "Invalid component,'" +
+                  specfem::display::to_string(this->component) +
+                  "', for wavefield plotting in 2D.");
             }
           }
         }
@@ -917,14 +960,8 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   std::cout << "Wavefield type: "
             << specfem::wavefield::to_string(wavefield_type) << std::endl;
 
-  bool nonnegative_field =
-      !(wavefield_type == specfem::wavefield::type::pressure ||
-        wavefield_type == specfem::wavefield::type::rotation ||
-        wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
-        wavefield_type == specfem::wavefield::type::curl);
-
-  std::cout << "Non-negative field: " << (nonnegative_field ? "true" : "false")
-            << std::endl;
+  std::cout << "Non-negative field: "
+            << (this->nonnegative_field ? "true" : "false") << std::endl;
 
   // Create VTK objects that will persist between calls
   this->colors = vtkSmartPointer<vtkNamedColors>::New();
@@ -965,6 +1002,11 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
       // zero will not be smooth. (Use definition and plot in python)
       double transparency = this->sigmoid(t, 40, 0.1) * 0.9;
 
+      // fully transparent at zero
+      if (i == 0) {
+        transparency = 0.0; // fully transparent at zero
+      }
+
       // Control over the contribution of blue channel to color
       double blue = this->sigmoid(t, 25.0, 0.2);
       this->lut->SetTableValue(i, 0.2, 0.2, blue, transparency);
@@ -984,6 +1026,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
       // the sigmoid->0 as x->0, otherwise the transition from small values to
       // zero will not be smooth. (Use definition and plot in python)
       double transparency = this->sigmoid(std::abs(centered_t), 25, 0.2) * 0.9;
+
       // fully transparent at center
       if (i == 127 || i == 128) {
         transparency = 0.0;
@@ -1014,14 +1057,6 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   this->renderer->AddActor(this->material_actor);
   this->renderer->AddActor(wavefield_actor);
   this->renderer->SetBackground(this->colors->GetColor3d("White").GetData());
-
-  // Configure camera for X-Z plane visualization
-  // Position camera to look at X-Z plane from a Y perspective
-  auto camera = this->renderer->GetActiveCamera();
-  camera->SetPosition(0, -1, 0);  // Camera positioned back in Y direction
-  camera->SetFocalPoint(0, 0, 0); // Looking at origin
-  camera->SetViewUp(0, 0, 1);     // Z-axis points up in the view
-  this->renderer->ResetCamera();  // Auto-fit the view to the data
 
   // Plot domain outline (bounding box)
   {
@@ -1066,11 +1101,45 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
     this->renderer->AddActor(edgeActor);
   }
 
+  // Get domain bounds and print
+  double domain_bounds[6];
+  this->unstructured_grid->GetBounds(domain_bounds);
+  std::cout << "Domain bounds:" << std::endl;
+  std::cout << "  X: [" << domain_bounds[0] << ", " << domain_bounds[1] << "]"
+            << std::endl;
+  std::cout << "  Z: [" << domain_bounds[4] << ", " << domain_bounds[5] << "]"
+            << std::endl;
+
+  // Compute aspect ratio and set render window size accordingly
+  double x_range = domain_bounds[1] - domain_bounds[0];
+  double z_range = domain_bounds[5] - domain_bounds[4];
+  double aspect_ratio = x_range / z_range;
+  int window_size_x = 2560;
+  ;
+  int window_size_z = static_cast<int>(window_size_x / aspect_ratio);
+
+  std::cout << "Render window size: " << window_size_x << " x " << window_size_z
+            << std::endl;
+
   // Create render window
   this->render_window = vtkSmartPointer<vtkRenderWindow>::New();
   this->render_window->AddRenderer(this->renderer);
-  this->render_window->SetSize(2560, 2560);
+  this->render_window->SetSize(window_size_x, window_size_z);
   this->render_window->SetWindowName("Wavefield");
+
+  // Setup camera
+  auto camera = this->renderer->GetActiveCamera();
+  camera->SetPosition(0, -1, 0);  // Camera positioned back in Y direction
+  camera->SetFocalPoint(0, 0, 0); // Looking at origin
+  camera->SetViewUp(0, 0, 1);     // Z-axis points up in the view
+  camera->ParallelProjectionOn();
+  this->renderer->ResetCamera(); // Auto-fit the view to the data
+
+  // Set parallel scale to exactly half the Z range (or X range / aspect ratio)
+  // Since your window already matches the aspect ratio, use Z range
+  camera->SetParallelScale(z_range / 2.0);
+
+  return;
 }
 
 template <>
@@ -1115,6 +1184,9 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   graphics_factory->SetOffScreenOnlyMode(1);
   graphics_factory->SetUseMesaClasses(1);
   this->render_window->SetOffScreenRendering(1);
+
+  // Reset camera to make sure the domain fits the view
+  this->renderer->ResetCamera();
 }
 
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
@@ -1153,19 +1225,15 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
     run_render(vtkSmartPointer<vtkFloatArray> &scalars) {
 
   const auto wavefield_type = get_wavefield_type();
-  bool nonnegative_field =
-      !(wavefield_type == specfem::wavefield::type::pressure ||
-        wavefield_type == specfem::wavefield::type::rotation ||
-        wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
-        wavefield_type == specfem::wavefield::type::curl);
 
   // Get range of scalar values
   double range[2];
   scalars->GetRange(range);
 
-  if (nonnegative_field) {
-    this->wavefield_mapper->SetScalarRange(range[0], range[1]);
-    this->lut->SetRange(range[0], range[1]);
+  if (this->nonnegative_field) {
+    double absmax = std::max(std::abs(range[0]), std::abs(range[1]));
+    this->wavefield_mapper->SetScalarRange(0.0, absmax);
+    this->lut->SetRange(0.0, absmax);
   } else {
     double abs_max = std::max(std::abs(range[0]), std::abs(range[1]));
     this->wavefield_mapper->SetScalarRange(-abs_max, abs_max);
@@ -1212,6 +1280,9 @@ template <>
 void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
     run<specfem::display::format::JPG>(vtkSmartPointer<vtkFloatArray> &scalars,
                                        const int istep) {
+
+  // Render the field
+  this->run_render(scalars);
 
   auto image_filter = vtkSmartPointer<vtkWindowToImageFilter>::New();
   image_filter->SetInput(this->render_window);

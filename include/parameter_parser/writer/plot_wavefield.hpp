@@ -30,11 +30,14 @@ public:
    * acceleration)
    */
   plot_wavefield(const std::string &output_format,
-                 const std::string &output_folder, const std::string &component,
-                 const std::string &wavefield_type, const int time_interval)
+                 const std::string &output_folder,
+                 const std::string &field_type,
+                 const std::string &simulation_wavefield_type,
+                 const std::string &component, const int time_interval)
       : output_format(output_format), output_folder(output_folder),
-        component(component), wavefield_type(wavefield_type),
-        time_interval(time_interval) {}
+        field_type(field_type),
+        simulation_wavefield_type(simulation_wavefield_type),
+        component(component), time_interval(time_interval) {}
 
   /**
    * @brief Construct a new plotter configuration object from YAML node
@@ -58,12 +61,16 @@ public:
       const type_real &dt, specfem::MPI::MPI *mpi) const;
 
 private:
-  std::string output_format;  ///< format of output file
-  std::string output_folder;  ///< Path to output folder
-  std::string component;      ///< Component of the wavefield to plot
-  std::string wavefield_type; ///< Type of wavefield to plot
-  type_real dt;               ///< Time step
-  int time_interval;          ///< Time interval for plotting
+  std::string output_format; ///< format of output file
+  std::string output_folder; ///< Path to output folder
+  std::string field_type; ///< Component of the wavefield to plot (displacement,
+                          ///< velocity, etc.)
+  std::string simulation_wavefield_type; ///< Type of simulation wavefield to
+                                         ///< plot ( forward, adjoint)
+  std::string component;                 ///< Component of the wavefield to plot
+                                         ///< (x,y,z,magnitude)
+  type_real dt;                          ///< Time step
+  int time_interval;                     ///< Time interval for plotting
 };
 } // namespace runtime_configuration
 } // namespace specfem

@@ -282,6 +282,7 @@ target_compile_definitions(
 add_library(
         enumerations
         src/enumerations/medium.cpp
+        src/enumerations/display.cpp
         src/enumerations/wavefield.cpp
         src/enumerations/dim2/connections.cpp
         src/enumerations/dim3/connections.cpp

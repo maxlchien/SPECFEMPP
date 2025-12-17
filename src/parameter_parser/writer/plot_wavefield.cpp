@@ -32,7 +32,7 @@ specfem::runtime_configuration::plot_wavefield::plot_wavefield(
     throw std::runtime_error(message.str());
   }
 
-  const std::string component = [&]() -> std::string {
+  const std::string field_type = [&]() -> std::string {
     if (Node["field"]) {
       return Node["field"].as<std::string>();
     } else {
@@ -41,12 +41,20 @@ specfem::runtime_configuration::plot_wavefield::plot_wavefield(
     }
   }();
 
-  const std::string wavefield_type = [&]() -> std::string {
+  const std::string simulation_wavefield_type = [&]() -> std::string {
     if (Node["simulation-field"]) {
       return Node["simulation-field"].as<std::string>();
     } else {
       throw std::runtime_error(
           "Simulation field type not specified in the display section");
+    }
+  }();
+
+  const std::string component = [&]() -> std::string {
+    if (Node["component"]) {
+      return Node["component"].as<std::string>();
+    } else {
+      return "magnitude";
     }
   }();
 
@@ -60,7 +68,8 @@ specfem::runtime_configuration::plot_wavefield::plot_wavefield(
   }();
 
   *this = specfem::runtime_configuration::plot_wavefield(
-      output_format, output_folder, component, wavefield_type, time_interval);
+      output_format, output_folder, field_type, simulation_wavefield_type,
+      component, time_interval);
 
   return;
 }
@@ -86,20 +95,34 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
   }();
 
   const auto component = [&]() {
-    if (specfem::utilities::is_displacement_string(this->component)) {
+    if (specfem::utilities::is_x_string(this->component)) {
+      return specfem::display::component::x;
+    } else if (specfem::utilities::is_y_string(this->component)) {
+      return specfem::display::component::y;
+    } else if (specfem::utilities::is_z_string(this->component)) {
+      return specfem::display::component::z;
+    } else if (specfem::utilities::is_magnitude_string(this->component)) {
+      return specfem::display::component::magnitude;
+    } else {
+      throw std::runtime_error("Unknown plotter component");
+    }
+  }();
+
+  const auto field_type = [&]() {
+    if (specfem::utilities::is_displacement_string(this->field_type)) {
       return specfem::wavefield::type::displacement;
-    } else if (specfem::utilities::is_velocity_string(this->component)) {
+    } else if (specfem::utilities::is_velocity_string(this->field_type)) {
       return specfem::wavefield::type::velocity;
-    } else if (specfem::utilities::is_acceleration_string(this->component)) {
+    } else if (specfem::utilities::is_acceleration_string(this->field_type)) {
       return specfem::wavefield::type::acceleration;
-    } else if (specfem::utilities::is_pressure_string(this->component)) {
+    } else if (specfem::utilities::is_pressure_string(this->field_type)) {
       return specfem::wavefield::type::pressure;
-    } else if (specfem::utilities::is_rotation_string(this->component)) {
+    } else if (specfem::utilities::is_rotation_string(this->field_type)) {
       return specfem::wavefield::type::rotation;
     } else if (specfem::utilities::is_intrinsic_rotation_string(
-                   this->component)) {
+                   this->field_type)) {
       return specfem::wavefield::type::intrinsic_rotation;
-    } else if (specfem::utilities::is_curl_string(this->component)) {
+    } else if (specfem::utilities::is_curl_string(this->field_type)) {
       return specfem::wavefield::type::curl;
     } else {
       throw std::runtime_error(
@@ -107,12 +130,15 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
     }
   }();
 
-  const auto wavefield = [&]() {
-    if (specfem::utilities::is_forward_string(this->wavefield_type)) {
+  const auto simulation_wavefield_type = [&]() {
+    if (specfem::utilities::is_forward_string(
+            this->simulation_wavefield_type)) {
       return specfem::wavefield::simulation_field::forward;
-    } else if (specfem::utilities::is_adjoint_string(this->wavefield_type)) {
+    } else if (specfem::utilities::is_adjoint_string(
+                   this->simulation_wavefield_type)) {
       return specfem::wavefield::simulation_field::adjoint;
-    } else if (specfem::utilities::is_backward_string(this->wavefield_type)) {
+    } else if (specfem::utilities::is_backward_string(
+                   this->simulation_wavefield_type)) {
       return specfem::wavefield::simulation_field::backward;
     } else {
       throw std::runtime_error("Unknown wavefield type in the display section");
@@ -121,8 +147,8 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
 
   return std::make_shared<
       specfem::periodic_tasks::plot_wavefield<DimensionTag> >(
-      assembly, output_format, component, wavefield, dt, time_interval,
-      this->output_folder, mpi);
+      assembly, output_format, field_type, simulation_wavefield_type, component,
+      dt, time_interval, this->output_folder, mpi);
 }
 
 // Explicit template instantiations

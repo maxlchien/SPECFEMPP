@@ -88,14 +88,16 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 
 // Constructor
 specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    plot_wavefield(const specfem::assembly::assembly<dimension_tag> &assembly,
-                   const specfem::display::format &output_format,
-                   const specfem::wavefield::type &wavefield_type,
-                   const specfem::wavefield::simulation_field &wavefield,
-                   const type_real &dt, const int &time_interval,
-                   const boost::filesystem::path &output_folder,
-                   specfem::MPI::MPI *mpi)
-    : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
+    plot_wavefield(
+        const specfem::assembly::assembly<dimension_tag> &assembly,
+        const specfem::display::format &output_format,
+        const specfem::wavefield::type &wavefield_type,
+        const specfem::wavefield::simulation_field &simulation_wavefield_type,
+        const specfem::display::component &component, const type_real &dt,
+        const int &time_interval, const boost::filesystem::path &output_folder,
+        specfem::MPI::MPI *mpi)
+    : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
+      wavefield_type(wavefield_type), component(component),
       plotter<dimension_tag>(time_interval), output_format(output_format),
       output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
       ngllx(assembly.mesh.element_grid.ngllx),
@@ -191,8 +193,8 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
     plot_wavefield<specfem::dimension::type::dim3>::compute_wavefield_scalars(
         specfem::assembly::assembly<dimension_tag> &assembly) {
   const auto wavefield_type = get_wavefield_type();
-  const auto &wavefield_data =
-      assembly.generate_wavefield_on_entire_grid(wavefield, wavefield_type);
+  const auto &wavefield_data = assembly.generate_wavefield_on_entire_grid(
+      this->simulation_wavefield_type, wavefield_type);
 
   auto scalars = vtkSmartPointer<vtkFloatArray>::New();
 
@@ -215,6 +217,29 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
               scalars->InsertNextValue(
                   std::abs(wavefield_data(ispec, iz, iy, ix, 0)));
             } else {
+              if (component == specfem::display::component::x) {
+                scalars->InsertNextValue(wavefield_data(ispec, iz, iy, ix, 0));
+              } else if (component == specfem::display::component::y) {
+                scalars->InsertNextValue(wavefield_data(ispec, iz, iy, ix, 1));
+              } else if (component == specfem::display::component::z) {
+                scalars->InsertNextValue(wavefield_data(ispec, iz, iy, ix, 2));
+              } else if (component == specfem::display::component::magnitude) {
+                // Compute magnitude from 3-component vector
+                type_real magnitude = 0.0;
+                for (int icomp = 0; icomp < 3; ++icomp) {
+                  const type_real component =
+                      wavefield_data(ispec, iz, iy, ix, icomp);
+                  magnitude += component * component;
+                }
+                magnitude = std::sqrt(magnitude);
+
+                scalars->InsertNextValue(static_cast<float>(magnitude));
+              } else {
+                throw std::runtime_error(
+                    "Invalid component,'" +
+                    specfem::display::to_string(this->component) +
+                    "', for wavefield plotting in 3D.");
+              }
               // Compute magnitude from 3-component vector
               type_real magnitude = 0.0;
               for (int icomp = 0; icomp < 3; ++icomp) {
@@ -230,6 +255,9 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
         }
       }
     }
+  } else {
+    throw std::runtime_error(
+        "Unsupported grid type for wavefield scalar computation in 3D.");
   }
 
   return scalars;

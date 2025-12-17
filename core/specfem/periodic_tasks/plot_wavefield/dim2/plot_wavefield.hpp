@@ -48,7 +48,8 @@ public:
    * @param output_format Output format of the plot (PNG, JPG, etc.)
    * @param wavefield_type Type of the wavefield to plot (displacement,
    * velocity, etc.)
-   * @param wavefield Type of wavefield to plot (forward, adjoint, etc.)
+   * @param simulation_wavefield_type Type of wavefield to plot (forward,
+   * adjoint, etc.)
    * @param time_interval Time interval between subsequent plots
    * @param output_folder Path to output folder where plots will be stored
    */
@@ -57,9 +58,10 @@ public:
           &assembly,
       const specfem::display::format &output_format,
       const specfem::wavefield::type &wavefield_type,
-      const specfem::wavefield::simulation_field &wavefield,
-      const type_real &dt, const int &time_interval,
-      const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi);
+      const specfem::wavefield::simulation_field &simulation_wavefield_type,
+      const specfem::display::component &component, const type_real &dt,
+      const int &time_interval, const boost::filesystem::path &output_folder,
+      specfem::MPI::MPI *mpi);
 
   /**
    * @brief Updates the wavefield within open window
@@ -90,9 +92,13 @@ public:
                     &assembly) override;
 
   const specfem::display::format output_format;  ///< Output format of the plot
+  const specfem::display::component component;   ///< Component to plot
   const specfem::wavefield::type wavefield_type; ///< Type of the wavefield
-  const specfem::wavefield::simulation_field wavefield; ///< Type of wavefield
-                                                        ///< to plot
+  const specfem::wavefield::simulation_field
+      simulation_wavefield_type; ///< Type of wavefield
+                                 ///< to plot
+  bool nonnegative_field;        ///< Whether the field is non-negative (e.g.,
+                                 ///< displacement with magnitude)
   const boost::filesystem::path output_folder; ///< Path to output folder
   specfem::assembly::assembly<specfem::dimension::type::dim2>
       assembly; ///< Assembly object
