@@ -1,6 +1,8 @@
 #pragma once
 
-#include "nonconforming_interface/edge_function.hpp"
+#include "nonconforming_interface/analytical_field.hpp"
+#include "nonconforming_interface/edge_field.hpp"
+#include "nonconforming_interface/quadrature_rule.hpp"
 #include "nonconforming_interface/transfer_function.hpp"
 
 namespace specfem::test::fixture {

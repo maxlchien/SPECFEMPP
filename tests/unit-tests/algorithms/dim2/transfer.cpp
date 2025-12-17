@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 #include <Kokkos_Core.hpp>
@@ -17,33 +18,11 @@
 
 #include "Kokkos_Environment.hpp"
 #include "MPI_environment.hpp"
-#include "utilities/include/fixture/nonconforming_interface/edge_function.hpp"
+#include "utilities/include/fixture/nonconforming_interface/analytical_field.hpp"
+#include "utilities/include/fixture/nonconforming_interface/quadrature_rule.hpp"
 #include "utilities/include/fixture/nonconforming_interface/transfer_function.hpp"
 
 namespace specfem::algorithms_test {
-
-/* Polynomial EdgeField */
-template <int power> struct xi_to_the {
-  static constexpr int power_of_xi_taken = power;
-  static constexpr int num_edges = 1;
-  static constexpr int num_components = 1;
-  static type_real evaluate(const int &iedge, const type_real &coord,
-                            const int &icomp) {
-    return std::pow(coord, power);
-  }
-
-  static std::string description() {
-    return std::string("xi^") + std::to_string(power);
-  }
-  // static constexpr char description[] = "";
-};
-
-// alias
-template <typename TransferFunctionInitializer, int power>
-using PowerType =
-    std::tuple<TransferFunctionInitializer,
-               specfem::test::fixture::EdgeFunctionInitializer2D::FromEdgeField<
-                   xi_to_the<power>, TransferFunctionInitializer> >;
 
 /**
  * @brief Test index type for chunk edge operations.
@@ -91,25 +70,52 @@ constexpr static auto interface_tag =
 /** Boundary type (dummy for testing) */
 constexpr static auto boundary_tag = specfem::element::boundary_tag::none;
 
-/**
- * @brief Compute expected result of transfer function operation.
- * @tparam TransferFunction2D Transfer function type
- * @tparam EdgeFunction2D Field type
- * @param transfer_function Transfer function data
- * @param field Input field data
- * @return Expected transferred field values
- */
-template <typename TransferFunction2D, typename EdgeFunction2D, typename = void>
+} // namespace specfem::algorithms_test
 
-struct compute_transferred_function {
-  static std::vector<
-      std::array<std::array<type_real, EdgeFunction2D::num_components>,
-                 TransferFunction2D::nquad_intersection> >
-  call(const TransferFunction2D &transfer_function,
-       const EdgeFunction2D &field) {
+using namespace specfem::algorithms_test;
+
+/**
+ * @brief Test fixture for 2D transfer function algorithms.
+ * @tparam TestingTypes Tuple of (TransferFunctionInitializer,
+ * FunctionInitializer)
+ */
+template <typename TestingTypes, typename = void>
+struct TransferFunctionTest2D : public ::testing::Test {};
+
+template <typename TestingTypes>
+struct TransferFunctionTest2D<
+    TestingTypes,
+    std::enable_if_t<
+        std::is_base_of_v<
+            specfem::test::fixture::TransferFunctionInitializer2D::Base,
+            std::tuple_element_t<0, TestingTypes> > &&
+            std::is_base_of_v<
+                specfem::test::fixture::EdgeFieldInitializer2D::Base,
+                std::tuple_element_t<1, TestingTypes> >,
+        void> > : public ::testing::Test {
+  using TransferFunctionInitializer = std::tuple_element_t<0, TestingTypes>;
+  using FunctionInitializer = std::tuple_element_t<1, TestingTypes>;
+
+  using TransferFunction2D =
+      specfem::test::fixture::TransferFunction2D<TransferFunctionInitializer>;
+  using EdgeField2D = specfem::test::fixture::EdgeField2D<FunctionInitializer>;
+
+  /**
+   * @brief Set up test with initialized transfer function and field.
+   */
+  TransferFunctionTest2D()
+      : transfer_function(TransferFunctionInitializer()),
+        edge_field(FunctionInitializer()) {}
+
+  TransferFunction2D transfer_function; /**< Test transfer function */
+  EdgeField2D edge_field;               /**< Test field */
+
+  std::vector<std::array<std::array<type_real, EdgeField2D::num_components>,
+                         TransferFunction2D::nquad_intersection> >
+  expected_solution() const {
     constexpr int nquad_intersection = TransferFunction2D::nquad_intersection;
     constexpr int nquad_edge = TransferFunction2D::nquad_edge;
-    constexpr int num_components = EdgeFunction2D::num_components;
+    constexpr int num_components = EdgeField2D::num_components;
 
     const int n_edges = TransferFunction2D::num_edges;
     std::vector<
@@ -121,7 +127,7 @@ struct compute_transferred_function {
         for (int k = 0; k < num_components; ++k) {
           for (int l = 0; l < nquad_edge; ++l) {
             result_field[i][j][k] +=
-                transfer_function(i, l, j) * field(i, l, k);
+                transfer_function(i, l, j) * edge_field(i, l, k);
           }
         }
       }
@@ -130,23 +136,37 @@ struct compute_transferred_function {
   }
 };
 
-// true solution (we expect this to be exact)
-template <typename TransferFunction2D, typename EdgeFunction2D>
-struct compute_transferred_function<
-    TransferFunction2D, EdgeFunction2D,
-    std::enable_if_t<0 <= EdgeFunction2D::FunctionInitializer::
-                              FieldInitializerType::power_of_xi_taken,
-                     void> > {
+template <typename AnalyticalFieldTransfer2DType>
+struct TransferFunctionTest2D<
+    AnalyticalFieldTransfer2DType,
+    std::void_t<decltype(
+        AnalyticalFieldTransfer2DType::evaluate_at_intersection_point)> >
+    : public ::testing::Test {
+  using TransferFunctionInitializer =
+      typename AnalyticalFieldTransfer2DType::TransferFunctionInitializer;
+  using FunctionInitializer =
+      typename AnalyticalFieldTransfer2DType::EdgeFieldInitializer;
 
-  static std::vector<std::array<std::array<type_real, 1>,
-                                TransferFunction2D::nquad_intersection> >
-  call(const TransferFunction2D &transfer_function,
-       const EdgeFunction2D &field) {
+  using TransferFunction2D =
+      specfem::test::fixture::TransferFunction2D<TransferFunctionInitializer>;
+  using EdgeField2D = specfem::test::fixture::EdgeField2D<FunctionInitializer>;
+
+  /**
+   * @brief Set up test with initialized transfer function and field.
+   */
+  TransferFunctionTest2D()
+      : transfer_function(TransferFunctionInitializer()),
+        edge_field(FunctionInitializer()) {}
+
+  TransferFunction2D transfer_function; /**< Test transfer function */
+  EdgeField2D edge_field;               /**< Test field */
+
+  std::vector<std::array<std::array<type_real, EdgeField2D::num_components>,
+                         TransferFunction2D::nquad_intersection> >
+  expected_solution() const {
     constexpr int nquad_intersection = TransferFunction2D::nquad_intersection;
     constexpr int nquad_edge = TransferFunction2D::nquad_edge;
-    constexpr int num_components = EdgeFunction2D::num_components;
-    constexpr int power = EdgeFunction2D::FunctionInitializer::
-        FieldInitializerType::power_of_xi_taken;
+    constexpr int num_components = EdgeField2D::num_components;
 
     const int n_edges = TransferFunction2D::num_edges;
     std::vector<
@@ -156,11 +176,9 @@ struct compute_transferred_function<
     for (int i = 0; i < n_edges; ++i) {
       for (int j = 0; j < nquad_intersection; ++j) {
         for (int k = 0; k < num_components; ++k) {
-          result_field[i][j][k] += xi_to_the<power>::evaluate(
-              i,
-              TransferFunction2D::TransferFunctionInitializer::
-                  intersection_quadrature_points[j],
-              k);
+          result_field[i][j][k] +=
+              AnalyticalFieldTransfer2DType::evaluate_at_intersection_point(
+                  i, j, k);
         }
       }
     }
@@ -171,19 +189,22 @@ struct compute_transferred_function<
 /**
  * @brief Execute transfer function test with validation.
  * @tparam TransferFunction2D Transfer function type
- * @tparam EdgeFunction2D Field type
+ * @tparam EdgeField2D Field type
  * @param transfer_function Transfer function data
  * @param function Input function data
  */
-template <typename TransferFunction2D, typename EdgeFunction2D>
-void execute(const TransferFunction2D &transfer_function,
-             const EdgeFunction2D &function) {
+template <typename TransferFunctionTest2D>
+void execute(const TransferFunctionTest2D &test) {
+  using TransferFunction2D = decltype(test.transfer_function);
+  using EdgeField2D = decltype(test.edge_field);
+
+  auto &transfer_function = test.transfer_function;
+  auto &edge_field = test.edge_field;
+
   constexpr int nquad_intersection = TransferFunction2D::nquad_intersection;
   constexpr int nquad_edge = TransferFunction2D::nquad_edge;
-  constexpr int num_components = EdgeFunction2D::num_components;
-  auto expected =
-      compute_transferred_function<TransferFunction2D, EdgeFunction2D>::call(
-          transfer_function, function);
+  constexpr int num_components = EdgeField2D::num_components;
+  auto expected = test.expected_solution();
 
   const int n_edges = TransferFunction2D::num_edges;
 
@@ -194,13 +215,13 @@ void execute(const TransferFunction2D &transfer_function,
       Kokkos::MemoryTraits<> >;
   using FunctionType = specfem::datatype::VectorChunkEdgeViewType<
       type_real, dimension_tag, 1, nquad_edge, num_components, false,
-      typename EdgeFunction2D::memory_space, Kokkos::MemoryTraits<> >;
+      typename EdgeField2D::memory_space, Kokkos::MemoryTraits<> >;
 
   const auto transfer_function_view = transfer_function.get_view();
-  const auto function_view = function.get_view();
+  const auto function_view = edge_field.get_view();
 
   Kokkos::View<type_real *[nquad_intersection][num_components],
-               typename EdgeFunction2D::memory_space>
+               typename EdgeField2D::memory_space>
       result_view("result_view", n_edges);
 
   Kokkos::parallel_for(
@@ -238,7 +259,7 @@ void execute(const TransferFunction2D &transfer_function,
         oss << "-- Transfer function --\n"
             << TransferFunction2D::description() << std::endl
             << "-- Edge Function --\n"
-            << EdgeFunction2D::description() << std::endl
+            << EdgeField2D::description() << std::endl
             << "\n-- Failure --\n"
             << "Transfer function test failed at edge " << i << ": expected "
             << expected[i][j][0] << "\n got " << result_host(i, j, 0)
@@ -250,58 +271,38 @@ void execute(const TransferFunction2D &transfer_function,
   }
 }
 
-} // namespace specfem::algorithms_test
-
-using namespace specfem::algorithms_test;
-
-/**
- * @brief Test fixture for 2D transfer function algorithms.
- * @tparam TestingTypes Tuple of (TransferFunctionInitializer,
- * FunctionInitializer)
- */
-template <typename TestingTypes>
-struct TransferFunctionTest2D : public ::testing::Test {
-  using TransferFunctionInitializer = std::tuple_element_t<0, TestingTypes>;
-  using FunctionInitializer = std::tuple_element_t<1, TestingTypes>;
-
-  /**
-   * @brief Set up test with initialized transfer function and field.
-   */
-  TransferFunctionTest2D()
-      : transfer_function(TransferFunctionInitializer()),
-        function(FunctionInitializer()) {}
-
-  specfem::test::fixture::TransferFunction2D<TransferFunctionInitializer>
-      transfer_function; /**< Test
-    transfer
-    function
-  */
-  specfem::test::fixture::EdgeFunction2D<FunctionInitializer> function; /**<
-                                                                           Test
-                                                                           field
-                                                                         */
-};
-
 /** Test type combinations for parameterized testing */
 using TransferFunctionTestTypes2D = ::testing::Types<
     std::tuple<specfem::test::fixture::TransferFunctionInitializer2D::Zero,
-               specfem::test::fixture::EdgeFunctionInitializer2D::Uniform>,
-    PowerType<
-        specfem::test::fixture::TransferFunctionInitializer2D::GLL1_to_GLL2, 0>,
-    PowerType<
-        specfem::test::fixture::TransferFunctionInitializer2D::GLL1_to_GLL2, 1>,
-    PowerType<specfem::test::fixture::TransferFunctionInitializer2D::
-                  ASYM5POINT_to_ASYM4POINT,
-              3>,
-    PowerType<specfem::test::fixture::TransferFunctionInitializer2D::
-                  ASYM5POINT_to_ASYM4POINT,
-              4> >;
+               specfem::test::fixture::EdgeFieldInitializer2D::Uniform>,
+    specfem::test::fixture::AnalyticalFieldTransfer2D<
+        specfem::test::fixture::AnalyticalFieldInitializer1D::xi_to_the<0>,
+        specfem::test::fixture::QuadratureRuleInitializer::GLL1,
+        specfem::test::fixture::QuadratureRuleInitializer::GLL2>,
+    specfem::test::fixture::AnalyticalFieldTransfer2D<
+        specfem::test::fixture::AnalyticalFieldInitializer1D::xi_to_the<1>,
+        specfem::test::fixture::QuadratureRuleInitializer::GLL2,
+        specfem::test::fixture::QuadratureRuleInitializer::GLL1>,
+    specfem::test::fixture::AnalyticalFieldTransfer2D<
+        specfem::test::fixture::AnalyticalFieldInitializer1D::xi_to_the<2>,
+        specfem::test::fixture::QuadratureRuleInitializer::GLL2,
+        specfem::test::fixture::QuadratureRuleInitializer::GLL2>,
+    specfem::test::fixture::AnalyticalFieldTransfer2D<
+        specfem::test::fixture::AnalyticalFieldInitializer1D::xi_to_the<3>,
+        specfem::test::fixture::QuadratureRuleInitializer::Asymm4Point,
+        specfem::test::fixture::QuadratureRuleInitializer::Asymm5Point>,
+    specfem::test::fixture::AnalyticalFieldTransfer2D<
+        specfem::test::fixture::AnalyticalFieldInitializer1D::xi_to_the<4>,
+        specfem::test::fixture::QuadratureRuleInitializer::Asymm5Point,
+        specfem::test::fixture::QuadratureRuleInitializer::Asymm4Point>,
+    specfem::test::fixture::AnalyticalFieldTransfer2D<
+        specfem::test::fixture::AnalyticalFieldInitializer1D::xi_to_the<5>,
+        specfem::test::fixture::QuadratureRuleInitializer::Asymm5Point,
+        specfem::test::fixture::QuadratureRuleInitializer::Asymm5Point> >;
 
 TYPED_TEST_SUITE(TransferFunctionTest2D, TransferFunctionTestTypes2D);
 
-TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) {
-  execute(this->transfer_function, this->function);
-}
+TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) { execute(*this); }
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
