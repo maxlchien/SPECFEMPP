@@ -1,7 +1,7 @@
 .. _specfem_point_source:
 
-Source
-======
+``specfem::point::source``
+==========================
 
 .. doxygenstruct:: specfem::point::source
     :members:
