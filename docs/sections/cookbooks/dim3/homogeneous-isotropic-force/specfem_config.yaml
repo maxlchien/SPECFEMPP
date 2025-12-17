@@ -32,8 +32,9 @@ parameters:
 
           # display:
           #   format: VTKHDF
-          #   directory: /Users/lsawade/SPECFEMPP/benchmarks/build/release/dim3/homogeneous_halfspace/OUTPUT_FILES/vtk/
+          #   directory: OUTPUT_FILES/
           #   field: displacement
+          #   component: z
           #   simulation-field: forward
           #   time-interval: 5
 

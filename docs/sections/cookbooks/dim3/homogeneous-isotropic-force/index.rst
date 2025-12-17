@@ -331,3 +331,36 @@ This will create two plots in the ``OUTPUT_FILES`` directory:
    Seismograms recorded at stations distributed across the homogeneous halfspace.
    The three panels show displacement components (MXX, MXY, MXZ), with traces
    sorted by epicentral distance from top to bottom.
+
+
+[Optional] Visualizing the wavefield
+------------------------------------
+
+To visualize the wavefield propagation through the homogeneous halfspace, we
+have a couple of prerequisites. First, SPECFEM++ must be built with VTK *and*
+HDF5 support. Second, Paraview (https://www.paraview.org/) needs to be installed
+on your system to visualize the output files. Once these prerequisites are met,
+we can uncomment ``display`` section in the ``specfem_config.yaml`` file to
+include the following configuration:
+
+.. code:: yaml
+
+    display:
+      format: VTKHDF
+      directory: OUTPUT_FILES/
+      field: displacement
+      component: z
+      simulation-field: forward
+      time-interval: 5
+
+Rerun the solver with the updated configuration. Then open Paraview and load the
+generated VTK files from the ``OUTPUT_FILES`` directory to visualize the wavefield
+propagation.
+
+.. figure:: paraview.png
+   :align: center
+   :width: 80%
+
+   Snapshot of the vertical displacement wavefield propagating through the
+   homogeneous halfspace at a given time step. We sliced the cube halfway along
+   the X-axis to visualize the wavefield inside the volume.
