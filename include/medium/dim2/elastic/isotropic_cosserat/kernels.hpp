@@ -33,6 +33,7 @@ struct data_container<
   using value_type = typename base_type::value_type;
   using simd = typename base_type::simd;
 
+  KOKKOS_INLINE_FUNCTION
   data_container() {
     Kokkos::abort(
         "Kernels container for elastic isotropic cosserat media is not "
