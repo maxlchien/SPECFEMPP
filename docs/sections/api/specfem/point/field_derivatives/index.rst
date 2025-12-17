@@ -1,7 +1,7 @@
 
 .. _specfem_point_field_derivatives:
 
-``specfem::point::field_derivativess``
+``specfem::point::field_derivatives``
 ======================================
 
 .. doxygenstruct:: specfem::point::field_derivatives
