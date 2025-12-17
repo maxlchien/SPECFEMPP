@@ -9,7 +9,7 @@ We briefly discussed the concept of data-types in :ref:`Chapter4` - where we def
 Index Types
 -----------
 
-Indices are used to reference a quadrature point within the mesh. Naturally, a quadrature point can be referenced in 2 ways - 1. by referencing its through its element ``(ispec, iz, ix)`` or 2. by referencing it directly within an assembled mesh ``(iglob)``. For each of these cases, we also define their SIMD (single instructions multiple data) counterparts that refer to multiple quadrature points at once - 1. SIMD index and 2. SIMD assembly index. SIMD indices enable us to perform vectorized operations on multiple quadrature points at once.
+Indices are used to reference a quadrature point within the mesh. Naturally, a quadrature point can be referenced in 2 ways - 1. by referencing it through its element ``(ispec, iz, ix)`` or 2. by referencing it directly within an assembled mesh ``(iglob)``. For each of these cases, we also define their SIMD (single instructions multiple data) counterparts that refer to multiple quadrature points at once - 1. SIMD index and 2. SIMD assembly index. SIMD indices enable us to perform vectorized operations on multiple quadrature points at once.
 
 1. Index :cpp:class:`specfem::point::index`
 2. Assembly index :cpp:class:`specfem::point::assembly_index`

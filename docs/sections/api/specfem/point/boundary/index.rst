@@ -1,7 +1,7 @@
 .. _specfem_point_boundary:
 
-specfem::point::boundary
-========================
+``specfem::point::boundary``
+============================
 
 .. doxygenstruct:: specfem::point::boundary
    :members:

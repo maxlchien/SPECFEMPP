@@ -7,9 +7,6 @@
 .. doxygennamespace:: specfem::point
     :desc-only:
 
-The namespace :cpp:any:`specfem::point` contains the data structures and
-functions used to represent and manipulate points in the SPECFEM++ framework.
-
 
 .. toctree::
     :maxdepth: 1
@@ -25,7 +22,6 @@ functions used to represent and manipulate points in the SPECFEM++ framework.
     interface_index/index
     jacobian_matrix/index
     kernels/index
-    mapped_index/index
     nonconforming_interface/index
     properties/index
     source/index
