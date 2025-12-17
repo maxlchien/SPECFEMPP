@@ -1,5 +1,7 @@
 #pragma once
 
+#include "enumerations/interface.hpp"
+
 #include "medium/dim2/acoustic/isotropic/kernels.hpp"
 #include "medium/dim2/elastic/anisotropic/kernels.hpp"
 #include "medium/dim2/elastic/isotropic/kernels.hpp"

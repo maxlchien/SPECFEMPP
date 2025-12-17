@@ -1,33 +1,42 @@
 
 .. _specfem_point_properties:
 
-Properties
-==========
+``specfem::point::properties``
+==============================
 
-Datatype used to store properties at quadrature point.
+Datatype to store the misfit properties at a quadrature point.
 
 .. doxygenstruct:: specfem::point::properties
     :members:
+    :private-members:
 
-Implementation Details
-----------------------
+Medium-specific Specializations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. doxygengroup:: specfem_point_properties_dim2_acoustic_isotropic
+    :members:
+    :private-members:
+    :content-only:
 
-2D/3D Generalized
-+++++++++++++++++
+.. doxygengroup:: specfem_point_properties_elastic_isotropic
+    :members:
+    :private-members:
+    :content-only:
 
-.. toctree::
-    :maxdepth: 1
+.. doxygengroup:: specfem_point_properties_dim2_elastic_anisotropic
+    :members:
+    :private-members:
+    :content-only:
 
-    elastic_isotropic
+.. doxygengroup:: specfem_point_properties_dim2_elastic_isotropic_cosserat
+    :members:
+    :private-members:
+    :content-only:
 
+.. doxygengroup:: specfem_point_properties_dim2_electromagnetic_isotropic
+   :content-only:
 
-2D only
-+++++++
-
-.. toctree::
-    :maxdepth: 1
-
-    dim2/acoustic_isotropic
-    dim2/elastic_anisotropic
-    dim2/poroelastic_isotropic
+.. doxygengroup:: specfem_point_properties_dim2_poroelastic_isotropic
+    :members:
+    :private-members:
+    :content-only:
