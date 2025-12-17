@@ -135,27 +135,9 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
 
 // Sigmoid function centered at 0.0
 double specfem::periodic_tasks::plot_wavefield<
-    specfem::dimension::type::dim2>::sigmoid(double x) {
-  return (1 / (1 + std::exp(-100 * x)) - 0.5) * 1.5;
-}
-
-double specfem::periodic_tasks::plot_wavefield<
-    specfem::dimension::type::dim2>::double_sigmoid(double x, double scale,
-                                                    double offset) {
-
-  // Compute raw value
-  double raw = 1 / (1 + std::exp(-scale * (x - offset))) +
-               1 / (1 + std::exp(-scale * (-x - offset)));
-
-  // Compute actual min and max on [-1, 1]
-  double max_val = 1 / (1 + std::exp(-scale * (0 - offset))) +
-                   1 / (1 + std::exp(-scale * (0 - offset)));
-
-  double min_val = 1 / (1 + std::exp(-scale * (1 - offset))) +
-                   1 / (1 + std::exp(-scale * (-1 - offset)));
-
-  // Min-max normalization to force output between 0 and 1
-  return (raw - min_val) / (max_val - min_val);
+    specfem::dimension::type::dim2>::sigmoid(double x, double scale,
+                                             double offset) {
+  return (1 / (1 + std::exp(-scale * (x - offset))));
 }
 
 // Get wavefield type to display
@@ -977,8 +959,15 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
     // set color gradient from white to black
     for (int i = 0; i < 256; ++i) {
       double t = static_cast<double>(i) / 255.0;
-      double transparency = this->sigmoid(t);
-      this->lut->SetTableValue(i, 1.0 - t, 1.0 - t, 1.0 - t, transparency);
+
+      // If you update the sigmoid parameters, scale and offset, make sure that
+      // the sigmoid->0 as x->0, otherwise the transition from small values to
+      // zero will not be smooth. (Use definition and plot in python)
+      double transparency = this->sigmoid(t, 40, 0.1) * 0.9;
+
+      // Control over the contribution of blue channel to color
+      double blue = this->sigmoid(t, 25.0, 0.2);
+      this->lut->SetTableValue(i, 0.2, 0.2, blue, transparency);
     }
   } else {
     double range[2];
@@ -990,9 +979,11 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
     for (int i = 0; i < 256; ++i) {
       double t = static_cast<double>(i) / 255.0;
       double centered_t = 2.0 * t - 1.0;
-      double transparency =
-          0.9 - this->double_sigmoid(centered_t, 20, 0.1) * 0.9;
 
+      // If you update the sigmoid parameters, scale and offset, make sure that
+      // the sigmoid->0 as x->0, otherwise the transition from small values to
+      // zero will not be smooth. (Use definition and plot in python)
+      double transparency = this->sigmoid(std::abs(centered_t), 25, 0.2) * 0.9;
       // fully transparent at center
       if (i == 127 || i == 128) {
         transparency = 0.0;
@@ -1001,14 +992,14 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
       // Control color intensity with transparency only and set pure colors
       // for the plot.
       if (centered_t < 0) {
-        double red = 0.0;
-        double green = 0.0;
+        double red = 0.2;
+        double green = 0.2;
         double blue = 1.0;
         this->lut->SetTableValue(i, red, green, blue, transparency);
       } else {
         double red = 1.0;
-        double green = 0.0;
-        double blue = 0.0;
+        double green = 0.2;
+        double blue = 0.2;
         this->lut->SetTableValue(i, red, green, blue, transparency);
       }
     }

@@ -140,9 +140,15 @@ private:
       specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
   vtkSmartPointer<vtkDataSetMapper> map_materials_with_color();
 
-  double sigmoid(double x);
-
-  double double_sigmoid(double x, double scale = 20, double offset = 0.1);
+  /**
+   * @brief Sigmoid function for transparency control
+   *
+   * @param x coordinated
+   * @param scale controls slope of the center of the sigmoid
+   * @param offset controls the offset from 0 where the sigmoid is centered.
+   * @return double
+   */
+  double sigmoid(double x, double scale = 20, double offset = 0.75);
 
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
