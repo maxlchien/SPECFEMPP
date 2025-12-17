@@ -5,7 +5,7 @@
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
 #include "specfem/jacobian/dim2/jacobian.hpp"
-#include "specfem/point/coordinates.hpp"
+#include "specfem/point/global_coordinates.hpp"
 #include "specfem_setup.hpp"
 #include <sstream>
 #include <stdexcept>

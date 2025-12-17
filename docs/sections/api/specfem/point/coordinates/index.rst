@@ -1,16 +1,8 @@
-
-.. _specfem_point_coordinates:
-
-``specfem::point::coordinates``
-===============================
-
 .. _specfem_point_coordinates_local_coordinates:
 
 
 ``specfem::point::local_coordinates``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Datatype used to store the local coordinates of a point within the mesh.
+=====================================
 
 .. doxygenstruct:: specfem::point::local_coordinates
    :members:
@@ -26,10 +18,11 @@ Dimension-specific Specializations
    :members:
    :private-members:
 
+
 .. _specfem_point_coordinates_global_coordinates:
 
-specfem::point::global_coordinates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``specfem::point::global_coordinates``
+======================================
 
 .. doxygenstruct:: specfem::point::global_coordinates
    :members:

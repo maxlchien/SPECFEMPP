@@ -3,7 +3,7 @@
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
 #include "specfem/point.hpp"
-#include "specfem/point/coordinates.hpp"
+#include "specfem/point/global_coordinates.hpp"
 #include <gtest/gtest.h>
 #include <ios>
 #include <utility>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "coordinates.hpp"
+#include "global_coordinates.hpp"
 #include <Kokkos_Core.hpp>
 
 template <>
