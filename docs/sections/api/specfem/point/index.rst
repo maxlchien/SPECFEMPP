@@ -13,6 +13,7 @@
 
     assembly_index/index
     boundary/index
+    conforming_interface/index
     coordinates/index
     edge_index/index
     field/index
@@ -21,6 +22,7 @@
     interface_index/index
     jacobian_matrix/index
     kernels/index
+    nonconforming_interface/index
     properties/index
     source/index
     stress/index
