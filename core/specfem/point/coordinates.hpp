@@ -42,8 +42,10 @@ distance(const specfem::point::global_coordinates<DimensionTag> &p1,
 //-------------------------- 2D Specializations ------------------------------//
 
 /**
- * @brief Template specialization for 2D elements
+ * @brief 2D local coordinates for spectral elements
  *
+ * Stores the element index and local coordinates (\f$\xi, \gamma\f$)
+ * for a point within a 2D spectral element.
  */
 template <> struct local_coordinates<specfem::dimension::type::dim2> {
   int ispec;       ///< Index of the spectral element
@@ -86,8 +88,9 @@ template <> struct local_coordinates<specfem::dimension::type::dim2> {
 };
 
 /**
- * @brief Template specialization for 2D elements
+ * @brief 2D global coordinates
  *
+ * Stores the physical coordinates (\f$x, z\f$) for a point in 2D space.
  */
 template <> struct global_coordinates<specfem::dimension::type::dim2> {
   type_real x; ///< Global coordinate \f$ x \f$
@@ -126,8 +129,10 @@ template <> struct global_coordinates<specfem::dimension::type::dim2> {
 //-------------------------- 3D Specializations ------------------------------//
 
 /**
- * @brief Template specialization for 3D elements
+ * @brief 3D local coordinates for spectral elements
  *
+ * Stores the element index and local coordinates (\f$\xi, \eta, \gamma\f$)
+ * for a point within a 3D spectral element.
  */
 template <> struct local_coordinates<specfem::dimension::type::dim3> {
   int ispec;       ///< Index of the spectral element
@@ -172,8 +177,9 @@ template <> struct local_coordinates<specfem::dimension::type::dim3> {
 };
 
 /**
- * @brief Template specialization for 3D elements
+ * @brief 3D global coordinates
  *
+ * Stores the physical coordinates (\f$x, y, z\f$) for a point in 3D space.
  */
 template <> struct global_coordinates<specfem::dimension::type::dim3> {
   type_real x; ///< Global coordinate \f$ x \f$
