@@ -6,7 +6,7 @@ Enumerations
 .. toctree::
     :maxdepth: 1
 
+    medium/index.rst
     dimension/index
-    element/index
     simulation/index
     wavefield/index
