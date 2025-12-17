@@ -135,6 +135,14 @@ private:
 
   void run_render(vtkSmartPointer<vtkFloatArray> &scalars);
 
+  // Helper function to get scalar value at a given point
+  static float get_scalar_value_at_point(
+      const Kokkos::View<type_real *****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield_data,
+      const specfem::wavefield::type &wavefield_type,
+      const specfem::display::component &component, const int ispec,
+      const int iz, const int iy, const int ix);
+
 #endif // NO_VTK
 };
 

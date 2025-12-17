@@ -126,12 +126,15 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
         const specfem::wavefield::simulation_field &simulation_wavefield_type,
         const specfem::display::component &component, const type_real &dt,
         const int &time_interval, const boost::filesystem::path &output_folder,
+        const specfem::enums::elastic_wave elastic_wave,
+        const specfem::enums::electromagnetic_wave electromagnetic_wave,
         specfem::MPI::MPI *mpi)
     : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
       wavefield_type(wavefield_type),
       plotter<specfem::dimension::type::dim2>(time_interval),
       output_format(output_format), output_folder(output_folder),
       component(component), nspec(assembly.mesh.nspec), dt(dt),
+      elastic_wave(elastic_wave), electromagnetic_wave(electromagnetic_wave),
       ngllx(assembly.mesh.element_grid.ngllx),
       ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
 
@@ -271,6 +274,48 @@ vtkSmartPointer<vtkDataSetMapper> specfem::periodic_tasks::plot_wavefield<
   mapper->SetInputData(unstructured_grid);
 
   return mapper;
+}
+
+// Helper function to get scalar value at a given point
+float specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
+    get_scalar_value_at_point(
+        const Kokkos::View<type_real ****, Kokkos::LayoutLeft,
+                           Kokkos::HostSpace> &wavefield_data,
+        const specfem::wavefield::type &wavefield_type,
+        const specfem::enums::elastic_wave &elastic_wave,
+        const specfem::display::component &component, const int ispec,
+        const int iz, const int ix) {
+
+  if (wavefield_type == specfem::wavefield::type::pressure ||
+      wavefield_type == specfem::wavefield::type::rotation ||
+      wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
+      wavefield_type == specfem::wavefield::type::curl) {
+    return wavefield_data(ispec, iz, ix, 0);
+  }
+
+  // Computing the component or magnitude for vector fields
+  if (component == specfem::display::component::x) {
+    return wavefield_data(ispec, iz, ix, 0);
+  } else if (component == specfem::display::component::y) {
+    // Note that this is for SH for which the first component is y
+    return wavefield_data(ispec, iz, ix, 0);
+  } else if (component == specfem::display::component::z) {
+    return wavefield_data(ispec, iz, ix, 1);
+  } else if (component == specfem::display::component::magnitude) {
+    if (elastic_wave == specfem::enums::elastic_wave::sh) {
+      // Note that this is for SH for which the first component is y
+      return std::abs(wavefield_data(ispec, iz, ix, 0));
+    } else {
+      return std::sqrt((wavefield_data(ispec, iz, ix, 0) *
+                        wavefield_data(ispec, iz, ix, 0)) +
+                       (wavefield_data(ispec, iz, ix, 1) *
+                        wavefield_data(ispec, iz, ix, 1)));
+    }
+  } else {
+    throw std::runtime_error("Invalid component,'" +
+                             specfem::display::to_string(component) +
+                             "', for wavefield plotting in 2D.");
+  }
 }
 
 /**
@@ -519,36 +564,10 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
             int iz_pos = iz + z_index[ipoint];
             int ix_pos = ix + x_index[ipoint];
 
-            // Insert scalar value
-            if (wavefield_type == specfem::wavefield::type::pressure ||
-                wavefield_type == specfem::wavefield::type::rotation ||
-                wavefield_type ==
-                    specfem::wavefield::type::intrinsic_rotation ||
-                wavefield_type == specfem::wavefield::type::curl) {
-              scalars->InsertNextValue(
-                  wavefield_data(ispec, iz_pos, ix_pos, 0));
-            } else {
-              if (this->component == specfem::display::component::magnitude) {
-                scalars->InsertNextValue(
-                    std::sqrt((wavefield_data(ispec, iz_pos, ix_pos, 0) *
-                               wavefield_data(ispec, iz_pos, ix_pos, 0)) +
-                              (wavefield_data(ispec, iz_pos, ix_pos, 1) *
-                               wavefield_data(ispec, iz_pos, ix_pos, 1))));
-                scalars->InsertNextValue(
-                    wavefield_data(ispec, iz_pos, ix_pos, 0));
-              } else if (this->component == specfem::display::component::x) {
-                scalars->InsertNextValue(
-                    wavefield_data(ispec, iz_pos, ix_pos, 0));
-              } else if (this->component == specfem::display::component::z) {
-                scalars->InsertNextValue(
-                    wavefield_data(ispec, iz_pos, ix_pos, 1));
-              } else {
-                throw std::runtime_error(
-                    "Invalid component,'" +
-                    specfem::display::to_string(this->component) +
-                    "', for wavefield plotting in 2D.");
-              }
-            }
+            // Insert scalar value using helper function
+            scalars->InsertNextValue(get_scalar_value_at_point(
+                wavefield_data, wavefield_type, this->elastic_wave,
+                this->component, ispec, iz_pos, ix_pos));
           }
         }
       }
@@ -578,33 +597,10 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
 
     for (int icell = 0; icell < nspec; ++icell) {
       for (int i = 0; i < cell_points; ++i) {
-
-        if (wavefield_type == specfem::wavefield::type::pressure ||
-            wavefield_type == specfem::wavefield::type::rotation ||
-            wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
-            wavefield_type == specfem::wavefield::type::curl) {
-          scalars->InsertNextValue(
-              wavefield_data(icell, z_index[i], x_index[i], 0));
-        } else {
-          if (component == specfem::display::component::x) {
-            scalars->InsertNextValue(
-                wavefield_data(icell, z_index[i], x_index[i], 0));
-          } else if (component == specfem::display::component::z) {
-            scalars->InsertNextValue(
-                wavefield_data(icell, z_index[i], x_index[i], 1));
-          } else if (component == specfem::display::component::magnitude) {
-            scalars->InsertNextValue(
-                std::sqrt((wavefield_data(icell, z_index[i], x_index[i], 0) *
-                           wavefield_data(icell, z_index[i], x_index[i], 0)) +
-                          (wavefield_data(icell, z_index[i], x_index[i], 1) *
-                           wavefield_data(icell, z_index[i], x_index[i], 1))));
-          } else {
-            throw std::runtime_error(
-                "Invalid component,'" +
-                specfem::display::to_string(this->component) +
-                "', for wavefield plotting in 2D.");
-          }
-        }
+        // Insert scalar value using helper function
+        scalars->InsertNextValue(get_scalar_value_at_point(
+            wavefield_data, wavefield_type, this->elastic_wave, this->component,
+            icell, z_index[i], x_index[i]));
       }
     }
   }
@@ -616,31 +612,10 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
     for (int ispec = 0; ispec < nspec; ++ispec) {
       for (int iz = 0; iz < ngllz; ++iz) {
         for (int ix = 0; ix < ngllx; ++ix) {
-          // Insert scalar value
-          if (wavefield_type == specfem::wavefield::type::pressure ||
-              wavefield_type == specfem::wavefield::type::rotation ||
-              wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
-              wavefield_type == specfem::wavefield::type::curl) {
-            scalars->InsertNextValue(wavefield_data(ispec, iz, ix, 0));
-          } else {
-
-            if (component == specfem::display::component::x) {
-              scalars->InsertNextValue(wavefield_data(ispec, iz, ix, 0));
-            } else if (component == specfem::display::component::z) {
-              scalars->InsertNextValue(wavefield_data(ispec, iz, ix, 1));
-            } else if (component == specfem::display::component::magnitude) {
-              scalars->InsertNextValue(
-                  std::sqrt((wavefield_data(ispec, iz, ix, 0) *
-                             wavefield_data(ispec, iz, ix, 0)) +
-                            (wavefield_data(ispec, iz, ix, 1) *
-                             wavefield_data(ispec, iz, ix, 1))));
-            } else {
-              throw std::runtime_error(
-                  "Invalid component,'" +
-                  specfem::display::to_string(this->component) +
-                  "', for wavefield plotting in 2D.");
-            }
-          }
+          // Insert scalar value using helper function
+          scalars->InsertNextValue(get_scalar_value_at_point(
+              wavefield_data, wavefield_type, this->elastic_wave,
+              this->component, ispec, iz, ix));
         }
       }
     }

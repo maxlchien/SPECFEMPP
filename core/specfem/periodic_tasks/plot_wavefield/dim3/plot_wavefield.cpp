@@ -124,6 +124,44 @@ specfem::wavefield::type specfem::periodic_tasks::plot_wavefield<
   }
 }
 
+// Helper function to get scalar value at a given point
+float specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
+    get_scalar_value_at_point(
+        const Kokkos::View<type_real *****, Kokkos::LayoutLeft,
+                           Kokkos::HostSpace> &wavefield_data,
+        const specfem::wavefield::type &wavefield_type,
+        const specfem::display::component &component, const int ispec,
+        const int iz, const int iy, const int ix) {
+
+  if (wavefield_type == specfem::wavefield::type::pressure ||
+      wavefield_type == specfem::wavefield::type::rotation ||
+      wavefield_type == specfem::wavefield::type::intrinsic_rotation ||
+      wavefield_type == specfem::wavefield::type::curl) {
+    return std::abs(wavefield_data(ispec, iz, iy, ix, 0));
+  }
+
+  // Computing the component or magnitude for vector fields
+  if (component == specfem::display::component::x) {
+    return wavefield_data(ispec, iz, iy, ix, 0);
+  } else if (component == specfem::display::component::y) {
+    return wavefield_data(ispec, iz, iy, ix, 1);
+  } else if (component == specfem::display::component::z) {
+    return wavefield_data(ispec, iz, iy, ix, 2);
+  } else if (component == specfem::display::component::magnitude) {
+    // Compute magnitude from 3-component vector
+    type_real magnitude = 0.0;
+    for (int icomp = 0; icomp < 3; ++icomp) {
+      const type_real comp = wavefield_data(ispec, iz, iy, ix, icomp);
+      magnitude += comp * comp;
+    }
+    return static_cast<float>(std::sqrt(magnitude));
+  } else {
+    throw std::runtime_error("Invalid component,'" +
+                             specfem::display::to_string(component) +
+                             "', for wavefield plotting in 3D.");
+  }
+}
+
 /**
  * @brief Create a Lagrange hexahedral grid using all GLL points
  *
@@ -202,55 +240,13 @@ vtkSmartPointer<vtkFloatArray> specfem::periodic_tasks::
   if (unstructured_grid->GetCellType(0) == VTK_LAGRANGE_HEXAHEDRON) {
     // Loop over spectral elements
     for (int ispec = 0; ispec < nspec; ++ispec) {
-      // For each point in the element, compute scalar magnitude from vector
-      // field
+      // For each point in the element, compute scalar using helper function
       for (int iz = 0; iz < ngllz; ++iz) {
         for (int iy = 0; iy < nglly; ++iy) {
           for (int ix = 0; ix < ngllx; ++ix) {
-
-            // Insert scalar value
-            if (wavefield_type == specfem::wavefield::type::pressure ||
-                wavefield_type == specfem::wavefield::type::rotation ||
-                wavefield_type ==
-                    specfem::wavefield::type::intrinsic_rotation ||
-                wavefield_type == specfem::wavefield::type::curl) {
-              scalars->InsertNextValue(
-                  std::abs(wavefield_data(ispec, iz, iy, ix, 0)));
-            } else {
-              if (component == specfem::display::component::x) {
-                scalars->InsertNextValue(wavefield_data(ispec, iz, iy, ix, 0));
-              } else if (component == specfem::display::component::y) {
-                scalars->InsertNextValue(wavefield_data(ispec, iz, iy, ix, 1));
-              } else if (component == specfem::display::component::z) {
-                scalars->InsertNextValue(wavefield_data(ispec, iz, iy, ix, 2));
-              } else if (component == specfem::display::component::magnitude) {
-                // Compute magnitude from 3-component vector
-                type_real magnitude = 0.0;
-                for (int icomp = 0; icomp < 3; ++icomp) {
-                  const type_real component =
-                      wavefield_data(ispec, iz, iy, ix, icomp);
-                  magnitude += component * component;
-                }
-                magnitude = std::sqrt(magnitude);
-
-                scalars->InsertNextValue(static_cast<float>(magnitude));
-              } else {
-                throw std::runtime_error(
-                    "Invalid component,'" +
-                    specfem::display::to_string(this->component) +
-                    "', for wavefield plotting in 3D.");
-              }
-              // Compute magnitude from 3-component vector
-              type_real magnitude = 0.0;
-              for (int icomp = 0; icomp < 3; ++icomp) {
-                const type_real component =
-                    wavefield_data(ispec, iz, iy, ix, icomp);
-                magnitude += component * component;
-              }
-              magnitude = std::sqrt(magnitude);
-
-              scalars->InsertNextValue(static_cast<float>(magnitude));
-            }
+            scalars->InsertNextValue(
+                get_scalar_value_at_point(wavefield_data, wavefield_type,
+                                          this->component, ispec, iz, iy, ix));
           }
         }
       }

@@ -61,6 +61,8 @@ public:
       const specfem::wavefield::simulation_field &simulation_wavefield_type,
       const specfem::display::component &component, const type_real &dt,
       const int &time_interval, const boost::filesystem::path &output_folder,
+      const specfem::enums::elastic_wave elastic_wave,
+      const specfem::enums::electromagnetic_wave electromagnetic_wave,
       specfem::MPI::MPI *mpi);
 
   /**
@@ -100,6 +102,8 @@ public:
   bool nonnegative_field;        ///< Whether the field is non-negative (e.g.,
                                  ///< displacement with magnitude)
   const boost::filesystem::path output_folder; ///< Path to output folder
+  const specfem::enums::elastic_wave elastic_wave;
+  const specfem::enums::electromagnetic_wave electromagnetic_wave;
   specfem::assembly::assembly<specfem::dimension::type::dim2>
       assembly; ///< Assembly object
 
@@ -169,6 +173,15 @@ private:
 
   // Friend function for rendering
   void run_render(vtkSmartPointer<vtkFloatArray> &scalars);
+
+  // Helper function to get scalar value at a given point
+  static float get_scalar_value_at_point(
+      const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield_data,
+      const specfem::wavefield::type &wavefield_type,
+      const specfem::enums::elastic_wave &elastic_wave,
+      const specfem::display::component &component, const int ispec,
+      const int iz, const int ix);
 
 #endif // NO_VTK
 };
