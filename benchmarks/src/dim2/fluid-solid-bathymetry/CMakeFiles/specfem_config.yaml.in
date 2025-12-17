@@ -34,7 +34,7 @@ parameters:
           display:
             format: PNG
             directory: @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/display/
-            field: pressure
+            field: displacement
             simulation-field: forward
             time-interval: 500
 
