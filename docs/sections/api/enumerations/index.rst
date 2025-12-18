@@ -8,5 +8,7 @@ Enumerations
 
     medium/index.rst
     dimension/index
+    display/index
+    coupled_interface/index
     simulation/index
     wavefield/index
