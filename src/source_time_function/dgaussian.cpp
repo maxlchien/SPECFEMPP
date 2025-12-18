@@ -8,18 +8,20 @@
 specfem::forcing_function::dGaussian::dGaussian(
     const int nsteps, const type_real dt, const type_real f0,
     const type_real tshift, const type_real factor,
-    bool use_trick_for_better_pressure)
+    bool use_trick_for_better_pressure, const type_real t0_factor)
     : nsteps_(nsteps), dt_(dt), f0_(f0), factor_(factor), tshift_(tshift),
+      t0_factor_(t0_factor),
       use_trick_for_better_pressure_(use_trick_for_better_pressure) {
 
   type_real hdur = 1.0 / this->f0_;
 
-  this->t0_ = -1.2 * hdur + this->tshift_;
+  // Default t0_factor is 1.2 for dGaussian, see header file
+  this->t0_ = -this->t0_factor_ * hdur + this->tshift_;
 }
 
 specfem::forcing_function::dGaussian::dGaussian(
     YAML::Node &dGaussian, const int nsteps, const type_real dt,
-    const bool use_trick_for_better_pressure) {
+    const bool use_trick_for_better_pressure, const type_real t0_factor) {
   type_real f0 = dGaussian["f0"].as<type_real>();
   type_real tshift = [dGaussian]() -> type_real {
     if (dGaussian["tshift"]) {
@@ -30,8 +32,8 @@ specfem::forcing_function::dGaussian::dGaussian(
   }();
   type_real factor = dGaussian["factor"].as<type_real>();
 
-  *this = specfem::forcing_function::dGaussian(nsteps, dt, f0, tshift, factor,
-                                               use_trick_for_better_pressure);
+  *this = specfem::forcing_function::dGaussian(
+      nsteps, dt, f0, tshift, factor, use_trick_for_better_pressure, t0_factor);
 }
 
 type_real specfem::forcing_function::dGaussian::compute(type_real t) {

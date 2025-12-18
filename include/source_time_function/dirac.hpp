@@ -22,10 +22,12 @@ public:
    */
   Dirac(const int nsteps, const type_real dt, const type_real f0,
         const type_real tshift, const type_real factor,
-        const bool use_trick_for_better_pressure);
+        const bool use_trick_for_better_pressure,
+        const type_real t0_factor = 1.2);
 
   Dirac(YAML::Node &Dirac, const int nsteps, const type_real dt,
-        const bool use_trick_for_better_pressure);
+        const bool use_trick_for_better_pressure,
+        const type_real t0_factor = 1.2);
 
   /**
    * @brief compute the value of stf at time t
@@ -72,6 +74,7 @@ private:
   type_real f0_;                       ///< frequence f0
   type_real tshift_;                   ///< value of tshift
   type_real t0_;                       ///< t0 value
+  type_real t0_factor_;                ///< t0 factor
   type_real factor_;                   ///< scaling factor
   bool use_trick_for_better_pressure_; /// flag to use trick for better pressure
   type_real dt_;                       ///< time step size

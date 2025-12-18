@@ -10,18 +10,21 @@ specfem::forcing_function::Ricker::Ricker(const int nsteps, const type_real dt,
                                           const type_real f0,
                                           const type_real tshift,
                                           const type_real factor,
-                                          bool use_trick_for_better_pressure)
+                                          bool use_trick_for_better_pressure,
+                                          const type_real t0_factor)
     : nsteps_(nsteps), dt_(dt), f0_(f0), factor_(factor), tshift_(tshift),
+      t0_factor_(t0_factor),
       use_trick_for_better_pressure_(use_trick_for_better_pressure) {
 
   type_real hdur = 1.0 / this->f0_;
 
-  this->t0_ = -1.2 * hdur + this->tshift_;
+  // Default t0_factor is 1.2 for Ricker, see header file
+  this->t0_ = -this->t0_factor_ * hdur + this->tshift_;
 }
 
 specfem::forcing_function::Ricker::Ricker(
     YAML::Node &Ricker, const int nsteps, const type_real dt,
-    const bool use_trick_for_better_pressure) {
+    const bool use_trick_for_better_pressure, const type_real t0_factor) {
   type_real f0 = Ricker["f0"].as<type_real>();
   type_real tshift = [Ricker]() -> type_real {
     if (Ricker["tshift"]) {
@@ -32,8 +35,8 @@ specfem::forcing_function::Ricker::Ricker(
   }();
   type_real factor = Ricker["factor"].as<type_real>();
 
-  *this = specfem::forcing_function::Ricker(nsteps, dt, f0, tshift, factor,
-                                            use_trick_for_better_pressure);
+  *this = specfem::forcing_function::Ricker(
+      nsteps, dt, f0, tshift, factor, use_trick_for_better_pressure, t0_factor);
 }
 
 type_real specfem::forcing_function::Ricker::compute(type_real t) {

@@ -10,8 +10,9 @@
 specfem::forcing_function::Heaviside::Heaviside(
     const int nsteps, const type_real dt, const type_real hdur,
     const type_real tshift, const type_real factor,
-    bool use_trick_for_better_pressure)
+    bool use_trick_for_better_pressure, const type_real t0_factor)
     : nsteps_(nsteps), dt_(dt), hdur_(hdur), factor_(factor), tshift_(tshift),
+      t0_factor_(t0_factor),
       use_trick_for_better_pressure_(use_trick_for_better_pressure) {
 
   // Corrects the half duration if it's too small compared to the time step
@@ -23,17 +24,21 @@ specfem::forcing_function::Heaviside::Heaviside(
         std::to_string(this->hdur_));
   }
 
+  // SPECFEM3D Cartesian computes the starttime before correction of the half
+  // duration.
+  // Default t0_factor is 2.0 for Heaviside, see header file
+  // This is adopted from SPECFEM3D Cartesian
+  this->t0_ = -this->t0_factor_ * this->hdur_ + this->tshift_;
+
   // Approximate the half duration based on the empirical relation to
   // of a triangular source time function
   this->hdur_ =
       this->hdur_ / specfem::constants::empirical::SOURCE_DECAY_MIMIC_TRIANGLE;
-
-  this->t0_ = -2.0 * this->hdur_ + this->tshift_;
 }
 
 specfem::forcing_function::Heaviside::Heaviside(
     YAML::Node &HeavisideNode, const int nsteps, const type_real dt,
-    const bool use_trick_for_better_pressure) {
+    const bool use_trick_for_better_pressure, const type_real t0_factor) {
 
   type_real hdur = HeavisideNode["hdur"].as<type_real>();
 
@@ -47,7 +52,8 @@ specfem::forcing_function::Heaviside::Heaviside(
   type_real factor = HeavisideNode["factor"].as<type_real>();
 
   *this = specfem::forcing_function::Heaviside(nsteps, dt, hdur, tshift, factor,
-                                               use_trick_for_better_pressure);
+                                               use_trick_for_better_pressure,
+                                               t0_factor);
 }
 
 type_real specfem::forcing_function::Heaviside::compute(type_real t) {

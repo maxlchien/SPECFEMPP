@@ -22,10 +22,12 @@ public:
    */
   Gaussian(const int nsteps, const type_real dt, const type_real f0,
            const type_real tshift, const type_real factor,
-           const bool use_trick_for_better_pressure);
+           const bool use_trick_for_better_pressure,
+           const type_real t0_factor = 2.0);
 
   Gaussian(YAML::Node &GaussianNode, const int nsteps, const type_real dt,
-           const bool use_trick_for_better_pressure);
+           const bool use_trick_for_better_pressure,
+           const type_real t0_factor = 2.0);
 
   /**
    * @brief compute the value of stf at time t

@@ -22,10 +22,12 @@ public:
    */
   GaussianHdur(const int nsteps, const type_real dt, const type_real hdur,
                const type_real tshift, const type_real factor,
-               const bool use_trick_for_better_pressure);
+               const bool use_trick_for_better_pressure,
+               const type_real t0_factor = 1.5);
 
   GaussianHdur(YAML::Node &GaussianNode, const int nsteps, const type_real dt,
-               const bool use_trick_for_better_pressure);
+               const bool use_trick_for_better_pressure,
+               const type_real t0_factor = 1.5);
 
   /**
    * @brief compute the value of stf at time t

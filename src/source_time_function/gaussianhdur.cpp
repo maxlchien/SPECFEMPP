@@ -10,9 +10,10 @@
 specfem::forcing_function::GaussianHdur::GaussianHdur(
     const int nsteps, const type_real dt, const type_real hdur,
     const type_real tshift, const type_real factor,
-    bool use_trick_for_better_pressure)
+    bool use_trick_for_better_pressure, const type_real t0_factor)
     : nsteps_(nsteps), dt_(dt), hdur_(hdur), factor_(factor), tshift_(tshift),
-      use_trick_for_better_pressure_(use_trick_for_better_pressure) {
+      use_trick_for_better_pressure_(use_trick_for_better_pressure),
+      t0_factor_(t0_factor) {
 
   // Corrects the half duration if it's too small compared to the time step
   if (this->hdur_ < 5.0 * this->dt_) {
@@ -23,17 +24,21 @@ specfem::forcing_function::GaussianHdur::GaussianHdur(
         std::to_string(this->hdur_));
   }
 
-  // Approximate the half duration based on the empirical relation to
-  // of a triangular source time function
+  // SPECFEM3D Cartesian computes the starttime before correction of the half
+  // duration.
+  // Default t0_factor is 1.5 for GaussianHdur, see header file
+  // This is adopted from SPECFEM3D Cartesian
+  this->t0_ = -this->t0_factor_ * this->hdur_ + this->tshift_;
+
+  // The half duration is then based on the empirical relation to of a
+  // triangular source time function
   this->hdur_ =
       this->hdur_ / specfem::constants::empirical::SOURCE_DECAY_MIMIC_TRIANGLE;
-
-  this->t0_ = -1.5 * this->hdur_ + this->tshift_;
 }
 
 specfem::forcing_function::GaussianHdur::GaussianHdur(
     YAML::Node &GaussianHdurNode, const int nsteps, const type_real dt,
-    const bool use_trick_for_better_pressure) {
+    const bool use_trick_for_better_pressure, const type_real t0_factor) {
 
   type_real hdur = GaussianHdurNode["hdur"].as<type_real>();
 
@@ -47,7 +52,8 @@ specfem::forcing_function::GaussianHdur::GaussianHdur(
   type_real factor = GaussianHdurNode["factor"].as<type_real>();
 
   *this = specfem::forcing_function::GaussianHdur(
-      nsteps, dt, hdur, tshift, factor, use_trick_for_better_pressure);
+      nsteps, dt, hdur, tshift, factor, use_trick_for_better_pressure,
+      t0_factor);
 }
 
 type_real specfem::forcing_function::GaussianHdur::compute(type_real t) {
