@@ -80,8 +80,7 @@ std::string specfem::forcing_function::Gaussian::print() const {
   return ss.str();
 }
 
-bool specfem::forcing_function::Gaussian::operator==(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::forcing_function::Gaussian::operator==(const stf &other) const {
   // First check base class equality
   if (!specfem::forcing_function::stf::operator==(other))
     return false;
@@ -101,7 +100,6 @@ bool specfem::forcing_function::Gaussian::operator==(
               other_gaussian->get_use_trick_for_better_pressure());
 };
 
-bool specfem::forcing_function::Gaussian::operator!=(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::forcing_function::Gaussian::operator!=(const stf &other) const {
   return !(*this == other);
 }

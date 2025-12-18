@@ -98,7 +98,7 @@ std::string specfem::forcing_function::GaussianHdur::print() const {
 }
 
 bool specfem::forcing_function::GaussianHdur::operator==(
-    const specfem::forcing_function::stf &other) const {
+    const stf &other) const {
   // First check base class equality
   if (!specfem::forcing_function::stf::operator==(other))
     return false;
@@ -120,6 +120,6 @@ bool specfem::forcing_function::GaussianHdur::operator==(
 };
 
 bool specfem::forcing_function::GaussianHdur::operator!=(
-    const specfem::forcing_function::stf &other) const {
+    const stf &other) const {
   return !(*this == other);
 }

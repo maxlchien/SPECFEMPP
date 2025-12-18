@@ -10,20 +10,24 @@ namespace specfem {
 namespace forcing_function {
 
 /**
- * @brief Ricker source time function. The Ricker wavelet is a commonly used
- *        source time function in seismic modeling. We define it here as the
- * first derivative of a Ga
+ * @brief Ricker wavelet source time function (first derivative of a Gaussian)
+ *
+ * Commonly used in seismic modeling, defined as the second derivative
+ * of a Gaussian function.
  */
 class Ricker : public stf {
 
 public:
   /**
-   * @brief Contruct a Ricker source time function object
+   * @brief Construct a Ricker source time function
    *
-   * @param f0 frequency f0
-   * @param tshift tshift value
-   * @param factor factor to scale source time function
-   * @param use_trick_for_better_pressure
+   * @param nsteps Number of time steps
+   * @param dt Time step size
+   * @param f0 Central frequency
+   * @param tshift Time shift value
+   * @param factor Scaling factor
+   * @param use_trick_for_better_pressure Use pressure optimization trick
+   * @param t0_factor Start time factor (default: 1.2)
    */
   Ricker(const int nsteps, const type_real dt, const type_real f0,
          const type_real tshift, const type_real factor,
@@ -31,34 +35,36 @@ public:
          const type_real t0_factor = 1.2);
 
   /**
-   * @brief Construct a new Ricker object
+   * @brief Construct a Ricker source time function from YAML configuration
    *
-   * @param Ricker
-   * @param nsteps
-   * @param dt
-   * @param use_trick_for_better_pressure
+   * @param Ricker YAML node with Ricker parameters
+   * @param nsteps Number of time steps
+   * @param dt Time step size
+   * @param use_trick_for_better_pressure Use pressure optimization trick
+   * @param t0_factor Start time factor (default: 1.2)
    */
   Ricker(YAML::Node &Ricker, const int nsteps, const type_real dt,
          const bool use_trick_for_better_pressure,
          const type_real t0_factor = 1.2);
 
   /**
-   * @brief compute the value of stf at time t
+   * @brief Compute source time function value at time t
    *
-   * @param t
-   * @return value of source time function at time t
+   * @param t Time value
+   * @return Source time function value
    */
   type_real compute(type_real t);
+
   /**
-   * @brief update the time shift value
+   * @brief Update the time shift value
    *
-   * @param tshift new tshift value
+   * @param tshift New time shift value
    */
   void update_tshift(type_real tshift) override { this->tshift_ = tshift; }
   /**
-   * @brief Get the t0 value
+   * @brief Get start time value
    *
-   * @return t0 value
+   * @return Start time t0
    */
   type_real get_t0() const override { return this->t0_; }
 
@@ -81,18 +87,18 @@ public:
       const type_real t0, const type_real dt, const int nsteps,
       specfem::kokkos::HostView2d<type_real> source_time_function) override;
 
-  bool operator==(const specfem::forcing_function::stf &other) const override;
-  bool operator!=(const specfem::forcing_function::stf &other) const override;
+  bool operator==(const stf &other) const override;
+  bool operator!=(const stf &other) const override;
 
 private:
-  int nsteps_;
-  type_real f0_;        ///< frequence f0
-  type_real tshift_;    ///< value of tshit
-  type_real t0_;        ///< t0 value
-  type_real t0_factor_; ///< for the start time computation
-  type_real factor_;    ///< scaling factor
-  bool use_trick_for_better_pressure_;
-  type_real dt_;
+  int nsteps_;                         ///< Number of time steps
+  type_real f0_;                       ///< Central frequency
+  type_real tshift_;                   ///< Time shift value
+  type_real t0_;                       ///< Start time
+  type_real t0_factor_;                ///< Start time computation factor
+  type_real factor_;                   ///< Scaling factor
+  bool use_trick_for_better_pressure_; ///< Pressure optimization flag
+  type_real dt_;                       ///< Time step size
 };
 
 } // namespace forcing_function

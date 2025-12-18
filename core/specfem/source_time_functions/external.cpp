@@ -15,7 +15,7 @@ specfem::forcing_function::external::external(const YAML::Node &external,
   if (specfem::utilities::is_ascii_string(
           external["format"].as<std::string>()) ||
       !external["format"]) {
-    this->type_ = specfem::enums::seismogram::format::ascii;
+    this->format_ = specfem::enums::seismogram::format::ascii;
   } else {
     throw std::runtime_error("Only ASCII format is supported");
   }
@@ -160,7 +160,7 @@ bool specfem::forcing_function::external::operator==(
           this->z_component_ == other_external->z_component_ &&
           this->t0_ == other_external->t0_ &&
           this->dt_ == other_external->dt_ &&
-          this->type_ == other_external->type_ &&
+          this->format_ == other_external->format_ &&
           this->ncomponents_ == other_external->ncomponents_ &&
           this->nsteps_ == other_external->nsteps_);
 };
@@ -168,4 +168,21 @@ bool specfem::forcing_function::external::operator==(
 bool specfem::forcing_function::external::operator!=(
     const specfem::forcing_function::stf &other) const {
   return !(*this == other);
+}
+
+void specfem::forcing_function::external::update_tshift(type_real tshift) {
+  if (std::abs(tshift) > 1e-6) {
+    throw std::runtime_error("Error: external source time function does not "
+                             "support time shift");
+  }
+}
+
+std::string specfem::forcing_function::external::print() const {
+  std::stringstream ss;
+  ss << "External source time function: "
+     << "\n"
+     << "  X-component: " << this->x_component_ << "\n"
+     << "  Y-component: " << this->y_component_ << "\n"
+     << "  Z-component: " << this->z_component_ << "\n";
+  return ss.str();
 }

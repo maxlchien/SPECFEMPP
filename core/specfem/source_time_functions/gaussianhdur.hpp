@@ -9,43 +9,63 @@
 
 namespace specfem {
 namespace forcing_function {
+/**
+ * @brief Gaussian source time function parameterized by half duration
+ *
+ * Similar to Gaussian but uses half duration (hdur) instead of frequency for
+ * parameterization.
+ */
 class GaussianHdur : public stf {
 
 public:
   /**
-   * @brief Construct a Gaussian source time function object
+   * @brief Construct a Gaussian source time function with half duration
+   * parameterization
    *
-   * @param hdur half duration
-   * @param tshift tshift value
-   * @param factor factor to scale source time function
-   * @param use_trick_for_better_pressure
+   * @param nsteps Number of time steps
+   * @param dt Time step size
+   * @param hdur Half duration
+   * @param tshift Time shift value
+   * @param factor Scaling factor
+   * @param use_trick_for_better_pressure Use pressure optimization trick
+   * @param t0_factor Start time factor (default: 1.5)
    */
   GaussianHdur(const int nsteps, const type_real dt, const type_real hdur,
                const type_real tshift, const type_real factor,
                const bool use_trick_for_better_pressure,
                const type_real t0_factor = 1.5);
 
+  /**
+   * @brief Construct a GaussianHdur source time function from YAML
+   * configuration
+   *
+   * @param GaussianNode YAML node with GaussianHdur parameters
+   * @param nsteps Number of time steps
+   * @param dt Time step size
+   * @param use_trick_for_better_pressure Use pressure optimization trick
+   * @param t0_factor Start time factor (default: 1.5)
+   */
   GaussianHdur(YAML::Node &GaussianNode, const int nsteps, const type_real dt,
                const bool use_trick_for_better_pressure,
                const type_real t0_factor = 1.5);
 
   /**
-   * @brief compute the value of stf at time t
+   * @brief Compute source time function value at time t
    *
-   * @param t
-   * @return value of source time function at time t
+   * @param t Time value
+   * @return Source time function value
    */
   type_real compute(type_real t);
   /**
-   * @brief update the time shift value
+   * @brief Update the time shift value
    *
-   * @param tshift new tshift value
+   * @param tshift New time shift value
    */
   void update_tshift(type_real tshift) override { this->tshift_ = tshift; }
   /**
-   * @brief Get the t0 value
+   * @brief Get start time value
    *
-   * @return t0 value
+   * @return Start time t0
    */
   type_real get_t0() const override { return this->t0_; }
 
@@ -66,18 +86,18 @@ public:
   }
   int get_ncomponents() const { return 1; }
 
-  bool operator==(const specfem::forcing_function::stf &other) const override;
-  bool operator!=(const specfem::forcing_function::stf &other) const override;
+  bool operator==(const stf &other) const override;
+  bool operator!=(const stf &other) const override;
 
 private:
-  int nsteps_;                         /// number of time steps
-  type_real hdur_;                     ///< half duration
-  type_real tshift_;                   ///< value of tshift
-  type_real t0_;                       ///< t0 value
-  type_real t0_factor_;                ///< for the start time computation
-  type_real factor_;                   ///< scaling factor
-  bool use_trick_for_better_pressure_; /// flag to use trick for better pressure
-  type_real dt_;                       ///< time step size
+  int nsteps_;                         ///< Number of time steps
+  type_real hdur_;                     ///< Half duration
+  type_real tshift_;                   ///< Time shift value
+  type_real t0_;                       ///< Start time
+  type_real t0_factor_;                ///< Start time computation factor
+  type_real factor_;                   ///< Scaling factor
+  bool use_trick_for_better_pressure_; ///< Pressure optimization flag
+  type_real dt_;                       ///< Time step size
 };
 
 } // namespace forcing_function

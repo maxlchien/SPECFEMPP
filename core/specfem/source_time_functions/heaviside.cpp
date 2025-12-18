@@ -97,8 +97,7 @@ std::string specfem::forcing_function::Heaviside::print() const {
   return ss.str();
 }
 
-bool specfem::forcing_function::Heaviside::operator==(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::forcing_function::Heaviside::operator==(const stf &other) const {
   // First check base class equality
   if (!specfem::forcing_function::stf::operator==(other))
     return false;
@@ -119,7 +118,6 @@ bool specfem::forcing_function::Heaviside::operator==(
           other_heaviside->get_use_trick_for_better_pressure());
 };
 
-bool specfem::forcing_function::Heaviside::operator!=(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::forcing_function::Heaviside::operator!=(const stf &other) const {
   return !(*this == other);
 }

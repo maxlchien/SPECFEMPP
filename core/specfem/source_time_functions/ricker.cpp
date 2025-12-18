@@ -80,8 +80,7 @@ std::string specfem::forcing_function::Ricker::print() const {
   return ss.str();
 }
 
-bool specfem::forcing_function::Ricker::operator==(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::forcing_function::Ricker::operator==(const stf &other) const {
 
   std::cout << "Ricker::operator==\n";
   // Then check if the other object is a dGaussian
@@ -100,7 +99,6 @@ bool specfem::forcing_function::Ricker::operator==(
           other_ricker->get_use_trick_for_better_pressure());
 };
 
-bool specfem::forcing_function::Ricker::operator!=(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::forcing_function::Ricker::operator!=(const stf &other) const {
   return !(*this == other);
 }

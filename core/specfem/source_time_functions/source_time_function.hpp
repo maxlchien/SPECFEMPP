@@ -6,71 +6,82 @@
 
 namespace specfem {
 
-/**
- * @brief Namespace for source time functions
- *
- * @details This namespace contains various source time functions (STFs). Each
- * STF class inherits from the base class specfem::forcing_function::stf and
- * implements specific time-dependent behavior for seismic sources. The STFs
- * defined here can be used to model different types of seismic source time.
- * The available source time functions include:
- * - Dirac: Represents an instantaneous impulse.
- * - Gaussian: Models a Gaussian-shaped pulse.
- * - Ricker: Implements the Ricker wavelet, commonly used in seismology.
- * - dGaussian: Represents the derivative of a Gaussian pulse.
- * - Heaviside: Models a step function.
- * - External: Allows for user-defined source time functions.
- *
- * @see specfem::source::source::set_forcing_function for how to the forcing
- * function is set up from the source class and YAML configuration.
- */
 namespace forcing_function {
-
-/**
- * @note The STF function should lie on host and device. Decorate the class
- * functions within using KOKKOS_FUNCTION macro
- *
- */
 
 /**
  * @brief Source time function base class
  *
+ * Abstract base class for all source time functions. Derived classes implement
+ * specific time-dependent behaviors for seismic sources.
+ *
+ * @note The STF function should lie on host and device. Decorate the class
+ * functions within using KOKKOS_FUNCTION macro
  */
 class stf {
 public:
   /**
    * @brief Default constructor
-   *
    */
   stf() {};
   /**
-   * @brief update the time shift value
+   * @brief Update the time shift value
    *
-   * @param tshift new tshift value
+   * @param tshift New time shift value
    */
   virtual void update_tshift(type_real tshift) {};
   /**
-   * @brief
+   * @brief Get the start time value
    *
+   * @return Start time t0
    */
   virtual type_real get_t0() const { return 0.0; }
 
+  /**
+   * @brief Get the time shift value
+   *
+   * @return Time shift value
+   */
   virtual type_real get_tshift() const { return 0.0; }
 
+  /**
+   * @brief Get string representation of the source time function
+   *
+   * @return String describing the STF parameters
+   */
   virtual std::string print() const = 0;
 
+  /**
+   * @brief Equality operator
+   *
+   * @param other Another source time function to compare with
+   * @return true if equal, false otherwise
+   */
   virtual bool operator==(const stf &other) const {
     // Base implementation might just check type identity
     return typeid(*this) == typeid(other);
   }
-  virtual bool operator!=(const specfem::forcing_function::stf &other) const {
-    return !(*this == other);
-  }
 
-  // virtual void print(std::ostream &out) const;
+  /**
+   * @brief Inequality operator
+   *
+   * @param other Another source time function to compare with
+   * @return true if not equal, false otherwise
+   */
+  virtual bool operator!=(const stf &other) const { return !(*this == other); }
 
+  /**
+   * @brief Virtual destructor
+   */
   virtual ~stf() = default;
 
+  /**
+   * @brief Compute source time function values for all time steps
+   *
+   * @param t0 Start time
+   * @param dt Time step size
+   * @param nsteps Number of time steps
+   * @param source_time_function Output view to store computed values
+   */
   virtual void compute_source_time_function(
       const type_real t0, const type_real dt, const int nsteps,
       specfem::kokkos::HostView2d<type_real> source_time_function) = 0;
