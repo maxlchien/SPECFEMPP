@@ -64,13 +64,18 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
             &assembly,
         const specfem::display::format &output_format,
         const specfem::wavefield::type &wavefield_type,
-        const specfem::wavefield::simulation_field &wavefield,
-        const type_real &dt, const int &time_interval,
-        const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi)
-    : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
+        const specfem::wavefield::simulation_field &simulation_wavefield_type,
+        const specfem::display::component &component, const type_real &dt,
+        const int &time_interval, const boost::filesystem::path &output_folder,
+        const specfem::enums::elastic_wave elastic_wave,
+        const specfem::enums::electromagnetic_wave electromagnetic_wave,
+        specfem::MPI::MPI *mpi)
+    : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
+      wavefield_type(wavefield_type),
       plotter<specfem::dimension::type::dim2>(time_interval),
       output_format(output_format), output_folder(output_folder),
-      nspec(assembly.mesh.nspec), dt(dt),
+      component(component), nspec(assembly.mesh.nspec), dt(dt),
+      elastic_wave(elastic_wave), electromagnetic_wave(electromagnetic_wave),
       ngllx(assembly.mesh.element_grid.ngllx),
       ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
   std::ostringstream message;
