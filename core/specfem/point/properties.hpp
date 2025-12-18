@@ -1,7 +1,7 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "impl/point_container.hpp"
+#include "medium/impl/point_container.hpp"
 #include "specfem/macros.hpp"
 #include "specfem_setup.hpp"
 
