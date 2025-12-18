@@ -1,4 +1,4 @@
-#include "dGaussian.hpp"
+#include "dgaussian.hpp"
 #include "impl/time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"
