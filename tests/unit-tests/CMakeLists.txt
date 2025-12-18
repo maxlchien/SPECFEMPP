@@ -772,7 +772,6 @@ target_link_libraries(
   compare_arrays
   timescheme
   point
-  edge
   algorithms
   kokkos_kernels
   solver
@@ -799,7 +798,6 @@ target_link_libraries(
   compare_arrays
   timescheme
   point
-  edge
   algorithms
   kokkos_kernels
   solver
