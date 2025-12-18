@@ -9,12 +9,12 @@ endif()
 
 set(CURRENT_BENCHMARK_BUILD_DIR "${SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR}/dim2/${CURRENT_DIR_NAME}")
 
-if (SPECFEMPP_CPU_BUILD)
+if (SPECFEM_CPU_BUILD)
     set(TOPOGRAPHY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles/topography.cpu.in")
     set(PAR_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles/Par_File.cpu.in")
 endif()
 
-if (SPECFEMPP_GPU_BUILD)
+if (SPECFEM_GPU_BUILD)
     set(TOPOGRAPHY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles/topography.gpu.in")
     set(PAR_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CMakeFiles/Par_File.gpu.in")
 endif()

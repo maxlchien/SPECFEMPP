@@ -5,10 +5,10 @@ set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_CLEAN_FILES
     ${SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR}
 )
 
-if (SPECFEMPP_CPU_BUILD)
+if (SPECFEM_CPU_BUILD)
     set(SPECFEM_NIGHTLY_BENCHMARKS_REMOTE_SERVER "/home/TROMP/SPECFEMPP-benchmarks/nightly_benchmarks/data/benchmarks/cpu")
 endif()
-if (SPECFEMPP_GPU_BUILD)
+if (SPECFEM_GPU_BUILD)
     set(SPECFEM_NIGHTLY_BENCHMARKS_REMOTE_SERVER "/home/TROMP/SPECFEMPP-benchmarks/nightly_benchmarks/data/benchmarks/gpu")
 endif()
 
@@ -21,4 +21,4 @@ file(COPY
     DESTINATION ${SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR}
 )
 
-add_subdirectory(dim2/homogeneous_medium_flat_topography)
+add_subdirectory(dim2/homogeneous-medium-flat-topography)
