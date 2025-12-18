@@ -2,6 +2,7 @@
 #include "enumerations/display.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/logger.hpp"
 #include "specfem/periodic_tasks/plotter.hpp"
 #include "utilities/strings.hpp"
 
@@ -860,8 +861,8 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   H5Gclose(vtkhdf_group);
   H5Fclose(hdf5_file_id);
 
-  this->mpi->cout("Initialized VTK HDF5 file for wavefield output: " +
-                  this->hdf5_filename + " (extensible datasets)");
+  specfem::Logger::info("Initialized VTK HDF5 file for wavefield output: " +
+                        this->hdf5_filename + " (extensible datasets)");
 
 #else
   throw std::runtime_error(
@@ -1072,7 +1073,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   writer->SetInputConnection(image_filter->GetOutputPort());
   writer->Write();
   std::string message = "Wrote wavefield image to " + filename.string();
-  this->mpi->cout(message);
+  specfem::Logger::info(message);
 }
 
 template <>
@@ -1092,7 +1093,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   writer->SetInputConnection(image_filter->GetOutputPort());
   writer->Write();
   std::string message = "Wrote wavefield image to " + filename.string();
-  this->mpi->cout(message);
+  specfem::Logger::info(message);
 }
 
 template <>
@@ -1309,9 +1310,9 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
 
   this->current_timestep++;
 
-  this->mpi->cout("Wrote wavefield data for timestep " + std::to_string(istep) +
-                  " to HDF5 file (step " +
-                  std::to_string(this->current_timestep) + ")");
+  specfem::Logger::info("Wrote wavefield data for timestep " +
+                        std::to_string(istep) + " to HDF5 file (step " +
+                        std::to_string(this->current_timestep) + ")");
 
 #else
   throw std::runtime_error(
