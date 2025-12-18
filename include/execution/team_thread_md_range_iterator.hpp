@@ -1,6 +1,6 @@
 #pragma once
 
-#include "macros.hpp"
+#include "datatypes/impl/register_array.hpp"
 #include "policy.hpp"
 #include "void_iterator.hpp"
 #include <Kokkos_Core.hpp>
@@ -114,13 +114,9 @@ public:
 };
 
 // User-defined deduction guide
-template <typename TeamMemberType>
-TeamThreadMDRangeIterator(TeamMemberType, size_t, size_t)
-    -> TeamThreadMDRangeIterator<TeamMemberType, 2>;
-
-template <typename TeamMemberType>
-TeamThreadMDRangeIterator(TeamMemberType, size_t, size_t, size_t)
-    -> TeamThreadMDRangeIterator<TeamMemberType, 3>;
+template <typename TeamMemberType, typename... Indices>
+TeamThreadMDRangeIterator(const TeamMemberType &, Indices...)
+    -> TeamThreadMDRangeIterator<TeamMemberType, sizeof...(Indices)>;
 
 } // namespace execution
 } // namespace specfem

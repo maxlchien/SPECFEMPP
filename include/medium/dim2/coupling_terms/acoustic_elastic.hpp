@@ -6,8 +6,6 @@
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
-// TODO replace when this gets reworked.
-#include "specfem/assembly/coupled_interfaces/dim2/data_access/impl/load_access_compatibility.hpp"
 namespace specfem::medium::impl {
 
 template <typename CoupledInterfaceType, typename CoupledFieldType,
@@ -35,8 +33,9 @@ KOKKOS_INLINE_FUNCTION void compute_coupling(
                    interface_data.edge_normal(1) * coupled_field(1));
 }
 
-template <typename IndexType, typename CoupledInterfaceType,
-          typename CoupledFieldType, typename IntersectionFieldViewType>
+template <typename IndexType, typename TransferFunctionType,
+          typename IntersectionNormalType, typename CoupledFieldType,
+          typename IntersectionFieldViewType>
 KOKKOS_INLINE_FUNCTION void compute_coupling(
     const std::integral_constant<
         specfem::dimension::type,
@@ -48,30 +47,26 @@ KOKKOS_INLINE_FUNCTION void compute_coupling(
                                  specfem::interface::interface_tag::
                                      acoustic_elastic> /*interface_dispatch*/,
     const IndexType &chunk_edge_index,
-    const CoupledInterfaceType &interface_data,
+    const TransferFunctionType &transfer_function,
+    const IntersectionNormalType &intersection_normal,
     const CoupledFieldType &coupled_field,
     IntersectionFieldViewType &intersection_field) {
 
   static_assert(
       specfem::data_access::is_chunk_edge<IndexType>::value,
       "The index for a nonconforming compute_coupling must be a chunk_edge.");
-  static_assert(
-      specfem::assembly::coupled_interfaces_impl::stores_intersection_normal<
-          CoupledInterfaceType>::value,
-      "acoustic_elastic compute_coupling needs CoupledInterfaceType to have "
-      "the normal vector.");
 
   static_assert(specfem::data_access::is_displacement<CoupledFieldType>::value,
                 "CoupledFieldType must be a displacement type");
 
   specfem::algorithms::transfer(
-      chunk_edge_index, interface_data, coupled_field,
-      [&](const int &iedge, const int &iintersection, const auto &point) {
-        intersection_field(iedge, iintersection, 0) =
-            interface_data.intersection_normal(iedge, iintersection, 0) *
-                point(0) +
-            interface_data.intersection_normal(iedge, iintersection, 1) *
-                point(1);
+      chunk_edge_index, transfer_function, coupled_field,
+      [&](const auto &index, const auto &point) {
+        const int iedge = index(0);
+        const int iquad = index(1);
+        intersection_field(iedge, iquad, 0) =
+            intersection_normal(iedge, iquad, 0) * point(0) +
+            intersection_normal(iedge, iquad, 1) * point(1);
       });
 }
 

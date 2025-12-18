@@ -1,6 +1,5 @@
 #pragma once
 
-#include "macros.hpp"
 #include "policy.hpp"
 #include "specfem/point.hpp"
 #include "void_iterator.hpp"
@@ -472,7 +471,7 @@ private:
  * `ParallelConfig::chunk_size` and iterates over them in parallel.
  * @tparam DimensionTag The dimension tag for the elements.
  * @tparam ParallelConfig Configuration for parallel execution. @ref
- * specfem::parallel_configuration::chunk_config
+ * specfem::parallel_configurationuration::chunk_config
  * @tparam ViewType Type of the view containing indices of elements.
  */
 template <specfem::dimension::type DimensionTag, typename ParallelConfig,
@@ -501,15 +500,14 @@ public:
                           ///< specfem::execution::for_each_level
   using execution_space =
       typename base_type::execution_space; ///< Execution space type.
-  using base_index_type = specfem::point::index<
-      ParallelConfig::dimension,
-      ParallelConfig::simd::using_simd>; ///< Index type
-                                         ///< to be used
-                                         ///< when calling
-                                         ///< @ref
-                                         ///< specfem::execution::for_all
-                                         ///< with this
-                                         ///< iterator.
+  using base_index_type = PointIndex<
+      dimension_tag, typename ViewType::value_type,
+      ParallelConfig::simd::using_simd,
+      typename base_type::execution_space>; ///< Index type to be
+                                            ///< used when calling
+                                            ///< @ref
+                                            ///< specfem::execution::for_all
+                                            ///< with this iterator.
 
   /**
    * @brief Construct a new Chunked Domain Iterator object

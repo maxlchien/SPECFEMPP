@@ -6,13 +6,12 @@
 #include "io/mesh/impl/fortran/dim2/read_adjacency_graph.hpp"
 #include "io/mesh/impl/fortran/dim2/read_boundaries.hpp"
 #include "io/mesh/impl/fortran/dim2/read_elements.hpp"
-#include "io/mesh/impl/fortran/dim2/read_interfaces.hpp"
 #include "io/mesh/impl/fortran/dim2/read_material_properties.hpp"
 #include "io/mesh/impl/fortran/dim2/read_mesh_database.hpp"
 #include "io/mesh/impl/fortran/dim2/read_parameters.hpp"
-#include "io/mesh/impl/fortran/dim3/generate_database/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "medium/material.hpp"
+#include "specfem/logger.hpp"
 #include "specfem_mpi/interface.hpp"
 #include "specfem_setup.hpp"
 
@@ -21,6 +20,7 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <set>
 #include <tuple>
 #include <vector>
 
@@ -75,11 +75,11 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
   mesh.control_nodes.knods = specfem::kokkos::HostView2d<int>(
       "specfem::mesh::knods", mesh.parameters.ngnod, mesh.nspec);
 
-  int nspec_all = mpi->reduce(mesh.parameters.nspec, specfem::MPI::sum);
+  int nspec_all = specfem::MPI_new::reduce(mesh.parameters.nspec, specfem::sum);
   int nelem_acforcing_all =
-      mpi->reduce(mesh.parameters.nelem_acforcing, specfem::MPI::sum);
-  int nelem_acoustic_surface_all =
-      mpi->reduce(mesh.parameters.nelem_acoustic_surface, specfem::MPI::sum);
+      specfem::MPI_new::reduce(mesh.parameters.nelem_acforcing, specfem::sum);
+  int nelem_acoustic_surface_all = specfem::MPI_new::reduce(
+      mesh.parameters.nelem_acoustic_surface, specfem::sum);
 
   try {
     auto [n_sls, attenuation_f0_reference, read_velocities_at_f0] =
@@ -112,13 +112,20 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
     throw;
   }
 
+  std::set<std::pair<int, int> > coupled_interfaces;
   try {
-    mesh.coupled_interfaces =
-        specfem::io::mesh::impl::fortran::dim2::read_coupled_interfaces(
-            stream, mesh.parameters.num_fluid_solid_edges,
-            mesh.parameters.num_fluid_poro_edges,
-            mesh.parameters.num_solid_poro_edges, mesh.control_nodes.knods,
-            mpi);
+    for (const auto &num_interfaces :
+         { mesh.parameters.num_fluid_solid_edges,
+           mesh.parameters.num_fluid_poro_edges,
+           mesh.parameters.num_solid_poro_edges }) {
+      int medium1_ispec_l, medium2_ispec_l;
+      for (int i = 0; i < num_interfaces; i++) {
+        specfem::io::fortran_read_line(stream, &medium2_ispec_l,
+                                       &medium1_ispec_l);
+        coupled_interfaces.insert(
+            std::make_pair(medium1_ispec_l - 1, medium2_ispec_l - 1));
+      };
+    }
   } catch (std::runtime_error &e) {
     throw;
   }
@@ -155,13 +162,16 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
 
   stream.close();
 
+  // Setup and verify coupled interfaces
+  mesh.setup_coupled_interfaces(coupled_interfaces);
+
   // Print material properties
 
-  mpi->cout("Material systems:\n"
-            "------------------------------");
+  specfem::Logger::debug("Material systems:\n"
+                         "------------------------------");
 
-  mpi->cout("Number of material systems = " +
-            std::to_string(mesh.materials.n_materials) + "\n\n");
+  specfem::Logger::debug("Number of material systems = " +
+                         std::to_string(mesh.materials.n_materials) + "\n\n");
 
   FOR_EACH_IN_PRODUCT(
       (DIMENSION_TAG(DIM2),
@@ -172,7 +182,7 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
         for (const auto material :
              mesh.materials.get_container<_medium_tag_, _property_tag_>()
                  .element_materials) {
-          mpi->cout(material.print());
+          specfem::Logger::debug(material.print());
         }
       })
 

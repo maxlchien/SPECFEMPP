@@ -23,13 +23,14 @@ void specfem::kokkos_kernels::impl::invert_mass_matrix(
 #if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
   constexpr bool using_simd = false;
 #else
-  constexpr bool using_simd = true;
+  // TODO(Rohit : DIM3_SIMD) Enable simd execution for dim3 solver
+  constexpr bool using_simd = (DimensionTag == specfem::dimension::type::dim2) ? true : false;
 #endif
 
   using PointMassType =
       specfem::point::mass_inverse<dimension, medium_tag, using_simd>;
 
-  using parallel_config = specfem::parallel_config::default_range_config<
+  using parallel_config = specfem::parallel_configuration::default_range_config<
       specfem::datatype::simd<type_real, using_simd>,
       Kokkos::DefaultExecutionSpace>;
 
@@ -39,7 +40,8 @@ void specfem::kokkos_kernels::impl::invert_mass_matrix(
 
   specfem::execution::for_all(
       "specfem::kokkos_kernels::divide_mass_matrix", range,
-      KOKKOS_LAMBDA(const IndexType &index) {
+      KOKKOS_LAMBDA(const typename decltype(range)::base_index_type &iterator_index) {
+        const auto index = iterator_index.get_index();
         PointMassType mass;
         specfem::assembly::load_on_device(index, field, mass);
         for (int icomp = 0; icomp < PointMassType::components;

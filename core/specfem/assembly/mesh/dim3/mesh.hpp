@@ -13,9 +13,20 @@
 #include <vector>
 
 namespace specfem::assembly {
+
 /**
- * @brief Information on an assembled mesh
+ * @brief 3D assembly mesh for spectral element computations.
  *
+ * Combines mesh components (points, control nodes, shape functions, quadrature)
+ * for efficient 3D hexahedral spectral element assembly operations.
+ *
+ * Inherits functionality from:
+ * - points: Quadrature point coordinates and indexing
+ * - quadrature: GLL quadrature points and weights
+ * - control_nodes: Element control node data
+ * - shape_functions: Shape function values and derivatives
+ *
+ * @see specfem::mesh::mesh
  */
 template <>
 struct mesh<specfem::dimension::type::dim3>
@@ -29,30 +40,38 @@ struct mesh<specfem::dimension::type::dim3>
           specfem::dimension::type::dim3> {
 
 public:
-  constexpr static auto dimension_tag =
-      specfem::dimension::type::dim3; ///< Dimension
-  int nspec;                          ///< Number of spectral
-                                      ///< elements
-  int ngnod;                          ///< Number of control
-                                      ///< nodes
+  constexpr static auto dimension_tag = specfem::dimension::type::dim3;
+  constexpr static int ndim = 3;
 
-  specfem::mesh_entity::element<dimension_tag> element_grid; ///< Element number
-                                                             ///< of GLL points
+  int nspec; ///< Number of spectral elements
+  int ngnod; ///< Number of control nodes per element
 
+  specfem::mesh_entity::element<dimension_tag> element_grid; ///< 3D GLL grid
+                                                             ///< info
+
+  /**
+   * @brief Default constructor.
+   */
   mesh() = default;
 
-  mesh(const specfem::mesh::parameters<dimension_tag> &parameters,
-       const specfem::mesh::coordinates<dimension_tag> &coordinates,
-       const specfem::mesh::mapping<dimension_tag> &mapping,
-       const specfem::mesh::control_nodes<dimension_tag> &control_nodes,
-       const specfem::quadrature::quadratures &quadrature);
-
+  /**
+   * @brief Constructor from mesh components.
+   *
+   * Builds 3D assembly mesh from source mesh data.
+   *
+   * @param nspec Number of spectral elements
+   * @param ngnod Number of control nodes per element
+   * @param ngllz Number of GLL points in z direction
+   * @param nglly Number of GLL points in y direction
+   * @param ngllx Number of GLL points in x direction
+   * @param adjacency_graph Element connectivity
+   * @param control_nodes Element control node data
+   * @param quadrature GLL quadrature information
+   */
   mesh(const int nspec, const int ngnod, const int ngllz, const int nglly,
        const int ngllx,
-       const specfem::mesh::meshfem3d::adjacency_graph<dimension_tag>
-           &adjacency_graph,
-       const specfem::mesh::meshfem3d::ControlNodes<dimension_tag>
-           &control_nodes,
+       const specfem::mesh::adjacency_graph<dimension_tag> &adjacency_graph,
+       const specfem::mesh::control_nodes<dimension_tag> &control_nodes,
        const specfem::quadrature::quadratures &quadrature);
 };
 
