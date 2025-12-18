@@ -19,6 +19,7 @@ New structure
 
     specfem/assembly/index
     specfem/chunk_element/index
+    specfem/macros/index
     specfem/periodic_tasks/index
     specfem/point/index
     specfem/receivers/index

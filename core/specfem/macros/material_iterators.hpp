@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file material_iterators.hpp
+ * @brief Macros for material and element definitions
+ */
+
 #include "enum_tags.hpp"
 #include "enumerations/interface.hpp"
 #include "macros_impl/array.hpp"
@@ -9,52 +14,109 @@
 
 /**
  * @name Element Tag macros
- *
- * @defgroup element_tags Element Tags
- *
  */
 /// @{
+/**
+ * @brief Dimension tag for 2D
+ */
 #define DIMENSION_TAG_DIM2                                                     \
   (0, specfem::dimension::type::dim2, dim2, _ENUM_ID_DIMENSION_TAG)
+
+/**
+ * @brief Dimension tag for 3D
+ */
 #define DIMENSION_TAG_DIM3                                                     \
   (1, specfem::dimension::type::dim3, dim3, _ENUM_ID_DIMENSION_TAG)
 
+/**
+ * @brief Medium tag for Elastic P-SV
+ */
 #define MEDIUM_TAG_ELASTIC_PSV                                                 \
   (0, specfem::element::medium_tag::elastic_psv, elastic_psv,                  \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Elastic SH
+ */
 #define MEDIUM_TAG_ELASTIC_SH                                                  \
   (1, specfem::element::medium_tag::elastic_sh, elastic_sh, _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Elastic P-SV Transverse Isotropic
+ */
 #define MEDIUM_TAG_ELASTIC_PSV_T                                               \
   (2, specfem::element::medium_tag::elastic_psv_t, elastic_psv_t,              \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Acoustic
+ */
 #define MEDIUM_TAG_ACOUSTIC                                                    \
   (3, specfem::element::medium_tag::acoustic, acoustic, _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Poroelastic
+ */
 #define MEDIUM_TAG_POROELASTIC                                                 \
   (4, specfem::element::medium_tag::poroelastic, poroelastic,                  \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Electromagnetic TE
+ */
 #define MEDIUM_TAG_ELECTROMAGNETIC_TE                                          \
   (5, specfem::element::medium_tag::electromagnetic_te, electromagnetic_te,    \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Elastic
+ */
 #define MEDIUM_TAG_ELASTIC                                                     \
   (6, specfem::element::medium_tag::elastic, elastic, _ENUM_ID_MEDIUM_TAG)
 
+/**
+ * @brief Property tag for Isotropic
+ */
 #define PROPERTY_TAG_ISOTROPIC                                                 \
   (0, specfem::element::property_tag::isotropic, isotropic,                    \
    _ENUM_ID_PROPERTY_TAG)
+
+/**
+ * @brief Property tag for Anisotropic
+ */
 #define PROPERTY_TAG_ANISOTROPIC                                               \
   (1, specfem::element::property_tag::anisotropic, anisotropic,                \
    _ENUM_ID_PROPERTY_TAG)
+
+/**
+ * @brief Property tag for Isotropic Cosserat
+ */
 #define PROPERTY_TAG_ISOTROPIC_COSSERAT                                        \
   (2, specfem::element::property_tag::isotropic_cosserat, isotropic_cosserat,  \
    _ENUM_ID_PROPERTY_TAG)
 
+/**
+ * @brief Boundary tag for None
+ */
 #define BOUNDARY_TAG_NONE                                                      \
   (0, specfem::element::boundary_tag::none, none, _ENUM_ID_BOUNDARY_TAG)
+
+/**
+ * @brief Boundary tag for Stacey
+ */
 #define BOUNDARY_TAG_STACEY                                                    \
   (1, specfem::element::boundary_tag::stacey, stacey, _ENUM_ID_BOUNDARY_TAG)
+
+/**
+ * @brief Boundary tag for Acoustic Free Surface
+ */
 #define BOUNDARY_TAG_ACOUSTIC_FREE_SURFACE                                     \
   (2, specfem::element::boundary_tag::acoustic_free_surface,                   \
    acoustic_free_surface, _ENUM_ID_BOUNDARY_TAG)
+
+/**
+ * @brief Boundary tag for Composite Stacey Dirichlet
+ */
 #define BOUNDARY_TAG_COMPOSITE_STACEY_DIRICHLET                                \
   (3, specfem::element::boundary_tag::composite_stacey_dirichlet,              \
    composite_stacey_dirichlet, _ENUM_ID_BOUNDARY_TAG)
@@ -323,4 +385,4 @@ template <> constexpr auto element_types<specfem::dimension::type::dim3>() {
 } // namespace element
 } // namespace specfem
 
-#include "interface_definitions.hpp"
+#include "interface_iterators.hpp"

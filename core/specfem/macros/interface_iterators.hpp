@@ -1,39 +1,76 @@
 #pragma once
 
+/**
+ * @file interface_iterators.hpp
+ * @brief Macros for interface and connection definitions
+ */
+
 #include "enum_tags.hpp"
 #include "enumerations/interface.hpp"
 #include "macros_impl/array.hpp"
 #include "macros_impl/utils.hpp"
 #include <boost/preprocessor.hpp>
 
+/**
+ * @name Connection Tag macros
+ */
+/// @{
+/**
+ * @brief Strongly conforming connection tag
+ */
 #define CONNECTION_TAG_STRONGLY_CONFORMING                                     \
   (0, specfem::connections::type::strongly_conforming, strongly_conforming,    \
    _ENUM_ID_CONNECTION_TAG)
 
+/**
+ * @brief Weakly conforming connection tag
+ */
 #define CONNECTION_TAG_WEAKLY_CONFORMING                                       \
   (1, specfem::connections::type::weakly_conforming, weakly_conforming,        \
    _ENUM_ID_CONNECTION_TAG)
 
+/**
+ * @brief Non-conforming connection tag
+ */
 #define CONNECTION_TAG_NONCONFORMING                                           \
   (2, specfem::connections::type::nonconforming, nonconforming,                \
    _ENUM_ID_CONNECTION_TAG)
+/// @}
 
+/**
+ * @name Interface Tag macros
+ */
+/// @{
+/**
+ * @brief Elastic-Acoustic interface tag
+ */
 #define INTERFACE_TAG_ELASTIC_ACOUSTIC                                         \
   (0, specfem::interface::interface_tag::elastic_acoustic, elastic_acoustic,   \
    _ENUM_ID_INTERFACE_TAG)
+
+/**
+ * @brief Acoustic-Elastic interface tag
+ */
 #define INTERFACE_TAG_ACOUSTIC_ELASTIC                                         \
   (1, specfem::interface::interface_tag::acoustic_elastic, acoustic_elastic,   \
    _ENUM_ID_INTERFACE_TAG)
+/// @}
 
 #define _MAKE_INTERFACE_TUPLE(r, product) BOOST_PP_SEQ_TO_TUPLE(product)
 
 #define _GENERATE_INTERFACE(seqs)                                              \
   (BOOST_PP_SEQ_FOR_EACH_PRODUCT(_MAKE_INTERFACE_TUPLE, seqs))
 
+/**
+ * @brief Converts interface tag arguments to a sequence of tag tuples
+ */
 #define INTERFACE_TAG(...)                                                     \
   BOOST_PP_SEQ_TRANSFORM(_TRANSFORM_TAGS, INTERFACE_TAG_,                      \
                          BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
 
+/**
+ * @brief Converts connection tag arguments to a sequence of tag tuples
+ */
 #define CONNECTION_TAG(...)                                                    \
   BOOST_PP_SEQ_TRANSFORM(_TRANSFORM_TAGS, CONNECTION_TAG_,                     \
                          BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
@@ -45,12 +82,18 @@
 #define _CONNECTION_TAG_ BOOST_PP_SEQ_TO_LIST((1))
 #define _INTERFACE_TAG_ BOOST_PP_SEQ_TO_LIST((2))
 
+/**
+ * @brief List of interface systems
+ */
 #define INTERFACE_SYSTEMS                                                      \
   ((DIMENSION_TAG_DIM2, CONNECTION_TAG_WEAKLY_CONFORMING,                      \
     INTERFACE_TAG_ELASTIC_ACOUSTIC))((DIMENSION_TAG_DIM2,                      \
                                       CONNECTION_TAG_WEAKLY_CONFORMING,        \
                                       INTERFACE_TAG_ACOUSTIC_ELASTIC))
 
+/**
+ * @brief List of edges with interfaces
+ */
 #define EDGES                                                                  \
   ((DIMENSION_TAG_DIM2, CONNECTION_TAG_WEAKLY_CONFORMING,                      \
     INTERFACE_TAG_ELASTIC_ACOUSTIC, BOUNDARY_TAG_NONE))(                       \
@@ -81,6 +124,14 @@
 
 namespace specfem::interface {
 
+/**
+ * @brief A constexpr function to generate a list of edges with interfaces within
+ * the simulation.
+ *
+ * This macro uses @ref EDGES to generate a list of edges automatically.
+ *
+ * @return constexpr auto list of edges
+ */
 template <specfem::dimension::type DimensionTag> constexpr auto edges();
 
 template <> constexpr auto edges<specfem::dimension::type::dim2>() {
