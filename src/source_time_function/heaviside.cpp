@@ -1,6 +1,7 @@
 #include "constants.hpp"
 #include "source_time_function/impl/time_functions.hpp"
 #include "source_time_function/interface.hpp"
+#include "specfem/logger.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"
 #include <Kokkos_Core.hpp>
@@ -13,12 +14,21 @@ specfem::forcing_function::Heaviside::Heaviside(
     : nsteps_(nsteps), dt_(dt), hdur_(hdur), factor_(factor), tshift_(tshift),
       use_trick_for_better_pressure_(use_trick_for_better_pressure) {
 
+  // Corrects the half duration if it's too small compared to the time step
+  if (this->hdur_ < 5.0 * this->dt_) {
+    this->hdur_ = 5.0 * this->dt_;
+    specfem::Logger::warning(
+        "Heaviside half duration hdur is too small compared to dt. "
+        "Setting hdur = 5 * dt = " +
+        std::to_string(this->hdur_));
+  }
+
   // Approximate the half duration based on the empirical relation to
   // of a triangular source time function
   this->hdur_ =
       this->hdur_ / specfem::constants::empirical::SOURCE_DECAY_MIMIC_TRIANGLE;
 
-  this->t0_ = -1.5 * (this->tshift_ - this->hdur_);
+  this->t0_ = -2.0 * this->hdur_ + this->tshift_;
 }
 
 specfem::forcing_function::Heaviside::Heaviside(

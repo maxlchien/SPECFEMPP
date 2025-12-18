@@ -184,6 +184,24 @@ public:
     return !(*this == other);
   }
 
+  /**
+   * @brief Set the forcing function for the source
+   *
+   * @param Node YAML node containing source time function configuration
+   * @param nsteps number of time steps
+   * @param dt time step size
+   *
+   * This function initializes the source time function based on the
+   * configuration provided in the YAML node. It supports various types of
+   * source time functions such as Dirac, Gaussian, Ricker, dGaussian,
+   * Heaviside, and External. If the specified source time function is not
+   * recognized, an exception is thrown.
+   *
+   * This method also is responsible for setting up the start time of the source
+   * time function depending on dimension (dim2, dim3) and forcing function
+   * type.
+   *
+   */
   void set_forcing_function(YAML::Node &Node, const int nsteps,
                             const type_real dt);
 

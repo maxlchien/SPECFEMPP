@@ -436,6 +436,7 @@ target_link_libraries(
         Kokkos::kokkos
         point
         utilities
+        specfem::logger
 )
 
 # Disable unity build for source_time_function due to KOKKOS_INLINE_FUNCTION issues

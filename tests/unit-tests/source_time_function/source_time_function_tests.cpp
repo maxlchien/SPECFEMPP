@@ -1,3 +1,4 @@
+#include "../SPECFEM_Environment.hpp"
 #include "source_time_function/interface.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
@@ -551,6 +552,8 @@ TEST_F(SourceTimeFunctionSetup, ExternalSTFConstruction) {
 TYPED_TEST(AnalyticSTFTest, TimeShiftAffectsTiming) {
   using Traits = typename TestFixture::Traits;
 
+  // Heaviside function does not have a distinct peak, skip this test
+
   const int nsteps = 200;
   const type_real dt = 0.001;
   const type_real t0 = 0.0;
@@ -572,23 +575,40 @@ TYPED_TEST(AnalyticSTFTest, TimeShiftAffectsTiming) {
   stf1->compute_source_time_function(t0, dt, nsteps, stf_values1);
   stf2->compute_source_time_function(t0, dt, nsteps, stf_values2);
 
-  // Find peak values
   int peak_idx1 = 0, peak_idx2 = 0;
   type_real max_val1 = 0.0, max_val2 = 0.0;
 
-  for (int i = 0; i < nsteps; ++i) {
-    if (std::abs(stf_values1(i, 0)) > max_val1) {
-      max_val1 = std::abs(stf_values1(i, 0));
-      peak_idx1 = i;
-    }
-    if (std::abs(stf_values2(i, 0)) > max_val2) {
-      max_val2 = std::abs(stf_values2(i, 0));
-      peak_idx2 = i;
-    }
-  }
+  if constexpr (std::is_same<typename TestFixture::STFType,
+                             specfem::forcing_function::Heaviside>::value) {
 
-  // The shifted STF should have its peak at a different time
-  EXPECT_NE(peak_idx1, peak_idx2);
+    // Get t0 values of the two STFs
+    type_real t0_1 = stf1->get_t0();
+    type_real t0_2 = stf2->get_t0();
+
+    for (int i = 0; i < nsteps; ++i) {
+      // Make sure that around t0 the values are different
+      if ((std::abs(i * dt - t0_1) < tshift2) ||
+          (std::abs(i * dt - t0_2) < tshift2)) {
+        EXPECT_NE(stf_values1(i, 0), stf_values2(i, 0));
+      }
+    }
+
+    // For the other timefunctions find peak values
+  } else {
+    for (int i = 0; i < nsteps; ++i) {
+      if (std::abs(stf_values1(i, 0)) > max_val1) {
+        max_val1 = std::abs(stf_values1(i, 0));
+        peak_idx1 = i;
+      }
+      if (std::abs(stf_values2(i, 0)) > max_val2) {
+        max_val2 = std::abs(stf_values2(i, 0));
+        peak_idx2 = i;
+      }
+    }
+
+    // The shifted STF should have its peak at a different time
+    EXPECT_NE(peak_idx1, peak_idx2);
+  }
 }
 
 // Test: STF values decay to near zero at far times
@@ -612,6 +632,13 @@ TYPED_TEST(AnalyticSTFTest, DecayAtFarTimes) {
   type_real max_val = 0.0;
   for (int i = 0; i < nsteps; ++i) {
     max_val = std::max(max_val, std::abs(stf_values(i, 0)));
+  }
+
+  // Catch Heaviside, which does not decay to zero
+  if constexpr (std::is_same<typename TestFixture::STFType,
+                             specfem::forcing_function::Heaviside>::value) {
+    SUCCEED();
+    return;
   }
 
   // Last 10% of values should be relatively small

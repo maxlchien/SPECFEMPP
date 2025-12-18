@@ -748,7 +748,6 @@ target_link_libraries(
   Kokkos::kokkos
   yaml-cpp
   gtest_main
-  kokkos_environment
 )
 
 # # add_executable(

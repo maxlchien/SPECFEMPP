@@ -11,12 +11,12 @@ specfem::forcing_function::Ricker::Ricker(const int nsteps, const type_real dt,
                                           const type_real tshift,
                                           const type_real factor,
                                           bool use_trick_for_better_pressure)
-    : __nsteps(nsteps), __dt(dt), __f0(f0), __factor(factor), __tshift(tshift),
-      __use_trick_for_better_pressure(use_trick_for_better_pressure) {
+    : nsteps_(nsteps), dt_(dt), f0_(f0), factor_(factor), tshift_(tshift),
+      use_trick_for_better_pressure_(use_trick_for_better_pressure) {
 
-  type_real hdur = 1.0 / this->__f0;
+  type_real hdur = 1.0 / this->f0_;
 
-  this->__t0 = -1.2 * hdur + this->__tshift;
+  this->t0_ = -1.2 * hdur + this->tshift_;
 }
 
 specfem::forcing_function::Ricker::Ricker(
@@ -40,12 +40,12 @@ type_real specfem::forcing_function::Ricker::compute(type_real t) {
 
   type_real val;
 
-  if (this->__use_trick_for_better_pressure) {
-    val = this->__factor * specfem::forcing_function::impl::d4gaussian(
-                               t - this->__tshift, this->__f0);
+  if (this->use_trick_for_better_pressure_) {
+    val = this->factor_ * specfem::forcing_function::impl::d4gaussian(
+                              t - this->tshift_, this->f0_);
   } else {
-    val = this->__factor * specfem::forcing_function::impl::d2gaussian(
-                               t - this->__tshift, this->__f0);
+    val = this->factor_ * specfem::forcing_function::impl::d2gaussian(
+                              t - this->tshift_, this->f0_);
   }
 
   return val;
@@ -67,12 +67,12 @@ void specfem::forcing_function::Ricker::compute_source_time_function(
 std::string specfem::forcing_function::Ricker::print() const {
   std::stringstream ss;
   ss << "        Ricker source time function:\n"
-     << "          f0: " << this->__f0 << "\n"
-     << "          tshift: " << this->__tshift << "\n"
-     << "          factor: " << this->__factor << "\n"
-     << "          t0: " << this->__t0 << "\n"
+     << "          f0: " << this->f0_ << "\n"
+     << "          tshift: " << this->tshift_ << "\n"
+     << "          factor: " << this->factor_ << "\n"
+     << "          t0: " << this->t0_ << "\n"
      << "          use_trick_for_better_pressure: "
-     << this->__use_trick_for_better_pressure << "\n";
+     << this->use_trick_for_better_pressure_ << "\n";
 
   return ss.str();
 }
@@ -89,13 +89,12 @@ bool specfem::forcing_function::Ricker::operator==(
     return false;
 
   std::cout << "checking vals\n";
-  return (specfem::utilities::is_close(this->__f0, other_ricker->get_f0()) &&
-          specfem::utilities::is_close(this->__tshift,
-                                       other_ricker->get_tshift()) &&
-          specfem::utilities::is_close(this->__factor,
-                                       other_ricker->get_factor()) &&
-          this->__use_trick_for_better_pressure ==
-              other_ricker->get_use_trick_for_better_pressure());
+  return (
+      specfem::utilities::is_close(this->f0_, other_ricker->get_f0()) &&
+      specfem::utilities::is_close(this->tshift_, other_ricker->get_tshift()) &&
+      specfem::utilities::is_close(this->factor_, other_ricker->get_factor()) &&
+      this->use_trick_for_better_pressure_ ==
+          other_ricker->get_use_trick_for_better_pressure());
 };
 
 bool specfem::forcing_function::Ricker::operator!=(

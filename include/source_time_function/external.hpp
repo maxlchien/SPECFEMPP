@@ -27,34 +27,34 @@ public:
     std::stringstream ss;
     ss << "External source time function: "
        << "\n"
-       << "  X-component: " << this->x_component << "\n"
-       << "  Y-component: " << this->y_component << "\n"
-       << "  Z-component: " << this->z_component << "\n";
+       << "  X-component: " << this->x_component_ << "\n"
+       << "  Y-component: " << this->y_component_ << "\n"
+       << "  Z-component: " << this->z_component_ << "\n";
     return ss.str();
   }
 
-  specfem::enums::seismogram::format get_type() const { return type; }
-  type_real get_t0() const override { return __t0; }
-  type_real get_dt() const { return __dt; }
-  int get_nsteps() { return __nsteps; }
-  int get_ncomponents() const { return ncomponents; }
-  std::string get_x_component() const { return x_component; }
-  std::string get_y_component() const { return y_component; }
-  std::string get_z_component() const { return z_component; }
-  specfem::enums::seismogram::format get_format() const { return type; }
+  specfem::enums::seismogram::format get_type() const { return type_; }
+  type_real get_t0() const override { return t0_; }
+  type_real get_dt() const { return dt_; }
+  int get_nsteps() { return nsteps_; }
+  int get_ncomponents() const { return ncomponents_; }
+  std::string get_x_component() const { return x_component_; }
+  std::string get_y_component() const { return y_component_; }
+  std::string get_z_component() const { return z_component_; }
+  specfem::enums::seismogram::format get_format() const { return type_; }
 
   bool operator==(const specfem::forcing_function::stf &other) const override;
   bool operator!=(const specfem::forcing_function::stf &other) const override;
 
 private:
-  int __nsteps;
-  type_real __t0;
-  type_real __dt;
-  specfem::enums::seismogram::format type;
-  int ncomponents;
-  std::string x_component = "";
-  std::string y_component = "";
-  std::string z_component = "";
+  int nsteps_;
+  type_real t0_;
+  type_real dt_;
+  specfem::enums::seismogram::format type_;
+  int ncomponents_;
+  std::string x_component_ = "";
+  std::string y_component_ = "";
+  std::string z_component_ = "";
 };
 } // namespace forcing_function
 } // namespace specfem

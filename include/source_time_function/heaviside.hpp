@@ -83,11 +83,12 @@ public:
   bool operator!=(const specfem::forcing_function::stf &other) const override;
 
 private:
-  int nsteps_;       /// number of time steps
-  type_real hdur_;   ///< Half duration
-  type_real tshift_; ///< value of tshift
-  type_real t0_;     ///< t0 value
-  type_real factor_; ///< scaling factor
+  int nsteps_;          /// number of time steps
+  type_real hdur_;      ///< Half duration
+  type_real tshift_;    ///< value of tshift
+  type_real t0_;        ///< t0 value
+  type_real t0_factor_; ///< precomputed factor for t0 calculation
+  type_real factor_;    ///< scaling factor
   bool use_trick_for_better_pressure_;
   type_real dt_;
 };

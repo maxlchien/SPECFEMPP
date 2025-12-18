@@ -52,24 +52,24 @@ public:
    *
    * @param tshift new tshift value
    */
-  void update_tshift(type_real tshift) override { this->__tshift = tshift; }
+  void update_tshift(type_real tshift) override { this->tshift_ = tshift; }
   /**
    * @brief Get the t0 value
    *
    * @return t0 value
    */
-  type_real get_t0() const override { return this->__t0; }
+  type_real get_t0() const override { return this->t0_; }
 
-  type_real get_tshift() const override { return this->__tshift; }
+  type_real get_tshift() const override { return this->tshift_; }
 
-  type_real get_dt() const { return this->__dt; }
+  type_real get_dt() const { return this->dt_; }
 
-  type_real get_factor() const { return this->__factor; }
+  type_real get_factor() const { return this->factor_; }
 
-  type_real get_f0() const { return this->__f0; }
-  int get_nsteps() const { return this->__nsteps; }
+  type_real get_f0() const { return this->f0_; }
+  int get_nsteps() const { return this->nsteps_; }
   bool get_use_trick_for_better_pressure() const {
-    return this->__use_trick_for_better_pressure;
+    return this->use_trick_for_better_pressure_;
   }
   int get_ncomponents() const { return 1; }
 
@@ -83,13 +83,14 @@ public:
   bool operator!=(const specfem::forcing_function::stf &other) const override;
 
 private:
-  int __nsteps;
-  type_real __f0;     ///< frequence f0
-  type_real __tshift; ///< value of tshit
-  type_real __t0;     ///< t0 value
-  type_real __factor; ///< scaling factor
-  bool __use_trick_for_better_pressure;
-  type_real __dt;
+  int nsteps_;
+  type_real f0_;        ///< frequence f0
+  type_real tshift_;    ///< value of tshit
+  type_real t0_;        ///< t0 value
+  type_real t0_factor_; ///< for the start time computation
+  type_real factor_;    ///< scaling factor
+  bool use_trick_for_better_pressure_;
+  type_real dt_;
 };
 
 } // namespace forcing_function

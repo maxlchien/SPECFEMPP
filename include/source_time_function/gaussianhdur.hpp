@@ -72,6 +72,7 @@ private:
   type_real hdur_;                     ///< half duration
   type_real tshift_;                   ///< value of tshift
   type_real t0_;                       ///< t0 value
+  type_real t0_factor_;                ///< for the start time computation
   type_real factor_;                   ///< scaling factor
   bool use_trick_for_better_pressure_; /// flag to use trick for better pressure
   type_real dt_;                       ///< time step size

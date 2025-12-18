@@ -7,6 +7,7 @@
 #include <yaml-cpp/yaml.h>
 
 
+
 template <specfem::dimension::type DimensionTag>
 void specfem::sources::source<DimensionTag>::set_forcing_function(
     YAML::Node &Node, const int nsteps, const type_real dt) {
