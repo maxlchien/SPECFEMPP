@@ -1,5 +1,5 @@
 #include "../SPECFEM_Environment.hpp"
-#include "source_time_function/interface.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
 #include <Kokkos_Core.hpp>

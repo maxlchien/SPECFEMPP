@@ -2,8 +2,8 @@
 #include "../../test_fixture/test_fixture.hpp"
 #include "kokkos_abstractions.h"
 #include "quadrature/interface.hpp"
-#include "source_time_function/interface.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "test_macros.hpp"
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest.h>

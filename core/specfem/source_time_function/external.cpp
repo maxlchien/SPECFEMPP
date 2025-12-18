@@ -1,4 +1,4 @@
-#include "source_time_function/external.hpp"
+#include "external.hpp"
 #include "enumerations/specfem_enums.hpp"
 #include "io/seismogram/reader.hpp"
 #include "kokkos_abstractions.h"

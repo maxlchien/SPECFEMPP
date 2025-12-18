@@ -1,6 +1,6 @@
 #include "test_source_solutions.hpp"
 #include "enumerations/wavefield.hpp"
-#include "source_time_function/interface.hpp"
+#include "specfem/source_time_functions.hpp"
 
 // Local constants since these would be set by the simulation.
 int nsteps = 100;

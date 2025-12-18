@@ -1,5 +1,5 @@
-#include "source_time_function/impl/time_functions.hpp"
-#include "source_time_function/interface.hpp"
+#include "dirac.hpp"
+#include "impl/time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"
 #include <Kokkos_Core.hpp>

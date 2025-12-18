@@ -1,6 +1,6 @@
+#include "gaussianhdur.hpp"
 #include "constants.hpp"
-#include "source_time_function/impl/time_functions.hpp"
-#include "source_time_function/interface.hpp"
+#include "impl/time_functions.hpp"
 #include "specfem/logger.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"

@@ -732,7 +732,7 @@ add_executable(
 target_link_libraries(
   source_class_tests
   source_class
-  source_time_function
+  source_time_functions
   specfem_environment
   -lpthread -lm
 )
@@ -744,7 +744,7 @@ add_executable(
 
 target_link_libraries(
   source_time_function_tests
-  source_time_function
+  source_time_functions
   Kokkos::kokkos
   yaml-cpp
   gtest_main
