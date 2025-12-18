@@ -123,7 +123,7 @@ specfem::sources::cosserat_force<specfem::dimension::type::dim2> create_source<
         &parameters) {
   return specfem::sources::cosserat_force<specfem::dimension::type::dim2>(
       parameters.x, parameters.z, parameters.f, parameters.fc, parameters.angle,
-      std::make_unique<specfem::forcing_function::Ricker>(10, 0.01, 1.0, 0.0,
-                                                          1.0, false),
+      std::make_unique<specfem::source_time_functions::Ricker>(10, 0.01, 1.0,
+                                                               0.0, 1.0, false),
       parameters.wavefield_type);
 }

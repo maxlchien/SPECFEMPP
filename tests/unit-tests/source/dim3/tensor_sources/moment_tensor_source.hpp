@@ -126,8 +126,8 @@ create_source<specfem::dimension::type::dim3,
   return specfem::sources::moment_tensor<specfem::dimension::type::dim3>(
       parameters.x, parameters.y, parameters.z, parameters.Mxx, parameters.Myy,
       parameters.Mzz, parameters.Mxy, parameters.Mxz, parameters.Myz,
-      std::make_unique<specfem::forcing_function::Ricker>(10, 0.01, 1.0, 0.0,
-                                                          1.0, false),
+      std::make_unique<specfem::source_time_functions::Ricker>(10, 0.01, 1.0,
+                                                               0.0, 1.0, false),
       parameters.wavefield_type);
 }
 

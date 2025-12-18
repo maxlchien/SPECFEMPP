@@ -9,11 +9,11 @@
 
 
 template <specfem::dimension::type DimensionTag>
-void specfem::sources::source<DimensionTag>::set_forcing_function(
+void specfem::sources::source<DimensionTag>::set_source_time_function(
     YAML::Node &Node, const int nsteps, const type_real dt) {
 
   if (YAML::Node Dirac = Node["Dirac"]) {
-    this->forcing_function = std::make_unique<specfem::forcing_function::Dirac>(
+    this->source_time_function = std::make_unique<specfem::source_time_functions::Dirac>(
         Dirac, nsteps, dt, false);
   } else if (YAML::Node Gaussian = Node["Gaussian"]) {
 
@@ -23,16 +23,16 @@ void specfem::sources::source<DimensionTag>::set_forcing_function(
 
     if (Gaussian["hdur"]) {
       type_real hdur = Gaussian["hdur"].as<type_real>();
-      this->forcing_function =
-          std::make_unique<specfem::forcing_function::GaussianHdur>(
+      this->source_time_function =
+          std::make_unique<specfem::source_time_functions::GaussianHdur>(
               nsteps, dt, hdur,
               Gaussian["tshift"] ? Gaussian["tshift"].as<type_real>() : 0.0,
               Gaussian["factor"].as<type_real>(), false, t0_factor);
       return;
     } else if (Gaussian["f0"]) {
       type_real f0 = Gaussian["f0"].as<type_real>();
-      this->forcing_function =
-          std::make_unique<specfem::forcing_function::Gaussian>(
+      this->source_time_function =
+          std::make_unique<specfem::source_time_functions::Gaussian>(
               nsteps, dt, f0,
               Gaussian["tshift"] ? Gaussian["tshift"].as<type_real>() : 0.0,
               Gaussian["factor"].as<type_real>(), false, t0_factor);
@@ -44,12 +44,12 @@ void specfem::sources::source<DimensionTag>::set_forcing_function(
     }
   } else if (YAML::Node Ricker = Node["Ricker"]) {
 
-    this->forcing_function =
-        std::make_unique<specfem::forcing_function::Ricker>(Ricker, nsteps, dt,
+    this->source_time_function =
+        std::make_unique<specfem::source_time_functions::Ricker>(Ricker, nsteps, dt,
                                                             false);
   } else if (YAML::Node dGaussian = Node["dGaussian"]) {
-    this->forcing_function =
-        std::make_unique<specfem::forcing_function::dGaussian>(
+    this->source_time_function =
+        std::make_unique<specfem::source_time_functions::dGaussian>(
             dGaussian, nsteps, dt, false);
   } else if (YAML::Node Heaviside = Node["Heaviside"]) {
 
@@ -57,13 +57,13 @@ void specfem::sources::source<DimensionTag>::set_forcing_function(
     constexpr type_real t0_factor =
         (DimensionTag == specfem::dimension::type::dim2) ? 2.0 : 1.5;
 
-    this->forcing_function =
-        std::make_unique<specfem::forcing_function::Heaviside>(
+    this->source_time_function =
+        std::make_unique<specfem::source_time_functions::Heaviside>(
             Heaviside, nsteps, dt, false, t0_factor);
 
   } else if (YAML::Node external = Node["External"]) {
-    this->forcing_function =
-        std::make_unique<specfem::forcing_function::external>(external, nsteps,
+    this->source_time_function =
+        std::make_unique<specfem::source_time_functions::external>(external, nsteps,
                                                               dt);
   } else {
     throw std::runtime_error("Error: source time function not recognized");

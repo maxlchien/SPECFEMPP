@@ -7,9 +7,9 @@
 #include <tuple>
 #include <vector>
 
-specfem::forcing_function::external::external(const YAML::Node &external,
-                                              const int nsteps,
-                                              const type_real dt)
+specfem::source_time_functions::external::external(const YAML::Node &external,
+                                                   const int nsteps,
+                                                   const type_real dt)
     : nsteps_(nsteps), dt_(dt) {
 
   if (specfem::utilities::is_ascii_string(
@@ -80,7 +80,7 @@ specfem::forcing_function::external::external(const YAML::Node &external,
   return;
 }
 
-void specfem::forcing_function::external::compute_source_time_function(
+void specfem::source_time_functions::external::compute_source_time_function(
     const type_real t0, const type_real dt, const int nsteps,
     specfem::kokkos::HostView2d<type_real> source_time_function) {
 
@@ -143,15 +143,15 @@ void specfem::forcing_function::external::compute_source_time_function(
   return;
 }
 
-bool specfem::forcing_function::external::operator==(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::source_time_functions::external::operator==(
+    const specfem::source_time_functions::stf &other) const {
   // First check base class equality
-  if (!specfem::forcing_function::stf::operator==(other))
+  if (!specfem::source_time_functions::stf::operator==(other))
     return false;
 
   // Then check if the other object is a dGaussian
   auto other_external =
-      dynamic_cast<const specfem::forcing_function::external *>(&other);
+      dynamic_cast<const specfem::source_time_functions::external *>(&other);
   if (!other_external)
     return false;
 
@@ -165,19 +165,19 @@ bool specfem::forcing_function::external::operator==(
           this->nsteps_ == other_external->nsteps_);
 };
 
-bool specfem::forcing_function::external::operator!=(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::source_time_functions::external::operator!=(
+    const specfem::source_time_functions::stf &other) const {
   return !(*this == other);
 }
 
-void specfem::forcing_function::external::update_tshift(type_real tshift) {
+void specfem::source_time_functions::external::update_tshift(type_real tshift) {
   if (std::abs(tshift) > 1e-6) {
     throw std::runtime_error("Error: external source time function does not "
                              "support time shift");
   }
 }
 
-std::string specfem::forcing_function::external::print() const {
+std::string specfem::source_time_functions::external::print() const {
   std::stringstream ss;
   ss << "External source time function: "
      << "\n"

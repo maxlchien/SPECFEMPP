@@ -87,8 +87,8 @@ inline type_real compute_expected_heaviside(type_real t, type_real hdur,
 template <typename STFType> struct STFTraits;
 
 // Ricker traits
-template <> struct STFTraits<specfem::forcing_function::Ricker> {
-  using STFType = specfem::forcing_function::Ricker;
+template <> struct STFTraits<specfem::source_time_functions::Ricker> {
+  using STFType = specfem::source_time_functions::Ricker;
 
   static constexpr const char *name = "Ricker";
   static constexpr type_real default_f0 = 10.0;
@@ -117,8 +117,8 @@ template <> struct STFTraits<specfem::forcing_function::Ricker> {
 };
 
 // dGaussian traits
-template <> struct STFTraits<specfem::forcing_function::dGaussian> {
-  using STFType = specfem::forcing_function::dGaussian;
+template <> struct STFTraits<specfem::source_time_functions::dGaussian> {
+  using STFType = specfem::source_time_functions::dGaussian;
 
   static constexpr const char *name = "dGaussian";
   static constexpr type_real default_f0 = 10.0;
@@ -147,8 +147,8 @@ template <> struct STFTraits<specfem::forcing_function::dGaussian> {
 };
 
 // Dirac traits
-template <> struct STFTraits<specfem::forcing_function::Dirac> {
-  using STFType = specfem::forcing_function::Dirac;
+template <> struct STFTraits<specfem::source_time_functions::Dirac> {
+  using STFType = specfem::source_time_functions::Dirac;
 
   static constexpr const char *name = "Dirac";
   static constexpr type_real default_f0 = 10.0;
@@ -177,8 +177,8 @@ template <> struct STFTraits<specfem::forcing_function::Dirac> {
 };
 
 // Heaviside traits
-template <> struct STFTraits<specfem::forcing_function::Heaviside> {
-  using STFType = specfem::forcing_function::Heaviside;
+template <> struct STFTraits<specfem::source_time_functions::Heaviside> {
+  using STFType = specfem::source_time_functions::Heaviside;
 
   static constexpr const char *name = "Heaviside";
   static constexpr type_real default_f0 = 0.1; // hdur value
@@ -212,8 +212,8 @@ template <> struct STFTraits<specfem::forcing_function::Heaviside> {
 };
 
 // GaussianHdur traits
-template <> struct STFTraits<specfem::forcing_function::GaussianHdur> {
-  using STFType = specfem::forcing_function::GaussianHdur;
+template <> struct STFTraits<specfem::source_time_functions::GaussianHdur> {
+  using STFType = specfem::source_time_functions::GaussianHdur;
 
   static constexpr const char *name = "GaussianHdur";
   static constexpr type_real default_f0 = 0.1; // hdur value
@@ -247,10 +247,12 @@ template <> struct STFTraits<specfem::forcing_function::GaussianHdur> {
 };
 
 // Type list for typed tests (excluding external as it has different interface)
-using AnalyticSTFTypes = ::testing::Types<
-    specfem::forcing_function::Ricker, specfem::forcing_function::dGaussian,
-    specfem::forcing_function::Dirac, specfem::forcing_function::Heaviside,
-    specfem::forcing_function::GaussianHdur>;
+using AnalyticSTFTypes =
+    ::testing::Types<specfem::source_time_functions::Ricker,
+                     specfem::source_time_functions::dGaussian,
+                     specfem::source_time_functions::Dirac,
+                     specfem::source_time_functions::Heaviside,
+                     specfem::source_time_functions::GaussianHdur>;
 
 // Typed test fixture
 template <typename T> class AnalyticSTFTest : public SourceTimeFunctionSetup {
@@ -502,10 +504,12 @@ TEST_F(SourceTimeFunctionSetup, RickerWithTrickForBetterPressure) {
   const type_real t0 = 0.0;
   const int ncomponents = 1;
 
-  auto stf_without_trick = std::make_unique<specfem::forcing_function::Ricker>(
-      nsteps, dt, f0, tshift, factor, false);
-  auto stf_with_trick = std::make_unique<specfem::forcing_function::Ricker>(
-      nsteps, dt, f0, tshift, factor, true);
+  auto stf_without_trick =
+      std::make_unique<specfem::source_time_functions::Ricker>(
+          nsteps, dt, f0, tshift, factor, false);
+  auto stf_with_trick =
+      std::make_unique<specfem::source_time_functions::Ricker>(
+          nsteps, dt, f0, tshift, factor, true);
 
   specfem::kokkos::HostView2d<type_real> stf_values_without(
       "stf_without", nsteps, ncomponents);
@@ -541,7 +545,8 @@ TEST_F(SourceTimeFunctionSetup, ExternalSTFConstruction) {
   // This test just checks that construction doesn't throw
   // In a real scenario, you would need actual data files
   // EXPECT_NO_THROW({
-  //   specfem::forcing_function::external ext_stf(external_node, nsteps, dt);
+  //   specfem::source_time_functions::external ext_stf(external_node, nsteps,
+  //   dt);
   // });
 
   // For now, we just verify the test compiles
@@ -578,8 +583,9 @@ TYPED_TEST(AnalyticSTFTest, TimeShiftAffectsTiming) {
   int peak_idx1 = 0, peak_idx2 = 0;
   type_real max_val1 = 0.0, max_val2 = 0.0;
 
-  if constexpr (std::is_same<typename TestFixture::STFType,
-                             specfem::forcing_function::Heaviside>::value) {
+  if constexpr (std::is_same<
+                    typename TestFixture::STFType,
+                    specfem::source_time_functions::Heaviside>::value) {
 
     // Get t0 values of the two STFs
     type_real t0_1 = stf1->get_t0();
@@ -635,8 +641,9 @@ TYPED_TEST(AnalyticSTFTest, DecayAtFarTimes) {
   }
 
   // Catch Heaviside, which does not decay to zero
-  if constexpr (std::is_same<typename TestFixture::STFType,
-                             specfem::forcing_function::Heaviside>::value) {
+  if constexpr (std::is_same<
+                    typename TestFixture::STFType,
+                    specfem::source_time_functions::Heaviside>::value) {
     SUCCEED();
     return;
   }

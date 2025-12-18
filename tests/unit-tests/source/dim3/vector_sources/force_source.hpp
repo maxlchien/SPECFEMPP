@@ -122,8 +122,8 @@ create_source<specfem::dimension::type::dim3,
   return specfem::sources::force<specfem::dimension::type::dim3>(
       parameters.x, parameters.y, parameters.z, parameters.fx, parameters.fy,
       parameters.fz,
-      std::make_unique<specfem::forcing_function::Ricker>(10, 0.01, 1.0, 0.0,
-                                                          1.0, false),
+      std::make_unique<specfem::source_time_functions::Ricker>(10, 0.01, 1.0,
+                                                               0.0, 1.0, false),
       parameters.wavefield_type);
 }
 

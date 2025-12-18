@@ -1,39 +1,39 @@
 .. _source_time_functions_api:
 
-``specfem::forcing_function``
-==============================
+``specfem::source_time_functions``
+==================================
 
-.. doxygennamespace:: specfem::forcing_function
+.. doxygennamespace:: specfem::source_time_functions
    :desc-only:
 
 
-.. doxygenclass:: specfem::forcing_function::stf
+.. doxygenclass:: specfem::source_time_functions::stf
    :members:
 
 
-.. doxygenclass:: specfem::forcing_function::Ricker
+.. doxygenclass:: specfem::source_time_functions::Ricker
    :members:
 
 
-.. doxygenclass:: specfem::forcing_function::Gaussian
+.. doxygenclass:: specfem::source_time_functions::Gaussian
    :members:
 
 
-.. doxygenclass:: specfem::forcing_function::GaussianHdur
+.. doxygenclass:: specfem::source_time_functions::GaussianHdur
    :members:
 
 
-.. doxygenclass:: specfem::forcing_function::dGaussian
+.. doxygenclass:: specfem::source_time_functions::dGaussian
    :members:
 
 
-.. doxygenclass:: specfem::forcing_function::Dirac
+.. doxygenclass:: specfem::source_time_functions::Dirac
    :members:
 
 
-.. doxygenclass:: specfem::forcing_function::Heaviside
+.. doxygenclass:: specfem::source_time_functions::Heaviside
    :members:
 
 
-.. doxygenclass:: specfem::forcing_function::external
+.. doxygenclass:: specfem::source_time_functions::external
    :members:

@@ -5,12 +5,10 @@
 #include <Kokkos_Core.hpp>
 #include <cmath>
 
-specfem::forcing_function::Dirac::Dirac(const int nsteps, const type_real dt,
-                                        const type_real f0,
-                                        const type_real tshift,
-                                        const type_real factor,
-                                        bool use_trick_for_better_pressure,
-                                        const type_real t0_factor)
+specfem::source_time_functions::Dirac::Dirac(
+    const int nsteps, const type_real dt, const type_real f0,
+    const type_real tshift, const type_real factor,
+    bool use_trick_for_better_pressure, const type_real t0_factor)
     : nsteps_(nsteps), dt_(dt), f0_(f0), factor_(factor), tshift_(tshift),
       t0_factor_(t0_factor),
       use_trick_for_better_pressure_(use_trick_for_better_pressure) {
@@ -21,7 +19,7 @@ specfem::forcing_function::Dirac::Dirac(const int nsteps, const type_real dt,
   this->t0_ = -this->t0_factor_ * hdur + this->tshift_;
 }
 
-specfem::forcing_function::Dirac::Dirac(
+specfem::source_time_functions::Dirac::Dirac(
     YAML::Node &Dirac, const int nsteps, const type_real dt,
     const bool use_trick_for_better_pressure, const type_real t0_factor) {
 
@@ -39,26 +37,26 @@ specfem::forcing_function::Dirac::Dirac(
   }();
   type_real factor = Dirac["factor"].as<type_real>();
 
-  *this = specfem::forcing_function::Dirac(
+  *this = specfem::source_time_functions::Dirac(
       nsteps, dt, f0, tshift, factor, use_trick_for_better_pressure, t0_factor);
 }
 
-type_real specfem::forcing_function::Dirac::compute(type_real t) {
+type_real specfem::source_time_functions::Dirac::compute(type_real t) {
 
   type_real val;
 
   if (this->use_trick_for_better_pressure_) {
-    val = this->factor_ * specfem::forcing_function::impl::d2gaussian(
+    val = this->factor_ * specfem::source_time_functions::impl::d2gaussian(
                               t - this->tshift_, this->f0_);
   } else {
-    val = this->factor_ * specfem::forcing_function::impl::gaussian(
+    val = this->factor_ * specfem::source_time_functions::impl::gaussian(
                               t - this->tshift_, this->f0_);
   }
 
   return val;
 }
 
-void specfem::forcing_function::Dirac::compute_source_time_function(
+void specfem::source_time_functions::Dirac::compute_source_time_function(
     const type_real t0, const type_real dt, const int nsteps,
     specfem::kokkos::HostView2d<type_real> source_time_function) {
 
@@ -71,7 +69,7 @@ void specfem::forcing_function::Dirac::compute_source_time_function(
   }
 }
 
-std::string specfem::forcing_function::Dirac::print() const {
+std::string specfem::source_time_functions::Dirac::print() const {
   std::stringstream ss;
   ss << "        Dirac source time function:\n"
      << "          f0: " << this->f0_ << "\n"
@@ -84,14 +82,14 @@ std::string specfem::forcing_function::Dirac::print() const {
   return ss.str();
 }
 
-bool specfem::forcing_function::Dirac::operator==(const stf &other) const {
+bool specfem::source_time_functions::Dirac::operator==(const stf &other) const {
   // First check base class equality
-  if (!specfem::forcing_function::stf::operator==(other))
+  if (!specfem::source_time_functions::stf::operator==(other))
     return false;
 
   // Then check if the other object is a dGaussian
   auto other_dirac =
-      dynamic_cast<const specfem::forcing_function::Dirac *>(&other);
+      dynamic_cast<const specfem::source_time_functions::Dirac *>(&other);
   if (!other_dirac)
     return false;
 
@@ -103,6 +101,6 @@ bool specfem::forcing_function::Dirac::operator==(const stf &other) const {
           other_dirac->get_use_trick_for_better_pressure());
 };
 
-bool specfem::forcing_function::Dirac::operator!=(const stf &other) const {
+bool specfem::source_time_functions::Dirac::operator!=(const stf &other) const {
   return !(*this == other);
 }

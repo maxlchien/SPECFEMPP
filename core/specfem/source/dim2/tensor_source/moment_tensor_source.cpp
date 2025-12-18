@@ -89,7 +89,7 @@ specfem::sources::moment_tensor<specfem::dimension::type::dim2>::print() const {
           << "      Mxx, Mzz, Mxz = " << this->Mxx << ", " << this->Mzz << ", "
           << this->Mxz << "\n"
           << "    Source Time Function: \n"
-          << this->forcing_function->print() << "\n";
+          << this->source_time_function->print() << "\n";
 
   return message.str();
 }
@@ -122,8 +122,8 @@ operator==(const specfem::sources::source<specfem::dimension::type::dim2>
     std::cout << "Moment tensor source not equal" << std::endl;
   }
 
-  return internal &&
-         (*(this->forcing_function) == *(other_source->forcing_function));
+  return internal && (*(this->source_time_function) ==
+                      *(other_source->source_time_function));
 }
 
 bool specfem::sources::moment_tensor<specfem::dimension::type::dim2>::
