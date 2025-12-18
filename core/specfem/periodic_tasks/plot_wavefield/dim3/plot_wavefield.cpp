@@ -33,14 +33,16 @@
 
 // Add constructor implementation for NO_VTK builds
 specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
-    plot_wavefield(const specfem::assembly::assembly<dimension_tag> &assembly,
-                   const specfem::display::format &output_format,
-                   const specfem::wavefield::type &wavefield_type,
-                   const specfem::wavefield::simulation_field &wavefield,
-                   const type_real &dt, const int &time_interval,
-                   const boost::filesystem::path &output_folder,
-                   specfem::MPI::MPI *mpi)
-    : assembly(assembly), wavefield(wavefield), wavefield_type(wavefield_type),
+    plot_wavefield(
+        const specfem::assembly::assembly<dimension_tag> &assembly,
+        const specfem::display::format &output_format,
+        const specfem::wavefield::type &wavefield_type,
+        const specfem::wavefield::simulation_field &simulation_wavefield_type,
+        const specfem::display::component &component, const type_real &dt,
+        const int &time_interval, const boost::filesystem::path &output_folder,
+        specfem::MPI::MPI *mpi)
+    : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
+      wavefield_type(wavefield_type), component(component),
       plotter<dimension_tag>(time_interval), output_format(output_format),
       output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
       ngllx(assembly.mesh.element_grid.ngllx),
