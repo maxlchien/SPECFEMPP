@@ -7,6 +7,14 @@
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @file coupling_integral1d.hpp
+ * @brief 1D coupling integrals for interface computations
+ *
+ * Provides algorithms for computing integrals over 1D intersections
+ * between different mesh elements in coupled interface problems.
+ */
+
 namespace specfem::algorithms {
 
 /**

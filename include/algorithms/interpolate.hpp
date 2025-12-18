@@ -6,17 +6,35 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @file interpolate.hpp
+ * @brief Algorithms for interpolating functions using polynomial basis
+ */
+
 namespace specfem {
 namespace algorithms {
 
 namespace impl {
+/**
+ * @brief Functor for performing polynomial interpolation
+ *
+ * @tparam PolynomialViewType Type of the polynomial view
+ * @tparam FunctionViewType Type of the function view
+ */
 template <typename PolynomialViewType, typename FunctionViewType>
 struct InterpolateFunctor {
-  const PolynomialViewType polynomial;
-  const FunctionViewType function;
+  const PolynomialViewType polynomial; ///< Polynomial basis functions
+  const FunctionViewType function;     ///< Function values to interpolate
 
-  constexpr static int rank = PolynomialViewType::rank();
+  constexpr static int rank =
+      PolynomialViewType::rank(); ///< Rank of the polynomial view
 
+  /**
+   * @brief Constructor
+   *
+   * @param polynomial Polynomial basis functions
+   * @param function Function values to interpolate
+   */
   InterpolateFunctor(const PolynomialViewType &polynomial,
                      const FunctionViewType &function)
       : polynomial(polynomial), function(function) {}
@@ -35,6 +53,15 @@ struct InterpolateFunctor {
 };
 } // namespace impl
 
+/**
+ * @brief Interpolate a 2D function using polynomial basis
+ *
+ * @tparam PolynomialViewType Type of the polynomial view (must be 2D)
+ * @tparam FunctionViewType Type of the function view (must be 2D)
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @return Interpolated function value
+ */
 template <typename PolynomialViewType, typename FunctionViewType,
           std::enable_if_t<((PolynomialViewType::rank() == 2) &&
                             (FunctionViewType::rank() == 2)),

@@ -7,6 +7,14 @@
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
+/**
+ * @file transfer.hpp
+ * @brief Algorithms for transferring data between different mesh entities
+ *
+ * Provides functions for mapping fields between edges and intersections
+ * using transfer functions in coupled interface computations.
+ */
+
 namespace specfem::algorithms {
 
 /**

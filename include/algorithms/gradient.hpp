@@ -7,9 +7,31 @@
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @file gradient.hpp
+ * @brief Algorithms for computing gradients of vector fields in spectral
+ * elements
+ * @ingroup AlgorithmsGradient
+ */
+
 namespace specfem {
 namespace algorithms {
 namespace impl {
+/**
+ * @brief Compute the gradient of a vector field at a specific point in a 2D
+ * spectral element
+ *
+ * @tparam VectorFieldType Type of the vector field (must be 2D)
+ * @tparam QuadratureType Type of the Lagrange derivative polynomial
+ * @param f Vector field to compute gradient of
+ * @param local_index Local indices within the spectral element
+ * @param point_jacobian_matrix Jacobian matrix for coordinate transformation
+ * @param lagrange_derivative Lagrange derivative polynomials for
+ * differentiation
+ * @param df_dxi Output array for derivatives with respect to xi
+ * @param df_dgamma Output array for derivatives with respect to gamma
+ * @return Auto-deduced return type containing the gradient values
+ */
 template <typename VectorFieldType, typename QuadratureType,
           typename std::enable_if_t<VectorFieldType::dimension_tag ==
                                         specfem::dimension::type::dim2,
