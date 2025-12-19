@@ -20,6 +20,9 @@ namespace point {
  * @tparam MediumTag The type of the medium
  * @tparam PropertyTag The type of the properties
  * @tparam UseSIMD Boolean indicating whether to use SIMD intrinsics
+ *
+ * @note Medium-specific specializations are available in the implementation
+ * details. See @ref specfem::point::impl::properties::data_container.
  */
 template <specfem::dimension::type Dimension,
           specfem::element::medium_tag MediumTag,
