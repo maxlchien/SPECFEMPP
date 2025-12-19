@@ -621,10 +621,9 @@ target_link_libraries(
   transfer_tests
   algorithms
   enumerations
-  kokkos_environment
   gtest_main
   Kokkos::kokkos
-  mpi_environment
+  specfem_environment
   utilities
   -lpthread -lm
 )
