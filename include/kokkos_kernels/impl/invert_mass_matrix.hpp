@@ -9,7 +9,7 @@ namespace specfem {
 namespace kokkos_kernels {
 namespace impl {
 /**
- * @brief Compute the invese of the mass matrix for a given medium type.
+ * @brief Compute the inverse of the mass matrix for a given medium type.
  *
  * This function computes the inverse of the mass matrix for a given medium
  * type. It calls the specialized implementation for different medium types and

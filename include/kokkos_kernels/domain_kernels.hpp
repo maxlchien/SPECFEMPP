@@ -205,7 +205,7 @@ private:
   /**
    * @brief SPECFEM++ assembly object containing mesh and simulation data
    *
-   * Assembly object provide the computational kernels access to mesh
+   * Assembly object provides the computational kernels access to mesh
    * connectivity, element properties, and other necessary simulation data.
    */
   specfem::assembly::assembly<dimension_tag> assembly;

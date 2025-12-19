@@ -24,7 +24,7 @@ namespace impl {
  * @tparam BoundaryTag Boundary condition type (e.g., free_surface, absorbing)
  *
  * @param assembly SPECFEM++ assembly object.
- * @param timestep Time step for which the source interaction is computed
+ * @param istep Time step for which the source interaction is computed
  */
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType, int NGLL,
