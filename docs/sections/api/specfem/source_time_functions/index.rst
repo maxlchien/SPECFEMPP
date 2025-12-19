@@ -7,33 +7,14 @@
    :desc-only:
 
 
-.. doxygenclass:: specfem::forcing_function::stf
-   :members:
+.. toctree::
+      :maxdepth: 1
 
-
-.. doxygenclass:: specfem::forcing_function::Ricker
-   :members:
-
-
-.. doxygenclass:: specfem::forcing_function::Gaussian
-   :members:
-
-
-.. doxygenclass:: specfem::forcing_function::GaussianHdur
-   :members:
-
-
-.. doxygenclass:: specfem::forcing_function::dGaussian
-   :members:
-
-
-.. doxygenclass:: specfem::forcing_function::Dirac
-   :members:
-
-
-.. doxygenclass:: specfem::forcing_function::Heaviside
-   :members:
-
-
-.. doxygenclass:: specfem::forcing_function::external
-   :members:
+      stfs/stf.rst
+      stfs/ricker.rst
+      stfs/gaussian.rst
+      stfs/gaussianhdur.rst
+      stfs/dgaussian.rst
+      stfs/dirac.rst
+      stfs/heaviside.rst
+      stfs/external.rst
