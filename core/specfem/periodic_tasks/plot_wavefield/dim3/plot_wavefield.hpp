@@ -51,9 +51,10 @@ public:
           &assembly,
       const specfem::display::format &output_format,
       const specfem::wavefield::type &wavefield_type,
-      const specfem::wavefield::simulation_field &wavefield,
-      const type_real &dt, const int &time_interval,
-      const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi);
+      const specfem::wavefield::simulation_field &simulation_wavefield_type,
+      const specfem::display::component &component, const type_real &dt,
+      const int &time_interval, const boost::filesystem::path &output_folder,
+      specfem::MPI::MPI *mpi);
 
   /**
    * @brief Updates the wavefield and writes to HDF5 file
@@ -83,8 +84,11 @@ public:
 
   const specfem::display::format output_format;  ///< Output format of the plot
   const specfem::wavefield::type wavefield_type; ///< Type of the wavefield
-  const specfem::wavefield::simulation_field wavefield; ///< Type of wavefield
-                                                        ///< to plot
+  const specfem::wavefield::simulation_field
+      simulation_wavefield_type;               ///< Type of wavefield
+                                               ///< to plot
+  const specfem::display::component component; ///< Component of the wavefield
+                                               ///< to plot
   const boost::filesystem::path output_folder; ///< Path to output folder
   specfem::assembly::assembly<dimension_tag> assembly; ///< Assembly object
 
@@ -130,6 +134,14 @@ private:
   void run(vtkSmartPointer<vtkFloatArray> &scalars, const int istep);
 
   void run_render(vtkSmartPointer<vtkFloatArray> &scalars);
+
+  // Helper function to get scalar value at a given point
+  static float get_scalar_value_at_point(
+      const Kokkos::View<type_real *****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield_data,
+      const specfem::wavefield::type &wavefield_type,
+      const specfem::display::component &component, const int ispec,
+      const int iz, const int iy, const int ix);
 
 #endif // NO_VTK
 };

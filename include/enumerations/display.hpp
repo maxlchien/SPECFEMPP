@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 namespace specfem {
 namespace display {
@@ -15,6 +16,11 @@ enum class format {
   on_screen, ///< Interactive display (2D only)
   vtkhdf     ///< VTK HDF5 format (2D and 3D)
 };
+
+enum class component { x, y, z, magnitude };
+
+std::string to_string(const format &fmt);
+std::string to_string(const component &comp);
 
 } // namespace display
 } // namespace specfem
