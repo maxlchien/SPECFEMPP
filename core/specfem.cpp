@@ -27,7 +27,7 @@ boost::program_options::options_description define_args() {
   // Add logger options
   desc.add_options()(
       "log-file", po::value<std::string>(),
-      "Set output log file (base name, extensions added automatically)")(
+      "Set output log file (base name, '.log' extension added automatically)")(
       "log-per-rank", po::value<bool>(),
       "Enable per-rank log files and stdout for all ranks (true/false)")(
       "log-auto-flush", po::value<bool>(),
