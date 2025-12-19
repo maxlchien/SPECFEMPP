@@ -613,6 +613,23 @@ target_link_libraries(
 set_target_properties(gradient_tests PROPERTIES UNITY_BUILD OFF)
 
 add_executable(
+  transfer_tests
+  algorithms/dim2/transfer.cpp
+)
+
+target_link_libraries(
+  transfer_tests
+  algorithms
+  enumerations
+  kokkos_environment
+  gtest_main
+  Kokkos::kokkos
+  mpi_environment
+  utilities
+  -lpthread -lm
+)
+
+add_executable(
   policies_tests
   policies/policies.cpp
 )
@@ -896,6 +913,7 @@ if(NOT MPI_PARALLEL)
     locate_point_fixture_2d
     locate_point_fixture_3d
     gradient_tests
+    transfer_tests
     mass_matrix_tests
     compute_coupling_tests
     mesh_dim2_tests
