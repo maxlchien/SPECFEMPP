@@ -52,9 +52,12 @@ template <specfem::dimension::type DimensionTag,
 struct data_container<
     DimensionTag, MediumTag, specfem::element::property_tag::isotropic, UseSIMD,
     std::enable_if_t<specfem::element::is_elastic<MediumTag>::value> >
+/// @cond
     : public PropertyAccessor<DimensionTag, MediumTag,
                               specfem::element::property_tag::isotropic,
-                              UseSIMD> {
+                              UseSIMD>
+/// @endcond
+{
 private:
   using base_type = PropertyAccessor<DimensionTag, MediumTag,
                                      specfem::element::property_tag::isotropic,

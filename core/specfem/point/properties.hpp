@@ -13,11 +13,6 @@
 namespace specfem {
 namespace point {
 
-namespace impl {
-namespace properties {
-} // namespace properties
-} // namespace impl
-
 /**
  * @brief Properties of a quadrature point in a 2D medium
  *

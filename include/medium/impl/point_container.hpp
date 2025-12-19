@@ -169,15 +169,14 @@ public:
   constexpr static auto property_tag = PropertyTag; ///< type of the properties
 };
 
-/*
- * @brief Data container to hold properties of 2D acoustic media at a quadrature
- * point
+/**
+ * @brief Data container to hold properties of a medium at a quadrature point
  *
- * @tparam Dimension The dimension of the medium
+ * @tparam DimensionTag The dimension of the medium
  * @tparam MediumTag The type of the medium
  * @tparam PropertyTag The type of the properties
  * @tparam UseSIMD Boolean indicating whether to use SIMD intrinsics
- *
+ * @tparam Enable SFINAE enable parameter
  */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
@@ -210,6 +209,15 @@ struct KernelsAccessor
   constexpr static auto property_tag = PropertyTag; ///< type of the properties
 };
 
+/**
+ * @brief Data container to hold kernels at a quadrature point
+ *
+ * @tparam DimensionTag The dimension of the medium
+ * @tparam MediumTag The type of the medium
+ * @tparam PropertyTag The type of the kernels
+ * @tparam UseSIMD Boolean indicating whether to use SIMD intrinsics
+ * @tparam Enable SFINAE enable parameter
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, bool UseSIMD,

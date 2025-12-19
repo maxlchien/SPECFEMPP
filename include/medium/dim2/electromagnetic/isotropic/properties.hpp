@@ -39,9 +39,12 @@ struct data_container<
     specfem::dimension::type::dim2, MediumTag,
     specfem::element::property_tag::isotropic, UseSIMD,
     std::enable_if_t<specfem::element::is_electromagnetic<MediumTag>::value> >
+/// @cond
     : public PropertyAccessor<specfem::dimension::type::dim2, MediumTag,
                               specfem::element::property_tag::isotropic,
-                              UseSIMD> {
+                              UseSIMD>
+/// @endcond
+{
 
 private:
   using base_type = PropertyAccessor<specfem::dimension::type::dim2, MediumTag,

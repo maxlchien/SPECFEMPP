@@ -32,9 +32,12 @@ struct data_container<
     specfem::dimension::type::dim2, MediumTag,
     specfem::element::property_tag::isotropic_cosserat, UseSIMD,
     std::enable_if_t<specfem::element::is_elastic<MediumTag>::value> >
+/// @cond
     : public PropertyAccessor<
           specfem::dimension::type::dim2, MediumTag,
-          specfem::element::property_tag::isotropic_cosserat, UseSIMD> {
+          specfem::element::property_tag::isotropic_cosserat, UseSIMD>
+/// @endcond
+{
 
 private:
   using base_type =

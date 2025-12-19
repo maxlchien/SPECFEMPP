@@ -93,10 +93,13 @@ template <bool UseSIMD>
 struct data_container<specfem::dimension::type::dim2,
                       specfem::element::medium_tag::poroelastic,
                       specfem::element::property_tag::isotropic, UseSIMD>
+/// @cond
     : public PropertyAccessor<specfem::dimension::type::dim2,
                               specfem::element::medium_tag::poroelastic,
                               specfem::element::property_tag::isotropic,
-                              UseSIMD> {
+                              UseSIMD>
+/// @endcond
+{
 
 private:
   using base_type = PropertyAccessor<

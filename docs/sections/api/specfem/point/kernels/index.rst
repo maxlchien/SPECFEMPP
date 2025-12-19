@@ -4,39 +4,12 @@
 ``specfem::point::kernels``
 ===========================
 
-Datatype to store the misfit kernels at a quadrature point.
-
 .. doxygenstruct:: specfem::point::kernels
     :members:
     :private-members:
 
-Medium-specific Specializations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Implementation Details
+^^^^^^^^^^^^^^^^^^^^^^
 
-.. doxygengroup:: specfem_point_kernels_dim2_acoustic_isotropic
-    :members:
-    :private-members:
-    :content-only:
-
-.. doxygengroup:: specfem_point_kernels_elastic_isotropic
-    :members:
-    :private-members:
-    :content-only:
-
-.. doxygengroup:: specfem_point_kernels_dim2_elastic_anisotropic
-    :members:
-    :private-members:
-    :content-only:
-
-.. doxygengroup:: specfem_point_kernels_dim2_elastic_isotropic_cosserat
-    :members:
-    :private-members:
-    :content-only:
-
-.. doxygengroup:: specfem_point_kernels_dim2_electromagnetic
-   :content-only:
-
-.. doxygengroup:: specfem_point_kernels_dim2_poroelastic_isotropic
-    :members:
-    :private-members:
-    :content-only:
+.. seealso::
+   :ref:`specfem_point_impl_kernels_data_container`
