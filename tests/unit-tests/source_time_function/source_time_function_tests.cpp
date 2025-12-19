@@ -1,4 +1,5 @@
 #include "../SPECFEM_Environment.hpp"
+#include "math.h"
 #include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
@@ -23,7 +24,7 @@ protected:
 
 // Helper to compute expected values based on mathematical formulas
 namespace {
-constexpr type_real pi = 3.14159265358979323846;
+type_real pi = std::atan(1.0) * 4.0;
 
 inline type_real compute_expected_gaussian(type_real t, type_real f0,
                                            type_real factor) {
