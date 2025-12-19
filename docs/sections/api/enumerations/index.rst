@@ -11,4 +11,6 @@ Enumerations
     display/index
     coupled_interface/index
     simulation/index
+    connections/index
+    mesh_entities/index
     wavefield/index

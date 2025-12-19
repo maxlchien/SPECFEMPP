@@ -9,6 +9,7 @@
 
 namespace specfem::program {
 
+[[noreturn]]
 void abort(const std::string &message, int error_code, const int line,
            const char *file) {
 
