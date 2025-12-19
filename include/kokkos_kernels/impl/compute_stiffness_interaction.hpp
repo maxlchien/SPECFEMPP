@@ -8,23 +8,28 @@
 namespace specfem {
 namespace kokkos_kernels {
 namespace impl {
+
 /**
- * @brief Compute the source interaction for the given medium.
+ * @brief Computes stiffness matrix-vector product for spectral element wave
+ * propagation.
  *
- * This function computes the source interaction for the specified medium type
- * and properties. It is specialized for different dimension tags, medium tags,
- * property tags, and boundary tags.
+ * Calculates elastic forces from displacement field gradients, applies
+ * stress-strain relations, computes divergence to get acceleration, and
+ * enforces boundary conditions. Core computational kernel for seismic wave
+ * simulation time stepping.
  *
  * @tparam DimensionTag Spatial dimension (2D/3D)
- * @tparam WavefieldType Simulation wavefield type (e.g., forward, adjoint,
- * backward)
- * @tparam NGLL Number of GLL points
- * @tparam MediumTag Medium type (e.g., elastic, acoustic)
- * @tparam PropertyTag Material property type (e.g., isotropic, anisotropic)
- * @tparam BoundaryTag Boundary condition type (e.g., free_surface, absorbing)
+ * @tparam WavefieldType Simulation field type (forward/backward/adjoint)
+ * @tparam NGLL Number of GLL points per element dimension
+ * @tparam MediumTag Medium type (elastic/acoustic/poroelastic)
+ * @tparam PropertyTag Material properties (isotropic/anisotropic)
+ * @tparam BoundaryTag Boundary conditions (none/free_surface/absorbing)
  *
- * @param assembly SPECFEM++ assembly object.
- * @param istep Time step for which the source interaction is computed
+ * @param assembly Complete spectral element assembly with mesh, fields,
+ * properties
+ * @param istep Current time step for boundary value storage
+ *
+ * @return Number of processed elements matching template parameters
  */
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType, int NGLL,
