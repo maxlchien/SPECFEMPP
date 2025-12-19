@@ -1,5 +1,6 @@
 #include "logger_options.hpp"
 #include <algorithm>
+#include <boost/program_options.hpp>
 #include <cctype>
 #include <sstream>
 
@@ -35,7 +36,7 @@ LoggerOptions LoggerOptions::parse(int argc, char *argv[]) {
   LoggerOptions options;
 
   // Define all logger-related options
-  options.desc_.add_options()("help", "Show help message")(
+  options.desc_.add_options()("help,h", "Show help message")(
       "log-file", po::value<std::string>(),
       "Set output log file (base name, extensions added automatically)")(
       "log-per-rank", po::value<bool>(),
@@ -47,7 +48,11 @@ LoggerOptions LoggerOptions::parse(int argc, char *argv[]) {
 
   try {
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, options.desc_), vm);
+    po::store(po::command_line_parser(argc, argv)
+                  .options(options.desc_)
+                  .allow_unregistered()
+                  .run(),
+              vm);
     po::notify(vm);
 
     // Check for help request
@@ -82,6 +87,40 @@ LoggerOptions LoggerOptions::parse(int argc, char *argv[]) {
   } catch (const std::invalid_argument &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     std::cerr << options.get_help_message() << std::endl;
+    std::exit(1);
+  }
+
+  return options;
+}
+
+LoggerOptions LoggerOptions::from_variables_map(
+    const boost::program_options::variables_map &vm) {
+  LoggerOptions options;
+
+  try {
+    // Extract optional values from variables_map
+    if (vm.count("log-file")) {
+      options.log_file = vm["log-file"].as<std::string>();
+    }
+
+    if (vm.count("log-per-rank")) {
+      options.per_rank = vm["log-per-rank"].as<bool>();
+    }
+
+    if (vm.count("log-auto-flush")) {
+      options.auto_flush = vm["log-auto-flush"].as<bool>();
+    }
+
+    if (vm.count("log-level")) {
+      std::string level_str = vm["log-level"].as<std::string>();
+      options.log_level = string_to_log_level(level_str);
+    }
+
+  } catch (const std::invalid_argument &e) {
+    std::cerr << "Error parsing logger options: " << e.what() << std::endl;
+    std::exit(1);
+  } catch (const boost::bad_any_cast &e) {
+    std::cerr << "Error parsing logger option value: " << e.what() << std::endl;
     std::exit(1);
   }
 

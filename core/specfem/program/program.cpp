@@ -67,9 +67,18 @@ void program_2d(
   //                   Read mesh and materials
   // --------------------------------------------------------------
   const auto quadrature = setup.instantiate_quadrature();
+  specfem::Logger::info("Quadrature:");
+  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info(quadrature.to_string());
+
   const auto mesh = specfem::io::read_2d_mesh(
       database_filename, setup.get_elastic_wave_type(),
       setup.get_electromagnetic_wave_type(), mpi);
+
+  specfem::Logger::info("Mesh Information:");
+  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info(mesh.print());
+
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
@@ -254,12 +263,20 @@ void program_3d(
   // --------------------------------------------------------------
   specfem::Logger::info("Reading the mesh...");
   specfem::Logger::info("===================");
-  const auto quadrature = setup.instantiate_quadrature();
+  auto mesh_start_time = std::chrono::system_clock::now();
   const auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
-  std::chrono::duration<double> elapsed_seconds =
-      std::chrono::system_clock::now() - start_time;
+  auto mesh_read_time = std::chrono::system_clock::now() - mesh_start_time;
   specfem::Logger::info("Time to read mesh: " +
-                        std::to_string(elapsed_seconds.count()) + " seconds");
+                        std::to_string(mesh_read_time.count()) + " seconds");
+  // --------------------------------------------------------------
+
+  // --------------------------------------------------------------
+  //                   Instantiate Quadrature
+  // --------------------------------------------------------------
+  const auto quadrature = setup.instantiate_quadrature();
+  specfem::Logger::info("Quadrature:");
+  specfem::Logger::info("-------------------------------");
+  specfem::Logger::info(quadrature.to_string());
   // --------------------------------------------------------------
 
   // --------------------------------------------------------------
@@ -414,12 +431,12 @@ bool execute(const std::string &dimension, specfem::MPI::MPI *mpi,
       return true;
     }
     default: {
-      std::cerr << "Unsupported simulation model" << std::endl;
+      specfem::Logger::error("Unsupported simulation model");
       return false;
     }
     }
   } catch (const std::exception &e) {
-    std::cerr << "Error during execution: " << e.what() << std::endl;
+    specfem::Logger::error(std::string("Error during execution: ") + e.what());
     return false;
   }
 }

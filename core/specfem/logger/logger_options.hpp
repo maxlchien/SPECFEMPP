@@ -1,6 +1,6 @@
 #pragma once
 
-#include "specfem/logger.hpp"
+#include "logger.hpp"
 #include <boost/program_options.hpp>
 #include <optional>
 #include <string>
@@ -31,6 +31,15 @@ public:
    * @return LoggerOptions instance with parsed values
    */
   static LoggerOptions parse(int argc, char *argv[]);
+
+  /**
+   * @brief Create logger options from an existing variables_map
+   *
+   * @param vm Variables map containing parsed command-line options
+   * @return LoggerOptions instance with extracted values
+   */
+  static LoggerOptions
+  from_variables_map(const boost::program_options::variables_map &vm);
 
   /**
    * @brief Check if help was requested
