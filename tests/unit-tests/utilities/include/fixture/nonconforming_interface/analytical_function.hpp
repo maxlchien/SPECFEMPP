@@ -7,6 +7,11 @@ namespace specfem::test::fixture {
 
 namespace AnalyticalFunctionType1D {
 
+/**
+ * @brief Describes a function f(x) = x^k for a power k
+ *
+ * @tparam power the exponent.
+ */
 template <int power> struct Power : AnalyticalFunctionType1D {
   static constexpr int num_components = 1;
   static type_real evaluate(const type_real &coord) {

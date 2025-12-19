@@ -7,6 +7,11 @@
 #include <type_traits>
 
 namespace specfem::test::fixture {
+/**
+ * @brief Types for TransferFunction2D. These contain the compile-time values of
+ * the transfer functions
+ *
+ */
 namespace TransferFunctionInitializer2D {
 
 /** Zero transfer function initializer with ngll = nquad_intersection = 5 */

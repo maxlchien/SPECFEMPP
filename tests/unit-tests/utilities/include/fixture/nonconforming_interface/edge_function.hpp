@@ -8,7 +8,8 @@
 namespace specfem::test::fixture {
 
 /**
- * @brief
+ * @brief Types for EdgeFunction2D. These contain the compile-time values of the
+ * edge function
  *
  */
 namespace EdgeFunctionInitializer2D {
