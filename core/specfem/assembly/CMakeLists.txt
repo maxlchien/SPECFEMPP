@@ -16,7 +16,6 @@ target_link_libraries(
         source_class
         jacobian
         point
-        edge
         specfem::receivers
         shape_functions
         Kokkos::kokkos
