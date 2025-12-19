@@ -7,18 +7,18 @@ namespace specfem::test::fixture {
  * @brief Manages views of field values along an edge.
  *
  * @tparam Initializer initializer type: must inherit
- * EdgeFieldInitializer2D::Base
+ * EdgeFunctionInitializer2D::Base
  */
-template <typename Initializer> struct EdgeField2D;
+template <typename Initializer> struct EdgeFunction2D;
 /**
  * @brief Initializes views of field values along an edge.
  *
  */
-namespace EdgeFieldInitializer2D {
+namespace EdgeFunctionInitializer2D {
 struct Base {};
 template <typename AnalyticalFieldInitializer, typename EdgePointsInitializer>
 struct FromAnalyticalField;
-} // namespace EdgeFieldInitializer2D
+} // namespace EdgeFunctionInitializer2D
 
 /**
  * @brief Manages views of the transfer function.
@@ -65,7 +65,7 @@ struct Base {};
 } // namespace AnalyticalFieldInitializer1D
 
 /**
- * @brief Defines both an EdgeFieldInitializer2D and
+ * @brief Defines both an EdgeFunctionInitializer2D and
  * TransferFunctionInitializer2D for an analytically known field.
  *
  * @tparam AnalyticalField Initializer for the AnalyticalField1D

@@ -16,8 +16,7 @@
 #include "specfem/data_access.hpp"
 #include "utilities/include/fixture/nonconforming_interface.hpp"
 
-#include "Kokkos_Environment.hpp"
-#include "MPI_environment.hpp"
+#include "SPECFEM_Environment.hpp"
 #include "utilities/include/fixture/nonconforming_interface/analytical_field.hpp"
 #include "utilities/include/fixture/nonconforming_interface/quadrature_rule.hpp"
 #include "utilities/include/fixture/nonconforming_interface/transfer_function.hpp"
@@ -90,7 +89,7 @@ struct TransferFunctionTest2D<
             specfem::test::fixture::TransferFunctionInitializer2D::Base,
             std::tuple_element_t<0, TestingTypes> > &&
             std::is_base_of_v<
-                specfem::test::fixture::EdgeFieldInitializer2D::Base,
+                specfem::test::fixture::EdgeFunctionInitializer2D::Base,
                 std::tuple_element_t<1, TestingTypes> >,
         void> > : public ::testing::Test {
   using TransferFunctionInitializer = std::tuple_element_t<0, TestingTypes>;
@@ -98,7 +97,8 @@ struct TransferFunctionTest2D<
 
   using TransferFunction2D =
       specfem::test::fixture::TransferFunction2D<TransferFunctionInitializer>;
-  using EdgeField2D = specfem::test::fixture::EdgeField2D<FunctionInitializer>;
+  using EdgeFunction2D =
+      specfem::test::fixture::EdgeFunction2D<FunctionInitializer>;
 
   /**
    * @brief Set up test with initialized transfer function and field.
@@ -108,14 +108,14 @@ struct TransferFunctionTest2D<
         edge_field(FunctionInitializer()) {}
 
   TransferFunction2D transfer_function; /**< Test transfer function */
-  EdgeField2D edge_field;               /**< Test field */
+  EdgeFunction2D edge_field;            /**< Test field */
 
-  std::vector<std::array<std::array<type_real, EdgeField2D::num_components>,
+  std::vector<std::array<std::array<type_real, EdgeFunction2D::num_components>,
                          TransferFunction2D::nquad_intersection> >
   expected_solution() const {
     constexpr int nquad_intersection = TransferFunction2D::nquad_intersection;
     constexpr int nquad_edge = TransferFunction2D::nquad_edge;
-    constexpr int num_components = EdgeField2D::num_components;
+    constexpr int num_components = EdgeFunction2D::num_components;
 
     const int n_edges = TransferFunction2D::num_edges;
     std::vector<
@@ -145,11 +145,12 @@ struct TransferFunctionTest2D<
   using TransferFunctionInitializer =
       typename AnalyticalFieldTransfer2DType::TransferFunctionInitializer;
   using FunctionInitializer =
-      typename AnalyticalFieldTransfer2DType::EdgeFieldInitializer;
+      typename AnalyticalFieldTransfer2DType::EdgeFunctionInitializer;
 
   using TransferFunction2D =
       specfem::test::fixture::TransferFunction2D<TransferFunctionInitializer>;
-  using EdgeField2D = specfem::test::fixture::EdgeField2D<FunctionInitializer>;
+  using EdgeFunction2D =
+      specfem::test::fixture::EdgeFunction2D<FunctionInitializer>;
 
   /**
    * @brief Set up test with initialized transfer function and field.
@@ -159,14 +160,14 @@ struct TransferFunctionTest2D<
         edge_field(FunctionInitializer()) {}
 
   TransferFunction2D transfer_function; /**< Test transfer function */
-  EdgeField2D edge_field;               /**< Test field */
+  EdgeFunction2D edge_field;            /**< Test field */
 
-  std::vector<std::array<std::array<type_real, EdgeField2D::num_components>,
+  std::vector<std::array<std::array<type_real, EdgeFunction2D::num_components>,
                          TransferFunction2D::nquad_intersection> >
   expected_solution() const {
     constexpr int nquad_intersection = TransferFunction2D::nquad_intersection;
     constexpr int nquad_edge = TransferFunction2D::nquad_edge;
-    constexpr int num_components = EdgeField2D::num_components;
+    constexpr int num_components = EdgeFunction2D::num_components;
 
     const int n_edges = TransferFunction2D::num_edges;
     std::vector<
@@ -189,21 +190,21 @@ struct TransferFunctionTest2D<
 /**
  * @brief Execute transfer function test with validation.
  * @tparam TransferFunction2D Transfer function type
- * @tparam EdgeField2D Field type
+ * @tparam EdgeFunction2D Field type
  * @param transfer_function Transfer function data
  * @param function Input function data
  */
 template <typename TransferFunctionTest2D>
 void execute(const TransferFunctionTest2D &test) {
   using TransferFunction2D = decltype(test.transfer_function);
-  using EdgeField2D = decltype(test.edge_field);
+  using EdgeFunction2D = decltype(test.edge_field);
 
   auto &transfer_function = test.transfer_function;
   auto &edge_field = test.edge_field;
 
   constexpr int nquad_intersection = TransferFunction2D::nquad_intersection;
   constexpr int nquad_edge = TransferFunction2D::nquad_edge;
-  constexpr int num_components = EdgeField2D::num_components;
+  constexpr int num_components = EdgeFunction2D::num_components;
   auto expected = test.expected_solution();
 
   const int n_edges = TransferFunction2D::num_edges;
@@ -215,13 +216,13 @@ void execute(const TransferFunctionTest2D &test) {
       Kokkos::MemoryTraits<> >;
   using FunctionType = specfem::datatype::VectorChunkEdgeViewType<
       type_real, dimension_tag, 1, nquad_edge, num_components, false,
-      typename EdgeField2D::memory_space, Kokkos::MemoryTraits<> >;
+      typename EdgeFunction2D::memory_space, Kokkos::MemoryTraits<> >;
 
   const auto transfer_function_view = transfer_function.get_view();
   const auto function_view = edge_field.get_view();
 
   Kokkos::View<type_real *[nquad_intersection][num_components],
-               typename EdgeField2D::memory_space>
+               typename EdgeFunction2D::memory_space>
       result_view("result_view", n_edges);
 
   Kokkos::parallel_for(
@@ -259,7 +260,7 @@ void execute(const TransferFunctionTest2D &test) {
         oss << "-- Transfer function --\n"
             << TransferFunction2D::description() << std::endl
             << "-- Edge Function --\n"
-            << EdgeField2D::description() << std::endl
+            << EdgeFunction2D::description() << std::endl
             << "\n-- Failure --\n"
             << "Transfer function test failed at edge " << i << ": expected "
             << expected[i][j][0] << "\n got " << result_host(i, j, 0)
@@ -274,7 +275,7 @@ void execute(const TransferFunctionTest2D &test) {
 /** Test type combinations for parameterized testing */
 using TransferFunctionTestTypes2D = ::testing::Types<
     std::tuple<specfem::test::fixture::TransferFunctionInitializer2D::Zero,
-               specfem::test::fixture::EdgeFieldInitializer2D::Uniform>,
+               specfem::test::fixture::EdgeFunctionInitializer2D::Uniform>,
     specfem::test::fixture::AnalyticalFieldTransfer2D<
         specfem::test::fixture::AnalyticalFieldInitializer1D::xi_to_the<0>,
         specfem::test::fixture::QuadratureRuleInitializer::GLL1,
@@ -306,7 +307,6 @@ TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) { execute(*this); }
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

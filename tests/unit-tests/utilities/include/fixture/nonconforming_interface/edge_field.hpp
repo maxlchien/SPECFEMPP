@@ -3,7 +3,6 @@
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
-#include "Kokkos_Environment.hpp"
 #include <type_traits>
 
 namespace specfem::test::fixture {
@@ -12,9 +11,9 @@ namespace specfem::test::fixture {
  * @brief Test field container.
  * @tparam Initializer Field initialization strategy
  */
-template <typename Initializer> struct EdgeField2D {
-  static_assert(std::is_base_of_v<EdgeFieldInitializer2D::Base, Initializer>,
-                "EdgeField2D needs an EdgeFieldInitializer2D!");
+template <typename Initializer> struct EdgeFunction2D {
+  static_assert(std::is_base_of_v<EdgeFunctionInitializer2D::Base, Initializer>,
+                "EdgeFunction2D needs an EdgeFunctionInitializer2D!");
 
 public:
   using FunctionInitializer = Initializer;
@@ -38,7 +37,7 @@ public:
    * @brief Construct field with initializer.
    * @param initializer Initialization strategy
    */
-  EdgeField2D(const FunctionInitializer &initializer) {
+  EdgeFunction2D(const FunctionInitializer &initializer) {
     for (int ielem = 0; ielem < num_edges; ++ielem) {
       for (int ipoint_edge = 0; ipoint_edge < nquad_edge; ++ipoint_edge) {
         for (int icomp = 0; icomp < num_components; ++icomp) {
@@ -84,13 +83,13 @@ public:
  * @brief
  *
  */
-namespace EdgeFieldInitializer2D {
+namespace EdgeFunctionInitializer2D {
 
 struct Uniform : Base {
   static constexpr int num_edges = 1;
   static constexpr int num_components = 1;
   static constexpr int nquad_edge = 5;
-  static void init_function(EdgeField2D<Uniform> &edge_function) {
+  static void init_function(EdgeFunction2D<Uniform> &edge_function) {
     for (size_t i = 0; i < num_edges; ++i) {
       for (size_t j = 0; j < nquad_edge; ++j) {
         for (size_t k = 0; k < num_components; ++k) {
@@ -121,7 +120,8 @@ struct FromAnalyticalField : Base {
            AnalyticalField::description() + "\")";
   }
 
-  static void init_function(EdgeField2D<FromAnalyticalField> &edge_function) {
+  static void
+  init_function(EdgeFunction2D<FromAnalyticalField> &edge_function) {
     for (size_t i = 0; i < num_edges; ++i) {
       for (size_t j = 0; j < nquad_edge; ++j) {
         for (size_t k = 0; k < num_components; ++k) {
@@ -133,5 +133,5 @@ struct FromAnalyticalField : Base {
   }
 };
 
-} // namespace EdgeFieldInitializer2D
+} // namespace EdgeFunctionInitializer2D
 } // namespace specfem::test::fixture

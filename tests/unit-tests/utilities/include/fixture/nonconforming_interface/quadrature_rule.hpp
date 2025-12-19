@@ -3,7 +3,6 @@
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
-#include "Kokkos_Environment.hpp"
 #include <string>
 
 namespace specfem::test::fixture {

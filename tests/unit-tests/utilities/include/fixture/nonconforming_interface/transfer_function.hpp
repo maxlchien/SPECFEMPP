@@ -3,7 +3,6 @@
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
-#include "Kokkos_Environment.hpp"
 #include <array>
 #include <tuple>
 #include <type_traits>
@@ -157,14 +156,14 @@ struct AnalyticalFieldTransfer2D {
   using IntersectionQuadrature =
       QuadratureRule<IntersectionQuadratureInitializer>;
   using EdgeQuadrature = QuadratureRule<EdgeQuadratureInitializer>;
-  using EdgeFieldInitializer =
-      EdgeFieldInitializer2D::FromAnalyticalField<AnalyticalFieldInitializer,
-                                                  EdgeQuadratureInitializer>;
+  using EdgeFunctionInitializer =
+      EdgeFunctionInitializer2D::FromAnalyticalField<AnalyticalFieldInitializer,
+                                                     EdgeQuadratureInitializer>;
   using TransferFunctionInitializer =
       TransferFunctionInitializer2D::FromQuadratureRules<
           EdgeQuadratureInitializer, IntersectionQuadratureInitializer>;
   using TransferAndEdgeInitializerTuple =
-      std::tuple<TransferFunctionInitializer, EdgeFieldInitializer>;
+      std::tuple<TransferFunctionInitializer, EdgeFunctionInitializer>;
 
   static type_real evaluate_at_intersection_point(const int &iedge,
                                                   const int &iquad_intersection,

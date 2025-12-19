@@ -3,7 +3,6 @@
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
-#include "Kokkos_Environment.hpp"
 #include <array>
 #include <type_traits>
 
