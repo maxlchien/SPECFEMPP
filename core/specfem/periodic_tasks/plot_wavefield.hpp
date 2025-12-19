@@ -33,14 +33,14 @@ class vtkFloatArray;
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Writer to plot the wavefield
+ * @brief Periodic task to plot the wavefield during simulation
  */
 class plot_wavefield : public plotter {
 public:
   /**
-   * @brief Construct a new plotter object
+   * @brief Construct a new wavefield plotter object
    *
-   * @param assembly SPECFFEM++ assembly object
+   * @param assembly SPECFEM++ assembly object
    * @param output_format Output format of the plot (PNG, JPG, etc.)
    * @param wavefield_type Type of the wavefield to plot (displacement,
    * velocity, etc.)
