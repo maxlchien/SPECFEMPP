@@ -4,7 +4,6 @@
 #include "specfem_setup.hpp"
 
 #include <array>
-#include <tuple>
 #include <type_traits>
 
 namespace specfem::test::fixture {

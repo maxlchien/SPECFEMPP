@@ -3,9 +3,6 @@
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
-#include <array>
-#include <type_traits>
-
 namespace specfem::test::fixture {
 
 namespace AnalyticalFunctionType1D {

@@ -1,8 +1,6 @@
 
 #include <array>
-#include <stdexcept>
 #include <tuple>
-#include <type_traits>
 #include <vector>
 
 #include <Kokkos_Core.hpp>
