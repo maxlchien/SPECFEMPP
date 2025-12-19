@@ -1,7 +1,7 @@
 .. _specfem_point_edge_index:
 
-specfem::point::edge_index
-==========================
+``specfem::point::edge_index``
+==============================
 
 .. doxygenstruct:: specfem::point::edge_index
     :members:

@@ -40,11 +40,13 @@ private:
   // simd<type_real>::size() to store them. The goal of this approach is to use
   // tags to mask a type_real simd vector and perform SIMD operations on those
   // SIMD vectors.
+  /**
+   * @brief Datatype for storing values.
+   *
+   * Is a scalar if UseSIMD is false, otherwise is a SIMD like vector.
+   */
   using value_type = typename specfem::datatype::simd_like<
-      specfem::element::boundary_tag_container, type_real,
-      UseSIMD>::datatype; ///< Datatype for storing values. Is a scalar if
-                          ///< UseSIMD is false, otherwise is a SIMD like
-                          ///< vector.
+      specfem::element::boundary_tag_container, type_real, UseSIMD>::datatype;
 
 public:
   /**
@@ -52,7 +54,10 @@ public:
    *
    */
   ///@{
-  using simd = specfem::datatype::simd<type_real, UseSIMD>; ///< SIMD data type
+  /**
+   * @brief SIMD data type.
+   */
+  using simd = specfem::datatype::simd<type_real, UseSIMD>;
   ///@}
 
   /**
@@ -60,9 +65,10 @@ public:
    *
    */
   ///@{
-  constexpr static auto boundary_tag =
-      specfem::element::boundary_tag::none; ///< Tag indicating no boundary
-                                            ///< condition
+  /**
+   * @brief Tag indicating no boundary condition.
+   */
+  constexpr static auto boundary_tag = specfem::element::boundary_tag::none;
   ///@}
 
   /**
@@ -78,8 +84,11 @@ public:
   boundary() = default;
   ///@}
 
-  value_type tag; ///< Tag indicating the type of boundary condition at the
-                  ///< quadrature point
+  /**
+   * @brief Tag indicating the type of boundary condition at the quadrature
+   * point.
+   */
+  value_type tag;
 };
 
 /**
@@ -100,6 +109,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief SIMD data type.
+   */
   using simd = specfem::datatype::simd<type_real, UseSIMD>;
   ///@}
   /**
@@ -107,6 +119,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief Tag indicating acoustic free surface boundary condition.
+   */
   constexpr static auto boundary_tag =
       specfem::element::boundary_tag::acoustic_free_surface;
   ///@}
@@ -149,6 +164,9 @@ struct boundary<specfem::element::boundary_tag::stacey, DimensionTag, UseSIMD>
     : public boundary<specfem::element::boundary_tag::acoustic_free_surface,
                       DimensionTag, UseSIMD> {
 private:
+  /**
+   * @brief Number of spatial dimensions.
+   */
   constexpr static int num_dimensions =
       specfem::dimension::dimension<DimensionTag>::dim;
   /**
@@ -156,17 +174,19 @@ private:
    *
    */
   ///@{
+  /**
+   * @brief View type to store the normal vector to the edge at the quadrature
+   * point.
+   */
   using NormalViewType =
       specfem::datatype::VectorPointViewType<type_real, num_dimensions,
-                                             UseSIMD>; ///< View type to store
-                                                       ///< the normal vector to
-                                                       ///< the edge at the
-                                                       ///< quadrature point
+                                             UseSIMD>;
 
+  /**
+   * @brief SIMD data type.
+   */
   using datatype =
-      typename specfem::datatype::simd<type_real, UseSIMD>::datatype; ///< SIMD
-                                                                      ///< data
-                                                                      ///< type
+      typename specfem::datatype::simd<type_real, UseSIMD>::datatype;
   ///@}
 
 public:
@@ -175,6 +195,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief SIMD data type.
+   */
   using simd = specfem::datatype::simd<type_real, UseSIMD>;
   ///@}
 
@@ -183,6 +206,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief Tag indicating Stacey boundary condition.
+   */
   constexpr static auto boundary_tag = specfem::element::boundary_tag::stacey;
   ///@}
 
@@ -211,13 +237,16 @@ public:
            DimensionTag, UseSIMD> &boundary);
   ///@}
 
-  datatype edge_weight =
-      static_cast<type_real>(0.0); ///< Integration weight associated with the
-                                   ///< edge at the quadrature point
-  NormalViewType edge_normal = {
-    static_cast<type_real>(0.0), static_cast<type_real>(0.0)
-  }; ///< Normal vector to the edge at
-     ///< the quadrature point
+  /**
+   * @brief Integration weight associated with the edge at the quadrature point.
+   */
+  datatype edge_weight = static_cast<type_real>(0.0);
+
+  /**
+   * @brief Normal vector to the edge at the quadrature point.
+   */
+  NormalViewType edge_normal = { static_cast<type_real>(0.0),
+                                 static_cast<type_real>(0.0) };
 };
 
 /**
@@ -239,6 +268,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief SIMD data type.
+   */
   using simd = specfem::datatype::simd<type_real, UseSIMD>;
   ///@}
   /**
@@ -246,6 +278,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief Tag indicating composite Stacey Dirichlet boundary condition.
+   */
   constexpr static auto boundary_tag =
       specfem::element::boundary_tag::composite_stacey_dirichlet;
   ///@}

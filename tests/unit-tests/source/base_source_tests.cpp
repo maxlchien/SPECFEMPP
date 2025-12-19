@@ -1,5 +1,5 @@
 #include "source_time_function/interface.hpp"
-#include "specfem/point/coordinates.hpp"
+#include "specfem/point/global_coordinates.hpp"
 #include "specfem/source.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
