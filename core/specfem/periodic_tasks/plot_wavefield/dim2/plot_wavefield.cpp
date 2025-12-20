@@ -158,16 +158,22 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
     this->nonnegative_field = false;
   }
 
-  std::cout << "Plotting wavefield of type: "
-            << specfem::wavefield::to_string(wavefield_type)
-            << " with component: " << specfem::display::to_string(component)
-            << std::endl;
-  std::cout << "Non-negative field: "
-            << (this->nonnegative_field ? "true" : "false") << std::endl;
-  std::cout << "Output format: " << specfem::display::to_string(output_format)
-            << std::endl;
-  std::cout << "Output folder: " << output_folder.string() << std::endl;
-  std::cout << "Time interval: " << time_interval << " steps" << std::endl;
+  std::ostringstream message;
+  message << "" << std::endl;
+  message << "Initialized 2D wavefield plotter with setup:" << std::endl;
+  message << "--------------------------------------------" << std::endl;
+  message << "    Plotting wavefield of type: "
+          << specfem::wavefield::to_string(wavefield_type)
+          << " with component: " << specfem::display::to_string(component)
+          << std::endl;
+  message << "    Non-negative field: "
+          << (this->nonnegative_field ? "true" : "false") << std::endl;
+  message << "    Output format: " << specfem::display::to_string(output_format)
+          << std::endl;
+  message << "    Output folder: " << output_folder.string() << std::endl;
+  message << "    Time interval: " << time_interval << " steps" << std::endl;
+
+  specfem::Logger::info(message.str());
 };
 
 // Sigmoid function centered at 0.0
@@ -937,13 +943,6 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
     initialize_display(vtkSmartPointer<vtkFloatArray> &scalars) {
   const auto wavefield_type = get_wavefield_type();
 
-  std::cout << "Initializing VTK display for 2D wavefield plot." << std::endl;
-  std::cout << "Wavefield type: "
-            << specfem::wavefield::to_string(wavefield_type) << std::endl;
-
-  std::cout << "Non-negative field: "
-            << (this->nonnegative_field ? "true" : "false") << std::endl;
-
   // Create VTK objects that will persist between calls
   this->colors = vtkSmartPointer<vtkNamedColors>::New();
 
@@ -968,7 +967,6 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   // Set the range of the lookup table
   if (nonnegative_field) {
 
-    std::cout << "Setting non-negative color map." << std::endl;
     double range[2];
     scalars->GetRange(range);
     this->wavefield_mapper->SetScalarRange(range[0], range[1]);
@@ -1085,11 +1083,6 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   // Get domain bounds and print
   double domain_bounds[6];
   this->unstructured_grid->GetBounds(domain_bounds);
-  std::cout << "Domain bounds:" << std::endl;
-  std::cout << "  X: [" << domain_bounds[0] << ", " << domain_bounds[1] << "]"
-            << std::endl;
-  std::cout << "  Z: [" << domain_bounds[4] << ", " << domain_bounds[5] << "]"
-            << std::endl;
 
   // Compute aspect ratio and set render window size accordingly
   double x_range = domain_bounds[1] - domain_bounds[0];
@@ -1098,9 +1091,6 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   int window_size_x = 2560;
   ;
   int window_size_z = static_cast<int>(window_size_x / aspect_ratio);
-
-  std::cout << "Render window size: " << window_size_x << " x " << window_size_z
-            << std::endl;
 
   // Create render window
   this->render_window = vtkSmartPointer<vtkRenderWindow>::New();
