@@ -13,8 +13,7 @@
 #include "specfem/data_access.hpp"
 #include "utilities/interface.hpp"
 
-#include "Kokkos_Environment.hpp"
-#include "MPI_environment.hpp"
+#include "SPECFEM_Environment.hpp"
 
 namespace specfem::algorithms_test {
 
@@ -409,7 +408,6 @@ TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) {
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }
