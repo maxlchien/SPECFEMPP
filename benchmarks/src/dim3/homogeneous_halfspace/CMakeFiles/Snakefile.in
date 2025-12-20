@@ -1,4 +1,4 @@
-SPECFEM_BIN = "@CMAKE_BINARY_DIR@/bin/specfem3d"
+SPECFEM_BIN = "@CMAKE_BINARY_DIR@/bin/specfem 3d"
 MESHFEM_BIN = "@CMAKE_BINARY_DIR@/bin/xmeshfem3D"
 
 rule all:
@@ -38,7 +38,7 @@ rule run_solver:
     output:
         traces=rules.all.input.traces,
         # vtk_file=rules.all.input.vtk_file,
-        log="@CURRENT_BENCHMARK_BUILD_DIR@/output.log",
+        log="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/output.log",
     resources:
         nodes=1,
         tasks=1,
@@ -66,7 +66,7 @@ rule plot_seismogram:
     localrule: True
     shell:
         """
-            python plot_seismograms.py
+            python @CURRENT_BENCHMARK_BUILD_DIR@/plot_seismograms.py
         """
 
 
@@ -75,5 +75,4 @@ rule clean:
     shell:
         """
             rm -rf @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES
-            rm -f @CURRENT_BENCHMARK_BUILD_DIR@/output.log
         """
