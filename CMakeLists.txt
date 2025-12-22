@@ -130,7 +130,7 @@ endif()
 include("${CMAKE_SOURCE_DIR}/cmake/kokkos.cmake")
 
 # Configure SPECFEM++ build variables based on Kokkos settings
-include("${CMAKE_SOURCE_DIR}/cmake/configure.cmake")
+include("${CMAKE_SOURCE_DIR}/cmake/variables.cmake")
 
 # Install yaml-cpp as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/yaml.cmake")
