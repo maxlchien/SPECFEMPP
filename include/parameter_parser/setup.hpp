@@ -23,13 +23,23 @@
 #include <tuple>
 
 namespace specfem {
-namespace runtime_configuration {
+
 /**
- * Setup class is used to read the YAML file parameter file.
+ * @brief Runtime configuration management for SPECFEM simulations.
  *
- * Setup class is also used to instantiate the simulation i.e. instantiate
- * quadrature objects, instantiate solver objects.
+ * Contains classes for parsing YAML parameter files and managing simulation
+ * configuration including solvers, time schemes, I/O handlers, sources,
+ * receivers, and material properties. Provides type-safe configuration
+ * objects that bridge parameter files with simulation components.
+ */
+namespace runtime_configuration {
+
+/**
+ * @brief Main configuration manager for SPECFEM simulations.
  *
+ * Parses YAML parameter files and instantiates simulation components
+ * including solvers, quadrature, time schemes, and I/O handlers.
+ * Central orchestrator for simulation setup and configuration.
  */
 class setup {
 
@@ -85,8 +95,18 @@ public:
   //  *
   //  * @param t0 Simulation start time
   //  */
+  /**
+   * @brief Update simulation start time.
+   *
+   * @param t0 New simulation start time
+   */
   void update_t0(type_real t0) { this->time_scheme->update_t0(t0); }
 
+  /**
+   * @brief Get simulation start time.
+   *
+   * @return Current simulation start time
+   */
   type_real get_t0() const { return this->time_scheme->get_t0(); }
   /**
    * @brief Log the header and description of the simulation
@@ -196,6 +216,13 @@ public:
     return get_nsteps() / get_nstep_between_samples();
   }
 
+  /**
+   * @brief Create wavefield writer for periodic output.
+   *
+   * @tparam DimensionTag Spatial dimension (2D/3D)
+   * @return Shared pointer to wavefield writer task or nullptr if not
+   * configured
+   */
   template <specfem::dimension::type DimensionTag>
   std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
   instantiate_wavefield_writer() const {
@@ -207,6 +234,13 @@ public:
     }
   }
 
+  /**
+   * @brief Create wavefield reader for loading saved wavefields.
+   *
+   * @tparam DimensionTag Spatial dimension (2D/3D)
+   * @return Shared pointer to wavefield reader task or nullptr if not
+   * configured
+   */
   template <specfem::dimension::type DimensionTag>
   std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
   instantiate_wavefield_reader() const {
@@ -218,6 +252,14 @@ public:
     }
   }
 
+  /**
+   * @brief Create 2D wavefield plotter for visualization.
+   *
+   * @param assembly 2D assembly containing mesh and field information
+   * @param dt Time step size
+   * @param mpi MPI communication handler
+   * @return Shared pointer to 2D wavefield plotter or nullptr if not configured
+   */
   std::shared_ptr<
       specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim2> >
   instantiate_wavefield_plotter(
@@ -232,6 +274,14 @@ public:
     }
   }
 
+  /**
+   * @brief Create 3D wavefield plotter for visualization.
+   *
+   * @param assembly 3D assembly containing mesh and field information
+   * @param dt Time step size
+   * @param mpi MPI communication handler
+   * @return Shared pointer to 3D wavefield plotter or nullptr if not configured
+   */
   std::shared_ptr<
       specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3> >
   instantiate_wavefield_plotter(
@@ -246,6 +296,11 @@ public:
     }
   }
 
+  /**
+   * @brief Create property reader for loading material properties.
+   *
+   * @return Shared pointer to property reader or nullptr if not configured
+   */
   std::shared_ptr<specfem::io::reader> instantiate_property_reader() const {
     if (this->property) {
       return this->property->instantiate_property_reader();
@@ -254,6 +309,11 @@ public:
     }
   }
 
+  /**
+   * @brief Create property writer for saving material properties.
+   *
+   * @return Shared pointer to property writer or nullptr if not configured
+   */
   std::shared_ptr<specfem::io::writer> instantiate_property_writer() const {
     if (this->property) {
       return this->property->instantiate_property_writer();
@@ -262,6 +322,11 @@ public:
     }
   }
 
+  /**
+   * @brief Create kernel writer for sensitivity kernel output.
+   *
+   * @return Shared pointer to kernel writer or nullptr if not configured
+   */
   std::shared_ptr<specfem::io::writer> instantiate_kernel_writer() const {
     if (this->kernel) {
       return this->kernel->instantiate_kernel_writer();
@@ -270,10 +335,26 @@ public:
     }
   }
 
+  /**
+   * @brief Get simulation type configuration.
+   *
+   * @return Current simulation type (forward/adjoint/combined)
+   */
   inline specfem::simulation::type get_simulation_type() const {
     return this->solver->get_simulation_type();
   }
 
+  /**
+   * @brief Create solver instance with specified parameters.
+   *
+   * @tparam NGLL Number of Gauss-Lobatto-Legendre points per element dimension
+   * @tparam DimensionTag Spatial dimension (2D/3D)
+   * @param dt Time step size
+   * @param assembly Assembly containing mesh and field data
+   * @param time_scheme Time integration scheme
+   * @param tasks Periodic tasks to execute during simulation
+   * @return Shared pointer to configured solver
+   */
   template <int NGLL, specfem::dimension::type DimensionTag>
   std::shared_ptr<specfem::solver::solver> instantiate_solver(
       const type_real dt,
@@ -286,8 +367,20 @@ public:
                                                          time_scheme, tasks);
   }
 
+  /**
+   * @brief Get total number of time steps.
+   *
+   * @return Total simulation time steps
+   */
   int get_nsteps() const { return this->time_scheme->get_nsteps(); }
 
+  /**
+   * @brief Check if boundary values need allocation.
+   *
+   * Required for adjoint simulations and combined simulation types.
+   *
+   * @return True if boundary values should be allocated
+   */
   bool allocate_boundary_values() const {
     return (
         ((this->wavefield != nullptr) &&
@@ -296,44 +389,36 @@ public:
   }
 
 private:
-  std::unique_ptr<specfem::runtime_configuration::header> header; ///< Pointer
-                                                                  ///< to header
-                                                                  ///< object
+  std::unique_ptr<specfem::runtime_configuration::header>
+      header; ///< Simulation header configuration
   std::unique_ptr<specfem::runtime_configuration::elastic_wave>
-      elastic_wave; ///< Pointer to elastic wave object
+      elastic_wave; ///< Elastic wave type configuration
   std::unique_ptr<specfem::runtime_configuration::electromagnetic_wave>
-      electromagnetic_wave; ///< Pointer to electromagnetic wave object
-  std::unique_ptr<specfem::runtime_configuration::time_scheme::time_scheme>
-      time_scheme; ///< Pointer to solver
-                   ///< object
+      electromagnetic_wave; ///< Electromagnetic wave configuration
+  std::unique_ptr<specfem::runtime_configuration::time_scheme>
+      time_scheme; ///< Time stepping scheme configuration
   std::unique_ptr<specfem::runtime_configuration::run_setup>
-      run_setup; ///< Pointer to
-                 ///< run_setup object
+      run_setup; ///< Simulation run configuration
   std::unique_ptr<specfem::runtime_configuration::quadrature>
-      quadrature; ///< Pointer to
-                  ///< quadrature object
+      quadrature; ///< Numerical quadrature configuration
   std::unique_ptr<specfem::runtime_configuration::receivers>
-      receivers; ///< Pointer to receivers object
+      receivers; ///< Seismic receiver configuration
   std::unique_ptr<specfem::runtime_configuration::sources>
-      sources; ///< Pointer
-               ///< to
-               ///< receivers
-               ///< object
+      sources; ///< Seismic source configuration
   std::unique_ptr<specfem::runtime_configuration::seismogram>
-      seismogram; ///< Pointer to
-                  ///< seismogram object
+      seismogram; ///< Seismogram output configuration
   std::unique_ptr<specfem::runtime_configuration::wavefield>
-      wavefield; ///< Pointer to
-                 ///< wavefield object
+      wavefield; ///< Wavefield I/O configuration
   std::unique_ptr<specfem::runtime_configuration::plot_wavefield>
-      plot_wavefield; ///< Pointer to
-                      ///< plot_wavefield object
-  std::unique_ptr<specfem::runtime_configuration::kernel> kernel;
-  std::unique_ptr<specfem::runtime_configuration::property> property;
+      plot_wavefield; ///< Wavefield plotting configuration
+  std::unique_ptr<specfem::runtime_configuration::kernel>
+      kernel; ///< Kernel output configuration
+  std::unique_ptr<specfem::runtime_configuration::property>
+      property; ///< Property I/O configuration
   std::unique_ptr<specfem::runtime_configuration::database_configuration>
-      databases; ///< Get database filenames
-  std::unique_ptr<specfem::runtime_configuration::solver::solver>
-      solver; ///< Pointer to solver object
+      databases; ///< Database file path configuration
+  std::unique_ptr<specfem::runtime_configuration::solver>
+      solver; ///< Solver algorithm configuration
 };
 } // namespace runtime_configuration
 } // namespace specfem

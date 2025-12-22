@@ -1,8 +1,8 @@
+.. _specfem_api_setup_parameters_setup:
 
-Setup class
-===========
-
-The ``setup`` class serves as the primary driver to parse the configuration file and instantiate the simulation.
+``specfem::runtime_configuration::setup``
+=========================================
 
 .. doxygenclass:: specfem::runtime_configuration::setup
    :members:
+   :private-members:

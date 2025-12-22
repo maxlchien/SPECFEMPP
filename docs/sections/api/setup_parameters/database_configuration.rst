@@ -1,8 +1,8 @@
+.. _specfem_api_setup_parameters_database_configuration:
 
-Database information
-=====================
-
-Methods to parse database information from configuration file.
+``specfem::runtime_configuration::database_configuration``
+==========================================================
 
 .. doxygenclass:: specfem::runtime_configuration::database_configuration
     :members:
+    :private-members:
