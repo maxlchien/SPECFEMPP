@@ -40,9 +40,12 @@ struct data_container<
     specfem::dimension::type::dim2, MediumTag,
     specfem::element::property_tag::anisotropic, UseSIMD,
     std::enable_if_t<specfem::element::is_elastic<MediumTag>::value> >
+/// @cond
     : public KernelsAccessor<specfem::dimension::type::dim2, MediumTag,
                              specfem::element::property_tag::anisotropic,
-                             UseSIMD> {
+                             UseSIMD>
+/// @endcond
+{
   using base_type =
       KernelsAccessor<specfem::dimension::type::dim2, MediumTag,
                       specfem::element::property_tag::anisotropic, UseSIMD>;

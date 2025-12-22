@@ -1,5 +1,7 @@
 #pragma once
 
+#include "enumerations/interface.hpp"
+
 #include "medium/dim2/acoustic/isotropic/kernels.hpp"
 #include "medium/dim2/elastic/anisotropic/kernels.hpp"
 #include "medium/dim2/elastic/isotropic/kernels.hpp"
@@ -9,6 +11,17 @@
 
 namespace specfem::point {
 
+/**
+ * @brief Kernels of a quadrature point in a 2D medium
+ *
+ * @tparam DimensionTag The dimension of the medium
+ * @tparam MediumTag The type of the medium
+ * @tparam PropertyTag The type of the kernels
+ * @tparam UseSIMD Boolean indicating whether to use SIMD intrinsics
+ *
+ * @note Medium-specific specializations are available in the implementation
+ * details. See @ref specfem::point::impl::kernels::data_container.
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, bool UseSIMD,

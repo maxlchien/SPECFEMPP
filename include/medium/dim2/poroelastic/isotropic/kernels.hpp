@@ -62,10 +62,13 @@ template <bool UseSIMD>
 struct data_container<specfem::dimension::type::dim2,
                       specfem::element::medium_tag::poroelastic,
                       specfem::element::property_tag::isotropic, UseSIMD>
+/// @cond
     : public KernelsAccessor<specfem::dimension::type::dim2,
                              specfem::element::medium_tag::poroelastic,
                              specfem::element::property_tag::isotropic,
-                             UseSIMD> {
+                             UseSIMD>
+/// @endcond
+{
 
   using base_type =
       KernelsAccessor<specfem::dimension::type::dim2,

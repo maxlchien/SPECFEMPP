@@ -23,9 +23,12 @@ struct data_container<
     specfem::dimension::type::dim2, MediumTag,
     specfem::element::property_tag::isotropic, UseSIMD,
     std::enable_if_t<specfem::element::is_electromagnetic<MediumTag>::value> >
+/// @cond
     : public KernelsAccessor<specfem::dimension::type::dim2, MediumTag,
                              specfem::element::property_tag::isotropic,
-                             UseSIMD> {
+                             UseSIMD>
+/// @endcond
+{
   using base_type =
       KernelsAccessor<specfem::dimension::type::dim2, MediumTag,
                       specfem::element::property_tag::isotropic, UseSIMD>;

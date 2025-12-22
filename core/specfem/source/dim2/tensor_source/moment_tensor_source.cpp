@@ -3,6 +3,7 @@
 #include "kokkos_abstractions.h"
 #include "source_time_function/interface.hpp"
 #include "specfem/source.hpp"
+#include "specfem/macros.hpp"
 #include "specfem_setup.hpp"
 // #include "utilities.cpp"
 #include "yaml-cpp/yaml.h"
