@@ -13,7 +13,7 @@ Medium-specific Specializations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Acoustic Isotropic
-"""""""""""""""""""""
+""""""""""""""""""
 
 .. doxygengroup:: specfem_point_kernels_dim2_acoustic_isotropic
     :members:
@@ -21,7 +21,7 @@ Acoustic Isotropic
     :content-only:
 
 Elastic Isotropic
-""""""""""""""""""""
+"""""""""""""""""
 
 .. doxygengroup:: specfem_point_kernels_elastic_isotropic
     :members:
