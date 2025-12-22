@@ -59,7 +59,7 @@ specfem::sources::force<specfem::dimension::type::dim3>::print() const {
           << "      fy = " << type_real(this->fy) << "\n"
           << "      fz = " << type_real(this->fz) << "\n"
           << "    Source Time Function: \n"
-          << this->forcing_function->print() << "\n";
+          << this->source_time_function->print() << "\n";
 
   return message.str();
 }
@@ -87,7 +87,7 @@ bool specfem::sources::force<specfem::dimension::type::dim3>::operator==(
          specfem::utilities::is_close(this->fx, other_source->fx) &&
          specfem::utilities::is_close(this->fy, other_source->fy) &&
          specfem::utilities::is_close(this->fz, other_source->fz) &&
-         *(this->forcing_function) == *(other_source->forcing_function);
+         *(this->source_time_function) == *(other_source->source_time_function);
 }
 bool specfem::sources::force<specfem::dimension::type::dim3>::operator!=(
     const specfem::sources::source<specfem::dimension::type::dim3> &other)

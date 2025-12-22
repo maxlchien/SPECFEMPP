@@ -7,7 +7,7 @@
 #include <ostream>
 
 namespace specfem {
-namespace forcing_function {
+namespace source_time_functions {
 
 /**
  * @brief Ricker wavelet source time function (first derivative of a Gaussian)
@@ -101,5 +101,5 @@ private:
   type_real dt_;                       ///< Time step size
 };
 
-} // namespace forcing_function
+} // namespace source_time_functions
 } // namespace specfem

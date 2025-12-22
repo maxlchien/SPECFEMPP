@@ -6,12 +6,10 @@
 #include <cmath>
 #include <iostream>
 
-specfem::forcing_function::Ricker::Ricker(const int nsteps, const type_real dt,
-                                          const type_real f0,
-                                          const type_real tshift,
-                                          const type_real factor,
-                                          bool use_trick_for_better_pressure,
-                                          const type_real t0_factor)
+specfem::source_time_functions::Ricker::Ricker(
+    const int nsteps, const type_real dt, const type_real f0,
+    const type_real tshift, const type_real factor,
+    bool use_trick_for_better_pressure, const type_real t0_factor)
     : nsteps_(nsteps), dt_(dt), f0_(f0), factor_(factor), tshift_(tshift),
       t0_factor_(t0_factor),
       use_trick_for_better_pressure_(use_trick_for_better_pressure) {
@@ -22,7 +20,7 @@ specfem::forcing_function::Ricker::Ricker(const int nsteps, const type_real dt,
   this->t0_ = -this->t0_factor_ * hdur + this->tshift_;
 }
 
-specfem::forcing_function::Ricker::Ricker(
+specfem::source_time_functions::Ricker::Ricker(
     YAML::Node &Ricker, const int nsteps, const type_real dt,
     const bool use_trick_for_better_pressure, const type_real t0_factor) {
   type_real f0 = Ricker["f0"].as<type_real>();
@@ -35,26 +33,26 @@ specfem::forcing_function::Ricker::Ricker(
   }();
   type_real factor = Ricker["factor"].as<type_real>();
 
-  *this = specfem::forcing_function::Ricker(
+  *this = specfem::source_time_functions::Ricker(
       nsteps, dt, f0, tshift, factor, use_trick_for_better_pressure, t0_factor);
 }
 
-type_real specfem::forcing_function::Ricker::compute(type_real t) {
+type_real specfem::source_time_functions::Ricker::compute(type_real t) {
 
   type_real val;
 
   if (this->use_trick_for_better_pressure_) {
-    val = this->factor_ * specfem::forcing_function::impl::d4gaussian(
+    val = this->factor_ * specfem::source_time_functions::impl::d4gaussian(
                               t - this->tshift_, this->f0_);
   } else {
-    val = this->factor_ * specfem::forcing_function::impl::d2gaussian(
+    val = this->factor_ * specfem::source_time_functions::impl::d2gaussian(
                               t - this->tshift_, this->f0_);
   }
 
   return val;
 }
 
-void specfem::forcing_function::Ricker::compute_source_time_function(
+void specfem::source_time_functions::Ricker::compute_source_time_function(
     const type_real t0, const type_real dt, const int nsteps,
     specfem::kokkos::HostView2d<type_real> source_time_function) {
 
@@ -67,7 +65,7 @@ void specfem::forcing_function::Ricker::compute_source_time_function(
   }
 }
 
-std::string specfem::forcing_function::Ricker::print() const {
+std::string specfem::source_time_functions::Ricker::print() const {
   std::stringstream ss;
   ss << "        Ricker source time function:\n"
      << "          f0: " << this->f0_ << "\n"
@@ -80,12 +78,13 @@ std::string specfem::forcing_function::Ricker::print() const {
   return ss.str();
 }
 
-bool specfem::forcing_function::Ricker::operator==(const stf &other) const {
+bool specfem::source_time_functions::Ricker::operator==(
+    const stf &other) const {
 
   std::cout << "Ricker::operator==\n";
   // Then check if the other object is a dGaussian
   auto other_ricker =
-      dynamic_cast<const specfem::forcing_function::Ricker *>(&other);
+      dynamic_cast<const specfem::source_time_functions::Ricker *>(&other);
 
   if (!other_ricker)
     return false;
@@ -99,6 +98,7 @@ bool specfem::forcing_function::Ricker::operator==(const stf &other) const {
           other_ricker->get_use_trick_for_better_pressure());
 };
 
-bool specfem::forcing_function::Ricker::operator!=(const stf &other) const {
+bool specfem::source_time_functions::Ricker::operator!=(
+    const stf &other) const {
   return !(*this == other);
 }

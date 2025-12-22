@@ -83,7 +83,7 @@ specfem::sources::force<specfem::dimension::type::dim2>::print() const {
           << "      x = " << type_real(gcoord.x) << "\n"
           << "      z = " << type_real(gcoord.z) << "\n"
           << "    Source Time Function: \n"
-          << this->forcing_function->print() << "\n";
+          << this->source_time_function->print() << "\n";
 
   return message.str();
 }
@@ -107,7 +107,7 @@ bool specfem::sources::force<specfem::dimension::type::dim2>::operator==(
   return specfem::utilities::is_close(gcoord.x, other_gcoord.x) &&
          specfem::utilities::is_close(gcoord.z, other_gcoord.z) &&
          specfem::utilities::is_close(this->angle, other_source->angle) &&
-         *(this->forcing_function) == *(other_source->forcing_function);
+         *(this->source_time_function) == *(other_source->source_time_function);
 }
 bool specfem::sources::force<specfem::dimension::type::dim2>::operator!=(
     const specfem::sources::source<specfem::dimension::type::dim2> &other)

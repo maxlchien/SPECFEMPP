@@ -1,2 +1,2 @@
-.. doxygenclass:: specfem::forcing_function::GaussianHdur
+.. doxygenclass:: specfem::source_time_functions::GaussianHdur
    :members:

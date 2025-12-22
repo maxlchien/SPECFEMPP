@@ -7,7 +7,7 @@
 #include <ostream>
 
 namespace specfem {
-namespace forcing_function {
+namespace source_time_functions {
 
 /**
  * @brief Heaviside step function source time function
@@ -100,5 +100,5 @@ private:
   type_real dt_;                       ///< Time step size
 };
 
-} // namespace forcing_function
+} // namespace source_time_functions
 } // namespace specfem

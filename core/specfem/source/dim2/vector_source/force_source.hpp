@@ -22,7 +22,7 @@ namespace sources {
  * @par Usage Example
  * @code
  * // Create a Ricker wavelet source time function
- * auto stf = std::make_unique<specfem::forcing_function::Ricker>(
+ * auto stf = std::make_unique<specfem::source_time_functions::Ricker>(
  *     10,    // dominant frequency (Hz)
  *     0.01,  // time factor
  *     1.0,   // amplitude
@@ -82,14 +82,15 @@ public:
    * @param x x-coordinate of source
    * @param y z-coordinate of source
    * @param angle angle of force source
-   * @param forcing_function pointer to source time function
+   * @param source_time_function pointer to source time function
    * @param wavefield_type type of wavefield
    */
-  force(type_real x, type_real z, type_real angle,
-        std::unique_ptr<specfem::forcing_function::stf> forcing_function,
-        const specfem::wavefield::simulation_field wavefield_type)
+  force(
+      type_real x, type_real z, type_real angle,
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function,
+      const specfem::wavefield::simulation_field wavefield_type)
       : angle(angle), wavefield_type(wavefield_type),
-        vector_source(x, z, std::move(forcing_function)) {};
+        vector_source(x, z, std::move(source_time_function)) {};
 
   /**
    * @brief User output

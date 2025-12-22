@@ -5,7 +5,7 @@
 #include <cmath>
 
 namespace specfem {
-namespace forcing_function {
+namespace source_time_functions {
 namespace impl {
 
 KOKKOS_INLINE_FUNCTION
@@ -138,5 +138,5 @@ type_real heaviside(const type_real t, const type_real hdur) {
 }
 
 } // namespace impl
-} // namespace forcing_function
+} // namespace source_time_functions
 } // namespace specfem

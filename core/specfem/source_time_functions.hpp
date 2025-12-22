@@ -4,8 +4,8 @@
  * @brief Namespace for source time functions
  *
  * @details This namespace contains various source time functions (STFs). Each
- * STF class inherits from the base class specfem::forcing_function::stf and
- * implements specific time-dependent behavior for seismic sources. The STFs
+ * STF class inherits from the base class specfem::source_time_functions::stf
+ * and implements specific time-dependent behavior for seismic sources. The STFs
  * defined here can be used to model different types of seismic source time.
  * The available source time functions include:
  * - Dirac: Represents an instantaneous impulse.
@@ -15,10 +15,10 @@
  * - Heaviside: Models a step function.
  * - external: Allows for user-defined source time functions.
  *
- * @see specfem::sources::source::set_forcing_function for how to the forcing
- * function is set up from the source class and YAML configuration.
+ * @see specfem::sources::source::set_source_time_function for how to the
+ * forcing function is set up from the source class and YAML configuration.
  */
-namespace specfem::forcing_function {}
+namespace specfem::source_time_functions {}
 
 #include "specfem/source_time_functions/dgaussian.hpp"
 #include "specfem/source_time_functions/dirac.hpp"

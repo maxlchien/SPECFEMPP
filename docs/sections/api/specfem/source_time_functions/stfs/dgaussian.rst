@@ -1,2 +1,2 @@
-.. doxygenclass:: specfem::forcing_function::dGaussian
+.. doxygenclass:: specfem::source_time_functions::dGaussian
    :members:

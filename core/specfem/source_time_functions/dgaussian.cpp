@@ -5,7 +5,7 @@
 #include <Kokkos_Core.hpp>
 #include <cmath>
 
-specfem::forcing_function::dGaussian::dGaussian(
+specfem::source_time_functions::dGaussian::dGaussian(
     const int nsteps, const type_real dt, const type_real f0,
     const type_real tshift, const type_real factor,
     bool use_trick_for_better_pressure, const type_real t0_factor)
@@ -19,7 +19,7 @@ specfem::forcing_function::dGaussian::dGaussian(
   this->t0_ = -this->t0_factor_ * hdur + this->tshift_;
 }
 
-specfem::forcing_function::dGaussian::dGaussian(
+specfem::source_time_functions::dGaussian::dGaussian(
     YAML::Node &dGaussian, const int nsteps, const type_real dt,
     const bool use_trick_for_better_pressure, const type_real t0_factor) {
   type_real f0 = dGaussian["f0"].as<type_real>();
@@ -32,26 +32,26 @@ specfem::forcing_function::dGaussian::dGaussian(
   }();
   type_real factor = dGaussian["factor"].as<type_real>();
 
-  *this = specfem::forcing_function::dGaussian(
+  *this = specfem::source_time_functions::dGaussian(
       nsteps, dt, f0, tshift, factor, use_trick_for_better_pressure, t0_factor);
 }
 
-type_real specfem::forcing_function::dGaussian::compute(type_real t) {
+type_real specfem::source_time_functions::dGaussian::compute(type_real t) {
 
   type_real val;
 
   if (this->use_trick_for_better_pressure_) {
-    val = this->factor_ * specfem::forcing_function::impl::d3gaussian(
+    val = this->factor_ * specfem::source_time_functions::impl::d3gaussian(
                               t - this->tshift_, this->f0_);
   } else {
-    val = this->factor_ * specfem::forcing_function::impl::d1gaussian(
+    val = this->factor_ * specfem::source_time_functions::impl::d1gaussian(
                               t - this->tshift_, this->f0_);
   }
 
   return val;
 }
 
-void specfem::forcing_function::dGaussian::compute_source_time_function(
+void specfem::source_time_functions::dGaussian::compute_source_time_function(
     const type_real t0, const type_real dt, const int nsteps,
     specfem::kokkos::HostView2d<type_real> source_time_function) {
 
@@ -64,7 +64,7 @@ void specfem::forcing_function::dGaussian::compute_source_time_function(
   }
 }
 
-std::string specfem::forcing_function::dGaussian::print() const {
+std::string specfem::source_time_functions::dGaussian::print() const {
   std::stringstream ss;
   ss << "        dGaussian source time function:\n"
      << "          f0: " << this->f0_ << "\n"
@@ -77,15 +77,16 @@ std::string specfem::forcing_function::dGaussian::print() const {
   return ss.str();
 }
 
-bool specfem::forcing_function::dGaussian::operator==(const stf &other) const {
+bool specfem::source_time_functions::dGaussian::operator==(
+    const stf &other) const {
 
   // First check base class equality
-  if (!specfem::forcing_function::stf::operator==(other))
+  if (!specfem::source_time_functions::stf::operator==(other))
     return false;
 
   // Then check if the other object is a dGaussian
   auto other_dgaussian =
-      dynamic_cast<const specfem::forcing_function::dGaussian *>(&other);
+      dynamic_cast<const specfem::source_time_functions::dGaussian *>(&other);
 
   // Check if cast was successful
   if (!other_dgaussian)
@@ -103,6 +104,7 @@ bool specfem::forcing_function::dGaussian::operator==(const stf &other) const {
               other_dgaussian->get_use_trick_for_better_pressure());
 }
 
-bool specfem::forcing_function::dGaussian::operator!=(const stf &other) const {
+bool specfem::source_time_functions::dGaussian::operator!=(
+    const stf &other) const {
   return !(*(this) == other);
 }

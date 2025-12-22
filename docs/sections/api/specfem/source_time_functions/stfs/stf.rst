@@ -1,2 +1,2 @@
-.. doxygenclass:: specfem::forcing_function::stf
+.. doxygenclass:: specfem::source_time_functions::stf
    :members:

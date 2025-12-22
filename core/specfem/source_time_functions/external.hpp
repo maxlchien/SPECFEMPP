@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace specfem {
-namespace forcing_function {
+namespace source_time_functions {
 
 /**
  * @brief External source time function loaded from file
@@ -93,5 +93,5 @@ private:
   std::string y_component_ = "";              ///< Y-component file path
   std::string z_component_ = "";              ///< Z-component file path
 };
-} // namespace forcing_function
+} // namespace source_time_functions
 } // namespace specfem

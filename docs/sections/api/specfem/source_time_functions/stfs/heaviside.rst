@@ -1,2 +1,2 @@
-.. doxygenclass:: specfem::forcing_function::Heaviside
+.. doxygenclass:: specfem::source_time_functions::Heaviside
    :members:

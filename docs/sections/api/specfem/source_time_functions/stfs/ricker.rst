@@ -1,2 +1,2 @@
-.. doxygenclass:: specfem::forcing_function::Ricker
+.. doxygenclass:: specfem::source_time_functions::Ricker
    :members:

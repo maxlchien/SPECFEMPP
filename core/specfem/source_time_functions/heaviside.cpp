@@ -7,7 +7,7 @@
 #include <Kokkos_Core.hpp>
 #include <cmath>
 
-specfem::forcing_function::Heaviside::Heaviside(
+specfem::source_time_functions::Heaviside::Heaviside(
     const int nsteps, const type_real dt, const type_real hdur,
     const type_real tshift, const type_real factor,
     bool use_trick_for_better_pressure, const type_real t0_factor)
@@ -36,7 +36,7 @@ specfem::forcing_function::Heaviside::Heaviside(
       this->hdur_ / specfem::constants::empirical::SOURCE_DECAY_MIMIC_TRIANGLE;
 }
 
-specfem::forcing_function::Heaviside::Heaviside(
+specfem::source_time_functions::Heaviside::Heaviside(
     YAML::Node &HeavisideNode, const int nsteps, const type_real dt,
     const bool use_trick_for_better_pressure, const type_real t0_factor) {
 
@@ -51,27 +51,27 @@ specfem::forcing_function::Heaviside::Heaviside(
   }();
   type_real factor = HeavisideNode["factor"].as<type_real>();
 
-  *this = specfem::forcing_function::Heaviside(nsteps, dt, hdur, tshift, factor,
-                                               use_trick_for_better_pressure,
-                                               t0_factor);
+  *this = specfem::source_time_functions::Heaviside(
+      nsteps, dt, hdur, tshift, factor, use_trick_for_better_pressure,
+      t0_factor);
 }
 
-type_real specfem::forcing_function::Heaviside::compute(type_real t) {
+type_real specfem::source_time_functions::Heaviside::compute(type_real t) {
 
   type_real val;
 
   if (this->use_trick_for_better_pressure_) {
-    val = this->factor_ * specfem::forcing_function::impl::d2gaussian_hdur(
+    val = this->factor_ * specfem::source_time_functions::impl::d2gaussian_hdur(
                               t - this->tshift_, this->hdur_);
   } else {
-    val = this->factor_ * specfem::forcing_function::impl::heaviside(
+    val = this->factor_ * specfem::source_time_functions::impl::heaviside(
                               t - this->tshift_, this->hdur_);
   }
 
   return val;
 }
 
-void specfem::forcing_function::Heaviside::compute_source_time_function(
+void specfem::source_time_functions::Heaviside::compute_source_time_function(
     const type_real t0, const type_real dt, const int nsteps,
     specfem::kokkos::HostView2d<type_real> source_time_function) {
 
@@ -84,7 +84,7 @@ void specfem::forcing_function::Heaviside::compute_source_time_function(
   }
 }
 
-std::string specfem::forcing_function::Heaviside::print() const {
+std::string specfem::source_time_functions::Heaviside::print() const {
   std::stringstream ss;
   ss << "        Heaviside source time function:\n"
      << "          hdur: " << this->hdur_ << "\n"
@@ -97,14 +97,15 @@ std::string specfem::forcing_function::Heaviside::print() const {
   return ss.str();
 }
 
-bool specfem::forcing_function::Heaviside::operator==(const stf &other) const {
+bool specfem::source_time_functions::Heaviside::operator==(
+    const stf &other) const {
   // First check base class equality
-  if (!specfem::forcing_function::stf::operator==(other))
+  if (!specfem::source_time_functions::stf::operator==(other))
     return false;
 
   // Then check if the other object is a Heaviside
   auto other_heaviside =
-      dynamic_cast<const specfem::forcing_function::Heaviside *>(&other);
+      dynamic_cast<const specfem::source_time_functions::Heaviside *>(&other);
   if (!other_heaviside)
     return false;
 
@@ -118,6 +119,7 @@ bool specfem::forcing_function::Heaviside::operator==(const stf &other) const {
           other_heaviside->get_use_trick_for_better_pressure());
 };
 
-bool specfem::forcing_function::Heaviside::operator!=(const stf &other) const {
+bool specfem::source_time_functions::Heaviside::operator!=(
+    const stf &other) const {
   return !(*this == other);
 }

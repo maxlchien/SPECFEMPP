@@ -1,9 +1,9 @@
 .. _source_time_functions_api:
 
-``specfem::forcing_function``
-==============================
+``specfem::source_time_functions``
+==================================
 
-.. doxygennamespace:: specfem::forcing_function
+.. doxygennamespace:: specfem::source_time_functions
    :desc-only:
 
 

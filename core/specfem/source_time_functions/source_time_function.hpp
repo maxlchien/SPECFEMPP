@@ -6,7 +6,7 @@
 
 namespace specfem {
 
-namespace forcing_function {
+namespace source_time_functions {
 
 /**
  * @brief Source time function base class
@@ -86,5 +86,5 @@ public:
       const type_real t0, const type_real dt, const int nsteps,
       specfem::kokkos::HostView2d<type_real> source_time_function) = 0;
 };
-} // namespace forcing_function
+} // namespace source_time_functions
 } // namespace specfem

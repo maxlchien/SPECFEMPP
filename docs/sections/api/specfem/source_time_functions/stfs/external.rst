@@ -1,2 +1,2 @@
-.. doxygenclass:: specfem::forcing_function::external
+.. doxygenclass:: specfem::source_time_functions::external
    :members:
