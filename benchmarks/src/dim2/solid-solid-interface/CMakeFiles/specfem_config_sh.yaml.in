@@ -45,6 +45,7 @@ parameters:
           #   format: PNG
           #   directory: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results_sh"
           #   field: velocity
+          #   component: y
           #   simulation-field: forward
           #   time-interval: 500
 

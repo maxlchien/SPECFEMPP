@@ -44,6 +44,7 @@ parameters:
           #   format: PNG
           #   directory: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results_psv"
           #   field: velocity
+          #   component: z
           #   simulation-field: forward
           #   time-interval: 500
 

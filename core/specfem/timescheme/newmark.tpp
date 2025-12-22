@@ -268,29 +268,44 @@ int specfem::time_scheme::newmark<AssemblyFields,
   return 0;
 }
 
+template <typename AssemblyFields>
+std::string specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::forward>::to_string() const {
+  std::ostringstream message;
+  message << "  Time Scheme:\n"
+        << "------------------------------\n"
+        << "- Newmark\n"
+        << "    simulation type = forward\n"
+        << "    dt = " << this->deltat
+        << "\n"
+        // << "    number of time steps = " << this->nstep << "\n"
+        << "    Start time = " << this->t0 << "\n";
+
+  return message.str();
+}
 
 template <typename AssemblyFields>
 void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::forward>::print(
     std::ostream &message) const {
+  message << this->to_string();
+}
+
+template <typename AssemblyFields>
+std::string specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::combined>::to_string() const {
+  std::ostringstream message;
   message << "  Time Scheme:\n"
-          << "------------------------------\n"
-          << "- Newmark\n"
-          << "    simulation type = forward\n"
-          << "    dt = " << this->deltat
-          << "\n"
-          // << "    number of time steps = " << this->nstep << "\n"
-          << "    Start time = " << this->t0 << "\n";
+        << "------------------------------\n"
+        << "- Newmark\n"
+        << "    simulation type = adjoint\n"
+        << "    dt = " << this->deltat
+        << "\n"
+        // << "    number of time steps = " << this->nstep << "\n"
+        << "    Start time = " << this->t0 << "\n";
+
+  return message.str();
 }
 
 template <typename AssemblyFields>
 void specfem::time_scheme::newmark<AssemblyFields, specfem::simulation::type::combined>::print(
     std::ostream &message) const {
-  message << "  Time Scheme:\n"
-          << "------------------------------\n"
-          << "- Newmark\n"
-          << "    simulation type = adjoint\n"
-          << "    dt = " << this->deltat
-          << "\n"
-          // << "    number of time steps = " << this->nstep << "\n"
-          << "    Start time = " << this->t0 << "\n";
+  message << this->to_string();
 }

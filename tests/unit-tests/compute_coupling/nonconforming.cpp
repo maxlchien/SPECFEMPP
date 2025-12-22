@@ -1,4 +1,4 @@
-#include "Kokkos_Environment.hpp"
+#include "../SPECFEM_Environment.hpp"
 #include "algorithms/transfer.hpp"
 #include "medium/compute_coupling.hpp"
 #include "parallel_configuration/chunk_edge_config.hpp"
@@ -410,6 +410,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }
