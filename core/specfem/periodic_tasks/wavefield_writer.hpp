@@ -8,8 +8,9 @@
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Base plotter class
+ * @brief Periodic task to write wavefield data during simulation
  *
+ * @tparam IOLibrary Template for the I/O library to use for writing
  */
 template <template <typename OpType> class IOLibrary>
 class wavefield_writer : public periodic_task {
@@ -25,7 +26,7 @@ public:
             output_folder, save_boundary_values)) {}
 
   /**
-   * @brief Check for keyboard interrupt and more, when running from Python
+   * @brief Write wavefield data to file
    *
    */
   void
