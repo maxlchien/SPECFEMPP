@@ -82,6 +82,7 @@ struct is_analytical2d<
  * @param field Input field data
  * @return Expected transferred field values
  */
+// TODO(Rohit : CPP20 update) Update this SFINAE with concepts
 template <typename TransferFunction2D, typename EdgeFunction2D>
 std::enable_if_t<
     !is_analytical2d<EdgeFunction2D>::value,
