@@ -22,6 +22,7 @@ New structure
     specfem/point/index
     specfem/receivers/index
     specfem/sources/index
+    specfem/data_access/index
 
 
 Old structure
