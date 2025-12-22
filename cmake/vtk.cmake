@@ -8,6 +8,8 @@ if (SPECFEM_ENABLE_VTK)
     find_package(VTK COMPONENTS
         CommonColor
         CommonCore
+        FiltersGeometry
+        FiltersModeling
         FiltersSources
         InteractionStyle
         RenderingContextOpenGL2
@@ -32,5 +34,5 @@ if (SPECFEM_ENABLE_VTK)
 else()
     set(VTK_FOUND OFF)
     set(SPECFEM_ENABLE_VTK OFF)
-    message(STATUS "Building without VTK.")
+    message(STATUS "VTK support is enabled. Set SPECFEM_ENABLE_VTK to ON to enable VTK.")
 endif()

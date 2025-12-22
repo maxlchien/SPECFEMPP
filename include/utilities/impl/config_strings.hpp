@@ -70,5 +70,9 @@
  ((intrinsic_rotation, intrinsic_rot, intrinsic_r, intrinsic_rotat, intrinsic-rotation, ir)) \
  ((curl, crl)) \
  ((newmark)) \
- ((onscreen, on-screen, on_screen))
+ ((onscreen, on-screen, on_screen)) \
+ ((x, xc, xcomp, x_component)) \
+ ((y, yc, ycomp, y_component)) \
+ ((z, zc, zcomp, z_component)) \
+ ((magnitude, m, mag))
 // clang-format on

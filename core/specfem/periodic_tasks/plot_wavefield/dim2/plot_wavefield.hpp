@@ -48,7 +48,8 @@ public:
    * @param output_format Output format of the plot (PNG, JPG, etc.)
    * @param wavefield_type Type of the wavefield to plot (displacement,
    * velocity, etc.)
-   * @param wavefield Type of wavefield to plot (forward, adjoint, etc.)
+   * @param simulation_wavefield_type Type of wavefield to plot (forward,
+   * adjoint, etc.)
    * @param time_interval Time interval between subsequent plots
    * @param output_folder Path to output folder where plots will be stored
    */
@@ -57,9 +58,12 @@ public:
           &assembly,
       const specfem::display::format &output_format,
       const specfem::wavefield::type &wavefield_type,
-      const specfem::wavefield::simulation_field &wavefield,
-      const type_real &dt, const int &time_interval,
-      const boost::filesystem::path &output_folder, specfem::MPI::MPI *mpi);
+      const specfem::wavefield::simulation_field &simulation_wavefield_type,
+      const specfem::display::component &component, const type_real &dt,
+      const int &time_interval, const boost::filesystem::path &output_folder,
+      const specfem::enums::elastic_wave elastic_wave,
+      const specfem::enums::electromagnetic_wave electromagnetic_wave,
+      specfem::MPI::MPI *mpi);
 
   /**
    * @brief Updates the wavefield within open window
@@ -90,10 +94,16 @@ public:
                     &assembly) override;
 
   const specfem::display::format output_format;  ///< Output format of the plot
+  const specfem::display::component component;   ///< Component to plot
   const specfem::wavefield::type wavefield_type; ///< Type of the wavefield
-  const specfem::wavefield::simulation_field wavefield; ///< Type of wavefield
-                                                        ///< to plot
+  const specfem::wavefield::simulation_field
+      simulation_wavefield_type; ///< Type of wavefield
+                                 ///< to plot
+  bool nonnegative_field;        ///< Whether the field is non-negative (e.g.,
+                                 ///< displacement with magnitude)
   const boost::filesystem::path output_folder; ///< Path to output folder
+  const specfem::enums::elastic_wave elastic_wave;
+  const specfem::enums::electromagnetic_wave electromagnetic_wave;
   specfem::assembly::assembly<specfem::dimension::type::dim2>
       assembly; ///< Assembly object
 
@@ -140,7 +150,15 @@ private:
       specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
   vtkSmartPointer<vtkDataSetMapper> map_materials_with_color();
 
-  double sigmoid(double x);
+  /**
+   * @brief Sigmoid function for transparency control
+   *
+   * @param x coordinated
+   * @param scale controls slope of the center of the sigmoid
+   * @param offset controls the offset from 0 where the sigmoid is centered.
+   * @return double
+   */
+  double sigmoid(double x, double scale = 20, double offset = 0.75);
 
   // Get wavefield type from display type
   specfem::wavefield::type get_wavefield_type();
@@ -155,6 +173,15 @@ private:
 
   // Friend function for rendering
   void run_render(vtkSmartPointer<vtkFloatArray> &scalars);
+
+  // Helper function to get scalar value at a given point
+  static float get_scalar_value_at_point(
+      const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield_data,
+      const specfem::wavefield::type &wavefield_type,
+      const specfem::enums::elastic_wave &elastic_wave,
+      const specfem::display::component &component, const int ispec,
+      const int iz, const int ix);
 
 #endif // NO_VTK
 };

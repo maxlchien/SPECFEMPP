@@ -477,6 +477,23 @@ Parameter definitions
                             :possible values: [string]
 
 
+                        .. dropdown:: ``component`` [optional]
+
+                            Component of the wavefield to be plotted.
+
+                            :default value: None
+
+                            :possible values: [x, y, z, magnitude]
+
+                            the ``component`` parameter is ignored if the
+                            requested field is a scalar field, such as
+                            ``pressure``. ``magnitude`` option plots the
+                            magnitude of the vector field, and if the domain has
+                            acoustic elements the potential is plotted. ``y`` is
+                            only available in 2D SH simulations and 3D
+                            simulations.
+
+
                         .. dropdown:: ``field``
 
                             Component of the wavefield to be plotted.
