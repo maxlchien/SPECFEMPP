@@ -5,7 +5,7 @@
 
 #include <type_traits>
 
-namespace specfem::test::fixture {
+namespace specfem::test_fixture {
 
 /**
  * @brief Types for EdgeFunction2D. These contain the compile-time values of the
@@ -42,14 +42,15 @@ public:
   }
 };
 
-template <typename AnalyticalFunctionType, typename EdgePoints>
+template <typename AnalyticalFunction, typename EdgePoints>
 struct FromAnalyticalFunction : EdgeFunctionInitializer2D {
-  using AnalyticalFunction = AnalyticalFunctionType;
+  static constexpr bool is_from_analytical_function = true;
   static_assert(
-      std::is_base_of_v<AnalyticalFunctionType1D::AnalyticalFunctionType1D,
+      std::is_base_of_v<AnalyticalFunctionType::AnalyticalFunctionType,
                         AnalyticalFunction>,
       "FromAnalyticalFunction expects its first template argument to be "
       "an AnalyticalFunctionType1D!");
+  using AnalyticalFunctionType = AnalyticalFunction;
 
   using EdgeQuadraturePoints = EdgePoints;
 
@@ -76,14 +77,8 @@ public:
       for (size_t j = 0; j < nquad_edge; ++j) {
         const auto eval =
             AnalyticalFunction::evaluate(edge_quadrature_points[j]);
-        // if num_components is 1, we may see a type_real returned, rather than
-        // an array.
-        if constexpr (std::is_arithmetic_v<decltype(eval)>) {
-          edge_function[i][j][0] = eval;
-        } else {
-          for (size_t k = 0; k < num_components; ++k) {
-            edge_function(i, j, k) = eval[k];
-          }
+        for (size_t k = 0; k < num_components; ++k) {
+          edge_function[i][j][k] = eval[k];
         }
       }
     }
@@ -161,4 +156,4 @@ public:
     return _field[i][j][k];
   }
 };
-} // namespace specfem::test::fixture
+} // namespace specfem::test_fixture

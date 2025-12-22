@@ -6,7 +6,7 @@
 #include <string>
 #include <type_traits>
 
-namespace specfem::test::fixture {
+namespace specfem::test_fixture {
 
 template <typename QuadraturePointsType> struct QuadratureRule {
   static_assert(std::is_base_of_v<QuadraturePoints::QuadraturePoints,
@@ -65,4 +65,4 @@ struct Asymm4Point : QuadraturePoints {
 
 } // namespace QuadraturePoints
 
-} // namespace specfem::test::fixture
+} // namespace specfem::test_fixture

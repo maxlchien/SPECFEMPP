@@ -1,6 +1,8 @@
 
 #include <array>
+#include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 #include <Kokkos_Core.hpp>
@@ -64,6 +66,14 @@ constexpr static auto interface_tag =
 /** Boundary type (dummy for testing) */
 constexpr static auto boundary_tag = specfem::element::boundary_tag::none;
 
+template <typename T, typename = void>
+struct is_analytical2d : std::false_type {};
+
+template <typename T>
+struct is_analytical2d<
+    T, std::enable_if_t<T::FunctionInitializer::is_from_analytical_function,
+                        void> > : std::true_type {};
+
 /**
  * @brief Compute expected result of transfer function operation.
  * @tparam TransferFunction2D Transfer function type
@@ -73,8 +83,10 @@ constexpr static auto boundary_tag = specfem::element::boundary_tag::none;
  * @return Expected transferred field values
  */
 template <typename TransferFunction2D, typename EdgeFunction2D>
-std::vector<std::array<std::array<type_real, EdgeFunction2D::num_components>,
-                       TransferFunction2D::nquad_intersection> >
+std::enable_if_t<
+    !is_analytical2d<EdgeFunction2D>::value,
+    std::vector<std::array<std::array<type_real, 1>,
+                           TransferFunction2D::nquad_intersection> > >
 expected_solution(const TransferFunction2D &transfer_function,
                   const EdgeFunction2D &field) {
   const int n_edges = TransferFunction2D::num_edges;
@@ -94,6 +106,8 @@ expected_solution(const TransferFunction2D &transfer_function,
       }
     }
   }
+  throw std::runtime_error("No configs in TransferFunctionTestTypes2D uses "
+                           "this. Remove if that changes.");
   return result_field;
 }
 
@@ -101,27 +115,13 @@ expected_solution(const TransferFunction2D &transfer_function,
  * Specialization: We are transfering a function f =
  * AnalyticalFunction::evaluate using an actual quadrature rule.
  */
-template <typename AnalyticalFunction, typename EdgeQuadraturePoints,
-          typename IntersectionQuadraturePoints>
-std::vector<
-    std::array<std::array<type_real, 1>, IntersectionQuadraturePoints::nquad> >
-expected_solution(
-    const specfem::test::fixture::TransferFunction2D<
-        specfem::test::fixture::TransferFunctionInitializer2D::
-            FromQuadratureRules<EdgeQuadraturePoints,
-                                IntersectionQuadraturePoints> >
-        &transfer_function,
-    const specfem::test::fixture::EdgeFunction2D<
-        specfem::test::fixture::EdgeFunctionInitializer2D::
-            FromAnalyticalFunction<AnalyticalFunction, EdgeQuadraturePoints> >
-        &field) {
-  using TransferFunction2D = specfem::test::fixture::TransferFunction2D<
-      specfem::test::fixture::TransferFunctionInitializer2D::
-          FromQuadratureRules<EdgeQuadraturePoints,
-                              IntersectionQuadraturePoints> >;
-  using EdgeFunction2D = specfem::test::fixture::EdgeFunction2D<
-      specfem::test::fixture::EdgeFunctionInitializer2D::FromAnalyticalFunction<
-          AnalyticalFunction, EdgeQuadraturePoints> >;
+template <typename TransferFunction2D, typename EdgeFunction2D>
+std::enable_if_t<
+    is_analytical2d<EdgeFunction2D>::value,
+    std::vector<std::array<std::array<type_real, 1>,
+                           TransferFunction2D::nquad_intersection> > >
+expected_solution(const TransferFunction2D &transfer_function,
+                  const EdgeFunction2D &field) {
 
   const int n_edges = TransferFunction2D::num_edges;
   std::vector<std::array<std::array<type_real, EdgeFunction2D::num_components>,
@@ -134,18 +134,20 @@ expected_solution(
     for (int j = 0; j < TransferFunction2D::nquad_intersection; ++j) {
       for (int k = 0; k < EdgeFunction2D::num_components; ++k) {
 
-        result_field[i][j][k] = AnalyticalFunction::evaluate(
-            IntersectionQuadraturePoints::quadrature_points[j]);
+        result_field[i][j][k] =
+            EdgeFunction2D::FunctionInitializer::AnalyticalFunctionType::
+                evaluate(TransferFunction2D::TransferFunctionInitializer::
+                             intersection_quadrature_points[j])[k];
       }
     }
   }
   return result_field;
 }
 
-using ZeroTransferFunction = specfem::test::fixture::TransferFunction2D<
-    specfem::test::fixture::TransferFunctionInitializer2D::Zero>;
-using UniformEdgeFunction = specfem::test::fixture::EdgeFunction2D<
-    specfem::test::fixture::EdgeFunctionInitializer2D::Uniform>;
+using ZeroTransferFunction = specfem::test_fixture::TransferFunction2D<
+    specfem::test_fixture::TransferFunctionInitializer2D::Zero>;
+using UniformEdgeFunction = specfem::test_fixture::EdgeFunction2D<
+    specfem::test_fixture::EdgeFunctionInitializer2D::Uniform>;
 
 /**
  * @brief Compute transferred field for zero transfer function and uniform
@@ -276,42 +278,50 @@ struct TransferFunctionTest2D : public ::testing::Test {
       : transfer_function(TransferFunctionInitializer()),
         function(FunctionInitializer()) {}
 
-  specfem::test::fixture::TransferFunction2D<TransferFunctionInitializer>
-      transfer_function; /**< Test
-    transfer
-    function
-  */
-  specfem::test::fixture::EdgeFunction2D<FunctionInitializer> function; /**<
+  specfem::test_fixture::TransferFunction2D<TransferFunctionInitializer>
+      transfer_function;                                               /**< Test
+                                                  transfer
+                                                  function
+                                                */
+  specfem::test_fixture::EdgeFunction2D<FunctionInitializer> function; /**<
                                                                            Test
                                                                            field
                                                                          */
 };
-
-using specfem::test::fixture::AnalyticalFunctionType1D::Power;
-using specfem::test::fixture::EdgeFunctionInitializer2D::FromAnalyticalFunction;
-using specfem::test::fixture::QuadraturePoints::Asymm4Point;
-using specfem::test::fixture::QuadraturePoints::Asymm5Point;
-using specfem::test::fixture::QuadraturePoints::GLL1;
-using specfem::test::fixture::QuadraturePoints::GLL2;
-using specfem::test::fixture::TransferFunctionInitializer2D::
-    FromQuadratureRules;
+using namespace specfem::test_fixture;
 
 /** Test type combinations for parameterized testing */
 using TransferFunctionTestTypes2D = ::testing::Types<
-    std::tuple<specfem::test::fixture::TransferFunctionInitializer2D::Zero,
-               specfem::test::fixture::EdgeFunctionInitializer2D::Uniform>,
-    std::tuple<FromQuadratureRules<GLL1, GLL2>,
-               FromAnalyticalFunction<Power<0>, GLL1> >,
-    std::tuple<FromQuadratureRules<GLL2, GLL1>,
-               FromAnalyticalFunction<Power<1>, GLL2> >,
-    std::tuple<FromQuadratureRules<GLL2, GLL2>,
-               FromAnalyticalFunction<Power<2>, GLL2> >,
-    std::tuple<FromQuadratureRules<Asymm4Point, Asymm5Point>,
-               FromAnalyticalFunction<Power<3>, Asymm4Point> >,
-    std::tuple<FromQuadratureRules<Asymm5Point, Asymm4Point>,
-               FromAnalyticalFunction<Power<4>, Asymm5Point> >,
-    std::tuple<FromQuadratureRules<Asymm5Point, Asymm5Point>,
-               FromAnalyticalFunction<Power<5>, Asymm5Point> > >;
+    std::tuple<specfem::test_fixture::TransferFunctionInitializer2D::Zero,
+               specfem::test_fixture::EdgeFunctionInitializer2D::Uniform>,
+    std::tuple<TransferFunctionInitializer2D::FromQuadratureRules<
+                   QuadraturePoints::GLL1, QuadraturePoints::GLL2>,
+               EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                   AnalyticalFunctionType::Power<0>, QuadraturePoints::GLL1> >,
+    std::tuple<TransferFunctionInitializer2D::FromQuadratureRules<
+                   QuadraturePoints::GLL2, QuadraturePoints::GLL1>,
+               EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                   AnalyticalFunctionType::Power<1>, QuadraturePoints::GLL2> >,
+    std::tuple<TransferFunctionInitializer2D::FromQuadratureRules<
+                   QuadraturePoints::GLL2, QuadraturePoints::GLL2>,
+               EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                   AnalyticalFunctionType::Power<2>, QuadraturePoints::GLL2> >,
+    std::tuple<
+        TransferFunctionInitializer2D::FromQuadratureRules<
+            QuadraturePoints::Asymm4Point, QuadraturePoints::Asymm5Point>,
+        EdgeFunctionInitializer2D::FromAnalyticalFunction<
+            AnalyticalFunctionType::Power<3>, QuadraturePoints::Asymm4Point> >,
+    std::tuple<
+        TransferFunctionInitializer2D::FromQuadratureRules<
+            QuadraturePoints::Asymm5Point, QuadraturePoints::Asymm4Point>,
+        EdgeFunctionInitializer2D::FromAnalyticalFunction<
+            AnalyticalFunctionType::Power<4>, QuadraturePoints::Asymm5Point> >,
+    std::tuple<
+        TransferFunctionInitializer2D::FromQuadratureRules<
+            QuadraturePoints::Asymm5Point, QuadraturePoints::Asymm5Point>,
+        EdgeFunctionInitializer2D::FromAnalyticalFunction<
+            AnalyticalFunctionType::Power<5>,
+            QuadraturePoints::Asymm5Point> > >;
 
 TYPED_TEST_SUITE(TransferFunctionTest2D, TransferFunctionTestTypes2D);
 

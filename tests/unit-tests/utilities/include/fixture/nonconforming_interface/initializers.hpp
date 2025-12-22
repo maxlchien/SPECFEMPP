@@ -1,7 +1,7 @@
 #pragma once
 
 // all non-specific declarations for NCIs
-namespace specfem::test::fixture {
+namespace specfem::test_fixture {
 
 /**
  * @brief Manages views of field values along an edge.
@@ -57,8 +57,8 @@ struct QuadraturePoints {};
  * @brief Manages 1-parameter functions. These can be used, say for
  * edge-coordinate analytical fields
  */
-namespace AnalyticalFunctionType1D {
-struct AnalyticalFunctionType1D {};
-} // namespace AnalyticalFunctionType1D
+namespace AnalyticalFunctionType {
+struct AnalyticalFunctionType {};
+} // namespace AnalyticalFunctionType
 
-} // namespace specfem::test::fixture
+} // namespace specfem::test_fixture

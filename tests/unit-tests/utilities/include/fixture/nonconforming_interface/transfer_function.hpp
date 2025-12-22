@@ -6,7 +6,7 @@
 #include <array>
 #include <type_traits>
 
-namespace specfem::test::fixture {
+namespace specfem::test_fixture {
 /**
  * @brief Types for TransferFunction2D. These contain the compile-time values of
  * the transfer functions
@@ -152,4 +152,4 @@ public:
   }
 };
 
-} // namespace specfem::test::fixture
+} // namespace specfem::test_fixture
