@@ -3,6 +3,20 @@
 Wave propagation through the Marmousi2 model
 =============================================
 
+In this example we simulate wave propagation through the 2-dimensional Marmousi2 model,
+a complex synthetic velocity model commonly used for testing seismic wave propagation
+codes. The model features realistic geological structures with varying velocity gradients,
+making it an excellent benchmark for validating numerical methods.
+
+.. note::
+
+    All cookbook files can be copy and pasted from the code blocks below, or you
+    can download a zip file containing all the files needed to run this example.
+
+    .. download-folder:: parameter_files
+        :filename: marmousi_cookbook.zip
+        :text: Download all cookbook files
+
 .. warning::
 
     **GPU Version Recommended**
@@ -12,10 +26,6 @@ Wave propagation through the Marmousi2 model
     SPECFEM++, as it will be too slow on CPUs. Additionally, MPI support is not yet
     implemented in this version.
 
-In this example we simulate wave propagation through the 2-dimensional Marmousi2 model,
-a complex synthetic velocity model commonly used for testing seismic wave propagation
-codes. The model features realistic geological structures with varying velocity gradients,
-making it an excellent benchmark for validating numerical methods.
 
 **Credits**
 
@@ -65,26 +75,60 @@ artifacts.
     touch sources.yaml
     touch Par_file
 
-Copying mesh files
-------------------
+Mesh files
+----------
 
 Unlike the homogeneous medium example, the Marmousi2 model uses an externally
-generated mesh from CUBIT. You'll need to copy the mesh files from the cookbook
-directory to your workspace:
+generated mesh from CUBIT. The ``MESH-default`` directory contains all the necessary
+mesh files:
 
-.. code:: bash
+mesh_file
+~~~~~~~~~
 
-    # Copy the MESH-default directory from the cookbook location
-    cp -r <PATH TO SPECFEMPP>/docs/sections/cookbooks/dim2/marmousi/MESH-default ./
+Element connectivity information
 
-The ``MESH-default`` directory contains all the necessary mesh files:
+.. literalinclude:: parameter_files/MESH-default/mesh_file
+   :caption: MESH-default/mesh_file
 
-* ``mesh_file`` - Element connectivity information
-* ``nodes_coords_file`` - Node coordinates
-* ``materials_file`` - Material assignments for each element
-* ``nummaterial_velocity_file_marmousi2`` - Velocity model properties
-* ``free_surface_file`` - Free surface boundary definition
-* ``absorbing_surface_file`` - Absorbing boundary conditions
+nodes_coords_file
+~~~~~~~~~~~~~~~~~
+
+Node coordinates
+
+.. literalinclude:: parameter_files/MESH-default/nodes_coords_file
+   :caption: MESH-default/nodes_coords_file
+
+materials_file
+~~~~~~~~~~~~~~
+
+Material assignments for each element
+
+.. literalinclude:: parameter_files/MESH-default/materials_file
+   :caption: MESH-default/materials_file
+
+nummaterial_velocity_file_marmousi2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Velocity model properties
+
+.. literalinclude:: parameter_files/MESH-default/nummaterial_velocity_file_marmousi2
+   :caption: MESH-default/nummaterial_velocity_file_marmousi2
+
+free_surface_file
+~~~~~~~~~~~~~~~~~
+
+Free surface boundary definition
+
+.. literalinclude:: parameter_files/MESH-default/free_surface_file
+   :caption: MESH-default/free_surface_file
+
+absorbing_surface_file
+~~~~~~~~~~~~~~~~~~~~~~
+
+Absorbing boundary conditions
+
+.. literalinclude:: parameter_files/MESH-default/absorbing_surface_file
+   :caption: MESH-default/absorbing_surface_file
 
 Generating the mesh database
 -----------------------------
@@ -253,41 +297,21 @@ off the heterogeneous velocity structure in the Marmousi2 model. You should obse
 * Amplitude variations across receivers due to focusing and defocusing effects
 
 About the Marmousi2 Model
---------------------------
+-------------------------
 
-The Marmousi2 model is an updated version of the original Marmousi model, designed
-to be a more realistic representation of geological structures found in sedimentary
-basins. It features:
+The Marmousi2 model is an updated version of the original Marmousi model,
+designed to be a more realistic representation of geological structures found in
+sedimentary basins. It features:
 
 * Complex layered structures with faults and unconformities
 * Realistic velocity variations (ranging from ~1500 m/s to ~4500 m/s)
 * Variable mesh resolution to capture fine-scale features
 * Challenging geometry for testing numerical wave propagation codes
+* Ocean layer at the top
 
 The mesh used in this example was improved by Hom Nath Gharti to provide better
 element quality and accuracy compared to the original mesh. The CUBIT meshing
-workflow, streamlined by Daniel Peter using Python scripts, allows for reproducible
-and high-quality mesh generation.
-
-Further Exploration
--------------------
-
-To explore the Marmousi2 model further, you can:
-
-1. **Visualize the mesh**: Open the VTK files in ParaView or VisIt
-2. **Modify the source**: Try different source locations or frequencies
-3. **Adjust receivers**: Change receiver positions to sample different parts of the model
-4. **Enable wavefield output**: Uncomment the display section in ``specfem_config.yaml``
-   to save wavefield snapshots (requires VTK support)
-5. **Longer simulations**: Increase ``nstep`` to capture later arrivals
-
-.. note::
-
-    Remember that this example is best run with GPU acceleration. If you're running
-    on CPU only, consider reducing the simulation time or using a coarser mesh if
-    alternative meshes are available.
-
-
-.. download-folder:: parameter_files
-   :filename: marmousi_cookbook.zip
-   :text: Download all cookbook files
+workflow, streamlined by Daniel Peter using Python scripts, allows for
+reproducible and high-quality mesh generation. See the
+:repo-file:`benchmarks/src/dim2/marmousi` for more details on the meshing
+process.
