@@ -16,19 +16,19 @@ specfem::sources::source<DimensionTag>::source(
 
   // Read source time function
   if (YAML::Node Dirac = Node["Dirac"]) {
-    this->forcing_function = std::make_unique<specfem::forcing_function::Dirac>(
+    this->source_time_function = std::make_unique<specfem::source_time_functions::Dirac>(
         Dirac, nsteps, dt, false);
   } else if (YAML::Node Ricker = Node["Ricker"]) {
-    this->forcing_function =
-        std::make_unique<specfem::forcing_function::Ricker>(Ricker, nsteps, dt,
+    this->source_time_function =
+        std::make_unique<specfem::source_time_functions::Ricker>(Ricker, nsteps, dt,
                                                             false);
   } else if (YAML::Node dGaussian = Node["dGaussian"]) {
-    this->forcing_function =
-        std::make_unique<specfem::forcing_function::dGaussian>(
+    this->source_time_function =
+        std::make_unique<specfem::source_time_functions::dGaussian>(
             dGaussian, nsteps, dt, false);
   } else if (YAML::Node external = Node["External"]) {
-    this->forcing_function =
-        std::make_unique<specfem::forcing_function::external>(external, nsteps,
+    this->source_time_function =
+        std::make_unique<specfem::source_time_functions::external>(external, nsteps,
                                                               dt);
   } else {
     throw std::runtime_error("Error: source time function not recognized");

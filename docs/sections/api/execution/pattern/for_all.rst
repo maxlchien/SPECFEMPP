@@ -1,7 +1,7 @@
-.. _execution_pattern_for_all:
+.. _specfem_api_execution_pattern_for_all:
 
-For All Execution Pattern
-==========================
+``specfem::execution::for_all``
+===============================
 
 .. doxygenfunction:: specfem::execution::for_all( const std::string &name, const IteratorType &iterator, const ClosureType &closure )
 

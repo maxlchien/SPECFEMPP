@@ -4,9 +4,9 @@
 #include "enumerations/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "quadrature/interface.hpp"
-#include "source_time_function/interface.hpp"
 #include "specfem/point.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"
 #include "yaml-cpp/yaml.h"
@@ -30,7 +30,7 @@ namespace specfem::sources {
  * @par Common Usage Pattern
  * @code
  * // All sources require a source time function
- * auto stf = std::make_unique<specfem::forcing_function::Ricker>(
+ * auto stf = std::make_unique<specfem::source_time_functions::Ricker>(
  *     10.0,  // dominant frequency (Hz)
  *     0.01,  // time factor
  *     1.0,   // amplitude
@@ -83,15 +83,16 @@ public:
    *
    * @param x x-coordinate of source
    * @param z z-coordinate of source
-   * @param forcing_function pointer to source time function
+   * @param source_time_function pointer to source time function
    */
   template <specfem::dimension::type U = DimensionTag,
             typename std::enable_if<U == specfem::dimension::type::dim2>::type
                 * = nullptr>
-  source(type_real x, type_real z,
-         std::unique_ptr<specfem::forcing_function::stf> forcing_function)
+  source(
+      type_real x, type_real z,
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function)
       : global_coordinates(x, z),
-        forcing_function(std::move(forcing_function)){};
+        source_time_function(std::move(source_time_function)){};
 
   /**
    * @brief Construct a new 2D source object from a YAML node and time steps
@@ -129,15 +130,16 @@ public:
    * @param x x-coordinate of source
    * @param y y-coordinate of source
    * @param z z-coordinate of source
-   * @param forcing_function pointer to source time function
+   * @param source_time_function pointer to source time function
    */
   template <specfem::dimension::type U = DimensionTag,
             typename std::enable_if<U == specfem::dimension::type::dim3>::type
                 * = nullptr>
-  source(type_real x, type_real y, type_real z,
-         std::unique_ptr<specfem::forcing_function::stf> forcing_function)
+  source(
+      type_real x, type_real y, type_real z,
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function)
       : global_coordinates(x, y, z),
-        forcing_function(std::move(forcing_function)){};
+        source_time_function(std::move(source_time_function)){};
 
   /** @} */
 
@@ -146,16 +148,16 @@ public:
    *
    * @return value of t0
    */
-  type_real get_t0() const { return forcing_function->get_t0(); }
+  type_real get_t0() const { return source_time_function->get_t0(); }
 
-  type_real get_tshift() const { return forcing_function->get_tshift(); }
+  type_real get_tshift() const { return source_time_function->get_tshift(); }
   /**
    * @brief Update the value of tshift for specfem::stf::stf object
    *
    * @return new value of tshift
    */
   void update_tshift(type_real tshift) {
-    forcing_function->update_tshift(tshift);
+    source_time_function->update_tshift(tshift);
   };
   /**
    * @brief User output
@@ -170,7 +172,7 @@ public:
   void compute_source_time_function(
       const type_real t0, const type_real dt, const int nsteps,
       specfem::kokkos::HostView2d<type_real> source_time_function) const {
-    return this->forcing_function->compute_source_time_function(
+    return this->source_time_function->compute_source_time_function(
         t0, dt, nsteps, source_time_function);
   }
 
@@ -184,16 +186,35 @@ public:
     return !(*this == other);
   }
 
-  void set_forcing_function(YAML::Node &Node, const int nsteps,
-                            const type_real dt);
+  /**
+   * @brief Set the forcing function for the source
+   *
+   * @param Node YAML node containing source time function configuration
+   * @param nsteps number of time steps
+   * @param dt time step size
+   *
+   * This function initializes the source time function based on the
+   * configuration provided in the YAML node. It supports various types of
+   * source time functions such as Dirac, Gaussian, Ricker, dGaussian,
+   * Heaviside, and External. If the specified source time function is not
+   * recognized, an exception is thrown.
+   *
+   * This method also is responsible for setting up the start time of the source
+   * time function depending on dimension (dim2, dim3) and forcing function
+   * type.
+   *
+   */
+  void set_source_time_function(YAML::Node &Node, const int nsteps,
+                                const type_real dt);
 
   /**
    * @brief Get the forcing function object
    *
-   * @return std::unique_ptr<specfem::forcing_function::stf>&
+   * @return std::unique_ptr<specfem::source_time_functions::stf>&
    */
-  std::unique_ptr<specfem::forcing_function::stf> &get_forcing_function() {
-    return forcing_function;
+  std::unique_ptr<specfem::source_time_functions::stf> &
+  get_source_time_function() {
+    return source_time_function;
   }
 
   /**
@@ -273,8 +294,8 @@ protected:
       "!!! base_source, if this was printed, you are not using the "
       "correct source class !!!";
 
-  std::unique_ptr<specfem::forcing_function::stf>
-      forcing_function; ///< pointer to source time function
+  std::unique_ptr<specfem::source_time_functions::stf>
+      source_time_function; ///< pointer to source time function
 
   // Member variables to be set.
   specfem::point::local_coordinates<dimension_tag>

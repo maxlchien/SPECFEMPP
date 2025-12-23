@@ -1,13 +1,13 @@
-.. _execution_iterators_range_iterator:
+.. _specfem_api_execution_iterators_range_iterator:
 
-Range Iterator
-==============
+``specfem::execution::RangeIterator``
+=====================================
 
 .. doxygenclass:: specfem::execution::RangeIterator
     :members:
 
-Range Index
-============
+``specfem::execution::RangeIndex``
+==================================
 
 .. doxygenclass:: specfem::execution::RangeIndex
     :members:

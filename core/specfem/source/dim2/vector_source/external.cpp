@@ -1,7 +1,7 @@
 #include "enumerations/interface.hpp"
-#include "source_time_function/interface.hpp"
 #include "specfem/macros.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 #include <cmath>
 
@@ -83,7 +83,7 @@ specfem::sources::external<specfem::dimension::type::dim2>::print() const {
           << "      x = " << type_real(gcoord.x) << "\n"
           << "      z = " << type_real(gcoord.z) << "\n"
           << "    Source Time Function: \n"
-          << this->forcing_function->print() << "\n";
+          << this->source_time_function->print() << "\n";
 
   return message.str();
 }

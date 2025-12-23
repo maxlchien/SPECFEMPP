@@ -1,25 +1,25 @@
-.. _execution_iterators_chunked_domain_iterator:
+.. _specfem_api_execution_iterators_chunked_domain_iterator:
 
-Chunked Domain Iterator
-=======================
+``specfem::execution::ChunkedDomainIterator``
+=============================================
 
 .. doxygenclass:: specfem::execution::ChunkedDomainIterator
     :members:
 
-Chunked Element Index
-=====================
+``specfem::execution::ChunkElementIndex``
+=========================================
 
 .. doxygenclass:: specfem::execution::ChunkElementIndex
     :members:
 
-Chunked Element Iterator
-========================
+``specfem::execution::ChunkElementIterator``
+============================================
 
 .. doxygenclass:: specfem::execution::ChunkElementIterator
     :members:
 
-Point Index
-===========
+``specfem::execution::PointIndex``
+==================================
 
 .. doxygenclass:: specfem::execution::PointIndex
     :members:

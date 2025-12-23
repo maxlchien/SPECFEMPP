@@ -5,6 +5,10 @@
 namespace specfem {
 namespace execution {
 
+/**
+ * @brief Enumeration for different policy types used in execution iterators.
+ *
+ */
 enum class PolicyType {
   KokkosPolicy, ///< Indicates a Kokkos policy
   TilePolicy,   ///< Indicates a tile policy
@@ -15,7 +19,7 @@ enum class PolicyType {
  * @brief Base class for all iterators using on @c Kokkos::RangePolicy.
  *
  * @tparam ParallelConfig Configuration for parallel execution. @ref
- * specfem::parallel_configuration::range_config
+ * specfem::parallel_configurationuration::range_config
  */
 template <typename ParallelConfig>
 class RangePolicy
@@ -42,7 +46,7 @@ public:
  * @brief Base class for all iterators using on @c Kokkos::TeamPolicy.
  *
  * @tparam ParallelConfig Configuration for parallel execution. @ref
- * specfem::parallel_configuration::team_config
+ * specfem::parallel_configurationuration::team_config
  */
 template <typename ParallelConfig>
 class TeamPolicy

@@ -4,8 +4,8 @@
 #include "enumerations/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "quadrature/interface.hpp"
-#include "source_time_function/interface.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_mpi/interface.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"
@@ -24,7 +24,7 @@ namespace sources {
  * @par Usage Example
  * @code
  * // Create a Ricker wavelet source time function
- * auto stf = std::make_unique<specfem::forcing_function::Ricker>(
+ * auto stf = std::make_unique<specfem::source_time_functions::Ricker>(
  *     8.0,   // dominant frequency (Hz)
  *     0.01,  // time factor
  *     1.0,   // amplitude
@@ -102,18 +102,18 @@ public:
    * @param Mxx Mxx component of moment tensor
    * @param Mzz Mzz component of moment tensor
    * @param Mxz Mxz component of moment tensor
-   * @param forcing_function pointer to source time function
+   * @param source_time_function pointer to source time function
    * @param wavefield_type type of wavefield
    *
    */
   moment_tensor(
       type_real x, type_real z, const type_real Mxx, const type_real Mzz,
       const type_real Mxz,
-      std::unique_ptr<specfem::forcing_function::stf> forcing_function,
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function,
       const specfem::wavefield::simulation_field wavefield_type)
       : Mxx(Mxx), Mzz(Mzz), Mxz(Mxz), wavefield_type(wavefield_type),
         tensor_source<specfem::dimension::type::dim2>(
-            x, z, std::move(forcing_function)) {};
+            x, z, std::move(source_time_function)) {};
 
   /**
    * @brief User output

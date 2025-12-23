@@ -12,15 +12,16 @@ namespace periodic_tasks {
  *
  * @tparam IOLibrary Template for the I/O library to use for reading
  */
-template <template <typename OpType> class IOLibrary>
-class wavefield_reader : public periodic_task {
+template <specfem::dimension::type DimensionTag,
+          template <typename OpType> class IOLibrary>
+class wavefield_reader : public periodic_task<DimensionTag> {
 private:
   specfem::io::wavefield_reader<IOLibrary<specfem::io::read> > reader;
 
 public:
   wavefield_reader(const std::string &output_folder, const int time_interval,
                    const bool include_last_step)
-      : periodic_task(time_interval, include_last_step),
+      : periodic_task<DimensionTag>(time_interval, include_last_step),
         reader(specfem::io::wavefield_reader<IOLibrary<specfem::io::read> >(
             output_folder)) {}
 
@@ -28,16 +29,15 @@ public:
    * @brief Read wavefield data from file
    *
    */
-  void
-  run(specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-      const int istep) override {
+  void run(specfem::assembly::assembly<DimensionTag> &assembly,
+           const int istep) override {
     std::cout << "Reading wavefield files:" << std::endl;
     std::cout << "-------------------------------" << std::endl;
     reader.run(assembly, istep);
   }
 
-  void initialize(specfem::assembly::assembly<specfem::dimension::type::dim2>
-                      &assembly) override {
+  void
+  initialize(specfem::assembly::assembly<DimensionTag> &assembly) override {
     std::cout << "Reading coordinate files:" << std::endl;
     std::cout << "-------------------------------" << std::endl;
     reader.initialize(assembly);

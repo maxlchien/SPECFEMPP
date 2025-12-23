@@ -3,9 +3,9 @@
 #include "enumerations/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "quadrature/interface.hpp"
-#include "source_time_function/interface.hpp"
-#include "specfem/source.hpp"
 #include "specfem/macros.hpp"
+#include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_mpi/interface.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"
@@ -24,7 +24,7 @@ namespace sources {
  * @par Usage Example
  * @code
  * // Create a Ricker wavelet source time function
- * auto stf = std::make_unique<specfem::forcing_function::Ricker>(
+ * auto stf = std::make_unique<specfem::source_time_functions::Ricker>(
  *     15.0,  // dominant frequency (Hz)
  *     0.01,  // time factor
  *     1.0,   // amplitude
@@ -89,15 +89,15 @@ public:
    * @param f Factor to scale the elastic force
    * @param fc Factor to scale the rotational force
    * @param angle Angle of the elastic force source
-   * @param forcing_function Pointer to source time function
+   * @param source_time_function Pointer to source time function
    * @param wavefield_type Type of wavefield on which the source acts
    */
   cosserat_force(
       type_real x, type_real z, type_real f, type_real fc, type_real angle,
-      std::unique_ptr<specfem::forcing_function::stf> forcing_function,
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function,
       const specfem::wavefield::simulation_field wavefield_type)
       : f(f), fc(fc), angle(angle), wavefield_type(wavefield_type),
-        vector_source(x, z, std::move(forcing_function)) {};
+        vector_source(x, z, std::move(source_time_function)) {};
   /**
    * @brief User output
    *

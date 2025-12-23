@@ -23,6 +23,7 @@ New structure
     specfem/point/index
     specfem/receivers/index
     specfem/sources/index
+    specfem/source_time_functions/index
 
 
 Old structure
@@ -47,3 +48,4 @@ Old structure
     solver/index
     setup_parameters/index
     macros/index
+    parallel_configuration/index

@@ -14,7 +14,7 @@ specfem::sources::source<DimensionTag>::source(
     : global_coordinates(Node["x"].as<type_real>(), Node["z"].as<type_real>()) {
 
   // Read source time function
-  this->set_forcing_function(Node, nsteps, dt);
+  this->set_source_time_function(Node, nsteps, dt);
 
   return;
 }
