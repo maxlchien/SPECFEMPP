@@ -3,7 +3,7 @@
 FOR_EACH_IN_PRODUCT
 ===================
 
-The ``FOR_EACH_IN_PRODUCT`` macro is a powerful utility in SPECFEMPP for processing combinations of tags that represent different element dimensions, medium types, property types, boundary conditions, and connection types.
+The ``FOR_EACH_IN_PRODUCT`` macro is a utility in SPECFEMPP for processing combinations of tags that represent different element dimensions, medium types, property types, boundary conditions, and connection types.
 
 Description
 -----------
