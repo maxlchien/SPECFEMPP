@@ -1,0 +1,64 @@
+## This is a Marmousi2 simulation using externally generated mesh
+
+parameters:
+
+  header:
+    ## Header information is used for logging. It is good practice to give your simulations explicit names
+    title: Marmousi2 simulation with external mesh  # name for your simulation
+    # A detailed description for your simulation
+    description: |
+      Material systems : Elastic domain (1)
+      Mesh : External mesh from CUBIT
+      Sources : Force source (1)
+      Boundary conditions : Stacey absorbing on bottom, left and right edges
+
+  simulation-setup:
+    ## quadrature setup
+    elastic-wave: P_SV
+    quadrature:
+      quadrature-type: GLL4
+
+    ## Solver setup
+    solver:
+      time-marching:
+        time-scheme:
+          type: Newmark
+          dt: 5.0e-6
+          nstep: 1000
+
+    simulation-mode:
+      forward:
+        writer:
+          seismogram:
+            format: "ascii"
+            directory: "OUTPUT_FILES/results"
+
+          # Uncomment the following lines to enable display output if VTK is installed
+          # display:
+          #   directory: "OUTPUT_FILES/display"
+          #   format: PNG
+          #   field: displacement
+          #   simulation-field: forward
+          #   time-interval: 100
+
+  receivers:
+    stations: "OUTPUT_FILES/STATIONS"
+    angle: 0.0
+    seismogram-type:
+      - displacement
+    nstep_between_samples: 1
+
+  ## Runtime setup
+  run-setup:
+    number-of-processors: 1
+    number-of-runs: 1
+
+  ## databases
+  databases:
+    mesh-database: "OUTPUT_FILES/database.bin"
+
+  ## sources
+  sources: "sources.yaml"
+
+  ## Log file
+  log-file: "OUTPUT_FILES/output"
