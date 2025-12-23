@@ -33,7 +33,7 @@ struct Accessor<specfem::data_access::AccessorType::chunk_element, DataClass,
   constexpr static bool using_simd = UseSIMD;
 
   /**
-   * @brief SIMD-enabled data type wrapper
+   * @brief Datatype used to store data with optional SIMD vectorization
    *
    * @tparam T Base data type
    */
