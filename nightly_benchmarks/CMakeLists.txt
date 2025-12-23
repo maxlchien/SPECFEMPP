@@ -22,3 +22,4 @@ file(COPY
 )
 
 add_subdirectory(dim2/homogeneous-medium-flat-topography)
+add_subdirectory(dim2/fluid-solid-interface)
