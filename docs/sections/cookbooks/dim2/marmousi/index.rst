@@ -274,14 +274,14 @@ This will display the seismograms for both X and Z components.
 Expected Results
 ~~~~~~~~~~~~~~~~
 
-.. figure:: traces_X.png
+.. figure:: traces_X.svg
    :alt: X-component traces
    :width: 800
    :align: center
 
    X-component seismograms from the Marmousi2 simulation
 
-.. figure:: traces_Z.png
+.. figure:: traces_Z.svg
    :alt: Z-component traces
    :width: 800
    :align: center
@@ -295,6 +295,25 @@ off the heterogeneous velocity structure in the Marmousi2 model. You should obse
 * Multiple reflected and converted phases
 * Complex coda due to scattering from velocity heterogeneities
 * Amplitude variations across receivers due to focusing and defocusing effects
+
+[Optional] Visualizing wavefield snapshots
+------------------------------------------
+
+If you enabled the display section output in the ``specfem_config.yaml``, you
+should be able to visualize wavefield snapshots using the built in VTK plotter.
+
+The output snapshots will be saved in the ``OUTPUT_FILES/display/`` directory as
+PNGs. If you coalesce them into a video using ``ffmpeg``, the resulting wavefield
+should look like this:
+
+.. video:: marmousi.mp4
+   :width: 800
+   :alt: Wavefield propagation through the Marmousi2 model
+   :align: center
+
+   Wavefield propagation through the Marmousi2 model. The source is an explosive
+   moment tensor located at (5000m, 3450m) with 5 Hz Ricker wavelet as source
+   time function. We plot the magnitude of the displacement field.
 
 About the Marmousi2 Model
 -------------------------

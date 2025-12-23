@@ -64,6 +64,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinxcontrib.video",
     "sphinx_sitemap",
     "sphinx.ext.inheritance_diagram",
     "sphinx_design",
