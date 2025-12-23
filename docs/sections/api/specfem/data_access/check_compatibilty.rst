@@ -1,4 +1,4 @@
-.. _specfem_api_data_access_check_compatibilty:
+.. _specfem_api_data_access_check_compatibility:
 
 ``specfem::data_access::CheckCompatibility``
 ============================================

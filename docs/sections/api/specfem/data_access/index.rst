@@ -12,4 +12,4 @@
     data_classes
     container
     accessor
-    check_compatibilty
+    check_compatibility
