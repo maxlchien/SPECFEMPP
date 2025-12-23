@@ -159,7 +159,6 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   }
 
   std::ostringstream message;
-  message << "" << std::endl;
   message << "Initialized 2D wavefield plotter with setup:" << std::endl;
   message << "--------------------------------------------" << std::endl;
   message << "    Plotting wavefield of type: "

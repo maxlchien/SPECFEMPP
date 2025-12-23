@@ -432,8 +432,7 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
                       << " jacobian: " << h_jacobian(ispec, iz, iy, ix)
                       << std::endl;
               specfem::Logger::error(err_msg.str());
-              specfem::program::abort(
-                  "Error: Jacobian is non-positive, invalid element mapping.");
+              specfem::program::abort(err_msg.str());
             }
             jacobian_data.push_back(
                 static_cast<float>(h_jacobian(ispec, iz, iy, ix)));
