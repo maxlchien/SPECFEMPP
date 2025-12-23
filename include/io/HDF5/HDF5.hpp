@@ -12,9 +12,12 @@
 namespace specfem {
 namespace io {
 /**
- * @brief HDF5 I/O wrapper
+ * @brief HDF5 I/O backend wrapper
  *
- * @tparam OpType Operation type (read/write)
+ * Template class providing File, Group, and Dataset abstractions for HDF5
+ * format. Supports both read and write operations via OpType parameter.
+ *
+ * @tparam OpType Operation type (specfem::io::read or specfem::io::write)
  */
 template <typename OpType> class HDF5 {
 public:

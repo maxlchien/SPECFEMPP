@@ -12,9 +12,12 @@
 namespace specfem {
 namespace io {
 /**
- * @brief ADIOS2 I/O wrapper
+ * @brief ADIOS2 I/O backend wrapper
  *
- * @tparam OpType Operation type (read/write)
+ * Template class providing File, Group, and Dataset abstractions for ADIOS2
+ * format. Designed for high-performance parallel I/O on supercomputers.
+ *
+ * @tparam OpType Operation type (specfem::io::read or specfem::io::write)
  */
 template <typename OpType> class ADIOS2 {
 public:

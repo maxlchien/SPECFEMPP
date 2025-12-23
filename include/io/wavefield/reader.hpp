@@ -7,8 +7,12 @@ namespace specfem {
 namespace io {
 
 /**
- * @brief Reader to read wavefield data from disk
+ * @brief Reader for loading wavefield data from disk
  *
+ * Template-based reader supporting multiple I/O backends. Reads displacement,
+ * velocity, and acceleration fields at specified time steps.
+ *
+ * @tparam IOLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename IOLibrary> class wavefield_reader {
 

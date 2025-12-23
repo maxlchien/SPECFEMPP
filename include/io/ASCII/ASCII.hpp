@@ -10,15 +10,13 @@ namespace specfem {
 namespace io {
 
 /**
- * @brief
+ * @brief ASCII I/O backend for human-readable text format
  *
+ * Provides File, Group, and Dataset abstractions using text files in folder
+ * hierarchy. Each dataset creates .txt (data) and .meta (metadata) files for
+ * easy inspection.
  *
- * ASCII I/O writes the output in a human-readable format. The heirarchy of the
- * format is similar to that of HDF5 - where a file contains groups, which in
- * turn contain datasets. The implemetation creates separate directories for
- * each group and and separate .txt and .meta files for each dataset.
- *
- * @tparam OpType Operation type (read/write)
+ * @tparam OpType Operation type (specfem::io::read or specfem::io::write)
  */
 template <typename OpType> class ASCII {
 public:

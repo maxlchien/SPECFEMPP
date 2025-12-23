@@ -19,6 +19,7 @@ New structure
 
     specfem/assembly/index
     specfem/chunk_element/index
+    specfem/io/index
     specfem/point/index
     specfem/receivers/index
     specfem/sources/index
@@ -38,7 +39,6 @@ Old structure
     mesh/index
     datatypes/index
     execution/index
-    IO/index
     operators/index
     medium/index
     kokkos_kernels/index

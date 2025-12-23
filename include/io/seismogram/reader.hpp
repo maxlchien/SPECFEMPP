@@ -13,6 +13,12 @@ class external;
 namespace specfem {
 namespace io {
 
+/**
+ * @brief Reader for loading seismogram data from files
+ *
+ * Reads recorded seismograms in various formats and stores them in memory
+ * for use as external source time functions or data processing.
+ */
 class seismogram_reader {
 public:
   seismogram_reader() {};

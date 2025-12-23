@@ -7,9 +7,13 @@ namespace specfem {
 namespace io {
 
 /**
- * @brief Writer to output wavefield data to disk
+ * @brief Writer for outputting wavefield data to disk
  *
- * @tparam OutputLibrary Library to use for output (HDF5, ASCII, etc.)
+ * Template-based writer supporting multiple I/O backends. Saves displacement,
+ * velocity, and acceleration fields at specified time steps. Can optionally
+ * save boundary values for domain decomposition interfaces.
+ *
+ * @tparam OutputLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename OutputLibrary> class wavefield_writer {
 
