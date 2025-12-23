@@ -32,6 +32,7 @@ parameters:
           seismogram:
             format: "ascii"
             directory: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results"
+
           # Uncomment the following lines to enable display output if VTK is installed
           # display:
           #   directory: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/display"
