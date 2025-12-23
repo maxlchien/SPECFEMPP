@@ -31,6 +31,9 @@ namespace specfem {
  * configuration including solvers, time schemes, I/O handlers, sources,
  * receivers, and material properties. Provides type-safe configuration
  * objects that bridge parameter files with simulation components.
+ *
+ * @see specfem::runtime_configuration::setup Implements the holds all the data
+ * provided by the YAML file as C++ objects for each YAML section.
  */
 namespace runtime_configuration {
 
