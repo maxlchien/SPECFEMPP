@@ -1,4 +1,4 @@
-.. _specfem_spi_chunk_edge_index:
+.. _specfem_api_chunk_edge_index:
 
 ``specfem::chunk_edge::Index``
 ==============================

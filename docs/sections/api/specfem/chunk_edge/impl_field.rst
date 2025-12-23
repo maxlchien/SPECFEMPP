@@ -1,8 +1,8 @@
-.. _specfem_api_chunk_element_impl_field:
+.. _specfem_api_chunk_edge_impl_field:
 
-``specfem::chunk_element::impl::field``
-=======================================
+``specfem::chunk_edge::impl::field``
+====================================
 
-.. doxygenclass:: specfem::chunk_element::impl::field
+.. doxygenclass:: specfem::chunk_edge::impl::field
     :members:
     :private-members:

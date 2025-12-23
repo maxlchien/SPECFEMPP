@@ -1,4 +1,4 @@
-.. _specfem_api_chunk_edge_nonconforming_interface:
+.. _specfem_api_chunk_edge_transfer_function:
 
 ``specfem::chunk_edge::transfer_function_self``
 ===============================================

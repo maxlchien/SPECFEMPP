@@ -1,7 +1,7 @@
 .. _specfem_api_chunk_element_field:
 
-``specfem::chunk_element::dispacement``
-=======================================
+``specfem::chunk_element::displacement``
+========================================
 
 .. doxygenclass:: specfem::chunk_element::displacement
     :members:

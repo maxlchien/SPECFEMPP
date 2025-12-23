@@ -1,4 +1,4 @@
-.. _specfem_api_chunk_element_intersection_normal:
+.. _specfem_api_chunk_edge_intersection_normal:
 
 ``specfem::chunk_edge::intersection_normal``
 ============================================

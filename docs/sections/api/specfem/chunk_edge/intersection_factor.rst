@@ -1,4 +1,4 @@
-.. _specfem_api_chunk_element_intersection_factor:
+.. _specfem_api_chunk_edge_intersection_factor:
 
 ``specfem::chunk_edge::intersection_factor``
 ============================================
