@@ -295,7 +295,9 @@ public:
    * @return header Header object
    *
    */
-  header get_header() const { return *(this->header); }
+  specfem::runtime_configuration::header get_header() const {
+    return *(this->header);
+  }
 
 private:
   std::unique_ptr<specfem::runtime_configuration::header> header; ///< Pointer
