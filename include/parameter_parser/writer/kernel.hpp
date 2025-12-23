@@ -9,7 +9,7 @@ namespace specfem {
 namespace runtime_configuration {
 
 /**
- * @brief Configuration for simulation output kernel writers.
+ * @brief Configuration for misfit kernel writer
  *
  * Manages output format, location, and simulation type settings for
  * kernel file generation. Creates appropriate writer instances based
@@ -20,9 +20,9 @@ public:
   /**
    * @brief Construct kernel configuration from explicit parameters.
    *
-   * @param output_format File format for output (e.g., "binary", "ascii")
+   * @param output_format File format for output (e.g., "npy", "hdf5")
    * @param output_folder Directory path for output files
-   * @param type Simulation type (2D/3D, forward/adjoint)
+   * @param type Simulation type (forward/adjoint)
    */
   kernel(const std::string &output_format, const std::string &output_folder,
          const specfem::simulation::type type)

@@ -19,9 +19,10 @@
     wavefield_writer
     display
     setup
-    properties
+    property
     kernel
     plot_wavefield
     elastic_wave
     electromagnetic_wave
     sources
+    time_scheme
