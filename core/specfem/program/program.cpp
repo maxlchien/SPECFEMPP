@@ -21,6 +21,37 @@
 
 namespace specfem::program {
 
+template <specfem::dimension::type DimensionTag>
+std::string
+print_header(const specfem::runtime_configuration::setup &setup,
+             const std::chrono::time_point<std::chrono::system_clock> now) {
+
+  std::ostringstream message;
+
+  // convert now to string form
+  const std::time_t c_now = std::chrono::system_clock::to_time_t(now);
+
+  std::string dim;
+
+  if constexpr (DimensionTag == specfem::dimension::type::dim2) {
+    dim = "2D";
+  } else if constexpr (DimensionTag == specfem::dimension::type::dim3) {
+    dim = "3D";
+  } else {
+    throw std::runtime_error("Unsupported dimension for header print.");
+  }
+
+  message << "================================================\n"
+          << "            SPECFEM++ " << dim << " SIMULATION\n"
+          << "================================================\n\n"
+          << "Title : " << setup.get_header().get_title() << "\n"
+          << "Discription: " << setup.get_header().get_description() << "\n"
+          << "Simulation start time: " << ctime(&c_now)
+          << "------------------------------------------------\n";
+
+  return message.str();
+}
+
 std::string
 print_end_message(std::chrono::time_point<std::chrono::system_clock> start_time,
                   std::chrono::duration<double> solver_time) {
@@ -59,7 +90,8 @@ void program_2d(
   specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
   const auto database_filename = setup.get_databases();
 
-  specfem::Logger::info(setup.print_header(start_time));
+  specfem::Logger::info(
+      print_header<specfem::dimension::type::dim2>(setup, start_time));
 
   // --------------------------------------------------------------
 
@@ -250,7 +282,8 @@ void program_3d(
   specfem::runtime_configuration::setup setup(parameter_dict, default_dict);
   const auto database_filename = setup.get_databases();
 
-  specfem::Logger::info(setup.print_header(start_time));
+  specfem::Logger::info(
+      print_header<specfem::dimension::type::dim3>(setup, start_time));
 
   // Get simulation parameters
   const specfem::simulation::type simulation_type = setup.get_simulation_type();

@@ -310,25 +310,6 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
   }
 }
 
-std::string specfem::runtime_configuration::setup::print_header(
-    const std::chrono::time_point<std::chrono::system_clock> now) {
-
-  std::ostringstream message;
-
-  // convert now to string form
-  const std::time_t c_now = std::chrono::system_clock::to_time_t(now);
-
-  message << "================================================\n"
-          << "              SPECFEM2D SIMULATION\n"
-          << "================================================\n\n"
-          << "Title : " << this->header->get_title() << "\n"
-          << "Discription: " << this->header->get_description() << "\n"
-          << "Simulation start time: " << ctime(&c_now)
-          << "------------------------------------------------\n";
-
-  return message.str();
-}
-
 // Explicit template instantiations for instantiate_timescheme
 template std::shared_ptr<specfem::time_scheme::time_scheme>
 specfem::runtime_configuration::setup::instantiate_timescheme<
