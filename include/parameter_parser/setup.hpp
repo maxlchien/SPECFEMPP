@@ -88,11 +88,6 @@ public:
   void update_t0(type_real t0) { this->time_scheme->update_t0(t0); }
 
   type_real get_t0() const { return this->time_scheme->get_t0(); }
-  /**
-   * @brief Log the header and description of the simulation
-   */
-  std::string
-  print_header(const std::chrono::time_point<std::chrono::system_clock> now);
 
   /**
    * @brief Get the type of the elastic wave
@@ -294,6 +289,13 @@ public:
          (this->wavefield->is_for_adjoint_simulations())) ||
         (this->get_simulation_type() == specfem::simulation::type::combined));
   }
+
+  /**
+   * @brief Get the header object
+   * @return header Header object
+   *
+   */
+  header get_header() const { return *(this->header); }
 
 private:
   std::unique_ptr<specfem::runtime_configuration::header> header; ///< Pointer

@@ -18,6 +18,7 @@ boost::program_options::options_description define_args() {
     "  where <dimension> is either '2d' or '3d'\n"
   };
 
+  // Add basic options
   desc.add_options()("help,h", "Print this help message")(
       "parameters_file,p", po::value<std::string>()->required(),
       "Location to parameters file")(

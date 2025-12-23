@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.hpp"
+#include "specfem/logger/logger.hpp"
 #include <boost/program_options.hpp>
 #include <optional>
 #include <string>
@@ -24,15 +24,6 @@ namespace logger {
 class LoggerOptions {
 public:
   /**
-   * @brief Parse command-line arguments for logger options
-   *
-   * @param argc Argument count from main()
-   * @param argv Argument vector from main()
-   * @return LoggerOptions instance with parsed values
-   */
-  static LoggerOptions parse(int argc, char *argv[]);
-
-  /**
    * @brief Create logger options from an existing variables_map
    *
    * @param vm Variables map containing parsed command-line options
@@ -40,18 +31,6 @@ public:
    */
   static LoggerOptions
   from_variables_map(const boost::program_options::variables_map &vm);
-
-  /**
-   * @brief Check if help was requested
-   * @return true if --help flag was present
-   */
-  bool help_requested() const { return help_requested_; }
-
-  /**
-   * @brief Get the help message
-   * @return Description of all available options
-   */
-  std::string get_help_message() const;
 
   // Optional values - only set if provided on command line
   std::optional<std::string> log_file; ///< Log file path
@@ -61,9 +40,6 @@ public:
 
 private:
   LoggerOptions() = default;
-
-  bool help_requested_ = false;
-  boost::program_options::options_description desc_{ "Logger Options" };
 
   /**
    * @brief Convert string to LogLevel
