@@ -62,6 +62,7 @@
    _ENUM_ID_INTERFACE_TAG)
 /// @}
 
+/// \cond
 #define _MAKE_INTERFACE_TUPLE(r, product) BOOST_PP_SEQ_TO_TUPLE(product)
 
 #define _GENERATE_INTERFACE(seqs)                                              \
@@ -128,4 +129,5 @@
        INTERFACE_TAG_ACOUSTIC_ELASTIC,                                         \
        BOUNDARY_TAG_COMPOSITE_STACEY_DIRICHLET))
 
+/// \endcond
 /** @} */

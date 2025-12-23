@@ -47,4 +47,3 @@ Old structure
     timescheme/index
     solver/index
     setup_parameters/index
-    macros/index
