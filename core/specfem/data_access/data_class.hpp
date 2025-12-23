@@ -1,12 +1,5 @@
 #pragma once
 
-/**
- * @brief Data access utilities used within SPECFEM++
- *
- * This module provides containers, accessors, and compatibilty checkers that
- * help in managing different data access patterns we encounter within spectral
- * element simulations.
- */
 namespace specfem::data_access {
 
 /**
