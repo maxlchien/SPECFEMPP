@@ -3,4 +3,5 @@
 Interface Iterators
 ===================
 
-.. doxygenfile:: interface_iterators.hpp
+.. doxygengroup:: interface_iterator_macros
+   :content-only:

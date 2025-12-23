@@ -3,4 +3,5 @@
 Material Iterators
 ==================
 
-.. doxygenfile:: material_iterators.hpp
+.. doxygengroup:: material_iterator_macros
+   :content-only:

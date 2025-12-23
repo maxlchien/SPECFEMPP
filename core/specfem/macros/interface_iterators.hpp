@@ -12,6 +12,12 @@
 #include <boost/preprocessor.hpp>
 
 /**
+ * @defgroup interface_iterator_macros Interface Iterator Macros
+ * @brief Macros for defining interface and connection tags.
+ * @{
+ */
+
+/**
  * @name Connection Tag macros
  */
 /// @{
@@ -122,27 +128,4 @@
        INTERFACE_TAG_ACOUSTIC_ELASTIC,                                         \
        BOUNDARY_TAG_COMPOSITE_STACEY_DIRICHLET))
 
-namespace specfem::interface {
-
-/**
- * @brief A constexpr function to generate a list of edges with interfaces within
- * the simulation.
- *
- * This macro uses @ref EDGES to generate a list of edges automatically.
- *
- * @return constexpr auto list of edges
- */
-template <specfem::dimension::type DimensionTag> constexpr auto edges();
-
-template <> constexpr auto edges<specfem::dimension::type::dim2>() {
-  constexpr int total_edges = BOOST_PP_SEQ_SIZE(EDGES);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::connections::type,
-                 specfem::interface::interface_tag,
-                 specfem::element::boundary_tag>,
-      total_edges>
-      edges{ _MAKE_CONSTEXPR_ARRAY(EDGES) };
-  return edges;
-}
-
-} // namespace specfem::interface
+/** @} */

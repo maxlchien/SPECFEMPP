@@ -13,6 +13,12 @@
 #include <boost/preprocessor.hpp>
 
 /**
+ * @defgroup material_iterator_macros Material Iterator Macros
+ * @brief Macros for defining material and element tags.
+ * @{
+ */
+
+/**
  * @name Element Tag macros
  */
 /// @{
@@ -267,122 +273,6 @@
       _FOR_ONE_TAG_SEQ, (seq)BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__),            \
       BOOST_PP_CAT(_SEQ_FOR_TAGS_, BOOST_PP_TUPLE_SIZE(seq)))
 
-namespace specfem {
-namespace element {
-
-/**
- * @brief A constexpr function to generate a list of medium types within the
- * simulation.
- *
- * This macro uses @ref MEDIUM_TAGS to generate a list of medium types
- * automatically.
- *
- * @return constexpr auto list of medium types
- */
-template <specfem::dimension::type DimensionTag> constexpr auto medium_types();
-
-template <> constexpr auto medium_types<specfem::dimension::type::dim2>() {
-  // Use boost preprocessor library to generate a list of medium
-  // types
-  constexpr int total_medium_types = BOOST_PP_SEQ_SIZE(MEDIUM_TAGS_DIM2);
-  constexpr std::array<std::tuple<specfem::dimension::type, medium_tag>,
-                       total_medium_types>
-      medium_types{ _MAKE_CONSTEXPR_ARRAY(MEDIUM_TAGS_DIM2) };
-
-  return medium_types;
-}
-
-template <> constexpr auto medium_types<specfem::dimension::type::dim3>() {
-  // Use boost preprocessor library to generate a list of medium
-  // types
-  constexpr int total_medium_types = BOOST_PP_SEQ_SIZE(MEDIUM_TAGS_DIM3);
-  constexpr std::array<std::tuple<specfem::dimension::type, medium_tag>,
-                       total_medium_types>
-      medium_types{ _MAKE_CONSTEXPR_ARRAY(MEDIUM_TAGS_DIM3) };
-
-  return medium_types;
-}
-
-/**
- * @brief A constexpr function to generate a list of material systems within the
- * simulation
- *
- * This macro uses @ref MATERIAL_SYSTEMS to generate a list of material systems
- * automatically.
- *
- * @return constexpr auto list of material systems
- */
-template <specfem::dimension::type DimensionTag>
-constexpr auto material_systems();
-
-template <> constexpr auto material_systems<specfem::dimension::type::dim2>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_material_systems =
-      BOOST_PP_SEQ_SIZE(MATERIAL_SYSTEMS_DIM2);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag>,
-      total_material_systems>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(MATERIAL_SYSTEMS_DIM2) };
-
-  return material_systems;
-}
-
-template <> constexpr auto material_systems<specfem::dimension::type::dim3>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_material_systems =
-      BOOST_PP_SEQ_SIZE(MATERIAL_SYSTEMS_DIM3);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag>,
-      total_material_systems>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(MATERIAL_SYSTEMS_DIM3) };
-
-  return material_systems;
-}
-
-/**
- * @brief A constexpr function to generate a list of element types within the
- * simulation
- *
- * This macro uses @ref ELEMENT_TYPES to generate a list of element types
- * automatically.
- *
- * @return constexpr auto list of element types
- */
-template <specfem::dimension::type DimensionTag> constexpr auto element_types();
-
-template <> constexpr auto element_types<specfem::dimension::type::dim2>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_element_types = BOOST_PP_SEQ_SIZE(ELEMENT_TYPES_DIM2);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag,
-                 specfem::element::boundary_tag>,
-      total_element_types>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM2) };
-
-  return material_systems;
-}
-
-template <> constexpr auto element_types<specfem::dimension::type::dim3>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_element_types = BOOST_PP_SEQ_SIZE(ELEMENT_TYPES_DIM3);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag,
-                 specfem::element::boundary_tag>,
-      total_element_types>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM3) };
-
-  return material_systems;
-}
-
-} // namespace element
-} // namespace specfem
+/** @} */
 
 #include "interface_iterators.hpp"
