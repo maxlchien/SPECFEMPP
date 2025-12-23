@@ -1,4 +1,4 @@
-#include "source_time_function/external.hpp"
+#include "external.hpp"
 #include "enumerations/specfem_enums.hpp"
 #include "io/seismogram/reader.hpp"
 #include "kokkos_abstractions.h"
@@ -7,15 +7,15 @@
 #include <tuple>
 #include <vector>
 
-specfem::forcing_function::external::external(const YAML::Node &external,
-                                              const int nsteps,
-                                              const type_real dt)
-    : __nsteps(nsteps), __dt(dt) {
+specfem::source_time_functions::external::external(const YAML::Node &external,
+                                                   const int nsteps,
+                                                   const type_real dt)
+    : nsteps_(nsteps), dt_(dt) {
 
   if (specfem::utilities::is_ascii_string(
           external["format"].as<std::string>()) ||
       !external["format"]) {
-    this->type = specfem::enums::seismogram::format::ascii;
+    this->format_ = specfem::enums::seismogram::format::ascii;
   } else {
     throw std::runtime_error("Only ASCII format is supported");
   }
@@ -24,14 +24,14 @@ specfem::forcing_function::external::external(const YAML::Node &external,
   // Atleast one component is required
   if (const YAML::Node &stf = external["stf"]) {
     if (stf["X-component"] || stf["Z-component"]) {
-      this->x_component =
+      this->x_component_ =
           (stf["X-component"]) ? stf["X-component"].as<std::string>() : "";
-      this->z_component =
+      this->z_component_ =
           (stf["Z-component"]) ? stf["Z-component"].as<std::string>() : "";
-      this->ncomponents = 2;
+      this->ncomponents_ = 2;
     } else if (stf["Y-component"]) {
-      this->y_component = stf["Y-component"].as<std::string>();
-      this->ncomponents = 1;
+      this->y_component_ = stf["Y-component"].as<std::string>();
+      this->ncomponents_ = 1;
     } else {
       throw std::runtime_error("Error: External source time function requires "
                                "at least one component");
@@ -43,14 +43,14 @@ specfem::forcing_function::external::external(const YAML::Node &external,
 
   // Get t0 and dt from the file
   const std::string filename = [&]() -> std::string {
-    if (this->ncomponents == 2) {
-      if (this->x_component.empty()) {
-        return this->z_component;
+    if (this->ncomponents_ == 2) {
+      if (this->x_component_.empty()) {
+        return this->z_component_;
       } else {
-        return this->x_component;
+        return this->x_component_;
       }
     } else {
-      return this->y_component;
+      return this->y_component_;
     }
   }();
 
@@ -68,19 +68,19 @@ specfem::forcing_function::external::external(const YAML::Node &external,
     throw std::runtime_error("Seismogram file " + filename +
                              " is not formatted correctly");
   }
-  this->__t0 = time;
+  this->t0_ = time;
 
   std::getline(file, line);
   std::istringstream iss2(line);
   type_real time2, value2;
   iss2 >> time2 >> value2;
-  this->__dt = time2 - time;
+  this->dt_ = time2 - time;
   file.close();
 
   return;
 }
 
-void specfem::forcing_function::external::compute_source_time_function(
+void specfem::source_time_functions::external::compute_source_time_function(
     const type_real t0, const type_real dt, const int nsteps,
     specfem::kokkos::HostView2d<type_real> source_time_function) {
 
@@ -91,13 +91,13 @@ void specfem::forcing_function::external::compute_source_time_function(
                              "components");
   }
 
-  if (std::abs(t0 - this->__t0) > 1e-6) {
+  if (std::abs(t0 - this->t0_) > 1e-6) {
     throw std::runtime_error(
         "The start time of the external source time "
         "function does not match the simulation start time");
   }
 
-  if (std::abs(dt - this->__dt) > 1e-6) {
+  if (std::abs(dt - this->dt_) > 1e-6) {
     throw std::runtime_error(
         "The time step of the external source time "
         "function does not match the simulation time step");
@@ -105,8 +105,8 @@ void specfem::forcing_function::external::compute_source_time_function(
 
   std::vector<std::string> filename =
       (ncomponents == 2)
-          ? std::vector<std::string>{ this->x_component, this->z_component }
-          : std::vector<std::string>{ this->y_component };
+          ? std::vector<std::string>{ this->x_component_, this->z_component_ }
+          : std::vector<std::string>{ this->y_component_ };
 
   // Check if files exist
   for (int icomp = 0; icomp < ncomponents; ++icomp) {
@@ -143,29 +143,46 @@ void specfem::forcing_function::external::compute_source_time_function(
   return;
 }
 
-bool specfem::forcing_function::external::operator==(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::source_time_functions::external::operator==(
+    const specfem::source_time_functions::stf &other) const {
   // First check base class equality
-  if (!specfem::forcing_function::stf::operator==(other))
+  if (!specfem::source_time_functions::stf::operator==(other))
     return false;
 
   // Then check if the other object is a dGaussian
   auto other_external =
-      dynamic_cast<const specfem::forcing_function::external *>(&other);
+      dynamic_cast<const specfem::source_time_functions::external *>(&other);
   if (!other_external)
     return false;
 
-  return (this->x_component == other_external->x_component &&
-          this->y_component == other_external->y_component &&
-          this->z_component == other_external->z_component &&
-          this->__t0 == other_external->__t0 &&
-          this->__dt == other_external->__dt &&
-          this->type == other_external->type &&
-          this->ncomponents == other_external->ncomponents &&
-          this->__nsteps == other_external->__nsteps);
+  return (this->x_component_ == other_external->x_component_ &&
+          this->y_component_ == other_external->y_component_ &&
+          this->z_component_ == other_external->z_component_ &&
+          this->t0_ == other_external->t0_ &&
+          this->dt_ == other_external->dt_ &&
+          this->format_ == other_external->format_ &&
+          this->ncomponents_ == other_external->ncomponents_ &&
+          this->nsteps_ == other_external->nsteps_);
 };
 
-bool specfem::forcing_function::external::operator!=(
-    const specfem::forcing_function::stf &other) const {
+bool specfem::source_time_functions::external::operator!=(
+    const specfem::source_time_functions::stf &other) const {
   return !(*this == other);
+}
+
+void specfem::source_time_functions::external::update_tshift(type_real tshift) {
+  if (std::abs(tshift) > 1e-6) {
+    throw std::runtime_error("Error: external source time function does not "
+                             "support time shift");
+  }
+}
+
+std::string specfem::source_time_functions::external::print() const {
+  std::stringstream ss;
+  ss << "External source time function: "
+     << "\n"
+     << "  X-component: " << this->x_component_ << "\n"
+     << "  Y-component: " << this->y_component_ << "\n"
+     << "  Z-component: " << this->z_component_ << "\n";
+  return ss.str();
 }

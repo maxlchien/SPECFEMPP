@@ -421,25 +421,6 @@ target_link_libraries(
 )
 
 add_library(
-        source_time_function
-        src/source_time_function/dirac.cpp
-        src/source_time_function/dgaussian.cpp
-        src/source_time_function/ricker.cpp
-        src/source_time_function/external.cpp
-)
-
-target_link_libraries(
-        source_time_function
-        read_seismogram
-        Kokkos::kokkos
-        point
-        utilities
-)
-
-# Disable unity build for source_time_function due to KOKKOS_INLINE_FUNCTION issues
-set_target_properties(source_time_function PROPERTIES UNITY_BUILD OFF)
-
-add_library(
         kokkos_kernels
         src/kokkos_kernels/impl/compute_mass_matrix.cpp
         src/kokkos_kernels/impl/invert_mass_matrix.cpp
