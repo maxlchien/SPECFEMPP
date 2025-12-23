@@ -33,7 +33,9 @@ parameters:
             format: "ascii"
             directory: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results"
 
-          # Uncomment the following lines to enable display output if VTK is installed
+          # # Uncomment the following lines to enable display output
+          # # if VTK is installed. Note that you will need to create the
+          # # output folder beforehand.
           # display:
           #   directory: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/display"
           #   format: PNG
@@ -59,3 +61,6 @@ parameters:
 
   ## sources
   sources: "@CURRENT_BENCHMARK_BUILD_DIR@/sources.yaml"
+
+  ## Log file
+  log-file: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/output"
