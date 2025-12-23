@@ -14,11 +14,19 @@ namespace specfem::data_access {
  * kernels.
  *
  * Each enum value is also associated with a type trait checker to facilitate
- * compile-time type detection and static assertions. For example:
+ * compile-time type detection and static assertions. Traits are typically
+ * evaluated on container/accessor types that expose a `data_class` member.
+ * For example:
  * @code{cpp}
- * const auto properties = specfem::data_access::DataClassType::properties;
- * static_assert(specfem::data_access::is_properties<decltype(properties)>::value,
- *               "Type is not properties"); // passes
+ * struct PropertiesAccessor {
+ *   static constexpr specfem::data_access::DataClassType data_class =
+ *       specfem::data_access::DataClassType::properties;
+ * };
+ *
+ * static_assert(
+ *   specfem::data_access::is_properties<PropertiesAccessor>::value,
+ *   "Accessor is not marked as properties"
+ * );
  * @endcode
  */
 enum DataClassType {
