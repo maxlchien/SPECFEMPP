@@ -21,6 +21,7 @@ enum reduce_type { sum, min, max };
 // Forward declaration
 namespace program {
 class Context;
+[[noreturn]]
 void abort(const std::string &message, int error_code, const int line,
            const char *file);
 } // namespace program

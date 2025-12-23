@@ -460,6 +460,7 @@ target_link_libraries(
         timescheme
         kokkos_kernels
         periodic_tasks
+        specfem::logger
 )
 
 add_library(

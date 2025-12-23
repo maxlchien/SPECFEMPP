@@ -1,4 +1,5 @@
 #include "constants.hpp"
+#include "specfem/logger.hpp"
 #include "specfem/program.hpp"
 #include "specfem/program/context.hpp"
 #include <boost/program_options.hpp>
@@ -17,11 +18,23 @@ boost::program_options::options_description define_args() {
     "  where <dimension> is either '2d' or '3d'\n"
   };
 
+  // Add basic options
   desc.add_options()("help,h", "Print this help message")(
       "parameters_file,p", po::value<std::string>()->required(),
       "Location to parameters file")(
       "default_file", po::value<std::string>()->default_value(__default_file__),
       "Location of default parameters file.");
+
+  // Add logger options
+  desc.add_options()(
+      "log-file", po::value<std::string>(),
+      "Set output log file (base name, '.log' extension added automatically)")(
+      "log-per-rank", po::value<bool>(),
+      "Enable per-rank log files and stdout for all ranks (true/false)")(
+      "log-auto-flush", po::value<bool>(),
+      "Enable auto-flush after each log message (true/false)")(
+      "log-level", po::value<std::string>(),
+      "Set minimum log level (TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL)");
 
   return desc;
 }
@@ -96,6 +109,18 @@ int main(int argc, char **argv) {
     // Load configuration files
     const YAML::Node parameter_dict = YAML::LoadFile(parameters_file);
     const YAML::Node default_dict = YAML::LoadFile(default_file);
+
+    // Extract and apply Logger options from parsed arguments
+    auto logger_options =
+        specfem::logger::LoggerOptions::from_variables_map(vm);
+    specfem::Logger::apply_options(logger_options);
+
+    // Set log file if specified in parameters and not already set by CLI
+    if (parameter_dict["parameters"]["log-file"]) {
+      const std::string log_file =
+          parameter_dict["parameters"]["log-file"].as<std::string>();
+      specfem::Logger::set_log_file(log_file);
+    }
 
     // Execute program with the specified dimension
     const auto success = specfem::program::execute(
