@@ -4,15 +4,6 @@
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/point.hpp"
 
-/**
- * @file locate_point.hpp
- * @brief Algorithms for locating points in spectral element meshes
- *
- * Provides functions to convert between local and global coordinates,
- * and to locate points within mesh elements.
- * @ingroup AlgorithmsLocatePoint
- */
-
 namespace specfem {
 namespace algorithms {
 
@@ -135,6 +126,6 @@ locate_point_on_edge(
 } // namespace specfem
 
 /**
- * @defgroup AlgorithmsLocatePoint
- *
+ * @defgroup AlgorithmsLocatePoint Point Location Algorithms
+ * @ingroup Algorithms
  */

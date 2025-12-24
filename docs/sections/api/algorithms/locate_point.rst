@@ -3,10 +3,6 @@
 ``specfem::algorithms::locate_point``
 =====================================
 
-.. doxygengroup:: AlgorithmsLocatePoint
-    :members:
-    :content-only:
-
 2D Overloads
 ~~~~~~~~~~~~
 
