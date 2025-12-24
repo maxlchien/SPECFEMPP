@@ -31,9 +31,7 @@ template <> struct mesh<specfem::dimension::type::dim2> {
   specfem::mesh::control_nodes<dimension> control_nodes; ///< Defines control
                                                          ///< nodes
 
-  specfem::mesh::parameters<dimension> parameters; ///< Struct to store
-                                                   ///< simulation launch
-                                                   ///< parameters (never used)
+  specfem::mesh::parameters<dimension> parameters;
 
   specfem::mesh::boundaries<dimension> boundaries; ///< Struct to store
                                                    ///< information at the
@@ -44,18 +42,10 @@ template <> struct mesh<specfem::dimension::type::dim2> {
                                        ///< spectral
                                        ///< element
 
-  specfem::mesh::elements::tangential_elements<dimension>
-      tangential_nodes; ///< Defines
-                        ///< tangential
-                        ///< nodes
-                        ///< (never
-                        ///< used)
+  specfem::mesh::elements::tangential_elements<dimension> tangential_nodes;
 
-  specfem::mesh::elements::axial_elements<dimension> axial_nodes; ///< Defines
-                                                                  ///< axial
-                                                                  ///< nodes
-                                                                  ///< (never
-                                                                  ///< used)
+  specfem::mesh::elements::axial_elements<dimension> axial_nodes;
+
   specfem::mesh::materials<dimension> materials; ///< Defines material
                                                  ///< properties
 
@@ -89,10 +79,6 @@ template <> struct mesh<specfem::dimension::type::dim2> {
    * @param axial_nodes Struct to store axial nodes
    * @param materials Struct to store material properties
    *
-   * @see ::specfem::mesh::control_nodes, ::specfem::mesh::parameters,
-   *      ::specfem::mesh::coupled_interfaces, ::specfem::mesh::boundaries,
-   *      ::specfem::mesh::tags, ::specfem::mesh::elements::tangential_elements,
-   *      ::specfem::mesh::elements::axial_elements, ::specfem::mesh::materials
    *
    * @code{.cpp}
    * // Example of how to use this constructor
