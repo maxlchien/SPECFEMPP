@@ -8,6 +8,18 @@
  * by including the individual algorithm headers.
  */
 
+/**
+ * @namespace specfem::algorithms
+ * @brief Algorithms for spectral element computations
+ *
+ * The algorithms namespace contains core numerical algorithms used in
+ * SPECFEM++, including:
+ * - Divergence and gradient computations
+ * - Interpolation and point location
+ * - Data transfer between mesh entities
+ * - Integration and coupling
+ */
+
 #include "algorithms/divergence.hpp"
 #include "algorithms/gradient.hpp"
 #include "algorithms/interpolate.hpp"

@@ -7,8 +7,10 @@
     :members:
     :content-only:
 
-Integration Algorithms
-----------------------
+.. _algorithms_coupling_integral:
+
+``specfem::algorithms::coupling_integral``
+------------------------------------------
 
 .. doxygengroup:: AlgorithmsIntegration
     :members:
