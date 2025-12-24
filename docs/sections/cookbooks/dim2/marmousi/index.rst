@@ -79,8 +79,24 @@ Mesh files
 ----------
 
 Unlike the homogeneous medium example, the Marmousi2 model uses an externally
-generated mesh from CUBIT. The ``MESH-default`` directory contains all the necessary
-mesh files:
+generated mesh using Coreform Cubit's built in Python interface. The
+``MESH-default`` directory contains all the necessary mesh files.
+
+In the following subsections, we plot the first 20 lines of each mesh file used
+in this example, along with a brief description of their contents.
+
+
+.. note::
+
+    The full file content are thousands of lines long, making it impractical to
+    include here and render on the webpage. Instead, please download the full
+    files using the link provided at the beginning of this cookbook. Or,
+    download the MESH-default directory using the following command:
+
+    .. download-folder:: parameter_files/MESH-default
+        :filename: MESH-default.zip
+        :text: Download `MESH-default` directory
+
 
 mesh_file
 ~~~~~~~~~
@@ -89,6 +105,7 @@ Element connectivity information
 
 .. literalinclude:: parameter_files/MESH-default/mesh_file
    :caption: MESH-default/mesh_file
+   :lines: 1-20
 
 nodes_coords_file
 ~~~~~~~~~~~~~~~~~
@@ -97,6 +114,7 @@ Node coordinates
 
 .. literalinclude:: parameter_files/MESH-default/nodes_coords_file
    :caption: MESH-default/nodes_coords_file
+   :lines: 1-20
 
 materials_file
 ~~~~~~~~~~~~~~
@@ -105,6 +123,7 @@ Material assignments for each element
 
 .. literalinclude:: parameter_files/MESH-default/materials_file
    :caption: MESH-default/materials_file
+   :lines: 1-20
 
 nummaterial_velocity_file_marmousi2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,6 +132,7 @@ Velocity model properties
 
 .. literalinclude:: parameter_files/MESH-default/nummaterial_velocity_file_marmousi2
    :caption: MESH-default/nummaterial_velocity_file_marmousi2
+   :lines: 1-20
 
 free_surface_file
 ~~~~~~~~~~~~~~~~~
@@ -121,6 +141,7 @@ Free surface boundary definition
 
 .. literalinclude:: parameter_files/MESH-default/free_surface_file
    :caption: MESH-default/free_surface_file
+   :lines: 1-20
 
 absorbing_surface_file
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -129,6 +150,7 @@ Absorbing boundary conditions
 
 .. literalinclude:: parameter_files/MESH-default/absorbing_surface_file
    :caption: MESH-default/absorbing_surface_file
+   :lines: 1-20
 
 Generating the mesh database
 -----------------------------
