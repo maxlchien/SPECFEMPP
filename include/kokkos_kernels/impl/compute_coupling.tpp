@@ -21,7 +21,8 @@
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType,
           specfem::interface::interface_tag InterfaceTag,
-          specfem::element::boundary_tag BoundaryTag>
+          specfem::element::boundary_tag BoundaryTag,
+          specfem::interface::flux_scheme_tag FluxSchemeTag>
 void specfem::kokkos_kernels::impl::compute_coupling(
     std::integral_constant<
         specfem::connections::type,
@@ -34,6 +35,10 @@ void specfem::kokkos_kernels::impl::compute_coupling(
   constexpr static auto interface_tag = InterfaceTag;
   constexpr static auto boundary_tag = BoundaryTag;
   constexpr static auto wavefield = WavefieldType;
+  constexpr static auto flux_scheme_tag = FluxSchemeTag;
+
+  static_assert(flux_scheme_tag == specfem::interface::flux_scheme_tag::natural,
+                "Currently, we are enforcing only one flux scheme: natural");
 
   constexpr static auto self_medium =
       specfem::interface::attributes<dimension_tag,
@@ -58,8 +63,9 @@ void specfem::kokkos_kernels::impl::compute_coupling(
 
   const auto num_points = assembly.mesh.element_grid.ngllx;
 
-  using parallel_config = specfem::parallel_configuration::default_chunk_edge_config<
-      DimensionTag, Kokkos::DefaultExecutionSpace>;
+  using parallel_config =
+      specfem::parallel_configuration::default_chunk_edge_config<
+          DimensionTag, Kokkos::DefaultExecutionSpace>;
 
   using CoupledFieldType = typename specfem::interface::attributes<
       dimension_tag, interface_tag>::template coupled_field_t<connection_tag>;
@@ -112,7 +118,8 @@ template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType, int NGLL,
           int NQuad_intersection,
           specfem::interface::interface_tag InterfaceTag,
-          specfem::element::boundary_tag BoundaryTag>
+          specfem::element::boundary_tag BoundaryTag,
+          specfem::interface::flux_scheme_tag FluxSchemeTag>
 void specfem::kokkos_kernels::impl::compute_coupling(
     std::integral_constant<
         specfem::connections::type,
@@ -127,6 +134,11 @@ void specfem::kokkos_kernels::impl::compute_coupling(
   constexpr static auto interface_tag = InterfaceTag;
   constexpr static auto boundary_tag = BoundaryTag;
   constexpr static auto wavefield = WavefieldType;
+  constexpr static auto flux_scheme_tag = FluxSchemeTag;
+
+  static_assert(flux_scheme_tag == specfem::interface::flux_scheme_tag::natural,
+                "Currently, we are enforcing only one flux scheme: natural");
+
   const auto &nonconforming_interfaces = assembly.nonconforming_interfaces;
   const auto [self_edges, coupled_edges] =
       assembly.edge_types.get_edges_on_device(connection_tag, interface_tag,
@@ -139,8 +151,9 @@ void specfem::kokkos_kernels::impl::compute_coupling(
 
   const auto num_points = assembly.mesh.element_grid.ngllx;
 
-  using parallel_config = specfem::parallel_configuration::default_chunk_edge_config<
-      DimensionTag, Kokkos::DefaultExecutionSpace>;
+  using parallel_config =
+      specfem::parallel_configuration::default_chunk_edge_config<
+          DimensionTag, Kokkos::DefaultExecutionSpace>;
 
   // As written, field types cannot readily be defined in attributes. Define
   // them here.
@@ -240,7 +253,8 @@ template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType, int NGLL,
           int NQuad_intersection,
           specfem::interface::interface_tag InterfaceTag,
-          specfem::element::boundary_tag BoundaryTag>
+          specfem::element::boundary_tag BoundaryTag,
+          specfem::interface::flux_scheme_tag FluxSchemeTag>
 void specfem::kokkos_kernels::impl::compute_coupling(
     const specfem::assembly::assembly<DimensionTag> &assembly) {
   // Create dispatch tag for connection type
@@ -250,10 +264,10 @@ void specfem::kokkos_kernels::impl::compute_coupling(
   // Forward to implementation with dispatch tag
   if constexpr (ConnectionTag == specfem::connections::type::nonconforming) {
     compute_coupling<DimensionTag, WavefieldType, NGLL, NQuad_intersection,
-                     InterfaceTag, BoundaryTag>(connection_dispatch(),
-                                                assembly);
-  } else {
-    compute_coupling<DimensionTag, WavefieldType, InterfaceTag, BoundaryTag>(
+                     InterfaceTag, BoundaryTag, FluxSchemeTag>(
         connection_dispatch(), assembly);
+  } else {
+    compute_coupling<DimensionTag, WavefieldType, InterfaceTag, BoundaryTag,
+                     FluxSchemeTag>(connection_dispatch(), assembly);
   }
 }
