@@ -15,7 +15,7 @@ making it an excellent benchmark for validating numerical methods.
 
     .. download-folder:: parameter_files
         :filename: marmousi_cookbook.zip
-        :text: Download all cookbook files
+        :text: Marmousi2 cookbook
 
 .. warning::
 
@@ -91,11 +91,11 @@ in this example, along with a brief description of their contents.
     The full file content are thousands of lines long, making it impractical to
     include here and render on the webpage. Instead, please download the full
     files using the link provided at the beginning of this cookbook. Or,
-    download the MESH-default directory using the following command:
+    download the just the ``MESH-default`` directory:
 
     .. download-folder:: parameter_files/MESH-default
         :filename: MESH-default.zip
-        :text: Download `MESH-default` directory
+        :text: MESH-default
 
 
 mesh_file

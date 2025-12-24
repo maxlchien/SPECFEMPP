@@ -78,15 +78,51 @@ class DownloadFolderDirective(SphinxDirective):
         # Simple relative path - just the filename since it's in the same directory
         download_path = zip_filename
 
-        # Create a reference node
+        # Create a reference node for the download link (keep simple relative path)
         reference = nodes.reference("", "", internal=False, refuri=download_path)
-        reference += nodes.Text(link_text)
+        reference += nodes.Text(f"{link_text} here")
 
-        # Wrap in a paragraph
-        paragraph = nodes.paragraph()
-        paragraph += reference
+        # Wrap link in a paragraph with "Download " prefix
+        link_paragraph = nodes.paragraph()
+        link_paragraph += nodes.Text("Download ")
+        link_paragraph += reference
 
-        return [paragraph]
+        # Build full URL for curl/wget commands
+        # Get the base URL and version from Sphinx config
+        base_url = getattr(env.config, "html_baseurl", "").rstrip("/")
+
+        # Get version from environment (ReadTheDocs) or config
+        version = os.environ.get("READTHEDOCS_VERSION")
+        if not version:
+            version = getattr(env.config, "version", "latest")
+
+        # Construct full URL for curl/wget instructions
+        doc_dir = os.path.dirname(docname_path)
+        if base_url:
+            if doc_dir:
+                full_url = f"{base_url}/en/{version}/{doc_dir}/{zip_filename}"
+            else:
+                full_url = f"{base_url}/en/{version}/{zip_filename}"
+        else:
+            # Fallback to ReadTheDocs URL
+            if doc_dir:
+                full_url = f"https://specfem2d-kokkos.readthedocs.io/en/{version}/{doc_dir}/{zip_filename}"
+            else:
+                full_url = f"https://specfem2d-kokkos.readthedocs.io/en/{version}/{zip_filename}"
+
+        # Add instructions paragraph
+        instructions = nodes.paragraph()
+        instructions += nodes.Text("Or download using command line:")
+
+        # Create code block with curl and wget commands using full URL
+        curl_command = f"curl -O {full_url}"
+        wget_command = f"wget {full_url}"
+        code_text = f"# Using curl:\n{curl_command}\n\n# Using wget:\n{wget_command}"
+
+        code_block = nodes.literal_block(code_text, code_text)
+        code_block["language"] = "bash"
+
+        return [link_paragraph, instructions, code_block]
 
 
 def setup(app):
