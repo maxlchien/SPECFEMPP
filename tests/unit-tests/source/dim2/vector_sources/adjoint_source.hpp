@@ -1,8 +1,8 @@
 
 #include "enumerations/interface.hpp"
 #include "kokkos_abstractions.h"
-#include "source_time_function/interface.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
 #include <Kokkos_Core.hpp>
@@ -107,8 +107,8 @@ specfem::sources::adjoint_source<specfem::dimension::type::dim2> create_source<
         &parameters) {
   return specfem::sources::adjoint_source<specfem::dimension::type::dim2>(
       parameters.x, parameters.z,
-      std::make_unique<specfem::forcing_function::Ricker>(10, 0.01, 1.0, 0.0,
-                                                          1.0, false),
+      std::make_unique<specfem::source_time_functions::Ricker>(10, 0.01, 1.0,
+                                                               0.0, 1.0, false),
       "STA", "NET");
 }
 

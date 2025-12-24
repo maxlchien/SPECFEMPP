@@ -11,8 +11,10 @@ specfem::quadrature::operator<<(std::ostream &out,
 }
 
 void specfem::quadrature::quadrature::print(std::ostream &out) const {
-  out << "Quadrature wasn't initialized properly. Base class being called";
+  auto outstring = this->to_string();
+  throw std::runtime_error(outstring);
+}
 
-  throw std::runtime_error(
-      "Quadrature wasn't initialized properly. Base class being called");
+std::string specfem::quadrature::quadrature::to_string() const {
+  return "Quadrature wasn't initialized properly. Base class being called";
 }

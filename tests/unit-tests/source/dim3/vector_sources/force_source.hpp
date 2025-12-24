@@ -1,8 +1,8 @@
 #include "../../source.hpp"
 #include "enumerations/interface.hpp"
 #include "kokkos_abstractions.h"
-#include "source_time_function/interface.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
 #include <Kokkos_Core.hpp>
@@ -122,8 +122,8 @@ create_source<specfem::dimension::type::dim3,
   return specfem::sources::force<specfem::dimension::type::dim3>(
       parameters.x, parameters.y, parameters.z, parameters.fx, parameters.fy,
       parameters.fz,
-      std::make_unique<specfem::forcing_function::Ricker>(10, 0.01, 1.0, 0.0,
-                                                          1.0, false),
+      std::make_unique<specfem::source_time_functions::Ricker>(10, 0.01, 1.0,
+                                                               0.0, 1.0, false),
       parameters.wavefield_type);
 }
 

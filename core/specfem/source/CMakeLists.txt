@@ -11,7 +11,7 @@ target_link_libraries(
         Kokkos::kokkos
         specfem_mpi
         utilities
-        source_time_function
+        specfem::source_time_functions
         yaml-cpp
         enumerations
         algorithms
