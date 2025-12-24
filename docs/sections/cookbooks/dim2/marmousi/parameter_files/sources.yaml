@@ -8,6 +8,6 @@ sources:
       vx : 0.0
       vz : 0.0
       Ricker:
-        factor: 1.0
+        factor: 1e10
         tshift: 0.0
         f0: 5.0

@@ -74,8 +74,8 @@ rule plot_seismogram:
     input:
         trace_files=rules.run_solver.output.seismograms,
     output:
-        traces_X=rule.all.output.plotX,
-        traces_Z=rule.all.output.plotZ,
+        traces_X=rules.all.input.plotX,
+        traces_Z=rules.all.input.plotZ,
     localrule: True
     run:
         import glob
