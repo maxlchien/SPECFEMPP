@@ -1,18 +1,14 @@
 .. _algorithms_interpolate:
 
-Interpolate
-===========
+``specfem::algorithms::interpolate``
+====================================
 
-.. doxygenfile:: algorithms/interpolate.hpp
-    :sections: briefdescription detaileddescription
+.. doxygengroup:: AlgorithmsInterpolate
+    :members:
+    :content-only:
 
-Functors
---------
+Implementation Details
+----------------------
 
 .. doxygenstruct:: specfem::algorithms::impl::InterpolateFunctor
     :members:
-
-Functions
----------
-
-.. doxygenfunction:: specfem::algorithms::interpolate_function

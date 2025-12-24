@@ -10,6 +10,7 @@
  *
  * Provides functions to convert between local and global coordinates,
  * and to locate points within mesh elements.
+ * @ingroup AlgorithmsLocatePoint
  */
 
 namespace specfem {
@@ -132,3 +133,8 @@ locate_point_on_edge(
 
 } // namespace algorithms
 } // namespace specfem
+
+/**
+ * @defgroup AlgorithmsLocatePoint
+ *
+ */

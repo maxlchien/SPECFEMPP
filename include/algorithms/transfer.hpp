@@ -10,6 +10,7 @@
 /**
  * @file transfer.hpp
  * @brief Algorithms for transferring data between different mesh entities
+ * @ingroup AlgorithmsTransfer
  *
  * Provides functions for mapping fields between edges and intersections
  * using transfer functions in coupled interface computations.
@@ -32,6 +33,7 @@ namespace specfem::algorithms {
  * @param coupled_field The chunk_edge field to map from
  * @param intersection_field a view that the intersection field should be stored
  into
+ * @ingroup AlgorithmsTransfer
  */
 template <
     typename IndexType, typename TransferFunctionType,
@@ -88,3 +90,8 @@ transfer(const IndexType &chunk_edge_index,
 }
 
 } // namespace specfem::algorithms
+
+/**
+ * @defgroup AlgorithmsTransfer Transfer Algorithms
+ * @ingroup Algorithms
+ */

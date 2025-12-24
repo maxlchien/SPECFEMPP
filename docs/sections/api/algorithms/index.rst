@@ -3,17 +3,18 @@
 ``specfem::algorithms``
 =======================
 
+The ``specfem::algorithms`` namespace contains numerical algorithms used in SPECFEM++, including divergence and gradient computations, interpolation, point location, and data transfer between mesh entities.
+
 .. doxygennamespace:: specfem::algorithms
     :desc-only:
 
-The namespace :cpp:any:`specfem::algorithms` contains the data structures
+
 
 .. toctree::
     :maxdepth: 1
 
     divergence
     gradient
-    interface
     interpolate
     locate_point
     transfer

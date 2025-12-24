@@ -10,6 +10,7 @@
 /**
  * @file coupling_integral1d.hpp
  * @brief 1D coupling integrals for interface computations
+ * @ingroup AlgorithmsIntegration
  *
  * Provides algorithms for computing integrals over 1D intersections
  * between different mesh elements in coupled interface problems.
@@ -42,6 +43,7 @@ namespace specfem::algorithms {
  * @param weight_jacobian - nonconforming chunk_edge accessor holding
  * `intersection_factor`
  * @param callback - callback function to capture integral values
+ * @ingroup AlgorithmsIntegration
  */
 template <specfem::dimension::type dimension_tag, typename IndexType,
           typename IntersectionFieldViewType, typename IntersectionFactor,
@@ -108,3 +110,8 @@ coupling_integral(const specfem::assembly::assembly<dimension_tag> &assembly,
 }
 
 } // namespace specfem::algorithms
+
+/**
+ * @defgroup AlgorithmsIntegration Integration Algorithms
+ * @ingroup Algorithms
+ */

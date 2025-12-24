@@ -1,18 +1,15 @@
 .. _algorithms_transfer:
 
-Transfer
-========
+``specfem::algorithms::transfer``
+=================================
 
-.. doxygenfile:: algorithms/transfer.hpp
-    :sections: briefdescription detaileddescription
-
-Functions
----------
-
-.. doxygenfunction:: specfem::algorithms::transfer
+.. doxygengroup:: AlgorithmsTransfer
+    :members:
+    :content-only:
 
 Integration Algorithms
 ----------------------
 
-.. doxygenfile:: algorithms/integrate/coupling_integral1d.hpp
-    :sections: briefdescription detaileddescription
+.. doxygengroup:: AlgorithmsIntegration
+    :members:
+    :content-only:
