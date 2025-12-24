@@ -189,7 +189,7 @@ void execute(const TransferFunction2D &transfer_function,
              const EdgeFunction2D &function) {
   auto expected = expected_solution(transfer_function, function);
 
-  const int n_edges = TransferFunction2D::num_edges;
+  constexpr int n_edges = TransferFunction2D::num_edges;
   using TransferFunctionType = specfem::chunk_edge::impl::transfer_function<
       dimension_tag, 1, TransferFunction2D::nquad_intersection,
       TransferFunction2D::nquad_edge,
@@ -204,12 +204,13 @@ void execute(const TransferFunction2D &transfer_function,
   const auto transfer_function_view = transfer_function.get_view();
   const auto function_view = function.get_view();
 
-  const auto results_view_name = "result_view";
+  using ResultViewType =
+      Kokkos::View<type_real[n_edges][TransferFunction2D::nquad_intersection]
+                            [EdgeFunction2D::num_components],
+                   typename TransferFunction2D::memory_space,
+                   Kokkos::MemoryTraits<> >;
 
-  Kokkos::View<type_real * [TransferFunction2D::nquad_intersection]
-                               [EdgeFunction2D::num_components],
-               typename TransferFunction2D::memory_space>
-      result_view(results_view_name, n_edges);
+  ResultViewType result_view("result_view");
 
   Kokkos::parallel_for(
       "transfer_function_test", Kokkos::TeamPolicy<>(n_edges, 1, 1),

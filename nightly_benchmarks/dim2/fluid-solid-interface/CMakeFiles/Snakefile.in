@@ -19,12 +19,24 @@ rule run_solver:
     input:
         database="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/database.bin",
         stations="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/STATIONS",
-        source="@CURRENT_BENCHMARK_BUILD_DIR@/source.yaml",
+        source="@CURRENT_BENCHMARK_BUILD_DIR@/sources.yaml",
         config="@CURRENT_BENCHMARK_BUILD_DIR@/specfem_config.yaml",
     output:
         seismograms=expand(
-            "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/{network_name}.{station_name}.S2.{component}.semv",
-            station_name=["S0001", "S0002", "S0003", "S0004", "S0005", "S0006"],
+            "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/{network_name}.{station_name}.S2.{component}.semd",
+            station_name=[
+                "S0001",
+                "S0002",
+                "S0003",
+                "S0004",
+                "S0005",
+                "S0006",
+                "S0007",
+                "S0008",
+                "S0009",
+                "S0010",
+                "S0011",
+            ],
             network_name=["AA"],
             component=["BXX", "BXZ"],
         ),
@@ -47,7 +59,6 @@ rule run_solver:
         """
 
 rule clean:
-    localrule: True
     shell:
         """
             rm -rf @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES
