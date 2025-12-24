@@ -13,7 +13,7 @@
  * - Ricker: Implements the Ricker wavelet, commonly used in seismology.
  * - dGaussian: Represents the derivative of a Gaussian pulse.
  * - Heaviside: Models a step function.
- * - external: Allows for user-defined source time functions.
+ * - @ref external : Allows for user-defined source time functions.
  *
  * @see specfem::sources::source::set_source_time_function for how to the
  * forcing function is set up from the source class and YAML configuration.
