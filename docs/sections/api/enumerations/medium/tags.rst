@@ -4,50 +4,41 @@
 ==================================
 
 .. doxygenfunction:: specfem::element::medium_types
-   :members:
 
 2D specialization
 -----------------
-.. doxygenfunction:: specfem::element::medium_types< dim2 >
-   :members:
+.. doxygenfunction:: specfem::element::medium_types< specfem::dimension::type::dim2 >()
 
 3D specialization
 -----------------
-.. doxygenfunction:: specfem::element::medium_types< dim3 >
-   :members:
+.. doxygenfunction:: specfem::element::medium_types< specfem::dimension::type::dim3 >()
 
 ``specfem::element::material_systems``
 ======================================
 
 .. doxygenfunction:: specfem::element::material_systems
-   :members:
 
 2D specialization
 -----------------
 
-.. doxygenfunction:: specfem::element::material_systems< dim2 >
-   :members:
+.. doxygenfunction:: specfem::element::material_systems< specfem::dimension::type::dim2 >()
 
 3D specialization
 -----------------
 
-.. doxygenfunction:: specfem::element::material_systems< dim3 >
-   :members:
+.. doxygenfunction:: specfem::element::material_systems< specfem::dimension::type::dim3 >()
 
 ``specfem::element::element_types``
 ===================================
 
 .. doxygenfunction:: specfem::element::element_types
-   :members:
 
 2D specialization
 -----------------
 
-.. doxygenfunction:: specfem::element::element_types< dim2 >
-   :members:
+.. doxygenfunction:: specfem::element::element_types< specfem::dimension::type::dim2 >()
 
 3D specialization
 -----------------
 
-.. doxygenfunction:: specfem::element::element_types< dim3 >
-   :members:
+.. doxygenfunction:: specfem::element::element_types< specfem::dimension::type::dim3 >()

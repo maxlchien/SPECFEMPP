@@ -4,10 +4,8 @@
 =============================
 
 .. doxygenfunction:: specfem::interface::edges
-   :members:
 
 2D specialization
 ^^^^^^^^^^^^^^^^^
 
-.. doxygenfunction:: specfem::interface::edges< dim2 >
-   :members:
+.. doxygenfunction:: specfem::interface::edges< specfem::dimension::type::dim2 >()

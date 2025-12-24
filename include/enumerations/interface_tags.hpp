@@ -1,6 +1,6 @@
 #include "specfem/macros.hpp"
 
-namespace specfem::medium {
+namespace specfem::interface {
 /**
  * @brief A constexpr function to generate a list of edges with interfaces
  * within the simulation.
@@ -26,4 +26,4 @@ template <> constexpr auto edges<specfem::dimension::type::dim2>() {
       edges{ _MAKE_CONSTEXPR_ARRAY(EDGES) };
   return edges;
 }
-} // namespace specfem::medium
+} // namespace specfem::interface
