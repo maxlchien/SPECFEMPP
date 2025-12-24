@@ -88,27 +88,31 @@ class DownloadFolderDirective(SphinxDirective):
         link_paragraph += reference
 
         # Build full URL for curl/wget commands
-        # Get the base URL and version from Sphinx config
-        base_url = getattr(env.config, "html_baseurl", "").rstrip("/")
-
-        # Get version from environment (ReadTheDocs) or config
+        # Get ReadTheDocs environment variables
         version = os.environ.get("READTHEDOCS_VERSION")
+        version_type = os.environ.get("READTHEDOCS_VERSION_TYPE")
+        project_slug = os.environ.get("READTHEDOCS_PROJECT", "specfem2d-kokkos")
+
+        # Determine base URL based on build type
+        if version_type == "external":
+            # PR build - use the special PR build URL format
+            base_url = f"https://{project_slug}--{version}.org.readthedocs.build"
+        else:
+            # Regular build (branch, tag, or latest)
+            base_url = getattr(env.config, "html_baseurl", "").rstrip("/")
+            if not base_url:
+                base_url = f"https://{project_slug}.readthedocs.io"
+
+        # Fallback version if not on ReadTheDocs
         if not version:
             version = getattr(env.config, "version", "latest")
 
         # Construct full URL for curl/wget instructions
         doc_dir = os.path.dirname(docname_path)
-        if base_url:
-            if doc_dir:
-                full_url = f"{base_url}/en/{version}/{doc_dir}/{zip_filename}"
-            else:
-                full_url = f"{base_url}/en/{version}/{zip_filename}"
+        if doc_dir:
+            full_url = f"{base_url}/en/{version}/{doc_dir}/{zip_filename}"
         else:
-            # Fallback to ReadTheDocs URL
-            if doc_dir:
-                full_url = f"https://specfem2d-kokkos.readthedocs.io/en/{version}/{doc_dir}/{zip_filename}"
-            else:
-                full_url = f"https://specfem2d-kokkos.readthedocs.io/en/{version}/{zip_filename}"
+            full_url = f"{base_url}/en/{version}/{zip_filename}"
 
         # Add instructions paragraph
         instructions = nodes.paragraph()
