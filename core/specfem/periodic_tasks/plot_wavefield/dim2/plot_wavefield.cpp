@@ -1087,8 +1087,8 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
   double x_range = domain_bounds[1] - domain_bounds[0];
   double z_range = domain_bounds[5] - domain_bounds[4];
   double aspect_ratio = x_range / z_range;
-  int window_size_x = 2560;
-  ;
+  int window_size_x = 3840;
+
   int window_size_z = static_cast<int>(window_size_x / aspect_ratio);
 
   // Create render window
