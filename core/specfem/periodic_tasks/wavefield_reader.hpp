@@ -3,6 +3,7 @@
 #include "io/operators.hpp"
 #include "io/wavefield/reader.hpp"
 #include "periodic_task.hpp"
+#include "specfem/logger.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
@@ -30,15 +31,15 @@ public:
    */
   void run(specfem::assembly::assembly<DimensionTag> &assembly,
            const int istep) override {
-    std::cout << "Reading wavefield files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Reading wavefield files:");
+    specfem::Logger::info("------------------------");
     reader.run(assembly, istep);
   }
 
   void
   initialize(specfem::assembly::assembly<DimensionTag> &assembly) override {
-    std::cout << "Reading coordinate files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Reading coordinate files:");
+    specfem::Logger::info("-------------------------");
     reader.initialize(assembly);
   }
 };

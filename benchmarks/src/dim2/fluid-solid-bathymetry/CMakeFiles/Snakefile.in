@@ -1,22 +1,22 @@
-SPECFEM_BIN = "@CMAKE_BINARY_DIR@/bin/specfem2d"
+SPECFEM_BIN = "@CMAKE_BINARY_DIR@/bin/specfem 2d"
 MESHFEM_BIN = "@CMAKE_BINARY_DIR@/bin/xmeshfem2D"
 
 
 rule all:
     input:
-        plot="OUTPUT_FILES/results/plot.png",
+        plot="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/plot.png",
     localrule: True
 
 rule generate_mesh:
     input:
         "Par_File",
     output:
-        database="OUTPUT_FILES/database.bin",
-        stations="OUTPUT_FILES/STATIONS",
+        database="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/database.bin",
+        stations="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/STATIONS",
     localrule: True
     shell:
         """
-            mkdir -p OUTPUT_FILES
+            mkdir -p @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES
             {MESHFEM_BIN} -p {input}
         """
 
@@ -47,13 +47,13 @@ rule generate_mesh:
 
 rule run_simulation:
     input:
-        database="OUTPUT_FILES/database.bin",
-        stations="OUTPUT_FILES/STATIONS",
+        database="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/database.bin",
+        stations="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/STATIONS",
         line_source="line_source.yaml",
         specfem_config="specfem_config.yaml",
     output:
         pressure_seismograms=expand(
-            "OUTPUT_FILES/results/{network_name}.{station_name}.S2.{component}.semp",
+            "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/{network_name}.{station_name}.S2.{component}.semp",
             station_name=[
                 "S0001",
                 "S0002",
@@ -61,6 +61,7 @@ rule run_simulation:
             network_name=["AA"],
             component=["PRE"],
         ),
+        log="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/output.log",
     resources:
         nodes=1,
         tasks=1,
@@ -70,16 +71,15 @@ rule run_simulation:
         """
             # module purge
             # module load boost/1.73.0
-            mkdir -p OUTPUT_FILES/results
-            mkdir -p OUTPUT_FILES/display
-            echo "Hostname: $(hostname)" > output.log
-            {SPECFEM_BIN} -p {input.specfem_config} >> output.log
+            mkdir -p @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results
+            mkdir -p @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/display
+            {SPECFEM_BIN} -p {input.specfem_config}
         """
 
 rule plot_seismogram:
     input:
         pressure_seismograms=expand(
-            "OUTPUT_FILES/results/{network_name}.{station_name}.S2.{component}.semp",
+            "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/{network_name}.{station_name}.S2.{component}.semp",
             station_name=[
                 "S0001",
                 "S0002",
@@ -88,7 +88,7 @@ rule plot_seismogram:
             component=["PRE"],
         ),
     output:
-        traces="OUTPUT_FILES/results/plot.png",
+        traces="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/plot.png",
     localrule: True
     run:
         import glob
@@ -126,13 +126,12 @@ rule plot_seismogram:
             return stream
 
 
-        stream = get_traces("OUTPUT_FILES/results")
+        stream = get_traces("@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results")
         stream.plot(size=(800, 1000)).savefig(output.traces)
 
 rule clean:
     localrule: True
     shell:
         """
-            rm -rf OUTPUT_FILES
-            rm -f line_source.yaml
+            rm -rf @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES
         """

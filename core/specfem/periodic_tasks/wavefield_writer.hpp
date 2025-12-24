@@ -3,6 +3,7 @@
 #include "io/operators.hpp"
 #include "io/wavefield/writer.hpp"
 #include "periodic_task.hpp"
+#include "specfem/logger.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
@@ -41,14 +42,14 @@ public:
    */
   void
   initialize(specfem::assembly::assembly<DimensionTag> &assembly) override {
-    std::cout << "Writing coordinate files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Writing coordinate files:");
+    specfem::Logger::info("-------------------------");
     writer.initialize(assembly);
   }
 
   void finalize(specfem::assembly::assembly<DimensionTag> &assembly) override {
-    std::cout << "Finalizing wavefield files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Finalizing wavefield files:");
+    specfem::Logger::info("---------------------------");
     writer.finalize(assembly);
   }
 };

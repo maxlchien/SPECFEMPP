@@ -2,7 +2,9 @@
 #include "enumerations/display.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/logger.hpp"
 #include "specfem/periodic_tasks/plotter.hpp"
+#include "specfem/program.hpp"
 #include "utilities/strings.hpp"
 
 #ifdef NO_VTK
@@ -422,12 +424,15 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
           for (int ix = 0; ix < this->ngllx; ++ix) {
 
             if (h_jacobian(ispec, iz, iy, ix) < static_cast<type_real>(1e-10)) {
-              std::cout << "ispec: " << ispec << " iz: " << iz << " iy: " << iy
-                        << " ix: " << ix
-                        << " jacobian: " << h_jacobian(ispec, iz, iy, ix)
-                        << std::endl;
-              Kokkos::abort(
-                  "Error: Jacobian is non-positive, invalid element mapping.");
+              std::ostringstream err_msg;
+              err_msg << "Error: Jacobian is non-positive, invalid element "
+                         "mapping.\n";
+              err_msg << "ispec: " << ispec << " iz: " << iz << " iy: " << iy
+                      << " ix: " << ix
+                      << " jacobian: " << h_jacobian(ispec, iz, iy, ix)
+                      << std::endl;
+              specfem::Logger::error(err_msg.str());
+              specfem::program::abort(err_msg.str());
             }
             jacobian_data.push_back(
                 static_cast<float>(h_jacobian(ispec, iz, iy, ix)));
@@ -661,8 +666,8 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
   H5Gclose(vtkhdf_group);
   H5Fclose(hdf5_file_id);
 
-  this->mpi->cout("Initialized VTK HDF5 file for 3D wavefield output: " +
-                  this->hdf5_filename + " (extensible datasets)");
+  specfem::Logger::info("Initialized VTK HDF5 file for 3D wavefield output: " +
+                        this->hdf5_filename + " (extensible datasets)");
 
 #else
   throw std::runtime_error(
@@ -976,9 +981,9 @@ void specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
 
   this->current_timestep++;
 
-  this->mpi->cout("Wrote 3D wavefield data for timestep " +
-                  std::to_string(istep) + " to HDF5 file (step " +
-                  std::to_string(this->current_timestep) + ")");
+  specfem::Logger::info("Wrote 3D wavefield data for timestep " +
+                        std::to_string(istep) + " to HDF5 file (step " +
+                        std::to_string(this->current_timestep) + ")");
 
 #else
   throw std::runtime_error(
