@@ -24,6 +24,7 @@ New structure
     specfem/receivers/index
     specfem/sources/index
     specfem/source_time_functions/index
+    specfem/chunk_edge/index
 
 
 Old structure
