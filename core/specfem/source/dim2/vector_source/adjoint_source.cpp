@@ -80,6 +80,6 @@ specfem::sources::adjoint_source<specfem::dimension::type::dim2>::print()
           << "      x = " << gcoord.x << "\n"
           << "      z = " << gcoord.z << "\n"
           << "    Source Time Function: \n"
-          << this->forcing_function->print() << "\n";
+          << this->source_time_function->print() << "\n";
   return message.str();
 }

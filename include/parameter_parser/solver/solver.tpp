@@ -17,8 +17,6 @@ specfem::runtime_configuration::solver::solver::instantiate(
     const {
 
   if (specfem::utilities::is_forward_string(this->simulation_type)) {
-    std::cout << "Instantiating Kernels \n";
-    std::cout << "-------------------------------\n";
     const auto kernels =
         specfem::kokkos_kernels::domain_kernels<specfem::wavefield::simulation_field::forward,
                                   DimensionTag, NGLL>(
@@ -34,8 +32,6 @@ specfem::runtime_configuration::solver::solver::instantiate(
           "Combined simulation not implemented for 3D problems");
     }
 
-    std::cout << "Instantiating Kernels \n";
-    std::cout << "-------------------------------\n";
     const auto adjoint_kernels =
         specfem::kokkos_kernels::domain_kernels<specfem::wavefield::simulation_field::adjoint,
                                                 DimensionTag, NGLL>(

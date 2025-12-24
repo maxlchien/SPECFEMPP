@@ -17,7 +17,7 @@ namespace sources {
  * @par Usage Example
  * @code
  * // Create a Ricker wavelet source time function for the adjoint source
- * auto stf = std::make_unique<specfem::forcing_function::Ricker>(
+ * auto stf = std::make_unique<specfem::source_time_functions::Ricker>(
  *     20.0,  // dominant frequency (Hz)
  *     0.01,  // time factor
  *     1.0,   // amplitude
@@ -56,9 +56,9 @@ public:
 
   adjoint_source(
       type_real x, type_real z,
-      std::unique_ptr<specfem::forcing_function::stf> forcing_function,
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function,
       const std::string &station_name, const std::string &network_name)
-      : vector_source(x, z, std::move(forcing_function)),
+      : vector_source(x, z, std::move(source_time_function)),
         station_name(station_name), network_name(network_name) {};
 
   adjoint_source(YAML::Node &Node, const int nsteps, const type_real dt)

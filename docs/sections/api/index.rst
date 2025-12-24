@@ -22,6 +22,7 @@ New structure
     specfem/point/index
     specfem/receivers/index
     specfem/sources/index
+    specfem/source_time_functions/index
 
 
 Old structure

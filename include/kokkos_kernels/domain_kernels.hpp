@@ -10,6 +10,16 @@
 #include "impl/invert_mass_matrix.hpp"
 
 namespace specfem {
+/**
+ * @brief Kokkos-based computational kernels for SPECFEM++ finite element
+ * simulations
+ *
+ * This namespace contains high-performance computational kernels implemented
+ * using the Kokkos performance portability library for SPECFEM++ seismic wave
+ * propagation simulations. The kernels are designed to run efficiently on
+ * various computing architectures including CPUs, GPUs, and other accelerators.
+ *
+ */
 namespace kokkos_kernels {
 
 /**
@@ -192,6 +202,12 @@ public:
   }
 
 private:
+  /**
+   * @brief SPECFEM++ assembly object containing mesh and simulation data
+   *
+   * Assembly object provides the computational kernels access to mesh
+   * connectivity, element properties, and other necessary simulation data.
+   */
   specfem::assembly::assembly<dimension_tag> assembly;
 };
 

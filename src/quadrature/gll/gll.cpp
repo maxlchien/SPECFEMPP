@@ -64,10 +64,15 @@ void specfem::quadrature::gll::gll::set_derivation_matrices() {
   this->sync_views();
 }
 
-void specfem::quadrature::gll::gll::print(std::ostream &message) const {
-  message << "------------------------------\n"
-          << "- GLL\n"
+std::string specfem::quadrature::gll::gll::to_string() const {
+  std::ostringstream message;
+  message << "- GLL\n"
           << "    alpha = " << this->alpha << "\n"
           << "    beta = " << this->beta << "\n"
           << "    Number of GLL points = " << this->N << "\n";
+  return message.str();
+}
+
+void specfem::quadrature::gll::gll::print(std::ostream &message) const {
+  message << this->to_string();
 }

@@ -10,6 +10,7 @@ target_link_libraries(
         periodic_tasks
         PUBLIC
         $<$<BOOL:${SPECFEM_ENABLE_VTK}>:${VTK_LIBRARIES}>
+        enumerations
         PRIVATE
         reader
         writer

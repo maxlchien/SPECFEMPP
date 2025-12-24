@@ -613,6 +613,22 @@ target_link_libraries(
 set_target_properties(gradient_tests PROPERTIES UNITY_BUILD OFF)
 
 add_executable(
+  transfer_tests
+  algorithms/dim2/transfer.cpp
+)
+
+target_link_libraries(
+  transfer_tests
+  algorithms
+  enumerations
+  gtest_main
+  Kokkos::kokkos
+  specfem_environment
+  utilities
+  -lpthread -lm
+)
+
+add_executable(
   policies_tests
   policies/policies.cpp
 )
@@ -732,9 +748,22 @@ add_executable(
 target_link_libraries(
   source_class_tests
   source_class
-  source_time_function
+  source_time_functions
   specfem_environment
   -lpthread -lm
+)
+
+add_executable(
+  source_time_function_tests
+  source_time_function/source_time_function_tests.cpp
+)
+
+target_link_libraries(
+  source_time_function_tests
+  source_time_functions
+  Kokkos::kokkos
+  yaml-cpp
+  gtest_main
 )
 
 # # add_executable(
@@ -896,6 +925,7 @@ if(NOT MPI_PARALLEL)
     locate_point_fixture_2d
     locate_point_fixture_3d
     gradient_tests
+    transfer_tests
     mass_matrix_tests
     compute_coupling_tests
     mesh_dim2_tests
@@ -908,6 +938,7 @@ if(NOT MPI_PARALLEL)
     simd_tests
     source_class_tests
     source_tests
+    source_time_function_tests
     stress_tests
     test_mesh_utilities_mapping_2d
     test_mesh_utilities_mapping_3d

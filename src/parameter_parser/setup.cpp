@@ -76,6 +76,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
             "TE");
   }
 
+  // Get Quadrature info
   if (const YAML::Node &n_quadrature = simulation_setup["quadrature"]) {
     this->quadrature =
         std::make_unique<specfem::runtime_configuration::quadrature>(
@@ -88,6 +89,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     throw std::runtime_error("Error reading specfem quadrature config.");
   }
 
+  // Get Run Setup info
   if (const YAML::Node &n_run_setup = runtime_config["run-setup"]) {
     this->run_setup =
         std::make_unique<specfem::runtime_configuration::run_setup>(
@@ -100,6 +102,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     throw std::runtime_error("Error reading specfem runtime configuration.");
   }
 
+  // Get Database info
   try {
     this->databases = std::make_unique<
         specfem::runtime_configuration::database_configuration>(n_databases);
@@ -111,6 +114,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     throw std::runtime_error(message.str());
   }
 
+  // Get Kernel info
   if (n_databases["writer"] && n_databases["writer"]["properties"]) {
     this->property = std::make_unique<specfem::runtime_configuration::property>(
         n_databases["writer"]["properties"], true);
@@ -192,7 +196,8 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
           at_least_one_writer = true;
           this->plot_wavefield =
               std::make_unique<specfem::runtime_configuration::plot_wavefield>(
-                  n_plotter);
+                  n_plotter, this->elastic_wave->get_elastic_wave_type(),
+                  this->electromagnetic_wave->get_electromagnetic_wave_type());
         } else {
           this->plot_wavefield = nullptr;
         }
@@ -275,7 +280,8 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
           }
           this->plot_wavefield =
               std::make_unique<specfem::runtime_configuration::plot_wavefield>(
-                  n_plotter);
+                  n_plotter, this->elastic_wave->get_elastic_wave_type(),
+                  this->electromagnetic_wave->get_electromagnetic_wave_type());
         } else {
           this->plot_wavefield = nullptr;
         }
@@ -302,25 +308,6 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     message << "Error reading specfem solver configuration. \n" << e.what();
     throw std::runtime_error(message.str());
   }
-}
-
-std::string specfem::runtime_configuration::setup::print_header(
-    const std::chrono::time_point<std::chrono::system_clock> now) {
-
-  std::ostringstream message;
-
-  // convert now to string form
-  const std::time_t c_now = std::chrono::system_clock::to_time_t(now);
-
-  message << "================================================\n"
-          << "              SPECFEM2D SIMULATION\n"
-          << "================================================\n\n"
-          << "Title : " << this->header->get_title() << "\n"
-          << "Discription: " << this->header->get_description() << "\n"
-          << "Simulation start time: " << ctime(&c_now)
-          << "------------------------------------------------\n";
-
-  return message.str();
 }
 
 // Explicit template instantiations for instantiate_timescheme
