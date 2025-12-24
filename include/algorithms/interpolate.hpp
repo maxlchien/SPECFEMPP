@@ -90,6 +90,15 @@ interpolate_function(const PolynomialViewType &polynomial,
   return result;
 }
 
+/**
+ * @brief Interpolate a 3D function using polynomial basis
+ *
+ * @tparam PolynomialViewType Type of the polynomial view (must be 3D)
+ * @tparam FunctionViewType Type of the function view (must be 3D)
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @return Interpolated function value
+ */
 template <typename PolynomialViewType, typename FunctionViewType,
           std::enable_if_t<((PolynomialViewType::rank() == 3) &&
                             (FunctionViewType::rank() == 3)),

@@ -1,7 +1,7 @@
 .. _algorithms_divergence:
 
-Divergence
-==========
+``specfem::algorithms::divergence``
+===================================
 
 .. doxygengroup:: AlgorithmsDivergence
     :members:
@@ -10,10 +10,4 @@ Divergence
 Implementation Details
 ----------------------
 
-.. doxygenfile:: algorithms/divergence.hpp
-    :sections: briefdescription detaileddescription
-
-Functions
----------
-
-.. doxygenfunction:: specfem::algorithms::impl::element_divergence
+.. doxygenfunction:: specfem::algorithms::impl::element_divergence(const TensorFieldType &f, const typename TensorFieldType::index_type &local_index, const WeightsType &weights, const QuadratureType &lagrange_derivative)
