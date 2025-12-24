@@ -1,8 +1,8 @@
+.. _specfem_api_setup_parameters_run_setup:
 
-Runtime Setup
-=================
-
-Methods to parse runtime setup node from configuration file.
+``specfem::runtime_configuration::run_setup``
+=============================================
 
 .. doxygenclass:: specfem::runtime_configuration::run_setup
     :members:
+    :private-members:

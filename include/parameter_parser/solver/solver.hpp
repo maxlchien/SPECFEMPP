@@ -10,7 +10,6 @@
 
 namespace specfem {
 namespace runtime_configuration {
-namespace solver {
 /**
  * @brief Solver class to instantiate the correct solver based on the simulation
  * parameters
@@ -71,6 +70,5 @@ private:
   std::string simulation_type; ///< Type of the simulation (forward or
                                ///< combined)
 };
-} // namespace solver
 } // namespace runtime_configuration
 } // namespace specfem

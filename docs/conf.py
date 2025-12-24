@@ -13,6 +13,8 @@
 import os
 import sys
 import subprocess
+from docutils import nodes
+from sphinx.util.docutils import SphinxRole
 
 # Doxygen
 doxygen_cmd = "doxygen Doxyfile.in"  # or Doxyfile.in if that's the correct filename
@@ -108,7 +110,24 @@ html_baseurl = "https://specfem2d-kokkos.readthedocs.io/"
 # External links configuration
 extlinks = {
     "issue": (f"{github_url}/issues/%s", "Issue #%s"),
+    # "repo-file": (f"{github_url}/blob/main/%s", "%s"),
 }
+
+
+class RepoFileRole(SphinxRole):
+    """Role for linking to files in the GitHub repository."""
+
+    def run(self):
+        url = f"{github_url}/blob/main/{self.text}"
+        node = nodes.reference("", "", internal=False, refuri=url)
+        node += nodes.literal(self.text, self.text)
+        return [node], []
+
+
+# Register the custom role
+def setup(app):
+    app.add_role("repo-file", RepoFileRole())
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
