@@ -126,7 +126,7 @@ void specfem::solver::time_marching<specfem::simulation::type::forward,
     task->finalize(assembly);
   }
 
-  std::cout << std::endl;
+  specfem::Logger::info(" -- Simulation complete. -- \n");
 
   return;
 }
@@ -259,7 +259,7 @@ void specfem::solver::time_marching<specfem::simulation::type::combined,
     task->finalize(assembly);
   }
 
-  specfem::Logger::info("\n");
+  specfem::Logger::info(" -- Simulation complete. -- \n");
 
   return;
 }

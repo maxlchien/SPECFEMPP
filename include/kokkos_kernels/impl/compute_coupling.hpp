@@ -9,7 +9,8 @@ namespace specfem::kokkos_kernels::impl {
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType,
           specfem::interface::interface_tag InterfaceTag,
-          specfem::element::boundary_tag BoundaryTag>
+          specfem::element::boundary_tag BoundaryTag,
+          specfem::interface::flux_scheme_tag FluxSchemeTag>
 void compute_coupling(
     std::integral_constant<
         specfem::connections::type,
@@ -19,7 +20,8 @@ void compute_coupling(
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType, int NGLL,
           int NQuad_interface, specfem::interface::interface_tag InterfaceTag,
-          specfem::element::boundary_tag BoundaryTag>
+          specfem::element::boundary_tag BoundaryTag,
+          specfem::interface::flux_scheme_tag FluxSchemeTag>
 void compute_coupling(
     std::integral_constant<
         specfem::connections::type,
@@ -47,7 +49,8 @@ template <specfem::dimension::type DimensionTag,
           specfem::connections::type ConnectionTag,
           specfem::wavefield::simulation_field WavefieldType, int NGLL,
           int NQuad_interface, specfem::interface::interface_tag InterfaceTag,
-          specfem::element::boundary_tag BoundaryTag>
+          specfem::element::boundary_tag BoundaryTag,
+          specfem::interface::flux_scheme_tag FluxSchemeTag>
 void compute_coupling(
     const specfem::assembly::assembly<DimensionTag> &assembly);
 } // namespace specfem::kokkos_kernels::impl

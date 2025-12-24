@@ -1,4 +1,4 @@
-#include "specfem/point/coordinates.hpp"
+#include "specfem/point/global_coordinates.hpp"
 #include "specfem/source.hpp"
 #include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"

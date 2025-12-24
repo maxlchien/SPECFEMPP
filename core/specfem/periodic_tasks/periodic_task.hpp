@@ -9,15 +9,15 @@ template <specfem::dimension::type DimensionTag> struct assembly;
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Base writer class templated on dimension
+ * @brief Base class for tasks executed periodically during simulation
  *
  */
 template <specfem::dimension::type DimensionTag> class periodic_task {
 public:
   /**
-   * @brief Construct a new plotter object
+   * @brief Construct a new periodic task object
    *
-   * @param time_interval Time interval between subsequent plots
+   * @param time_interval Time interval between subsequent task executions
    * @param include_last_step Whether or not to include the last step regardless
    * of the time interval
    */

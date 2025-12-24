@@ -95,8 +95,6 @@ specfem::assembly::jacobian_matrix<
   using PointJacobianMatrixType =
       specfem::point::jacobian_matrix<dimension_tag, true, false>;
 
-  std::cout << "Checking for small Jacobian values..." << std::endl;
-
   bool found = false;
   Kokkos::parallel_reduce(
       "specfem::assembly::jacobian_matrix::check_small_jacobian",

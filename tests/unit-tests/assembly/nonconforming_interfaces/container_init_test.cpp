@@ -4,7 +4,7 @@
 #include "specfem/assembly.hpp"
 #include "specfem/assembly/nonconforming_interfaces/dim2/impl/compute_intersection.tpp"
 #include "specfem/point.hpp"
-#include "specfem/point/coordinates.hpp"
+#include "specfem/point/global_coordinates.hpp"
 #include <gtest/gtest.h>
 #include <memory>
 

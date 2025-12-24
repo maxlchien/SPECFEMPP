@@ -85,9 +85,10 @@ public:
                                              _interface_tag_>::self_medium();
           if constexpr (dimension_tag == _dimension_tag_ &&
                         self_medium == medium) {
-            impl::compute_coupling<_dimension_tag_, _connection_tag_, wavefield,
-                                   ngll, ngll, _interface_tag_, _boundary_tag_>(
-                assembly);
+            impl::compute_coupling<
+                _dimension_tag_, _connection_tag_, wavefield, ngll, ngll,
+                _interface_tag_, _boundary_tag_,
+                specfem::interface::flux_scheme_tag::natural>(assembly);
             // second ngll is the number of quadrature points on the mortar.
           }
         })

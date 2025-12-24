@@ -38,27 +38,37 @@ struct index<specfem::dimension::type::dim2, false>
           specfem::data_access::AccessorType::point,
           specfem::data_access::DataClassType::index,
           specfem::dimension::type::dim2, false> {
-  int ispec; ///< Index of the spectral element
-  int iz;    ///< Index of the quadrature point in the z direction within the
-             ///< spectral element
-  int ix;    ///< Index of the quadrature point in the x direction within the
-             ///< spectral element
+  /**
+   * @brief Index of the spectral element.
+   */
+  int ispec;
 
   /**
-   * @brief Default constructor
-   *
+   * @brief Index of the quadrature point in the z direction within the spectral
+   * element.
+   */
+  int iz;
+
+  /**
+   * @brief Index of the quadrature point in the x direction within the spectral
+   * element.
+   */
+  int ix;
+
+  /**
+   * @brief Default constructor.
    */
   KOKKOS_FUNCTION
   index() = default;
 
   /**
-   * @brief Construct a new index object
+   * @brief Construct a new index object.
    *
-   * @param ispec Index of the spectral element
+   * @param ispec Index of the spectral element.
    * @param iz Index of the quadrature point in the z direction within the
-   * spectral element
+   * spectral element.
    * @param ix Index of the quadrature point in the x direction within the
-   * spectral element
+   * spectral element.
    */
   KOKKOS_FUNCTION
   index(const int &ispec, const int &iz, const int &ix)
@@ -77,30 +87,44 @@ struct index<specfem::dimension::type::dim2, true>
           specfem::data_access::AccessorType::point,
           specfem::data_access::DataClassType::index,
           specfem::dimension::type::dim2, true> {
-  int ispec; ///< Index associated with the spectral element at the start
-             ///< of the SIMD vector
-  int number_elements; ///< Number of elements stored in the SIMD vector
-  int iz; ///< Index of the quadrature point in the z direction within
-          ///< the spectral element
-  int ix; ///< Index of the quadrature point in the x direction within
-          ///< the spectral element
+  /**
+   * @brief Index associated with the spectral element at the start of the SIMD
+   * vector.
+   */
+  int ispec;
 
   /**
-   * @brief Default constructor
-   *
+   * @brief Number of elements stored in the SIMD vector.
+   */
+  int number_elements;
+
+  /**
+   * @brief Index of the quadrature point in the z direction within the spectral
+   * element.
+   */
+  int iz;
+
+  /**
+   * @brief Index of the quadrature point in the x direction within the spectral
+   * element.
+   */
+  int ix;
+
+  /**
+   * @brief Default constructor.
    */
   KOKKOS_FUNCTION
   index() = default;
 
   /**
-   * @brief Construct a new simd index object
+   * @brief Construct a new simd index object.
    *
-   * @param ispec Index of the spectral element
-   * @param number_elements Number of elements
+   * @param ispec Index of the spectral element.
+   * @param number_elements Number of elements.
    * @param iz Index of the quadrature point in the z direction within the
-   * spectral element
+   * spectral element.
    * @param ix Index of the quadrature point in the x direction within the
-   * spectral element
+   * spectral element.
    */
   KOKKOS_FUNCTION
   index(const int &ispec, const int &number_elements, const int &iz,
@@ -109,10 +133,10 @@ struct index<specfem::dimension::type::dim2, true>
 
   /**
    * @brief Returns a boolean mask to check if the SIMD index is within the SIMD
-   * vector
+   * vector.
    *
-   * @param lane SIMD lane
-   * @return bool True if the SIMD index is within the SIMD vector
+   * @param lane SIMD lane.
+   * @return bool True if the SIMD index is within the SIMD vector.
    */
   KOKKOS_INLINE_FUNCTION
   bool mask(const std::size_t &lane) const {
@@ -133,31 +157,45 @@ struct index<specfem::dimension::type::dim3, false>
           specfem::data_access::AccessorType::point,
           specfem::data_access::DataClassType::index,
           specfem::dimension::type::dim3, false> {
-  int ispec; ///< Index of the spectral element
-  int iz;    ///< Index of the quadrature point in the z direction within the
-             ///< spectral element
-  int iy;    ///< Index of the quadrature point in the y direction within the
-             ///< spectral element
-  int ix;    ///< Index of the quadrature point in the x direction within the
-             ///< spectral element
+  /**
+   * @brief Index of the spectral element.
+   */
+  int ispec;
 
   /**
-   * @brief Default constructor
-   *
+   * @brief Index of the quadrature point in the z direction within the spectral
+   * element.
+   */
+  int iz;
+
+  /**
+   * @brief Index of the quadrature point in the y direction within the spectral
+   * element.
+   */
+  int iy;
+
+  /**
+   * @brief Index of the quadrature point in the x direction within the spectral
+   * element.
+   */
+  int ix;
+
+  /**
+   * @brief Default constructor.
    */
   KOKKOS_FUNCTION
   index() = default;
 
   /**
-   * @brief Construct a new index object
+   * @brief Construct a new index object.
    *
-   * @param ispec Index of the spectral element
+   * @param ispec Index of the spectral element.
    * @param iz Index of the quadrature point in the z direction within the
-   * spectral element
+   * spectral element.
    * @param iy Index of the quadrature point in the y direction within the
-   * spectral element
+   * spectral element.
    * @param ix Index of the quadrature point in the x direction within the
-   * spectral element
+   * spectral element.
    */
   KOKKOS_FUNCTION
   index(const int &ispec, const int &iz, const int &iy, const int &ix)
@@ -177,34 +215,52 @@ struct index<specfem::dimension::type::dim3, true>
           specfem::data_access::AccessorType::point,
           specfem::data_access::DataClassType::index,
           specfem::dimension::type::dim3, true> {
-  int ispec; ///< Index associated with the spectral element at the start
-             ///< of the SIMD vector
-  int number_elements; ///< Number of elements stored in the SIMD vector
-  int iz; ///< Index of the quadrature point in the z direction within
-          ///< the spectral element
-  int iy; ///< Index of the quadrature point in the y direction within the
-          ///< spectral element
-  int ix; ///< Index of the quadrature point in the x direction within
-          ///< the spectral element
+  /**
+   * @brief Index associated with the spectral element at the start of the SIMD
+   * vector.
+   */
+  int ispec;
 
   /**
-   * @brief Default constructor
-   *
+   * @brief Number of elements stored in the SIMD vector.
+   */
+  int number_elements;
+
+  /**
+   * @brief Index of the quadrature point in the z direction within the spectral
+   * element.
+   */
+  int iz;
+
+  /**
+   * @brief Index of the quadrature point in the y direction within the spectral
+   * element.
+   */
+  int iy;
+
+  /**
+   * @brief Index of the quadrature point in the x direction within the spectral
+   * element.
+   */
+  int ix;
+
+  /**
+   * @brief Default constructor.
    */
   KOKKOS_FUNCTION
   index() = default;
 
   /**
-   * @brief Construct a new simd index object
+   * @brief Construct a new simd index object.
    *
-   * @param ispec Index of the spectral element
-   * @param number_elements Number of elements
+   * @param ispec Index of the spectral element.
+   * @param number_elements Number of elements.
    * @param iz Index of the quadrature point in the z direction within the
-   * spectral element
+   * spectral element.
    * @param iy Index of the quadrature point in the y direction within the
-   * spectral element
+   * spectral element.
    * @param ix Index of the quadrature point in the x direction within the
-   * spectral element
+   * spectral element.
    */
   KOKKOS_FUNCTION
   index(const int &ispec, const int &number_elements, const int &iz,
@@ -214,10 +270,10 @@ struct index<specfem::dimension::type::dim3, true>
 
   /**
    * @brief Returns a boolean mask to check if the SIMD index is within the SIMD
-   * vector
+   * vector.
    *
-   * @param lane SIMD lane
-   * @return bool True if the SIMD index is within the SIMD vector
+   * @param lane SIMD lane.
+   * @return bool True if the SIMD index is within the SIMD vector.
    */
   KOKKOS_INLINE_FUNCTION
   bool mask(const std::size_t &lane) const {

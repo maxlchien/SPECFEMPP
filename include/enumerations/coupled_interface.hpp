@@ -30,6 +30,16 @@ enum class interface_tag {
 };
 
 /**
+ * @brief Flux scheme used for a coupling
+ */
+enum class flux_scheme_tag {
+  natural, ///< Original SPECFEM acoustic-elastic interface (Komatitsch et al.
+           ///< 2000)
+  symmetric_interior_penalty ///< SIPG (Grote et al., Riviere et al., Antonietti
+                             ///< et al., etc.)
+};
+
+/**
  * @brief Compile-time interface field type determination.
  *
  * @tparam DimensionTag Spatial dimension (2D or 3D)
@@ -197,4 +207,18 @@ struct attributes<specfem::dimension::type::dim2,
  */
 std::string to_string(const interface_tag &interface_tag);
 
+/**
+ * @brief Convert flux scheme tag to string.
+ *
+ * @param flux_scheme_tag
+ * @return String representation
+ */
+std::string to_string(const flux_scheme_tag &flux_scheme_tag);
+
+std::ostream &
+operator<<(std::ostream &stream,
+           const specfem::interface::interface_tag &interface_tag);
+std::ostream &
+operator<<(std::ostream &stream,
+           const specfem::interface::flux_scheme_tag &flux_scheme_tag);
 } // namespace specfem::interface
