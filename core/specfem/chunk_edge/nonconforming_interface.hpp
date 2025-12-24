@@ -4,6 +4,23 @@ namespace specfem::chunk_edge {
 
 namespace impl {
 
+/**
+ * @brief Template accessor for transfer function data at nonconforming
+ * interfaces
+ *
+ * Maps edge functions to intersection functions in mortar methods.
+ * Supports both self and coupled interface transfer operations.
+ *
+ * @tparam DimensionTag Spatial dimension (dim2, dim3)
+ * @tparam NumberElements Number of edges in chunk
+ * @tparam NQuadIntersection Quadrature points on intersection
+ * @tparam NQuadElement Quadrature points on element edge
+ * @tparam DataClass Self or coupled transfer data type
+ * @tparam InterfaceTag Interface medium type
+ * @tparam BoundaryTag Boundary condition tag
+ * @tparam MemorySpace Kokkos memory space
+ * @tparam MemoryTraits Kokkos memory traits
+ */
 template <specfem::dimension::type DimensionTag, int NumberElements,
           int NQuadIntersection, int NQuadElement,
           specfem::data_access::DataClassType DataClass,
@@ -14,6 +31,13 @@ template <specfem::dimension::type DimensionTag, int NumberElements,
           typename MemoryTraits = Kokkos::MemoryTraits<Kokkos::Unmanaged> >
 struct transfer_function;
 
+/**
+ * @brief 2D specialization of transfer function accessor
+ *
+ * Provides chunk-based access to transfer function matrices for mapping
+ * edge functions to intersection functions in nonconforming interfaces.
+ * Used in mortar methods for coupling elements with different mesh sizes.
+ */
 template <int NumberElements, int NQuadIntersection, int NQuadElement,
           specfem::data_access::DataClassType DataClass,
           specfem::interface::interface_tag InterfaceTag,
@@ -27,36 +51,70 @@ struct transfer_function<specfem::dimension::type::dim2, NumberElements,
           specfem::dimension::type::dim2, false> {
 
 public:
+  /// Spatial dimension (2D for this specialization)
   static constexpr auto dimension_tag = specfem::dimension::type::dim2;
+  /// Number of edges in chunk
   static constexpr int chunk_size = NumberElements;
+  /// Number of quadrature points on element edge
   static constexpr int n_quad_element = NQuadElement;
+  /// Number of quadrature points on intersection
   static constexpr int n_quad_intersection = NQuadIntersection;
+  /// Interface medium type tag
   static constexpr auto interface_tag = InterfaceTag;
+  /// Boundary condition tag
   static constexpr auto boundary_tag = BoundaryTag;
+  /// Connection type for nonconforming interfaces
   static constexpr auto connection_tag =
       specfem::connections::type::nonconforming;
   using TransferViewType = specfem::datatype::VectorChunkEdgeViewType<
       type_real, specfem::dimension::type::dim2, NumberElements, NQuadElement,
       NQuadIntersection, false, MemorySpace,
-      MemoryTraits>; ///< Underlying view used to store data of the transfer
-                     ///< function.
+      MemoryTraits>; ///< Underlying view storing transfer function matrix data
 
 private:
+  /// Underlying view storing transfer function matrix data
   TransferViewType data_;
 
 public:
-  KOKKOS_INLINE_FUNCTION
-  transfer_function(const TransferViewType &transfer_function)
+  /**
+   * @brief Construct from compatible view type
+   * @tparam U Compatible view type
+   */
+  template <typename U = TransferViewType,
+            typename std::enable_if_t<
+                std::is_convertible<TransferViewType, U>::value, int> = 0>
+  KOKKOS_INLINE_FUNCTION transfer_function(const U &transfer_function)
       : data_(transfer_function) {}
+
+  /**
+   * @brief Default constructor
+   */
   KOKKOS_INLINE_FUNCTION
   transfer_function() = default;
 
-  template <typename MemberType>
+  /**
+   * @brief Construct from team scratch memory
+   * @tparam MemberType Team member type
+   * @param team Team member for scratch allocation
+   */
+  template <typename MemberType, typename U = TransferViewType,
+            typename std::enable_if_t<U::memory_traits::is_unmanaged == true,
+                                      int> = 0>
   KOKKOS_INLINE_FUNCTION transfer_function(const MemberType &team)
       : data_(team.team_scratch(0)) {}
 
+  /**
+   * @brief Get shared memory size requirement
+   * @return Size in bytes needed for scratch memory
+   */
   constexpr static int shmem_size() { return TransferViewType::shmem_size(); }
 
+  /**
+   * @brief Access transfer function matrix element
+   * @tparam Indices Index types for multi-dimensional access
+   * @param indices Element indices (edge, intersection_quad, edge_quad)
+   * @return Reference to matrix element
+   */
   template <typename... Indices>
   KOKKOS_INLINE_FUNCTION auto &operator()(Indices... indices) const {
     return data_(indices...);
@@ -65,6 +123,19 @@ public:
 
 } // namespace impl
 
+/**
+ * @brief Type alias for self-coupling transfer function
+ *
+ * Transfer function for mapping edge functions to intersection on the same
+ * element.
+ *
+ * @tparam DimensionTag Spatial dimension (dim2, dim3)
+ * @tparam InterfaceTag Interface medium type
+ * @tparam BoundaryTag Boundary condition tag
+ * @tparam NumberElements Number of edges in chunk
+ * @tparam NQuadIntersection Quadrature points on intersection
+ * @tparam NQuadElement Quadrature points on element edge
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,
@@ -74,6 +145,19 @@ using transfer_function_self = impl::transfer_function<
     specfem::data_access::DataClassType::transfer_function_self, InterfaceTag,
     BoundaryTag>;
 
+/**
+ * @brief Type alias for coupled transfer function
+ *
+ * Transfer function for mapping edge functions to intersection from coupled
+ * element.
+ *
+ * @tparam DimensionTag Spatial dimension (dim2, dim3)
+ * @tparam InterfaceTag Interface medium type
+ * @tparam BoundaryTag Boundary condition tag
+ * @tparam NumberElements Number of edges in chunk
+ * @tparam NQuadIntersection Quadrature points on intersection
+ * @tparam NQuadElement Quadrature points on element edge
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,
@@ -83,6 +167,20 @@ using transfer_function_coupled = impl::transfer_function<
     specfem::data_access::DataClassType::transfer_function_coupled,
     InterfaceTag, BoundaryTag>;
 
+/**
+ * @brief Template accessor for intersection scaling factors
+ *
+ * Provides chunk-based access to geometric scaling factors applied
+ * at intersection quadrature points in nonconforming interfaces.
+ *
+ * @tparam DimensionTag Spatial dimension
+ * @tparam InterfaceTag Interface medium type
+ * @tparam BoundaryTag Boundary condition tag
+ * @tparam NumberElements Number of edges in chunk
+ * @tparam NQuadIntersection Quadrature points on intersection
+ * @tparam MemorySpace Kokkos memory space
+ * @tparam MemoryTraits Kokkos memory traits
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,
@@ -92,6 +190,11 @@ template <specfem::dimension::type DimensionTag,
           typename MemoryTraits = Kokkos::MemoryTraits<Kokkos::Unmanaged> >
 struct intersection_factor;
 
+/**
+ * @brief 2D specialization of intersection factor accessor
+ *
+ * Stores geometric scaling factors for intersection quadrature points.
+ */
 template <specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,
           int NQuadIntersection, typename MemorySpace, typename MemoryTraits>
@@ -104,42 +207,92 @@ struct intersection_factor<specfem::dimension::type::dim2, InterfaceTag,
           specfem::dimension::type::dim2, false> {
 
 public:
+  /// Spatial dimension (2D for this specialization)
   static constexpr auto dimension_tag = specfem::dimension::type::dim2;
+  /// Interface medium type tag
   static constexpr auto interface_tag = InterfaceTag;
+  /// Boundary condition tag
   static constexpr auto boundary_tag = BoundaryTag;
+  /// Connection type for nonconforming interfaces
   static constexpr auto connection_tag =
       specfem::connections::type::nonconforming;
+  /// Number of edges in chunk
   static constexpr int chunk_size = NumberElements;
+  /// Number of quadrature points on intersection
   static constexpr int n_quad_intersection = NQuadIntersection;
+  /// View type for storing intersection scaling factors
   using IntersectionFactorViewType =
       Kokkos::View<type_real[NumberElements][NQuadIntersection], MemorySpace,
                    MemoryTraits>;
 
 private:
+  /// Underlying view storing intersection factor data
   IntersectionFactorViewType data_;
 
 public:
-  KOKKOS_INLINE_FUNCTION
-  intersection_factor(const IntersectionFactorViewType &intersection_factor)
+  /**
+   * @brief Construct from compatible view type
+   * @tparam U Compatible view type
+   * @param intersection_factor View containing intersection factor data
+   */
+  template <
+      typename U = IntersectionFactorViewType,
+      typename std::enable_if_t<
+          std::is_convertible<IntersectionFactorViewType, U>::value, int> = 0>
+  KOKKOS_INLINE_FUNCTION intersection_factor(const U &intersection_factor)
       : data_(intersection_factor) {}
 
+  /**
+   * @brief Default constructor
+   */
   KOKKOS_INLINE_FUNCTION
   intersection_factor() = default;
 
-  template <typename MemberType>
+  /**
+   * @brief Construct from team scratch memory
+   * @tparam MemberType Team member type
+   * @param team Team member for scratch allocation
+   */
+  template <typename MemberType, typename U = IntersectionFactorViewType,
+            typename std::enable_if_t<U::memory_traits::is_unmanaged == true,
+                                      int> = 0>
   KOKKOS_INLINE_FUNCTION intersection_factor(const MemberType &team)
       : data_(team.team_scratch(0)) {}
 
+  /**
+   * @brief Get shared memory size requirement
+   * @return Size in bytes needed for scratch memory
+   */
   constexpr static int shmem_size() {
     return IntersectionFactorViewType::shmem_size();
   }
 
+  /**
+   * @brief Access intersection factor element
+   * @tparam Indices Index types for multi-dimensional access
+   * @param indices Element indices (edge, intersection_quad)
+   * @return Reference to factor value
+   */
   template <typename... Indices>
   KOKKOS_INLINE_FUNCTION auto &operator()(Indices... indices) const {
     return data_(indices...);
   }
 };
 
+/**
+ * @brief Template accessor for intersection normal vectors
+ *
+ * Provides chunk-based access to unit normal vectors at intersection
+ * quadrature points in nonconforming interfaces.
+ *
+ * @tparam DimensionTag Spatial dimension
+ * @tparam InterfaceTag Interface medium type
+ * @tparam BoundaryTag Boundary condition tag
+ * @tparam NumberElements Number of edges in chunk
+ * @tparam NQuadIntersection Quadrature points on intersection
+ * @tparam MemorySpace Kokkos memory space
+ * @tparam MemoryTraits Kokkos memory traits
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,
@@ -149,6 +302,11 @@ template <specfem::dimension::type DimensionTag,
           typename MemoryTraits = Kokkos::MemoryTraits<Kokkos::Unmanaged> >
 struct intersection_normal;
 
+/**
+ * @brief 2D specialization of intersection normal accessor
+ *
+ * Stores 2D unit normal vectors at intersection quadrature points.
+ */
 template <specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,
           int NQuadIntersection, typename MemorySpace, typename MemoryTraits>
@@ -161,44 +319,88 @@ struct intersection_normal<specfem::dimension::type::dim2, InterfaceTag,
           specfem::dimension::type::dim2, false> {
 
 public:
+  /// Spatial dimension (2D for this specialization)
   static constexpr auto dimension_tag = specfem::dimension::type::dim2;
+  /// Interface medium type tag
   static constexpr auto interface_tag = InterfaceTag;
+  /// Boundary condition tag
   static constexpr auto boundary_tag = BoundaryTag;
+  /// Connection type for nonconforming interfaces
   static constexpr auto connection_tag =
       specfem::connections::type::nonconforming;
+  /// Number of edges in chunk
   static constexpr int chunk_size = NumberElements;
+  /// Number of quadrature points on intersection
   static constexpr int n_quad_intersection = NQuadIntersection;
+  /// View type for storing 2D normal vector components
   using IntersectionNormalViewType =
       Kokkos::View<type_real[NumberElements][NQuadIntersection][2], MemorySpace,
-                   MemoryTraits>; ///< Underlying view used to
-                                  ///< store data of the transfer
-                                  ///< function.
+                   MemoryTraits>;
 
 private:
+  /// Underlying view storing normal vector data
   IntersectionNormalViewType data_;
 
 public:
-  KOKKOS_INLINE_FUNCTION
-  intersection_normal(const IntersectionNormalViewType &intersection_normal)
+  /**
+   * @brief Construct from compatible view type
+   * @tparam U Compatible view type
+   * @param intersection_normal View containing normal vector data
+   */
+  template <
+      typename U = IntersectionNormalViewType,
+      typename std::enable_if_t<
+          std::is_convertible<IntersectionNormalViewType, U>::value, int> = 0>
+  KOKKOS_INLINE_FUNCTION intersection_normal(const U &intersection_normal)
       : data_(intersection_normal) {}
 
+  /**
+   * @brief Default constructor
+   */
   KOKKOS_INLINE_FUNCTION
   intersection_normal() = default;
 
-  template <typename MemberType>
+  /**
+   * @brief Construct from team scratch memory
+   * @tparam MemberType Team member type
+   * @param team Team member for scratch allocation
+   */
+  template <typename MemberType, typename U = IntersectionNormalViewType,
+            typename std::enable_if_t<U::memory_traits::is_unmanaged == true,
+                                      int> = 0>
   KOKKOS_INLINE_FUNCTION intersection_normal(const MemberType &team)
       : data_(team.team_scratch(0)) {}
 
+  /**
+   * @brief Get shared memory size requirement
+   * @return Size in bytes needed for scratch memory
+   */
   constexpr static int shmem_size() {
     return IntersectionNormalViewType::shmem_size();
   }
 
+  /**
+   * @brief Access normal vector component
+   * @tparam Indices Index types for multi-dimensional access
+   * @param indices Element indices (edge, intersection_quad, component)
+   * @return Reference to normal vector component
+   */
   template <typename... Indices>
   KOKKOS_INLINE_FUNCTION auto &operator()(Indices... indices) const {
     return data_(indices...);
   }
 };
 
+/**
+ * @brief Variadic template for packing multiple nonconforming interface
+ * accessors
+ *
+ * Combines multiple accessor types (transfer functions, intersection factors,
+ * normals) into a single accessor for coordinated access to nonconforming
+ * interface data.
+ *
+ * @tparam Accessors Variadic list of accessor types to pack together
+ */
 template <typename... Accessors>
 struct NonconformingAccessorPack
     : public specfem::data_access::Accessor<
@@ -207,17 +409,24 @@ struct NonconformingAccessorPack
           specfem::dimension::type::dim2, false>,
       public Accessors... {
 
+  /// Spatial dimension inherited from first accessor
   constexpr static auto dimension_tag =
       std::tuple_element_t<0, std::tuple<Accessors...> >::dimension_tag;
+  /// Interface medium type inherited from first accessor
   constexpr static auto interface_tag =
       std::tuple_element_t<0, std::tuple<Accessors...> >::interface_tag;
+  /// Boundary condition tag inherited from first accessor
   constexpr static auto boundary_tag =
       std::tuple_element_t<0, std::tuple<Accessors...> >::boundary_tag;
+  /// Number of packed accessor types
   constexpr static size_t n_accessors = sizeof...(Accessors);
+  /// Tuple type containing all packed accessors
   using packed_accessors = std::tuple<Accessors...>;
+  /// Connection type for nonconforming interfaces
   constexpr static auto connection_tag =
       specfem::connections::type::nonconforming;
 
+  /// Data class type for nonconforming interface data
   constexpr static auto data_class =
       specfem::data_access::DataClassType::nonconforming_interface;
 
@@ -248,24 +457,50 @@ struct NonconformingAccessorPack
       "All Accessors in NonconformingAccessorPack must have the same "
       "boundary_tag");
 
+  /**
+   * @brief Default constructor
+   */
   KOKKOS_INLINE_FUNCTION NonconformingAccessorPack() = default;
 
-  KOKKOS_INLINE_FUNCTION NonconformingAccessorPack(const Accessors &...accessors)
+  /**
+   * @brief Construct from accessor instances
+   * @param accessors Individual accessor instances to pack
+   */
+  KOKKOS_INLINE_FUNCTION
+  NonconformingAccessorPack(const Accessors &...accessors)
       : Accessors(accessors)... {};
 
+  /**
+   * @brief Deleted function call operator (use accessor-specific access)
+   */
   template <typename... Indices>
   KOKKOS_INLINE_FUNCTION type_real operator()(Indices... indices) const =
       delete;
 
+  /**
+   * @brief Construct from team scratch memory
+   * @tparam MemberType Team member type
+   * @param team Team member for scratch allocation
+   */
   template <typename MemberType>
   KOKKOS_INLINE_FUNCTION NonconformingAccessorPack(const MemberType &team)
       : Accessors(team)... {}
 
+  /**
+   * @brief Get total shared memory size requirement
+   * @return Sum of memory requirements for all packed accessors
+   */
   constexpr static int shmem_size() {
     return (Accessors::shmem_size() + ... + 0);
   }
 };
 
+/**
+ * @brief Type alias for coupling terms accessor pack
+ *
+ * Combines transfer function and intersection normal accessors for
+ * computing coupling terms in nonconforming interface methods.
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,
@@ -276,6 +511,12 @@ using coupling_terms_pack = NonconformingAccessorPack<
     intersection_normal<DimensionTag, InterfaceTag, BoundaryTag, NumberElements,
                         NQuadIntersection> >;
 
+/**
+ * @brief Type alias for integral data accessor pack
+ *
+ * Provides access to intersection scaling factors for numerical integration
+ * at nonconforming interfaces.
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::interface::interface_tag InterfaceTag,
           specfem::element::boundary_tag BoundaryTag, int NumberElements,

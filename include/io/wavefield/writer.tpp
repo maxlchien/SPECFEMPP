@@ -4,6 +4,7 @@
 #include "io/wavefield/writer.hpp"
 #include "specfem/assembly.hpp"
 #include "utilities/strings.hpp"
+#include "specfem/logger.hpp"
 
 template <typename OutputLibrary>
 specfem::io::wavefield_writer<OutputLibrary>::wavefield_writer(
@@ -107,8 +108,7 @@ void specfem::io::wavefield_writer<OutputLibrary>::initialize(
   file.createDataset("medium_tags", medium_tags).write();
   file.flush();
 
-  std::cout << "Coordinates written to " << output_folder + "/ForwardWavefield"
-            << std::endl;
+  specfem::Logger::info("Coordinates written to " + output_folder + "/ForwardWavefield");
 }
 
 template <typename OutputLibrary>
@@ -196,6 +196,5 @@ void specfem::io::wavefield_writer<OutputLibrary>::finalize(
     file.flush();
   }
 
-  std::cout << "Wavefield written to " << output_folder + "/ForwardWavefield"
-            << std::endl;
+  specfem::Logger::info("Wavefield written to " + output_folder + "/ForwardWavefield");
 }

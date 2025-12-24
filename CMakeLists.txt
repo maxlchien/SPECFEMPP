@@ -17,10 +17,11 @@ option(SPECFEM_ENABLE_MPI "MPI enabled" OFF)
 option(SPECFEM_BUILD_TESTS "Tests included" OFF)
 option(SPECFEM_ENABLE_SIMD "Enable SIMD" OFF)
 option(SPECFEM_ENABLE_PROFILING "Enable profiling" OFF)
-option(SPECFEMPP_BINDING_PYTHON "Enable Python binding" OFF)
+option(SPECFEM_BINDING_PYTHON "Enable Python binding" OFF)
 option(SPECFEM_INSTALL "Creates clean executable directory. Location Controlled by CMAKE_INSTALL_PREFIX" ON)
 option(SPECFEM_ENABLE_DOUBLE_PRECISION "Enable double precision" OFF)
 option(SPECFEM_BUILD_BENCHMARKS "Benchmarks included" ON)
+option(SPECFEM_NIGHTLY_BENCHMARKS "Include nightly benchmarks" OFF)
 option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" ON)
 option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tesats" OFF)
 set(SPECFEMPP_UNITY_BUILD_BATCH_SIZE 8 CACHE STRING "Set the batch size for unity builds (only used if SPECFEM_ENABLE_UNITY_BUILD is ON)")
@@ -67,7 +68,7 @@ if(SPECFEM_ENABLE_UNITY_BUILD)
     endif()
 endif()
 
-if (SPECFEMPP_BINDING_PYTHON)
+if (SPECFEM_BINDING_PYTHON)
     message(STATUS "Adding -fPIC flag for Python binding.")
     if(CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM")
             set(CMAKE_CXX_FLAGS "-fp-model=precise -fPIC")
@@ -78,7 +79,7 @@ if (SPECFEMPP_BINDING_PYTHON)
     else()
             set(CMAKE_CXX_FLAGS "-fPIC")
     endif()
-else (SPECFEMPP_BINDING_PYTHON)
+else (SPECFEM_BINDING_PYTHON)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "IntelLLVM")
             set(CMAKE_CXX_FLAGS "-fp-model=precise")
     elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
@@ -86,7 +87,7 @@ else (SPECFEMPP_BINDING_PYTHON)
             message(STATUS "It is recommended you use IntelLLVM compiler.")
             set(CMAKE_CXX_FLAGS "-diag-disable=10441 -fp-model=precise")
     endif()
-endif (SPECFEMPP_BINDING_PYTHON)
+endif (SPECFEM_BINDING_PYTHON)
 
 # Check if MacOS
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -128,6 +129,9 @@ endif()
 # Install Kokkos as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/kokkos.cmake")
 
+# Configure SPECFEM++ build variables based on Kokkos settings
+include("${CMAKE_SOURCE_DIR}/cmake/variables.cmake")
+
 # Install yaml-cpp as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/yaml.cmake")
 
@@ -146,6 +150,12 @@ include("${CMAKE_SOURCE_DIR}/cmake/adios2.cmake")
 # Include VTK if available (MUST BE AFTER ADIOS2, VTK is smarter about finding
 # the pugixml dependency than ADIOS2)
 include("${CMAKE_SOURCE_DIR}/cmake/vtk.cmake")
+
+# Find MPI if enabled
+if (SPECFEM_ENABLE_MPI)
+    find_package(MPI REQUIRED)
+    message(STATUS "MPI enabled - found MPI::MPI_CXX")
+endif()
 
 if (SPECFEM_ENABLE_SIMD)
     message(STATUS "Enabling SIMD")
@@ -213,7 +223,7 @@ set(CMAKE_MESSAGE_LOG_LEVEL ${_saved_CMAKE_MESSAGE_LOG_LEVEL})
 # =================================
 
 # Add module subdirectories
-add_subdirectory(core/specfem)
+add_subdirectory(core)
 
 # Build specfem2d libraries
 add_library(
@@ -240,6 +250,7 @@ add_library(
         src/io/sources/dim3/read_sources.cpp
         src/io/receivers/dim2/read_receivers.cpp
         src/io/receivers/dim3/read_receivers.cpp
+        src/io/seismogram/impl/channel_generator.cpp
         # Fortran 2D part
         src/io/mesh/impl/fortran/dim2/mesh.cpp
         src/io/mesh/impl/fortran/dim2/read_boundaries.cpp
@@ -264,6 +275,7 @@ target_link_libraries(
         source_class
         specfem::receivers
         yaml-cpp
+        specfem::logger
         boost
         $<$<BOOL:${SPECFEM_ENABLE_NPZ}>:zlib>
         $<$<BOOL:${SPECFEM_ENABLE_HDF5}>:hdf5>
@@ -281,6 +293,7 @@ target_compile_definitions(
 add_library(
         enumerations
         src/enumerations/medium.cpp
+        src/enumerations/display.cpp
         src/enumerations/wavefield.cpp
         src/enumerations/dim2/connections.cpp
         src/enumerations/dim3/connections.cpp
@@ -296,17 +309,6 @@ target_link_libraries(
         Kokkos::kokkos
 )
 
-
-add_library(
-        edge
-        src/edge/interface.cpp
-)
-
-target_link_libraries(
-        edge
-        Kokkos::kokkos
-)
-
 add_library(
         specfem_mpi
         src/specfem_mpi/specfem_mpi.cpp
@@ -316,6 +318,11 @@ target_compile_definitions(
         specfem_mpi
         PUBLIC
         $<$<BOOL:${SPECFEM_ENABLE_MPI}>:-DMPI_PARALLEL>
+)
+
+target_link_libraries(specfem_mpi
+        PUBLIC
+        $<$<BOOL:${SPECFEM_ENABLE_MPI}>:MPI::MPI_CXX>
 )
 
 if (SPECFEM_ENABLE_MPI)
@@ -418,25 +425,6 @@ target_link_libraries(
 )
 
 add_library(
-        source_time_function
-        src/source_time_function/dirac.cpp
-        src/source_time_function/dgaussian.cpp
-        src/source_time_function/ricker.cpp
-        src/source_time_function/external.cpp
-)
-
-target_link_libraries(
-        source_time_function
-        read_seismogram
-        Kokkos::kokkos
-        point
-        utilities
-)
-
-# Disable unity build for source_time_function due to KOKKOS_INLINE_FUNCTION issues
-set_target_properties(source_time_function PROPERTIES UNITY_BUILD OFF)
-
-add_library(
         kokkos_kernels
         src/kokkos_kernels/impl/compute_mass_matrix.cpp
         src/kokkos_kernels/impl/invert_mass_matrix.cpp
@@ -472,6 +460,7 @@ target_link_libraries(
         timescheme
         kokkos_kernels
         periodic_tasks
+        specfem::logger
 )
 
 add_library(
@@ -524,64 +513,24 @@ target_link_libraries(
         ${BOOST_LIBS}
 )
 
-add_library(
-        execute
-        src/execute.cpp
-)
 
-target_link_libraries(
-        execute
-        specfem_mpi
-        Kokkos::kokkos
-        mesh
-        quadrature
-        assembly
-        source_class
-        parameter_reader
-        specfem::receivers
-        writer
-        periodic_tasks
-        reader
-        kokkos_kernels
-        solver
+# specfem2d executable for backward compatibility
+add_executable(specfem2d src/specfem2d.cpp)
+target_link_libraries(specfem2d
+    PRIVATE
+        specfem::core
+        yaml-cpp::yaml-cpp
         ${BOOST_LIBS}
 )
 
-add_executable(
-        specfem2d
-        src/specfem2d.cpp
-)
-
-target_link_libraries(
-        specfem2d
-        execute
-)
-
-add_executable(
-        specfem3d
-        src/specfem3d.cpp
-)
-
-target_link_libraries(
-        specfem3d
-        specfem_mpi
-        io
-        Kokkos::kokkos
-        mesh
-        quadrature
-        assembly
-        source_class
-        parameter_reader
-        specfem::receivers
-        writer
-        periodic_tasks
-        reader
-        kokkos_kernels
-        solver
+# specfem3d executable for backward compatibility
+add_executable(specfem3d src/specfem3d.cpp)
+target_link_libraries(specfem3d
+    PRIVATE
+        specfem::core
+        yaml-cpp::yaml-cpp
         ${BOOST_LIBS}
-        yaml-cpp
 )
-
 
 # Include tests
 if (SPECFEM_BUILD_TESTS)
@@ -605,34 +554,44 @@ if (SPECFEM_BUILD_BENCHMARKS)
     message(STATUS "Benchmarks built.")
 endif()
 
+if (SPECFEM_NIGHTLY_BENCHMARKS)
+   message(STATUS "Including nightly benchmarks.")
+   set(SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nightly_benchmarks/build)
+   message(STATUS "SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR was set to: ${SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR}")
+
+   message(STATUS "Building nightly benchmarks...")
+   add_subdirectory(nightly_benchmarks)
+   message(STATUS "Nightly benchmarks built.")
+endif()
+
 
 # Include Doxygen
 include("${CMAKE_SOURCE_DIR}/cmake/doxygen.cmake")
 
-if (SPECFEMPP_USE_SKBUILD AND EXISTS ${SKBUILD_SCRIPTS_DIR})
-    install(TARGETS specfem2d DESTINATION ${SKBUILD_SCRIPTS_DIR})
+if (SPECFEM_USE_SKBUILD AND EXISTS ${SKBUILD_SCRIPTS_DIR})
+    install(TARGETS specfem DESTINATION ${SKBUILD_SCRIPTS_DIR})
     install(FILES ${CMAKE_BINARY_DIR}/bin/xmeshfem2D DESTINATION ${SKBUILD_SCRIPTS_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
 endif ()
 
-if (SPECFEMPP_BINDING_PYTHON)
+if (SPECFEM_BINDING_PYTHON)
     find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
     find_package(pybind11 CONFIG REQUIRED)
     python_add_library(_core MODULE src/python/core.cpp WITH_SOABI)
     target_link_libraries(
         _core PRIVATE
-        execute
+        specfem::core
         periodic_tasks
         ${BOOST_LIBS}
         pybind11::headers
     )
     target_compile_definitions(_core PRIVATE VERSION_INFO=${PROJECT_VERSION})
     install(TARGETS _core DESTINATION specfempp_core)
-endif (SPECFEMPP_BINDING_PYTHON)
+endif (SPECFEM_BINDING_PYTHON)
 
 
-if (SPECFEM_INSTALL)
+if (SPECFEM_INSTALL AND NOT SPECFEM_USE_SKBUILD)
     install(
-        TARGETS specfem2d specfem3d
+        TARGETS specfem
         RUNTIME DESTINATION .
     )
 
@@ -642,7 +601,7 @@ if (SPECFEM_INSTALL)
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Organizing specfem++ executables into: ${CMAKE_INSTALL_PREFIX}"
         # Make this run after your main targets
-        DEPENDS specfem2d specfem3d xmeshfem2D xmeshfem3D xadj_seismogram # list all your targets here
+        DEPENDS specfem specfem2d specfem3d xmeshfem2D xmeshfem3D xadj_seismogram # list all your targets here
     )
 
     # Add the prefix directory to the clean target
@@ -650,4 +609,4 @@ if (SPECFEM_INSTALL)
         ${CMAKE_INSTALL_PREFIX}
     )
 
-endif(SPECFEM_INSTALL)
+endif(SPECFEM_INSTALL AND NOT SPECFEM_USE_SKBUILD)

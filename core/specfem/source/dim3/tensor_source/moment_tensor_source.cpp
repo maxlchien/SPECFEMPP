@@ -1,8 +1,8 @@
 #include "enumerations/interface.hpp"
 #include "globals.h"
 #include "kokkos_abstractions.h"
-#include "source_time_function/interface.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 // #include "utilities.cpp"
 #include "yaml-cpp/yaml.h"
@@ -62,7 +62,7 @@ specfem::sources::moment_tensor<specfem::dimension::type::dim3>::print() const {
           << "      Mxz = " << this->Mxz << "\n"
           << "      Myz = " << this->Myz << "\n"
           << "    Source Time Function: \n"
-          << this->forcing_function->print() << "\n";
+          << this->source_time_function->print() << "\n";
 
   return message.str();
 }
@@ -98,8 +98,8 @@ operator==(const specfem::sources::source<specfem::dimension::type::dim3>
     std::cout << "3-D moment tensor source not equal" << std::endl;
   }
 
-  return internal &&
-         (*(this->forcing_function) == *(other_source->forcing_function));
+  return internal && (*(this->source_time_function) ==
+                      *(other_source->source_time_function));
 }
 
 bool specfem::sources::moment_tensor<specfem::dimension::type::dim3>::

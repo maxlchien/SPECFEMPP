@@ -4,13 +4,14 @@ add_library(
         source_class
         ${COMPUTE_SOURCE_FILES}
 )
+add_library(specfem::source ALIAS source_class)
 
 target_link_libraries(
         source_class
         Kokkos::kokkos
         specfem_mpi
         utilities
-        source_time_function
+        specfem::source_time_functions
         yaml-cpp
         enumerations
         algorithms

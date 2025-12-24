@@ -10,6 +10,16 @@
 #include "impl/invert_mass_matrix.hpp"
 
 namespace specfem {
+/**
+ * @brief Kokkos-based computational kernels for SPECFEM++ finite element
+ * simulations
+ *
+ * This namespace contains high-performance computational kernels implemented
+ * using the Kokkos performance portability library for SPECFEM++ seismic wave
+ * propagation simulations. The kernels are designed to run efficiently on
+ * various computing architectures including CPUs, GPUs, and other accelerators.
+ *
+ */
 namespace kokkos_kernels {
 
 /**
@@ -75,9 +85,10 @@ public:
                                              _interface_tag_>::self_medium();
           if constexpr (dimension_tag == _dimension_tag_ &&
                         self_medium == medium) {
-            impl::compute_coupling<_dimension_tag_, _connection_tag_, wavefield,
-                                   ngll, ngll, _interface_tag_, _boundary_tag_>(
-                assembly);
+            impl::compute_coupling<
+                _dimension_tag_, _connection_tag_, wavefield, ngll, ngll,
+                _interface_tag_, _boundary_tag_,
+                specfem::interface::flux_scheme_tag::natural>(assembly);
             // second ngll is the number of quadrature points on the mortar.
           }
         })
@@ -192,6 +203,12 @@ public:
   }
 
 private:
+  /**
+   * @brief SPECFEM++ assembly object containing mesh and simulation data
+   *
+   * Assembly object provides the computational kernels access to mesh
+   * connectivity, element properties, and other necessary simulation data.
+   */
   specfem::assembly::assembly<dimension_tag> assembly;
 };
 

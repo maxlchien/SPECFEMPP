@@ -17,7 +17,7 @@ namespace sources {
  * @par Usage Example
  * @code
  * // Create a Ricker wavelet source time function
- * auto stf = std::make_unique<specfem::forcing_function::Ricker>(
+ * auto stf = std::make_unique<specfem::source_time_functions::Ricker>(
  *     25.0,  // dominant frequency (Hz)
  *     0.01,  // time factor
  *     1.0,   // amplitude
@@ -49,10 +49,11 @@ class external<specfem::dimension::type::dim2>
 public:
   external() {};
 
-  external(type_real x, type_real z,
-           std::unique_ptr<specfem::forcing_function::stf> forcing_function,
-           const specfem::wavefield::simulation_field wavefield_type)
-      : vector_source(x, z, std::move(forcing_function)),
+  external(
+      type_real x, type_real z,
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function,
+      const specfem::wavefield::simulation_field wavefield_type)
+      : vector_source(x, z, std::move(source_time_function)),
         wavefield_type(wavefield_type) {};
 
   external(YAML::Node &Node, const int nsteps, const type_real dt,

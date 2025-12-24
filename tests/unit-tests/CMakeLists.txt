@@ -20,25 +20,14 @@ set(TEST_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 enable_testing()
 
 add_library(
-  kokkos_environment
-  Kokkos_Environment.cpp
+  specfem_environment
+  SPECFEM_Environment.cpp
 )
 
 target_link_libraries(
-  kokkos_environment
-  Kokkos::kokkos
+  specfem_environment
   gtest_main
-)
-
-add_library(
-  mpi_environment
-  MPI_environment.cpp
-)
-
-target_link_libraries(
-  mpi_environment
-  gtest_main
-  specfem_mpi
+  specfem_program
 )
 
 
@@ -97,7 +86,7 @@ target_link_libraries(io_framework_tests PRIVATE
   boost
   gtest_main
   Kokkos::kokkos
-  kokkos_environment
+  specfem_environment
   $<$<BOOL:${SPECFEM_ENABLE_NPZ}>:zlib>
   $<$<BOOL:${SPECFEM_ENABLE_HDF5}>:hdf5>
   $<$<BOOL:${SPECFEM_ENABLE_ADIOS2}>:adios2>
@@ -111,6 +100,17 @@ target_compile_definitions(
     $<$<NOT:$<BOOL:${SPECFEM_ENABLE_ADIOS2}>>:-DNO_ADIOS2>
 )
 
+add_executable(
+  abort_tests
+  program/abort_tests.cpp
+)
+
+target_link_libraries(
+  abort_tests
+  specfem::program
+  gtest_main
+  Kokkos::kokkos
+)
 
 add_executable(
   is_close_tests
@@ -133,7 +133,7 @@ target_link_libraries(
   gll_tests
   gtest_main
   quadrature
-  kokkos_environment
+  specfem_environment
   point
   -lpthread -lm
 )
@@ -147,7 +147,7 @@ target_link_libraries(
   lagrange_tests
   gtest_main
   quadrature
-  kokkos_environment
+  specfem_environment
   -lpthread -lm
 )
 
@@ -165,8 +165,7 @@ add_executable(
 target_link_libraries(
   jacobian_tests
   jacobian
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   gtest_main
   -lpthread -lm
 )
@@ -186,7 +185,7 @@ target_link_libraries(
   quadrature
   shape_functions
   gtest_main
-  kokkos_environment
+  specfem_environment
   utilities
   -lpthread -lm
 )
@@ -265,8 +264,7 @@ target_link_libraries(
   receivers_tests
   gtest_main
   specfem::receivers
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   yaml-cpp
   boost
   -lpthread -lm
@@ -287,11 +285,11 @@ target_link_libraries(
   mesh_dim2_tests
   gtest_main
   mesh
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   yaml-cpp
   io
   utilities
+
   # material_class
   -lpthread -lm
 )
@@ -311,10 +309,10 @@ target_link_libraries(
   mesh_dim3_tests
   gtest_main
   mesh
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   io
   utilities
+
   -lpthread -lm
 )
 
@@ -330,8 +328,7 @@ target_link_libraries(
   mesh
   assembly
   quadrature
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   yaml-cpp
   utilities
   boost
@@ -368,8 +365,8 @@ target_link_libraries(
 #   mesh
 #   assembly
 #   quadrature
-#   mpi_environment
-#   kokkos_environment
+#   specfem_environment
+#
 #   yaml-cpp
 #   compare_arrays
 #   boost
@@ -387,8 +384,7 @@ target_link_libraries(
 #   mesh
 #   assembly
 #   quadrature
-#   mpi_environment
-#   kokkos_environment
+#   specfem_environment
 #   yaml-cpp
 #   compare_arrays
 #   # material_class
@@ -436,12 +432,12 @@ target_link_libraries(
   mesh
   assembly
   quadrature
-  mpi_environment
+  specfem_environment
   io
-  kokkos_environment
   yaml-cpp
   utilities
   boost
+
   -lpthread -lm
   gtest_main
 )
@@ -484,15 +480,16 @@ target_link_libraries(
   mesh
   assembly
   quadrature
-  mpi_environment
+  specfem_environment
   io
-  kokkos_environment
+
   yaml-cpp
   utilities
   enumerations
   shape_functions
   quadrature
   boost
+
   -lpthread -lm
   gtest_main
   ${BOOST_LIBS}
@@ -511,11 +508,11 @@ target_link_libraries(
   mesh
   assembly
   quadrature
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   yaml-cpp
   io
   boost
+
   gtest
   gtest_main
   -lpthread -lm
@@ -535,7 +532,7 @@ target_link_libraries(
   io_tests
   io
   gtest_main
-  kokkos_environment
+
   yaml-cpp
   enumerations
   boost
@@ -551,8 +548,7 @@ add_executable(
 target_link_libraries(
   interpolate_function
   quadrature
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   algorithms
   io
   boost
@@ -573,8 +569,7 @@ target_link_libraries(
   jacobian
   point
   utilities
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   gtest_main
 )
 
@@ -591,8 +586,7 @@ target_link_libraries(
   jacobian
   point
   utilities
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   gtest_main
 )
 
@@ -606,10 +600,9 @@ target_link_libraries(
   gradient_tests
   quadrature
   algorithms
-  kokkos_environment
   gtest_main
   Kokkos::kokkos
-  mpi_environment
+  specfem_environment
   assembly
   quadrature
   utilities
@@ -618,6 +611,22 @@ target_link_libraries(
 
 # Turn unity build off for gradient_tests
 set_target_properties(gradient_tests PROPERTIES UNITY_BUILD OFF)
+
+add_executable(
+  transfer_tests
+  algorithms/dim2/transfer.cpp
+)
+
+target_link_libraries(
+  transfer_tests
+  algorithms
+  enumerations
+  gtest_main
+  Kokkos::kokkos
+  specfem_environment
+  utilities
+  -lpthread -lm
+)
 
 add_executable(
   policies_tests
@@ -629,8 +638,7 @@ target_link_libraries(
   mesh
   source_class
   specfem::receivers
-  kokkos_environment
-  mpi_environment
+  specfem_environment
   yaml-cpp
   boost
   -lpthread -lm
@@ -701,7 +709,7 @@ target_link_libraries(
   compute_coupling_tests
   point
   gtest
-  kokkos_environment
+  specfem_environment
   Kokkos::kokkos
 )
 
@@ -740,10 +748,22 @@ add_executable(
 target_link_libraries(
   source_class_tests
   source_class
-  source_time_function
-  mpi_environment
-  kokkos_environment
+  source_time_functions
+  specfem_environment
   -lpthread -lm
+)
+
+add_executable(
+  source_time_function_tests
+  source_time_function/source_time_function_tests.cpp
+)
+
+target_link_libraries(
+  source_time_function_tests
+  source_time_functions
+  Kokkos::kokkos
+  yaml-cpp
+  gtest_main
 )
 
 # # add_executable(
@@ -754,8 +774,8 @@ target_link_libraries(
 # # target_link_libraries(
 # #   source_location_tests
 # #   material_class
-# #   mpi_environment
-# #   kokkos_environment
+# #   specfem_environment
+# #
 # #   yaml-cpp
 # #   mesh
 # #   quadrature
@@ -775,14 +795,12 @@ target_link_libraries(
   mesh
   # material_class
   yaml-cpp
-  kokkos_environment
-  mpi_environment
+  specfem_environment
   assembly
   parameter_reader
   compare_arrays
   timescheme
   point
-  edge
   algorithms
   kokkos_kernels
   solver
@@ -803,14 +821,12 @@ target_link_libraries(
   mesh
   # material_class
   yaml-cpp
-  kokkos_environment
-  mpi_environment
+  specfem_environment
   assembly
   parameter_reader
   compare_arrays
   timescheme
   point
-  edge
   algorithms
   kokkos_kernels
   solver
@@ -829,8 +845,7 @@ target_link_libraries(
 #   quadrature
 #   mesh
 #   yaml-cpp
-#   kokkos_environment
-#   mpi_environment
+#   specfem_environment
 #   assembly
 #   parameter_reader
 #   writer
@@ -851,8 +866,7 @@ target_link_libraries(
 #   quadrature
 #   mesh
 #   yaml-cpp
-#   kokkos_environment
-#   mpi_environment
+#   specfem_environment
 #   assembly
 #   parameter_reader
 #   writer
@@ -873,8 +887,7 @@ target_link_libraries(
 #   quadrature
 #   mesh
 #   yaml-cpp
-#   kokkos_environment
-#   mpi_environment
+#   specfem_environment
 #   assembly
 #   compare_arrays
 #   point
@@ -890,6 +903,7 @@ target_link_libraries(
 if(NOT MPI_PARALLEL)
   include(GoogleTest)
   set(TEST_TARGETS
+    abort_tests
     assembly_receivers_tests
     assembly_tests
     # compute_acoustic_tests
@@ -911,6 +925,7 @@ if(NOT MPI_PARALLEL)
     locate_point_fixture_2d
     locate_point_fixture_3d
     gradient_tests
+    transfer_tests
     mass_matrix_tests
     compute_coupling_tests
     mesh_dim2_tests
@@ -923,6 +938,7 @@ if(NOT MPI_PARALLEL)
     simd_tests
     source_class_tests
     source_tests
+    source_time_function_tests
     stress_tests
     test_mesh_utilities_mapping_2d
     test_mesh_utilities_mapping_3d

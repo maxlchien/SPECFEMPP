@@ -5,9 +5,9 @@
 #include "io/reader.hpp"
 
 namespace specfem {
-namespace forcing_function {
+namespace source_time_functions {
 class external;
-} // namespace forcing_function
+} // namespace source_time_functions
 } // namespace specfem
 
 namespace specfem {

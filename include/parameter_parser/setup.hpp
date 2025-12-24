@@ -88,11 +88,6 @@ public:
   void update_t0(type_real t0) { this->time_scheme->update_t0(t0); }
 
   type_real get_t0() const { return this->time_scheme->get_t0(); }
-  /**
-   * @brief Log the header and description of the simulation
-   */
-  std::string
-  print_header(const std::chrono::time_point<std::chrono::system_clock> now);
 
   /**
    * @brief Get the type of the elastic wave
@@ -196,27 +191,46 @@ public:
     return get_nsteps() / get_nstep_between_samples();
   }
 
-  std::shared_ptr<specfem::periodic_tasks::periodic_task>
+  template <specfem::dimension::type DimensionTag>
+  std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
   instantiate_wavefield_writer() const {
     if (this->wavefield) {
-      return this->wavefield->instantiate_wavefield_writer();
+      return this->wavefield
+          ->template instantiate_wavefield_writer<DimensionTag>();
     } else {
       return nullptr;
     }
   }
 
-  std::shared_ptr<specfem::periodic_tasks::periodic_task>
+  template <specfem::dimension::type DimensionTag>
+  std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
   instantiate_wavefield_reader() const {
     if (this->wavefield) {
-      return this->wavefield->instantiate_wavefield_reader();
+      return this->wavefield
+          ->template instantiate_wavefield_reader<DimensionTag>();
     } else {
       return nullptr;
     }
   }
 
-  std::shared_ptr<specfem::periodic_tasks::periodic_task>
+  std::shared_ptr<
+      specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim2> >
   instantiate_wavefield_plotter(
       const specfem::assembly::assembly<specfem::dimension::type::dim2>
+          &assembly,
+      const type_real &dt, specfem::MPI::MPI *mpi) const {
+    if (this->plot_wavefield) {
+      return this->plot_wavefield->instantiate_wavefield_plotter(assembly, dt,
+                                                                 mpi);
+    } else {
+      return nullptr;
+    }
+  }
+
+  std::shared_ptr<
+      specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3> >
+  instantiate_wavefield_plotter(
+      const specfem::assembly::assembly<specfem::dimension::type::dim3>
           &assembly,
       const type_real &dt, specfem::MPI::MPI *mpi) const {
     if (this->plot_wavefield) {
@@ -255,16 +269,16 @@ public:
     return this->solver->get_simulation_type();
   }
 
-  template <int NGLL>
+  template <int NGLL, specfem::dimension::type DimensionTag>
   std::shared_ptr<specfem::solver::solver> instantiate_solver(
       const type_real dt,
-      const specfem::assembly::assembly<specfem::dimension::type::dim2>
-          &assembly,
+      const specfem::assembly::assembly<DimensionTag> &assembly,
       std::shared_ptr<specfem::time_scheme::time_scheme> time_scheme,
-      const std::vector<
-          std::shared_ptr<specfem::periodic_tasks::periodic_task> > &tasks)
+      const std::vector<std::shared_ptr<
+          specfem::periodic_tasks::periodic_task<DimensionTag> > > &tasks)
       const {
-    return this->solver->instantiate<NGLL>(dt, assembly, time_scheme, tasks);
+    return this->solver->instantiate<NGLL, DimensionTag>(dt, assembly,
+                                                         time_scheme, tasks);
   }
 
   int get_nsteps() const { return this->time_scheme->get_nsteps(); }
@@ -274,6 +288,15 @@ public:
         ((this->wavefield != nullptr) &&
          (this->wavefield->is_for_adjoint_simulations())) ||
         (this->get_simulation_type() == specfem::simulation::type::combined));
+  }
+
+  /**
+   * @brief Get the header object
+   * @return header Header object
+   *
+   */
+  specfem::runtime_configuration::header get_header() const {
+    return *(this->header);
   }
 
 private:

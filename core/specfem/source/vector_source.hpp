@@ -29,7 +29,7 @@ namespace sources {
  * @par Vector Source Usage Pattern
  * @code
  * // Example: Creating and using a vector source (2D force)
- * auto stf = std::make_unique<specfem::forcing_function::Ricker>(
+ * auto stf = std::make_unique<specfem::source_time_functions::Ricker>(
  *     15.0, 0.01, 1.0, 0.0, 1.0, false
  * );
  *
@@ -72,7 +72,7 @@ public:
    *
    * @param x x-coordinate of source
    * @param z z-coordinate of source
-   * @param forcing_function pointer to source time function
+   * @param source_time_function pointer to source time function
    * @param wavefield_type type of wavefield
    */
   template <specfem::dimension::type U = DimensionTag,
@@ -80,15 +80,15 @@ public:
                 * = nullptr>
   vector_source(
       type_real x, type_real z,
-      std::unique_ptr<specfem::forcing_function::stf> forcing_function)
-      : source<DimensionTag>(x, z, std::move(forcing_function)){};
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function)
+      : source<DimensionTag>(x, z, std::move(source_time_function)){};
 
   /**
    * @brief Construct a new 3D vector source object using the forcing function
    * @param x x-coordinate of source
    * @param y y-coordinate of source
    * @param z z-coordinate of source
-   * @param forcing_function pointer to source time function
+   * @param source_time_function pointer to source time function
    * @param wavefield_type type of wavefield
    */
   template <specfem::dimension::type U = DimensionTag,
@@ -96,8 +96,8 @@ public:
                 * = nullptr>
   vector_source(
       type_real x, type_real y, type_real z,
-      std::unique_ptr<specfem::forcing_function::stf> forcing_function)
-      : source<DimensionTag>(x, y, z, std::move(forcing_function)){};
+      std::unique_ptr<specfem::source_time_functions::stf> source_time_function)
+      : source<DimensionTag>(x, y, z, std::move(source_time_function)){};
 
   /**
    * @brief Construct a new vector source object from a YAML node and time steps

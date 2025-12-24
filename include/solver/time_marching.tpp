@@ -3,6 +3,7 @@
 #include "solver.hpp"
 #include "time_marching.hpp"
 #include "specfem/timescheme/newmark.hpp"
+#include "specfem/logger.hpp"
 #include <Kokkos_Core.hpp>
 
 template <specfem::dimension::type DimensionTag, int NGLL>
@@ -89,8 +90,10 @@ void specfem::solver::time_marching<specfem::simulation::type::forward,
     }
 
     if (istep % 10 == 0) {
-      std::cout << "Progress : executed " << istep << " steps of " << nstep
+      std::ostringstream message;
+      message << "Progress : executed " << istep << " steps of " << nstep
                 << " steps" << std::endl;
+      specfem::Logger::info(message.str());
     }
     if (dofs_updated != total_dof_to_be_updated) {
       std::ostringstream message;
@@ -123,7 +126,7 @@ void specfem::solver::time_marching<specfem::simulation::type::forward,
     task->finalize(assembly);
   }
 
-  std::cout << std::endl;
+  specfem::Logger::info(" -- Simulation complete. -- \n");
 
   return;
 }
@@ -225,8 +228,10 @@ void specfem::solver::time_marching<specfem::simulation::type::combined,
     }
 
     if (istep % 10 == 0) {
-      std::cout << "Progress : executed " << istep << " steps of " << nstep
-                << " steps" << std::endl;
+      std::ostringstream message;
+      message << "Progress : executed " << istep << " steps of " << nstep
+                << " steps";
+      specfem::Logger::info(message.str());
     }
 
     if (dofs_updated != total_dof_to_be_updated) {
@@ -254,7 +259,7 @@ void specfem::solver::time_marching<specfem::simulation::type::combined,
     task->finalize(assembly);
   }
 
-  std::cout << std::endl;
+  specfem::Logger::info(" -- Simulation complete. -- \n");
 
   return;
 }

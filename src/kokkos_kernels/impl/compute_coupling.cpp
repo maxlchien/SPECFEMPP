@@ -14,37 +14,37 @@ FOR_EACH_IN_PRODUCT(
         (template void specfem::kokkos_kernels::impl::compute_coupling,
          (_DIMENSION_TAG_, _CONNECTION_TAG_,
           specfem::wavefield::simulation_field::forward, 5, 5, _INTERFACE_TAG_,
-          _BOUNDARY_TAG_),
+          _BOUNDARY_TAG_, specfem::interface::flux_scheme_tag::natural),
          (const specfem::assembly::assembly<specfem::dimension::type::dim2>
               &);),
         (template void specfem::kokkos_kernels::impl::compute_coupling,
          (_DIMENSION_TAG_, _CONNECTION_TAG_,
           specfem::wavefield::simulation_field::backward, 5, 5, _INTERFACE_TAG_,
-          _BOUNDARY_TAG_),
+          _BOUNDARY_TAG_, specfem::interface::flux_scheme_tag::natural),
          (const specfem::assembly::assembly<specfem::dimension::type::dim2>
               &);),
         (template void specfem::kokkos_kernels::impl::compute_coupling,
          (_DIMENSION_TAG_, _CONNECTION_TAG_,
           specfem::wavefield::simulation_field::adjoint, 5, 5, _INTERFACE_TAG_,
-          _BOUNDARY_TAG_),
+          _BOUNDARY_TAG_, specfem::interface::flux_scheme_tag::natural),
          (const specfem::assembly::assembly<specfem::dimension::type::dim2>
               &);),
         /** instantiation for NGLL = 8     */
         (template void specfem::kokkos_kernels::impl::compute_coupling,
          (_DIMENSION_TAG_, _CONNECTION_TAG_,
           specfem::wavefield::simulation_field::forward, 8, 8, _INTERFACE_TAG_,
-          _BOUNDARY_TAG_),
+          _BOUNDARY_TAG_, specfem::interface::flux_scheme_tag::natural),
          (const specfem::assembly::assembly<specfem::dimension::type::dim2>
               &);),
         (template void specfem::kokkos_kernels::impl::compute_coupling,
          (_DIMENSION_TAG_, _CONNECTION_TAG_,
           specfem::wavefield::simulation_field::backward, 8, 8, _INTERFACE_TAG_,
-          _BOUNDARY_TAG_),
+          _BOUNDARY_TAG_, specfem::interface::flux_scheme_tag::natural),
          (const specfem::assembly::assembly<specfem::dimension::type::dim2>
               &);),
         (template void specfem::kokkos_kernels::impl::compute_coupling,
          (_DIMENSION_TAG_, _CONNECTION_TAG_,
           specfem::wavefield::simulation_field::adjoint, 8, 8, _INTERFACE_TAG_,
-          _BOUNDARY_TAG_),
+          _BOUNDARY_TAG_, specfem::interface::flux_scheme_tag::natural),
          (const specfem::assembly::assembly<specfem::dimension::type::dim2>
               &);)))

@@ -1,9 +1,9 @@
-#include "../../Kokkos_Environment.hpp"
+#include "../../SPECFEM_Environment.hpp"
 #include "enumerations/specfem_enums.hpp"
 #include "enumerations/wavefield.hpp"
 #include "io/interface.hpp"
-#include "source_time_function/interface.hpp"
 #include "specfem/source.hpp"
+#include "specfem/source_time_functions.hpp"
 #include "specfem_setup.hpp"
 #include "test_source_solutions.hpp"
 #include <Kokkos_Core.hpp>

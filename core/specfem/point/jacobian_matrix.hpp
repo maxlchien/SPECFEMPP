@@ -22,7 +22,7 @@ struct jacobian_matrix;
 
 /**
  * @brief Template specialization for 2D spectral elements without storing the
- * Jacobian
+ * Jacobian determinant
  *
  * @tparam UseSIMD Boolean indicating whether to use SIMD
  */
@@ -50,10 +50,10 @@ public:
   constexpr static bool store_jacobian = false;
   ///@}
 
-  value_type xix;    ///< @xix
-  value_type gammax; ///< @gammax
-  value_type xiz;    ///< @xiz
-  value_type gammaz; ///< @gammaz
+  value_type xix;    ///< @f$ \partial \xi / \partial x @f$
+  value_type gammax; ///< @f$ \partial \gamma / \partial x @f$
+  value_type xiz;    ///< @f$ \partial \xi / \partial z @f$
+  value_type gammaz; ///< @f$ \partial \gamma / \partial z @f$
 
   /**
    * @name Constructors
@@ -73,10 +73,10 @@ public:
   /**
    * @brief Constructor with values
    *
-   * @param xix @xix
-   * @param gammax @gammax
-   * @param xiz @xiz
-   * @param gammaz @gammaz
+   * @param xix @f$ \partial \xi / \partial x @f$
+   * @param gammax @f$ \partial \gamma / \partial x @f$
+   * @param xiz @f$ \partial \xi / \partial z @f$
+   * @param gammaz @f$ \partial \gamma / \partial z @f$
    */
   KOKKOS_FUNCTION
   jacobian_matrix(const value_type &xix, const value_type &gammax,
@@ -147,7 +147,7 @@ operator*(const type_real &lhs, const PointJacobianMatrixType &rhs) {
 
 /**
  * @brief Template specialization for 3D spectral elements without storing the
- * Jacobian
+ * Jacobian determinant
  *
  * @tparam UseSIMD Boolean indicating whether to use SIMD
  */
@@ -175,15 +175,15 @@ public:
   constexpr static bool store_jacobian = false;
   ///@}
 
-  value_type xix;    ///< @xix
-  value_type etax;   ///< @etax
-  value_type gammax; ///< @gammax
-  value_type xiy;    ///< @xiy
-  value_type etay;   ///< @etay
-  value_type gammay; ///< @gammay
-  value_type xiz;    ///< @xiz
-  value_type etaz;   ///< @etaz
-  value_type gammaz; ///< @gammaz
+  value_type xix;    ///< @f$ \partial \xi / \partial x @f$
+  value_type etax;   ///< @f$ \partial \eta / \partial x @f$
+  value_type gammax; ///< @f$ \partial \gamma / \partial x @f$
+  value_type xiy;    ///< @f$ \partial \xi / \partial y @f$
+  value_type etay;   ///< @f$ \partial \eta / \partial y @f$
+  value_type gammay; ///< @f$ \partial \gamma / \partial y @f$
+  value_type xiz;    ///< @f$ \partial \xi / \partial z @f$
+  value_type etaz;   ///< @f$ \partial \eta / \partial z @f$
+  value_type gammaz; ///< @f$ \partial \gamma / \partial z @f$
 
   /**
    * @name Constructors
@@ -203,15 +203,15 @@ public:
   /**
    * @brief Constructor with values
    *
-   * @param xix @xix
-   * @param etax @etax
-   * @param gammax @gammax
-   * @param xiy @xiy
-   * @param etay @etay
-   * @param gammay @gammay
-   * @param xiz @xiz
-   * @param etaz @etaz
-   * @param gammaz @gammaz
+   * @param xix @f$ \partial \xi / \partial x @f$
+   * @param etax @f$ \partial \eta / \partial x @f$
+   * @param gammax @f$ \partial \gamma / \partial x @f$
+   * @param xiy @f$ \partial \xi / \partial y @f$
+   * @param etay @f$ \partial \eta / \partial y @f$
+   * @param gammay @f$ \partial \gamma / \partial y @f$
+   * @param xiz @f$ \partial \xi / \partial z @f$
+   * @param etaz @f$ \partial \eta / \partial z @f$
+   * @param gammaz @f$ \partial \gamma / \partial z @f$
    */
   KOKKOS_FUNCTION
   jacobian_matrix(const value_type &xix, const value_type &etax,
@@ -307,7 +307,7 @@ operator*(const type_real &lhs, const PointJacobianMatrixType &rhs) {
 
 /**
  * @brief Template specialization for 2D spectral elements with storing the
- * Jacobian
+ * Jacobian determinant
  *
  * @tparam UseSIMD Boolean indicating whether to use SIMD
  */
@@ -329,7 +329,7 @@ public:
   constexpr static bool store_jacobian = true;
   ///@}
 
-  value_type jacobian; ///< Jacobian
+  value_type jacobian; ///< Jacobian determinant @f$ J @f$
 
   /**
    * @name Constructors
@@ -350,11 +350,11 @@ public:
   /**
    * @brief Constructor with values
    *
-   * @param xix @xix
-   * @param gammax @gammax
-   * @param xiz @xiz
-   * @param gammaz @gammaz
-   * @param jacobian Jacobian
+   * @param xix @f$ \partial \xi / \partial x @f$
+   * @param gammax @f$ \partial \gamma / \partial x @f$
+   * @param xiz @f$ \partial \xi / \partial z @f$
+   * @param gammaz @f$ \partial \gamma / \partial z @f$
+   * @param jacobian Jacobian determinant @f$ J @f$
    */
   KOKKOS_FUNCTION
   jacobian_matrix(const value_type &xix, const value_type &gammax,
@@ -451,7 +451,7 @@ private:
 
 /**
  * @brief Template specialization for 3D spectral elements with storing the
- * Jacobian
+ * Jacobian determinant
  *
  * @tparam UseSIMD Boolean indicating whether to use SIMD
  */
@@ -473,7 +473,7 @@ public:
   constexpr static bool store_jacobian = true;
   ///@}
 
-  value_type jacobian; ///< Jacobian
+  value_type jacobian; ///< Jacobian determinant @f$ J @f$
 
   /**
    * @name Constructors
@@ -494,16 +494,16 @@ public:
   /**
    * @brief Constructor with values
    *
-   * @param xix @xix
-   * @param etax @etax
-   * @param gammax @gammax
-   * @param xiy @xiy
-   * @param etay @etay
-   * @param gammay @gammay
-   * @param xiz @xiz
-   * @param etaz @etaz
-   * @param gammaz @gammaz
-   * @param jacobian Jacobian
+   * @param xix @f$ \partial \xi / \partial x @f$
+   * @param etax @f$ \partial \eta / \partial x @f$
+   * @param gammax @f$ \partial \gamma / \partial x @f$
+   * @param xiy @f$ \partial \xi / \partial y @f$
+   * @param etay @f$ \partial \eta / \partial y @f$
+   * @param gammay @f$ \partial \gamma / \partial y @f$
+   * @param xiz @f$ \partial \xi / \partial z @f$
+   * @param etaz @f$ \partial \eta / \partial z @f$
+   * @param gammaz @f$ \partial \gamma / \partial z @f$
+   * @param jacobian Jacobian determinant @f$ J @f$
    */
   KOKKOS_FUNCTION
   jacobian_matrix(const value_type &xix, const value_type &etax,
@@ -565,51 +565,68 @@ public:
    */
   ///@{
 
-  //   /**
-  //    * @brief Compute the normal vector at a quadrature point
-  //    *
-  //    * @param type Type of edge (bottom, top, left, right)
-  //    * @return specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
-  //    * Normal vector
-  //    */
-  //   KOKKOS_FUNCTION specfem::datatype::VectorPointViewType<type_real, 2,
-  //   UseSIMD> compute_normal(const specfem::enums::edge::type &type) const;
-  //   ///@}
+  /**
+   * @brief Compute the normal vector at a quadrature point
+   *
+   * @param type Type of boundary face
+   * @return specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+   * Normal vector
+   */
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  compute_normal(const specfem::mesh_entity::dim3::type &type) const;
+  ///@}
 
-  // private:
-  //   KOKKOS_INLINE_FUNCTION
-  //   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
-  //   impl_compute_normal_bottom() const {
-  //     return { static_cast<value_type>(static_cast<type_real>(-1.0) *
-  //                                      this->gammax * this->jacobian),
-  //              static_cast<value_type>(static_cast<type_real>(-1.0) *
-  //                                      this->gammaz * this->jacobian) };
-  //   };
+private:
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  impl_compute_normal_bottom() const {
+    return { static_cast<value_type>(static_cast<type_real>(-1.0) *
+                                     this->gammax * this->jacobian),
+             static_cast<value_type>(static_cast<type_real>(-1.0) *
+                                     this->gammay * this->jacobian),
+             static_cast<value_type>(static_cast<type_real>(-1.0) *
+                                     this->gammaz * this->jacobian) };
+  };
 
-  //   KOKKOS_INLINE_FUNCTION
-  //   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
-  //   impl_compute_normal_top() const {
-  //     return { static_cast<value_type>(this->gammax * this->jacobian),
-  //              static_cast<value_type>(this->gammaz * this->jacobian) };
-  //   };
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  impl_compute_normal_top() const {
+    return { static_cast<value_type>(this->gammax * this->jacobian),
+             static_cast<value_type>(this->gammay * this->jacobian),
+             static_cast<value_type>(this->gammaz * this->jacobian) };
+  };
 
-  //   KOKKOS_INLINE_FUNCTION
-  //   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
-  //   impl_compute_normal_left() const {
-  //     return { static_cast<value_type>(static_cast<type_real>(-1.0) *
-  //     this->xix *
-  //                                      this->jacobian),
-  //              static_cast<value_type>(static_cast<type_real>(-1.0) *
-  //              this->xiz *
-  //                                      this->jacobian) };
-  //   };
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  impl_compute_normal_left() const {
+    return { static_cast<value_type>(static_cast<type_real>(-1.0) * this->xix *
+                                     this->jacobian),
+             static_cast<value_type>(static_cast<type_real>(-1.0) * this->xiy *
+                                     this->jacobian),
+             static_cast<value_type>(static_cast<type_real>(-1.0) * this->xiz *
+                                     this->jacobian) };
+  };
 
-  //   KOKKOS_INLINE_FUNCTION
-  //   specfem::datatype::VectorPointViewType<type_real, 2, UseSIMD>
-  //   impl_compute_normal_right() const {
-  //     return { static_cast<value_type>(this->xix * this->jacobian),
-  //              static_cast<value_type>(this->xiz * this->jacobian) };
-  //   };
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  impl_compute_normal_right() const {
+    return { static_cast<value_type>(this->xix * this->jacobian),
+             static_cast<value_type>(this->xiy * this->jacobian),
+             static_cast<value_type>(this->xiz * this->jacobian) };
+  };
+
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  impl_compute_normal_front() const {
+    return { static_cast<value_type>(this->etax * this->jacobian),
+             static_cast<value_type>(this->etay * this->jacobian),
+             static_cast<value_type>(this->etaz * this->jacobian) };
+  };
+
+  specfem::datatype::VectorPointViewType<type_real, 3, UseSIMD>
+  impl_compute_normal_back() const {
+    return { static_cast<value_type>(static_cast<type_real>(-1.0) * this->etax *
+                                     this->jacobian),
+             static_cast<value_type>(static_cast<type_real>(-1.0) * this->etay *
+                                     this->jacobian),
+             static_cast<value_type>(static_cast<type_real>(-1.0) * this->etaz *
+                                     this->jacobian) };
+  };
 };
 
 } // namespace point
