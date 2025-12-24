@@ -21,6 +21,7 @@ option(SPECFEM_BINDING_PYTHON "Enable Python binding" OFF)
 option(SPECFEM_INSTALL "Creates clean executable directory. Location Controlled by CMAKE_INSTALL_PREFIX" ON)
 option(SPECFEM_ENABLE_DOUBLE_PRECISION "Enable double precision" OFF)
 option(SPECFEM_BUILD_BENCHMARKS "Benchmarks included" ON)
+option(SPECFEM_NIGHTLY_BENCHMARKS "Include nightly benchmarks" OFF)
 option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" ON)
 option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tesats" OFF)
 set(SPECFEMPP_UNITY_BUILD_BATCH_SIZE 8 CACHE STRING "Set the batch size for unity builds (only used if SPECFEM_ENABLE_UNITY_BUILD is ON)")
@@ -127,6 +128,9 @@ endif()
 
 # Install Kokkos as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/kokkos.cmake")
+
+# Configure SPECFEM++ build variables based on Kokkos settings
+include("${CMAKE_SOURCE_DIR}/cmake/variables.cmake")
 
 # Install yaml-cpp as a dependency
 include("${CMAKE_SOURCE_DIR}/cmake/yaml.cmake")
@@ -456,6 +460,7 @@ target_link_libraries(
         timescheme
         kokkos_kernels
         periodic_tasks
+        specfem::logger
 )
 
 add_library(
@@ -547,6 +552,16 @@ if (SPECFEM_BUILD_BENCHMARKS)
     message(STATUS "Building benchmarks...")
     add_subdirectory(benchmarks/src)
     message(STATUS "Benchmarks built.")
+endif()
+
+if (SPECFEM_NIGHTLY_BENCHMARKS)
+   message(STATUS "Including nightly benchmarks.")
+   set(SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/nightly_benchmarks/build)
+   message(STATUS "SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR was set to: ${SPECFEM_NIGHTLY_BENCHMARKS_BUILD_DIR}")
+
+   message(STATUS "Building nightly benchmarks...")
+   add_subdirectory(nightly_benchmarks)
+   message(STATUS "Nightly benchmarks built.")
 endif()
 
 
