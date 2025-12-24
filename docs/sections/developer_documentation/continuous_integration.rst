@@ -80,7 +80,7 @@ This is defined in :repo-file:`.jenkins/gnu_compiler_checks.gvy`
 
 - GCC Versions: 11.5.0, 14.2.1
 - Compilation modes: Serial, OpenMP
-- SIMD options: Enabled, Disabled
+- SIMD options: On, Off
 
 The resulting test combinations are:
 
@@ -93,28 +93,28 @@ The resulting test combinations are:
      - SIMD Option
    * - 11.5.0
      - Serial
-     - Enabled
+     - On
    * - 11.5.0
      - Serial
-     - Disabled
+     - Off
    * - 11.5.0
      - OpenMP
-     - Enabled
+     - On
    * - 11.5.0
      - OpenMP
-     - Disabled
+     - Off
    * - 14.2.1
      - Serial
-     - Enabled
+     - On
    * - 14.2.1
      - Serial
-     - Disabled
+     - Off
    * - 14.2.1
      - OpenMP
-     - Enabled
+     - On
    * - 14.2.1
      - OpenMP
-     - Disabled
+     - Off
 
 **Intel OneAPI Compiler**
 
@@ -122,7 +122,7 @@ This is defined in :repo-file:`.jenkins/intel_compiler_checks.gvy`
 
 - Intel compiler versions: 2024.2.0
 - Compilation modes: Serial, OpenMP
-- SIMD options: Enabled, Disabled
+- SIMD options: On, Off
 
 The resulting test combinations are:
 
@@ -135,16 +135,16 @@ The resulting test combinations are:
      - SIMD Option
    * - 2024.2.0
      - Serial
-     - Enabled
+     - On
    * - 2024.2.0
      - Serial
-     - Disabled
+     - Off
    * - 2024.2.0
      - OpenMP
-     - Enabled
+     - On
    * - 2024.2.0
      - OpenMP
-     - Disabled
+     - Off
 
 GPU
 +++
@@ -157,7 +157,7 @@ architecture that is tested is NVIDIA Ampere (A100).
 - CPU Compiler: GNU 11.5.0
 - CUDA: :repo-file:`cudatoolkit/11.8`, :repo-file:`cudatoolkit/12.8`
 - Compilation modes: Serial, OpenMP
-- SIMD options: Enabled, Disabled
+- SIMD options: On, Off
 
 The resulting test combinations are:
 
@@ -170,25 +170,25 @@ The resulting test combinations are:
      - SIMD Option
    * - 11.8
      - Serial
-     - Enabled
+     - On
    * - 11.8
      - Serial
-     - Disabled
+     - Off
    * - 11.8
      - OpenMP
-     - Enabled
+     - On
    * - 11.8
      - OpenMP
-     - Disabled
+     - Off
    * - 12.8
      - Serial
-     - Enabled
+     - On
    * - 12.8
      - Serial
-     - Disabled
+     - Off
    * - 12.8
      - OpenMP
-     - Enabled
+     - On
    * - 12.8
      - OpenMP
-     - Disabled
+     - Off
