@@ -1,17 +1,48 @@
+.. _specfem_point_coordinates_local_coordinates:
 
-.. _specfem_point_coordinates:
 
-Coordinates
-===========
+``specfem::point::local_coordinates``
+=====================================
 
-Point coordinates are used to store the coordinates of a point within the mesh.
-The coordinates have three components:
+.. doxygenstruct:: specfem::point::local_coordinates
+   :members:
 
-.. toctree::
-    :maxdepth: 1
+Dimension-specific Specializations
+----------------------------------
 
-    local_coordinates
-    global_coordinates
+.. doxygenstruct:: specfem::point::local_coordinates< specfem::dimension::type::dim2 >
+   :members:
+   :private-members:
 
-The associated indeces are stored in the :cpp:class:`specfem::point::index`
+.. doxygenstruct:: specfem::point::local_coordinates< specfem::dimension::type::dim3 >
+   :members:
+   :private-members:
+
+
+.. _specfem_point_coordinates_global_coordinates:
+
+``specfem::point::global_coordinates``
+======================================
+
+.. doxygenstruct:: specfem::point::global_coordinates
+   :members:
+
+Dimension-specific Specializations
+----------------------------------
+
+.. doxygenstruct:: specfem::point::global_coordinates< specfem::dimension::type::dim2 >
+   :members:
+   :private-members:
+
+.. doxygenstruct:: specfem::point::global_coordinates< specfem::dimension::type::dim3 >
+   :members:
+   :private-members:
+
+Related Functions
+-----------------
+
+.. doxygenfunction:: specfem::point::distance
+
+
+The associated indices are stored in the :cpp:class:`specfem::point::index`
 struct.

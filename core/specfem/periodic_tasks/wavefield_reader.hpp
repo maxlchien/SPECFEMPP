@@ -9,8 +9,9 @@
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Base plotter class
+ * @brief Periodic task to read wavefield data during simulation
  *
+ * @tparam IOLibrary Template for the I/O library to use for reading
  */
 template <specfem::dimension::type DimensionTag,
           template <typename OpType> class IOLibrary>
@@ -26,7 +27,7 @@ public:
             output_folder)) {}
 
   /**
-   * @brief Check for keyboard interrupt and more, when running from Python
+   * @brief Read wavefield data from file
    *
    */
   void run(specfem::assembly::assembly<DimensionTag> &assembly,
