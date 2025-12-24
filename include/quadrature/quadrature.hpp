@@ -73,6 +73,12 @@ public:
    */
   virtual void print(std::ostream &out) const;
 
+  /**
+   * @brief return string representation of the quadrature
+   * @return std::string String representation of the quadrature
+   */
+  virtual std::string to_string() const;
+
   // typedef polynomial = specfem::quadrature::polynomial::Lagrange;
 
 private:
