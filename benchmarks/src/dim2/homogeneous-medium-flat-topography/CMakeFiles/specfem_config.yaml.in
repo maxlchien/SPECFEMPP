@@ -48,3 +48,6 @@ parameters:
 
   ## sources
   sources: "@CURRENT_BENCHMARK_BUILD_DIR@/source.yaml"
+
+  ## log-file configuration
+  log-file: "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/output"

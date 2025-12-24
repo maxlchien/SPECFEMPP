@@ -1,9 +1,7 @@
 .. _specfem_point_boundary:
 
-Boundary
-========
-
-Datatype used to store boundary conditions at a quadrature point.
+``specfem::point::boundary``
+============================
 
 .. doxygenstruct:: specfem::point::boundary
    :members:

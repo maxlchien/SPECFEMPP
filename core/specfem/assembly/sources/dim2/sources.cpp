@@ -39,7 +39,7 @@ specfem::assembly::sources<specfem::dimension::type::dim2>::sources(
     : timestep(0), nspec(mesh.nspec),
       element_indices("specfem::sources::elements", sources.size()),
       h_element_indices(Kokkos::create_mirror_view(element_indices)),
-      source_indices("specfem::sources::indeces", sources.size()),
+      source_indices("specfem::sources::indices", sources.size()),
       h_source_indices(Kokkos::create_mirror_view(source_indices)),
       medium_types("specfem::sources::medium_types", sources.size()),
       h_medium_types(Kokkos::create_mirror_view(medium_types)),

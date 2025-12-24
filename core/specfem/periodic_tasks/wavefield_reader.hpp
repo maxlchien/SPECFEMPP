@@ -3,13 +3,15 @@
 #include "io/operators.hpp"
 #include "io/wavefield/reader.hpp"
 #include "periodic_task.hpp"
+#include "specfem/logger.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Base plotter class
+ * @brief Periodic task to read wavefield data during simulation
  *
+ * @tparam IOLibrary Template for the I/O library to use for reading
  */
 template <specfem::dimension::type DimensionTag,
           template <typename OpType> class IOLibrary>
@@ -25,20 +27,20 @@ public:
             output_folder)) {}
 
   /**
-   * @brief Check for keyboard interrupt and more, when running from Python
+   * @brief Read wavefield data from file
    *
    */
   void run(specfem::assembly::assembly<DimensionTag> &assembly,
            const int istep) override {
-    std::cout << "Reading wavefield files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Reading wavefield files:");
+    specfem::Logger::info("------------------------");
     reader.run(assembly, istep);
   }
 
   void
   initialize(specfem::assembly::assembly<DimensionTag> &assembly) override {
-    std::cout << "Reading coordinate files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Reading coordinate files:");
+    specfem::Logger::info("-------------------------");
     reader.initialize(assembly);
   }
 };

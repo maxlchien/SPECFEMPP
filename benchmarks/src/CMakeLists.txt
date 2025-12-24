@@ -19,6 +19,7 @@ add_subdirectory(dim2/solid-solid-interface)
 add_subdirectory(dim2/Tromp_2005)
 add_subdirectory(dim2/poroelastic-semi-infinite)
 add_subdirectory(dim2/homogeneous-cosserat)
+add_subdirectory(dim2/marmousi)
 
 # 3D
 add_subdirectory(dim3/homogeneous_halfspace)

@@ -19,10 +19,13 @@ New structure
 
     specfem/assembly/index
     specfem/chunk_element/index
+    specfem/periodic_tasks/index
     specfem/point/index
     specfem/receivers/index
     specfem/sources/index
+    specfem/data_access/index
     specfem/source_time_functions/index
+    specfem/chunk_edge/index
 
 
 Old structure

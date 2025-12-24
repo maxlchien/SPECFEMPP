@@ -1,8 +1,8 @@
+.. _specfem_api_setup_parameters_quadrature:
 
-Quadrature
-==================
-
-Methods to read quadrature information from configuration file and instantiate quadrature objects.
+``specfem::runtime_configuration::quadrature``
+==============================================
 
 .. doxygenclass:: specfem::runtime_configuration::quadrature
     :members:
+    :private-members:

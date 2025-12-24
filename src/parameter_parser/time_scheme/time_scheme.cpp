@@ -7,7 +7,7 @@
 
 template <typename AssemblyFields>
 std::shared_ptr<specfem::time_scheme::time_scheme>
-specfem::runtime_configuration::time_scheme::time_scheme::instantiate(
+specfem::runtime_configuration::time_scheme::instantiate(
     AssemblyFields &fields, const int nstep_between_samples) {
 
   std::shared_ptr<specfem::time_scheme::time_scheme> it;
@@ -37,7 +37,7 @@ specfem::runtime_configuration::time_scheme::time_scheme::instantiate(
   return it;
 }
 
-specfem::runtime_configuration::time_scheme::time_scheme::time_scheme(
+specfem::runtime_configuration::time_scheme::time_scheme(
     const YAML::Node &timescheme, const specfem::simulation::type simulation) {
 
   try {
@@ -49,7 +49,7 @@ specfem::runtime_configuration::time_scheme::time_scheme::time_scheme(
       }
     }();
 
-    *this = specfem::runtime_configuration::time_scheme::time_scheme(
+    *this = specfem::runtime_configuration::time_scheme(
         timescheme["type"].as<std::string>(), timescheme["dt"].as<type_real>(),
         timescheme["nstep"].as<int>(), t0, simulation);
   } catch (YAML::ParserException &e) {
@@ -63,13 +63,13 @@ specfem::runtime_configuration::time_scheme::time_scheme::time_scheme(
 
 // Explicit template instantiations for dim2 and dim3 assembly fields
 template std::shared_ptr<specfem::time_scheme::time_scheme>
-specfem::runtime_configuration::time_scheme::time_scheme::instantiate<
+specfem::runtime_configuration::time_scheme::instantiate<
     specfem::assembly::fields<specfem::dimension::type::dim2> >(
     specfem::assembly::fields<specfem::dimension::type::dim2> &fields,
     const int nstep_between_samples);
 
 template std::shared_ptr<specfem::time_scheme::time_scheme>
-specfem::runtime_configuration::time_scheme::time_scheme::instantiate<
+specfem::runtime_configuration::time_scheme::instantiate<
     specfem::assembly::fields<specfem::dimension::type::dim3> >(
     specfem::assembly::fields<specfem::dimension::type::dim3> &fields,
     const int nstep_between_samples);

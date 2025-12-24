@@ -10,7 +10,7 @@
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Base plotter class
+ * @brief Signal checker class for handling interrupts during simulation
  *
  */
 template <specfem::dimension::type DimensionTag>

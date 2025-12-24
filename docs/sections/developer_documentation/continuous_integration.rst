@@ -3,62 +3,192 @@
 Continuous Integration (CI)
 ===========================
 
-The following tests are run as part of continuous integration (CI) process. The goal of these tests are to ensure that the code can be compiled and run accurately on various supported platforms.
+As part of our Continuous Integration (CI) process, we run a series of automated
+tests to ensure the stability and reliability of the codebase, as well as
+automated documentation builds. The primary goal of these tests are to ensure
+that the code can be compiled and run accurately on various supported platforms,
+and that new changes do not introduce regressions or break existing
+functionality. We use a combination of Github Actions and Jenkins to run these
+tests, the details of which are described below.
 
-1. **Partial compilation checks (github actions)**: These tests are run on every push to the repository. This check tests if the code can be copiled using GNU compilers in serial mode. The goal is to ensure current push doesn't break the compilation. These tests would run on forks of this repository. Ultimately, the hope is that end developer commits their changes to local fork at regualar intervals which would reduce compilation errors during development process.
+Read the Docs
+-------------
 
-2. **Partial unit tests (github actions)**: These tests are run on every push to the repository. The tests are run in a serial mode using GNU compilers. The goal is to ensure current push doesn't break the unit tests. These tests would run on forks of this repository. Ulitmately, the hope is that end developer commits their changes to local fork at regualar intervals which would reduce unit test errors during development process.
+.. |rdt_proj| replace:: ``specfem2d_kokkos``
 
-3. **Complete compilation checks (Jenkins)**: These tests are run on every pull request to the repository. The tests ensure the code can be compiled on various supported platforms. If you're are first time contributor, then an admin would have to approve your request to run these tests. The pull request would be merged only if these tests pass.
+We host documentation on Read the Docs under the project name |rdt_proj|_ . The
+documentation is built using the configuration file
+:repo-file:`.readthedocs.yml`. The documentation is automatically built on every
+push to the repository and on every pull request, to easily identify
+documentation issues.
 
-   list of tested compilers:
+.. _rdt_proj: https://app.readthedocs.org/projects/specfem2d-kokkos/?utm_source=specfem2d-kokkos&utm_content=flyout
 
-   - CPU: GNU 11.5.0, GNU 14.2.1, Intel 2024.2.0
-   - CUDA: cudatoolkit/11.7, cudatoolkit/12.8
+Github Actions
+--------------
 
-   list of tested GPU architectures:
+Partial compilation checks and unit tests
++++++++++++++++++++++++++++++++++++++++++
 
-   - NVIDIA Ampere: A100
+On Github actions, there are two types of tests that are run on every pull
+request or push to the repository:
 
-   Currently, GPU compilation is only checked using GNU compilers. The following matrix shows the list of compilers and GPU architectures that are tested:
+1. **CPU Compilation checks**: The goal is to ensure current push doesn't break
+   the compilation. These tests would run on forks of this repository.
+   Ultimately, the hope is that end developer commits their changes to local
+   fork at regualar intervals which would reduce compilation errors during
+   development process.
+   The cpu compilation checks are defined in :repo-file:`.github/workflows/compilation.yml`
 
-   .. rst-class:: center-table
+2. **CPU unit tests**: The tests are run in a serial mode using GNU compilers.
+   The goal is to ensure current push doesn't break the unit tests. These tests
+   would run on forks of this repository. Ultimately, the hope is that end
+   developer commits their changes to local fork at regular intervals which
+   would reduce unit test errors during development process.
+   The cpu unit tests are defined in :repo-file:`.github/workflows/unittests.yml`
 
-   +------------------------------+--------------------+---------------------+
-   |                              |        NONE        | NVIDIA Ampere: A100 |
-   +==============================+====================+=====================+
-   | GNU 8.5.0 (serial mode)      |         ✓          |          ✓          |
-   +------------------------------+--------------------+---------------------+
-   | Intel 2020.2.0 (serial mode) |         ✓          |          ✘          |
-   +------------------------------+--------------------+---------------------+
-   | GNU 8.5.0 (OpenMP)           |         ✓          |          ✓          |
-   +------------------------------+--------------------+---------------------+
-   | Intel 2020.2.0 (OpenMP)      |         ✓          |          ✘          |
-   +------------------------------+--------------------+---------------------+
+Docker
+++++++
 
-4. **Complete unit tests (Jenkins)**: These tests are run on every pull request to the repository. The tests ensure the code runs accurately on various supported platforms. If you're are first time contributor, then an admin would have to approve your request to run these tests. The pull request would be merged only if these tests pass.
+We use Docker to give users the ability to easily build and run the code with
+extensive configuration options. The Docker configuration file is in the root
+directory of the repository as :repo-file:`Dockerfile`. We host two types builds through
+github release builds that have a version number and builds based on the
+``devel`` branch. The github workflow configuration file is in
+:repo-file:`.github/workflows/docker.yml`.
 
-   list of tested compilers:
 
-   - CPU: GNU 11.5.0, GNU 14.2.1, Intel 2024.2.0
-   - CUDA: cudatoolkit/11.7, cudatoolkit/12.8
+Jenkins - Complete compilation and unit tests
+---------------------------------------------
 
-   list of tested GPU architectures:
+We also have a Jenkins server that runs more exhaustive tests on every
+maintainer pull request to the repository and on request from contributors from
+forks. If an external contributor would like to run these tests on their pull
+request, then a maintainer will have to comment ``please this this`` or ``retest
+this please`` on the pull request, to launch these tests. Pull requests can only
+be merged if these tests pass (and maintainers approve the pull request).
 
-   - NVIDIA Ampere: A100
+We run a matrix of compilation and unit tests on various supported compilers and
+and options for both CPU and GPU, which are summarized below.
 
-   Currently, GPU compilation is only checked using GNU compilers. The following matrix shows the list of compilers and GPU architectures that are tested:
+CPU
++++
 
-   .. rst-class:: center-table
+**Gnu Compiler Collection (GCC)**
 
-   +------------------------------+--------------------+---------------------+
-   |                              |        NONE        | NVIDIA Ampere: A100 |
-   +==============================+====================+=====================+
-   | GNU 8.5.0 (serial mode)      |         ✓          |          ✓          |
-   +------------------------------+--------------------+---------------------+
-   | Intel 2020.2.0 (serial mode) |         ✓          |          ✘          |
-   +------------------------------+--------------------+---------------------+
-   | GNU 8.5.0 (OpenMP)           |         ✓          |          ✓          |
-   +------------------------------+--------------------+---------------------+
-   | Intel 2020.2.0 (OpenMP)      |         ✓          |          ✘          |
-   +------------------------------+--------------------+---------------------+
+This is defined in :repo-file:`.jenkins/gnu_compiler_checks.gvy`
+
+- GCC Versions: 11.5.0, 14.2.1
+- Compilation modes: Serial, OpenMP
+- SIMD options: On, Off
+
+The resulting test combinations are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 25 20
+
+   * - GCC Version
+     - Compilation Mode
+     - SIMD Option
+   * - 11.5.0
+     - Serial
+     - On
+   * - 11.5.0
+     - Serial
+     - Off
+   * - 11.5.0
+     - OpenMP
+     - On
+   * - 11.5.0
+     - OpenMP
+     - Off
+   * - 14.2.1
+     - Serial
+     - On
+   * - 14.2.1
+     - Serial
+     - Off
+   * - 14.2.1
+     - OpenMP
+     - On
+   * - 14.2.1
+     - OpenMP
+     - Off
+
+**Intel OneAPI Compiler**
+
+This is defined in :repo-file:`.jenkins/intel_compiler_checks.gvy`
+
+- Intel compiler versions: 2024.2.0
+- Compilation modes: Serial, OpenMP
+- SIMD options: On, Off
+
+The resulting test combinations are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 25 20
+
+   * - Intel Version
+     - Compilation Mode
+     - SIMD Option
+   * - 2024.2.0
+     - Serial
+     - On
+   * - 2024.2.0
+     - Serial
+     - Off
+   * - 2024.2.0
+     - OpenMP
+     - On
+   * - 2024.2.0
+     - OpenMP
+     - Off
+
+GPU
++++
+
+**NVIDIA CUDA Compiler (NVCC)**
+
+This is defined in :repo-file:`.jenkins/cuda_compiler_checks.gvy`. Currently the only
+architecture that is tested is NVIDIA Ampere (A100).
+
+- CPU Compiler: GNU 11.5.0
+- CUDA: :repo-file:`cudatoolkit/11.8`, :repo-file:`cudatoolkit/12.8`
+- Compilation modes: Serial, OpenMP
+- SIMD options: On, Off
+
+The resulting test combinations are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 25 20
+
+   * - CUDA Version
+     - Compilation Mode
+     - SIMD Option
+   * - 11.8
+     - Serial
+     - On
+   * - 11.8
+     - Serial
+     - Off
+   * - 11.8
+     - OpenMP
+     - On
+   * - 11.8
+     - OpenMP
+     - Off
+   * - 12.8
+     - Serial
+     - On
+   * - 12.8
+     - Serial
+     - Off
+   * - 12.8
+     - OpenMP
+     - On
+   * - 12.8
+     - OpenMP
+     - Off

@@ -3,13 +3,15 @@
 #include "io/operators.hpp"
 #include "io/wavefield/writer.hpp"
 #include "periodic_task.hpp"
+#include "specfem/logger.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
 namespace periodic_tasks {
 /**
- * @brief Base plotter class
+ * @brief Periodic task to write wavefield data during simulation
  *
+ * @tparam IOLibrary Template for the I/O library to use for writing
  */
 template <specfem::dimension::type DimensionTag,
           template <typename OpType> class IOLibrary>
@@ -26,7 +28,7 @@ public:
             output_folder, save_boundary_values)) {}
 
   /**
-   * @brief Check for keyboard interrupt and more, when running from Python
+   * @brief Write wavefield data to file
    *
    */
   void run(specfem::assembly::assembly<DimensionTag> &assembly,
@@ -41,14 +43,14 @@ public:
    */
   void
   initialize(specfem::assembly::assembly<DimensionTag> &assembly) override {
-    std::cout << "Writing coordinate files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Writing coordinate files:");
+    specfem::Logger::info("-------------------------");
     writer.initialize(assembly);
   }
 
   void finalize(specfem::assembly::assembly<DimensionTag> &assembly) override {
-    std::cout << "Finalizing wavefield files:" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+    specfem::Logger::info("Finalizing wavefield files:");
+    specfem::Logger::info("---------------------------");
     writer.finalize(assembly);
   }
 };

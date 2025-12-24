@@ -1,9 +1,7 @@
 .. _specfem_point_index:
 
-Index
-=====
-
-Datatype used to store the global coordinates of a point within the mesh.
+``specfem::point::index``
+=========================
 
 .. doxygenstruct:: specfem::point::index
    :members:
@@ -13,22 +11,29 @@ Datatype used to store the global coordinates of a point within the mesh.
 
 
 2D Specialization
------------------
+^^^^^^^^^^^^^^^^^
 
+.. doxygenstruct:: specfem::point::index< specfem::dimension::type::dim2, false >
+   :members:
 
-.. toctree::
-   :maxdepth: 1
-
-   dim2/nonsimd/index
-   dim2/simd/index
+.. doxygenstruct:: specfem::point::index< specfem::dimension::type::dim2, true >
+   :members:
 
 
 3D Specialization
------------------
+^^^^^^^^^^^^^^^^^
+
+.. doxygenstruct:: specfem::point::index< specfem::dimension::type::dim3, false >
+   :members:
+
+.. doxygenstruct:: specfem::point::index< specfem::dimension::type::dim3, true >
+   :members:
 
 
-.. toctree::
-   :maxdepth: 1
+.. _specfem_point_mapped_index:
 
-   dim3/nonsimd/index
-   dim3/simd/index
+``specfem::point::mapped_index``
+================================
+
+.. doxygenstruct:: specfem::point::mapped_index
+   :members:

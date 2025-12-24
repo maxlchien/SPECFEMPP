@@ -144,8 +144,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     int number_of_simulation_modes = 0;
     if (const YAML::Node &n_forward = n_simulation_mode["forward"]) {
       this->solver =
-          std::make_unique<specfem::runtime_configuration::solver::solver>(
-              "forward");
+          std::make_unique<specfem::runtime_configuration::solver>("forward");
       simulation = specfem::simulation::type::forward;
       number_of_simulation_modes++;
       bool at_least_one_writer = false; // check if at least one writer is
@@ -216,8 +215,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
 
     if (const YAML::Node &n_adjoint = n_simulation_mode["combined"]) {
       this->solver =
-          std::make_unique<specfem::runtime_configuration::solver::solver>(
-              "combined");
+          std::make_unique<specfem::runtime_configuration::solver>("combined");
       number_of_simulation_modes++;
       simulation = specfem::simulation::type::combined;
       if (const YAML::Node &n_reader = n_adjoint["reader"]) {
@@ -300,9 +298,9 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     const YAML::Node &n_time_marching = n_solver["time-marching"];
     const YAML::Node &n_timescheme = n_time_marching["time-scheme"];
 
-    this->time_scheme = std::make_unique<
-        specfem::runtime_configuration::time_scheme::time_scheme>(n_timescheme,
-                                                                  simulation);
+    this->time_scheme =
+        std::make_unique<specfem::runtime_configuration::time_scheme>(
+            n_timescheme, simulation);
   } catch (YAML::InvalidNode &e) {
     std::ostringstream message;
     message << "Error reading specfem solver configuration. \n" << e.what();

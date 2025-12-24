@@ -4,6 +4,7 @@
 #include "domain_view.hpp"
 #include "enumerations/dimension.hpp"
 #include "specfem/macros.hpp"
+#include "specfem/logger.hpp"
 #include "enumerations/medium.hpp"
 #include "io/impl/medium_writer.hpp"
 #include "kokkos_abstractions.h"
@@ -73,6 +74,5 @@ void specfem::io::impl::write_container(
     throw std::runtime_error(message.str());
   }
 
-  std::cout << output_namespace << " written to " << output_folder << "/"
-            << output_namespace << std::endl;
+  specfem::Logger::info(output_namespace + " written to " + output_folder + "/" + output_namespace);
 }
