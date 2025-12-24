@@ -5,6 +5,17 @@
 
 namespace specfem::data_access {
 
+/**
+ * @brief Compile-time compatibility checking for data access types.
+ *
+ * Validates that Index, Container, and Accessor types have compatible
+ * dimensions, data classes, and access patterns. Prevents mismatched
+ * type combinations at compile time.
+ *
+ * @tparam IndexType Index type with dimension and accessor information
+ * @tparam ContainerType Container type with dimension and data class
+ * @tparam AccessorType Accessor type with data class and access pattern
+ */
 template <typename IndexType, typename ContainerType, typename AccessorType>
 struct CheckCompatibility {
 private:
@@ -25,6 +36,9 @@ public:
                 "AccessorType and IndexType have incompatible accessors");
 };
 
+// Type detection traits for data classification
+
+/// @brief Detects jacobian matrix types
 template <typename T, typename = void>
 struct is_jacobian_matrix : std::false_type {};
 
@@ -34,6 +48,7 @@ struct is_jacobian_matrix<
                         specfem::data_access::DataClassType::jacobian_matrix> >
     : std::true_type {};
 
+/// @brief Detects field derivative types
 template <typename T, typename = void>
 struct is_field_derivatives : std::false_type {};
 
@@ -44,6 +59,7 @@ struct is_field_derivatives<
                      specfem::data_access::DataClassType::field_derivatives> >
     : std::true_type {};
 
+/// @brief Detects source term types
 template <typename T, typename = void> struct is_source : std::false_type {};
 
 template <typename T>
@@ -52,6 +68,7 @@ struct is_source<T,
                                   specfem::data_access::DataClassType::source> >
     : std::true_type {};
 
+/// @brief Detects boundary condition types
 template <typename T, typename = void> struct is_boundary : std::false_type {};
 
 template <typename T>
@@ -60,6 +77,7 @@ struct is_boundary<
                         specfem::data_access::DataClassType::boundary> >
     : std::true_type {};
 
+/// @brief Detects material property types
 template <typename T, typename = void>
 struct is_properties : std::false_type {};
 
@@ -69,6 +87,7 @@ struct is_properties<
                         specfem::data_access::DataClassType::properties> >
     : std::true_type {};
 
+/// @brief Detects stress tensor types
 template <typename T, typename = void> struct is_stress : std::false_type {};
 
 template <typename T>
@@ -77,6 +96,8 @@ struct is_stress<T,
                                   specfem::data_access::DataClassType::stress> >
     : std::true_type {};
 
+/// @brief Detects physical field types (displacement, velocity, acceleration,
+/// mass matrix)
 template <typename T, typename = void> struct is_field : std::false_type {};
 
 template <typename T>
@@ -88,6 +109,7 @@ struct is_field<
            T::data_class == specfem::data_access::DataClassType::mass_matrix> >
     : std::true_type {};
 
+/// @brief Detects displacement field types
 template <typename T, typename = void>
 struct is_displacement : std::false_type {};
 
@@ -97,6 +119,7 @@ struct is_displacement<
                         specfem::data_access::DataClassType::displacement> >
     : std::true_type {};
 
+/// @brief Detects velocity field types
 template <typename T, typename = void> struct is_velocity : std::false_type {};
 
 template <typename T>
@@ -105,6 +128,7 @@ struct is_velocity<
                         specfem::data_access::DataClassType::velocity> >
     : std::true_type {};
 
+/// @brief Detects acceleration field types
 template <typename T, typename = void>
 struct is_acceleration : std::false_type {};
 
@@ -114,6 +138,7 @@ struct is_acceleration<
                         specfem::data_access::DataClassType::acceleration> >
     : std::true_type {};
 
+/// @brief Detects mass matrix types
 template <typename T, typename = void>
 struct is_mass_matrix : std::false_type {};
 
@@ -123,6 +148,7 @@ struct is_mass_matrix<
                         specfem::data_access::DataClassType::mass_matrix> >
     : std::true_type {};
 
+/// @brief Detects index types (element, mapped, edge indices)
 template <typename T, typename = void>
 struct is_index_type : std::false_type {};
 
@@ -134,6 +160,7 @@ struct is_index_type<
            T::data_class == specfem::data_access::DataClassType::edge_index> >
     : std::true_type {};
 
+/// @brief Detects global assembly index types
 template <typename T, typename = void>
 struct is_assembly_index : std::false_type {};
 
@@ -143,6 +170,7 @@ struct is_assembly_index<
                         specfem::data_access::DataClassType::assembly_index> >
     : std::true_type {};
 
+/// @brief Detects edge connectivity index types
 template <typename T, typename = void>
 struct is_edge_index : std::false_type {};
 
@@ -152,6 +180,7 @@ struct is_edge_index<
                         specfem::data_access::DataClassType::edge_index> >
     : std::true_type {};
 
+/// @brief Detects interface intersection factor types
 template <typename T, typename = void>
 struct is_intersection_factor : std::false_type {};
 
@@ -162,6 +191,7 @@ struct is_intersection_factor<
                      specfem::data_access::DataClassType::intersection_factor> >
     : std::true_type {};
 
+/// @brief Detects interface normal vector types
 template <typename T, typename = void>
 struct is_intersection_normal : std::false_type {};
 
@@ -172,6 +202,7 @@ struct is_intersection_normal<
                      specfem::data_access::DataClassType::intersection_normal> >
     : std::true_type {};
 
+/// @brief Detects self-coupling transfer function types
 template <typename T, typename = void>
 struct is_transfer_function_self : std::false_type {};
 
@@ -181,6 +212,7 @@ struct is_transfer_function_self<
                                              transfer_function_self> >
     : std::true_type {};
 
+/// @brief Detects cross-coupling transfer function types
 template <typename T, typename = void>
 struct is_transfer_function_coupled : std::false_type {};
 
@@ -190,6 +222,7 @@ struct is_transfer_function_coupled<
                                              transfer_function_coupled> >
     : std::true_type {};
 
+/// @brief Detects non-conforming mesh interface types
 template <typename T, typename = void>
 struct is_nonconforming_interface : std::false_type {};
 
@@ -199,6 +232,7 @@ struct is_nonconforming_interface<
                                              nonconforming_interface> >
     : std::true_type {};
 
+/// @brief Detects conforming mesh interface types
 template <typename T, typename = void>
 struct is_conforming_interface : std::false_type {};
 
@@ -208,6 +242,7 @@ struct is_conforming_interface<
                                              conforming_interface> >
     : std::true_type {};
 
+/// @brief Detects multi-component packed accessors
 template <typename T, typename = void>
 struct is_packed_accessor : std::false_type {};
 

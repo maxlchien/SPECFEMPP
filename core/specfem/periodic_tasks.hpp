@@ -1,3 +1,5 @@
+#pragma once
+
 #include "specfem/periodic_tasks/check_signal.hpp"
 #include "specfem/periodic_tasks/periodic_task.hpp"
 #include "specfem/periodic_tasks/plot_wavefield.hpp"
