@@ -1,7 +1,6 @@
 #include "specfem/macros.hpp"
 
-namespace specfem::utilities {
-
+namespace specfem::element {
 /**
  * @brief Generates a list of medium types within the simulation.
  *
@@ -117,9 +116,9 @@ template <> constexpr auto element_types<specfem::dimension::type::dim2>() {
                  specfem::element::property_tag,
                  specfem::element::boundary_tag>,
       total_element_types>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM2) };
+      element_types{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM2) };
 
-  return material_systems;
+  return element_types;
 }
 
 /**
@@ -135,9 +134,9 @@ template <> constexpr auto element_types<specfem::dimension::type::dim3>() {
                  specfem::element::property_tag,
                  specfem::element::boundary_tag>,
       total_element_types>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM3) };
+      element_types{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM3) };
 
-  return material_systems;
+  return element_types;
 }
 
-} // namespace specfem::utilities
+} // namespace specfem::element

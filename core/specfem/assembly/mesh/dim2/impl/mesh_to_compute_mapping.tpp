@@ -1,8 +1,7 @@
 #pragma once
-
 #include "enumerations/interface.hpp"
-#include "utilities/material_tags.hpp"
 #include "mesh/mesh.hpp"
+#include "enumerations/medium_tags.hpp"
 #include "mesh_to_compute_mapping.hpp"
 #include <vector>
 
@@ -16,7 +15,7 @@ specfem::assembly::mesh_impl::mesh_to_compute_mapping<
 
   const int nspec = tags.nspec;
 
-  constexpr auto element_types = specfem::utilities::element_types<dimension_tag>();
+  constexpr auto element_types = specfem::element::element_types<dimension_tag>();
   constexpr int total_element_types = element_types.size();
 
   std::array<std::vector<int>, total_element_types> element_type_ispec;

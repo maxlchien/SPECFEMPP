@@ -9,3 +9,11 @@ Element definitions
 .. doxygenenum:: specfem::element::property_tag
 
 .. doxygenenum:: specfem::element::boundary_tag
+
+Tag combinations
+----------------
+
+.. toctree::
+    :maxdepth: 1
+
+    tags.rst
