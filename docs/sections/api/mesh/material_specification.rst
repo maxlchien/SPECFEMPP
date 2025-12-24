@@ -1,7 +1,7 @@
 .. _specfem_api_mesh_material_specification:
 
-``specfem::mesh::material< specfem::dimension::type::dim2 >::material_specification``
-=====================================================================================
+``specfem::mesh::materials< specfem::dimension::type::dim2 >::material_specification``
+======================================================================================
 
 .. doxygenstruct:: specfem::mesh::materials< specfem::dimension::type::dim2 >::material_specification
     :members:
@@ -14,8 +14,8 @@
     :members:
     :private-members:
 
-``specfem::mesh::material< specfem::dimension::type::dim3 >::material_specification``
-=====================================================================================
+``specfem::mesh::materials< specfem::dimension::type::dim3 >::material_specification``
+======================================================================================
 
 .. doxygenstruct:: specfem::mesh::materials< specfem::dimension::type::dim3 >::material_specification
     :members:

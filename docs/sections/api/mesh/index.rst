@@ -14,4 +14,4 @@
     control_nodes
     materials
     tags
-    adjancency_graph
+    adjacency_graph
