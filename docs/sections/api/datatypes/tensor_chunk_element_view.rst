@@ -1,4 +1,4 @@
-.. _specmfem_api_datatypes_tensor_chunk_element_view:
+.. _specfem_api_datatypes_tensor_chunk_element_view:
 
 ``specfem::datatype::TensorChunkElementViewType``
 =================================================

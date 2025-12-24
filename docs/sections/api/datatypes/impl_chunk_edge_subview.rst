@@ -1,4 +1,4 @@
-.. _specfem_api_datatypes_chunk_edge_subview:
+.. _specfem_api_datatypes_impl_chunk_edge_subview:
 
 ``specfem::datatype::impl::VectorChunkEdgeSubview``
 ===================================================
