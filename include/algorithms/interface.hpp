@@ -9,7 +9,6 @@
  */
 
 /**
- * @namespace specfem::algorithms
  * @brief Algorithms for spectral element computations
  *
  * The algorithms namespace contains core numerical algorithms used in
@@ -19,6 +18,7 @@
  * - Data transfer between mesh entities
  * - Integration and coupling
  */
+namespace specfem::algorithms {}
 
 #include "algorithms/divergence.hpp"
 #include "algorithms/gradient.hpp"
