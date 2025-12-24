@@ -7,7 +7,6 @@
 
 namespace specfem {
 namespace runtime_configuration {
-namespace time_scheme {
 /**
  * @brief time_marching class is used to instantiate a time-marching solver
  *
@@ -72,8 +71,8 @@ private:
   type_real dt;           ///< delta time for the timescheme
   type_real t0 = 0.0;     ///< start time
   std::string timescheme; ///< Time scheme e.g. Newmark, Runge-Kutta, LDDRK
-  specfem::simulation::type type;
+  specfem::simulation::type type; ///< Type of simulation
+                                  ///< (forward/adjoint/combined)
 };
-} // namespace time_scheme
 } // namespace runtime_configuration
 } // namespace specfem
