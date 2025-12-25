@@ -6,17 +6,37 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @file interpolate.hpp
+ * @brief Algorithms for interpolating functions using polynomial basis
+ * @ingroup AlgorithmsInterpolate
+ */
+
 namespace specfem {
 namespace algorithms {
 
+/// @brief Implementation details
 namespace impl {
+/**
+ * @brief Functor for performing polynomial interpolation
+ *
+ * @tparam PolynomialViewType Type of the polynomial view
+ * @tparam FunctionViewType Type of the function view
+ */
 template <typename PolynomialViewType, typename FunctionViewType>
 struct InterpolateFunctor {
-  const PolynomialViewType polynomial;
-  const FunctionViewType function;
+  const PolynomialViewType polynomial; ///< Polynomial basis functions
+  const FunctionViewType function;     ///< Function values to interpolate
 
-  constexpr static int rank = PolynomialViewType::rank();
+  constexpr static int rank =
+      PolynomialViewType::rank(); ///< Rank of the polynomial view
 
+  /**
+   * @brief Constructor
+   *
+   * @param polynomial Polynomial basis functions
+   * @param function Function values to interpolate
+   */
   InterpolateFunctor(const PolynomialViewType &polynomial,
                      const FunctionViewType &function)
       : polynomial(polynomial), function(function) {}
@@ -35,6 +55,16 @@ struct InterpolateFunctor {
 };
 } // namespace impl
 
+/**
+ * @brief Interpolate a 2D function using polynomial basis
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam PolynomialViewType Type of the polynomial view (must be 2D)
+ * @tparam FunctionViewType Type of the function view (must be 2D)
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @return Interpolated function value
+ */
 template <typename PolynomialViewType, typename FunctionViewType,
           std::enable_if_t<((PolynomialViewType::rank() == 2) &&
                             (FunctionViewType::rank() == 2)),
@@ -63,6 +93,16 @@ interpolate_function(const PolynomialViewType &polynomial,
   return result;
 }
 
+/**
+ * @brief Interpolate a 3D function using polynomial basis
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam PolynomialViewType Type of the polynomial view (must be 3D)
+ * @tparam FunctionViewType Type of the function view (must be 3D)
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @return Interpolated function value
+ */
 template <typename PolynomialViewType, typename FunctionViewType,
           std::enable_if_t<((PolynomialViewType::rank() == 3) &&
                             (FunctionViewType::rank() == 3)),
@@ -90,7 +130,19 @@ interpolate_function(const PolynomialViewType &polynomial,
   return result;
 }
 
-// 2D version - 4D views
+/**
+ * @brief Interpolate a 2D function using polynomial basis (Chunk version)
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam ChunkIndex Chunk index type
+ * @tparam PolynomialViewType Type of the polynomial view (rank 4)
+ * @tparam FunctionViewType Type of the function view (rank 4)
+ * @tparam ResultType Type of the result view (rank 2)
+ * @param chunk_index Chunk index
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @param result Result view
+ */
 template <typename ChunkIndex, typename PolynomialViewType,
           typename FunctionViewType, typename ResultType,
           std::enable_if_t<PolynomialViewType::rank() == 4 &&
@@ -154,7 +206,19 @@ KOKKOS_FUNCTION void interpolate_function(const ChunkIndex &chunk_index,
   return;
 }
 
-// 3D version - 5D views
+/**
+ * @brief Interpolate a 3D function using polynomial basis (Chunk version)
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam ChunkIndex Chunk index type
+ * @tparam PolynomialViewType Type of the polynomial view (rank 5)
+ * @tparam FunctionViewType Type of the function view (rank 5)
+ * @tparam ResultType Type of the result view (rank 2)
+ * @param chunk_index Chunk index
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @param result Result view
+ */
 template <typename ChunkIndex, typename PolynomialViewType,
           typename FunctionViewType, typename ResultType,
           std::enable_if_t<PolynomialViewType::rank() == 5 &&
@@ -220,3 +284,8 @@ KOKKOS_FUNCTION void interpolate_function(const ChunkIndex &chunk_index,
 
 } // namespace algorithms
 } // namespace specfem
+
+/**
+ * @defgroup AlgorithmsInterpolate
+ *
+ */

@@ -36,6 +36,7 @@ Old structure
     :maxdepth: 2
     :glob:
 
+    algorithms/index
     enumerations/index
     quadrature/index
     material/index
