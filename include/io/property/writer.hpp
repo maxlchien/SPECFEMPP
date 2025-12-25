@@ -7,9 +7,12 @@
 namespace specfem {
 namespace io {
 /**
- * @brief Writer to model property data to disk
+ * @brief Writer for outputting material properties to disk
  *
- * @tparam OutputLibrary Library to use for output (HDF5, ASCII, etc.)
+ * Template-based writer for material property data supporting multiple I/O
+ * backends. Used to write density, velocities, and other material parameters.
+ *
+ * @tparam OutputLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename OutputLibrary> class property_writer : public writer {
 public:

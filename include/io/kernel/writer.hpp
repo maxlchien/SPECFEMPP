@@ -7,9 +7,13 @@
 namespace specfem {
 namespace io {
 /**
- * @brief Writer to output misfit kernel data to disk
+ * @brief Writer for outputting sensitivity kernels to disk
  *
- * @tparam OutputLibrary Library to use for output (HDF5, ASCII, etc.)
+ * Template-based writer for adjoint sensitivity kernel data supporting multiple
+ * I/O backends. Kernels represent the gradient of a misfit function with
+ * respect to material properties.
+ *
+ * @tparam OutputLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename OutputLibrary> class kernel_writer : public writer {
 public:
