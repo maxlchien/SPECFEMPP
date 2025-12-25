@@ -48,7 +48,8 @@ doc = [
   "furo==2024.8.6",
   "breathe==4.35.0",
   "sphinx-sitemap==2.6.0",
-  "sphinx_design==0.6.1"
+  "sphinx_design==0.6.1",
+  "sphinxcontrib-video==0.4.1",
 ]
 
 examples = [

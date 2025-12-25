@@ -16,6 +16,9 @@ import subprocess
 from docutils import nodes
 from sphinx.util.docutils import SphinxRole
 
+# Add the _ext directory to the path add path to include custom extensions
+sys.path.insert(0, os.path.abspath("_ext"))
+
 # Doxygen
 doxygen_cmd = "doxygen Doxyfile.in"  # or Doxyfile.in if that's the correct filename
 
@@ -38,6 +41,7 @@ if not os.path.exists("_build/doxygen/xml"):
     print("Error: Doxygen XML output directory '_build/doxygen/xml' not found")
     print("Please check Doxygen configuration and make sure it runs correctly")
     sys.exit(1)
+
 
 # -- Project information -----------------------------------------------------
 
@@ -62,11 +66,13 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinxcontrib.video",
     "sphinx_sitemap",
     "sphinx.ext.inheritance_diagram",
     "sphinx_design",
     "breathe",
     "sphinx_copybutton",
+    "download_folder",
 ]
 
 # Adding this to avoid the WARNING: duplicate label warning
