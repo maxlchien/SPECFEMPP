@@ -23,6 +23,39 @@ template <int power> struct Power : AnalyticalFunctionType {
     return std::string("xi^") + std::to_string(power);
   }
 };
+
+/**
+ * @brief Concatenates k functions into an array-valued function.
+ *
+ */
+template <typename... AnalyticalFunctions>
+struct Vectorized : AnalyticalFunctionType {
+  static_assert(
+      ((std::is_base_of_v<AnalyticalFunctionType, AnalyticalFunctions>) && ...),
+      "Vectorized needs all of its parameters to be of "
+      "AnalyticalFunctionType!");
+  static constexpr int num_components =
+      ((AnalyticalFunctions::num_components) + ...);
+  static std::array<type_real, num_components>
+  evaluate(const type_real &coord) {
+    std::array<type_real, num_components> arr;
+    auto it = arr.begin();
+    (
+        [&]() {
+          const auto sub = AnalyticalFunctions::evaluate(coord);
+          std::copy(sub.start(), sub.end(), it);
+          it += AnalyticalFunctions::num_components;
+        }(),
+        ...);
+    return arr;
+  }
+
+  static std::string description() {
+    return std::string("Vectorized(") +
+           ((AnalyticalFunctions::description()), ...) + ")";
+  }
+};
+
 } // namespace AnalyticalFunctionType
 
 } // namespace specfem::test_fixture
