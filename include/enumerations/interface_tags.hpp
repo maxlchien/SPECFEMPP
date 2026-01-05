@@ -1,3 +1,5 @@
+#pragma once
+
 #include "specfem/macros.hpp"
 
 namespace specfem::interface {
