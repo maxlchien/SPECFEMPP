@@ -7,9 +7,12 @@
 namespace specfem {
 namespace io {
 /**
- * @brief Read model property
+ * @brief Reader for loading material properties from disk
  *
- * @tparam InputLibrary Library to use for output (HDF5, ASCII, etc.)
+ * Template-based reader for material property data supporting multiple I/O
+ * backends. Used to read density, velocities, and other material parameters.
+ *
+ * @tparam InputLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename InputLibrary> class property_reader : public reader {
 public:

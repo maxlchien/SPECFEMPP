@@ -11,8 +11,11 @@
 namespace specfem {
 namespace io {
 /**
- * @brief Seismogram writer class to write seismogram to a file
+ * @brief Writer for outputting seismograms at receiver locations
  *
+ * Records displacement, velocity, or acceleration at receiver stations and
+ * writes time series to disk. Supports multiple output formats and wave types,
+ * with configurable sampling intervals.
  */
 class seismogram_writer : public writer, public impl::ChannelGenerator {
 

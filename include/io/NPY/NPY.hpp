@@ -8,20 +8,13 @@
 namespace specfem::io {
 
 /**
- * @brief Class template for handling folder-based NPY format operations
+ * @brief NPY I/O backend for folder-based NumPy arrays
  *
- * NPY class provides an interface for reading from and writing to NPY format
- * files organized in a folder structure. NPY is a simple binary file format for
- * storing NumPy arrays. This implementation extends the basic format to support
- * a hierarchical structure similar to HDF5, where:
- * - Files represent the root container
- * - Groups represent directories/folders
- * - Datasets represent individual NPY files
+ * Provides File, Group, and Dataset abstractions using folder structure with
+ * .npy files. Compatible with NumPy's binary format for easy post-processing
+ * with Python.
  *
- * This allows for organized storage of multiple arrays in a structured
- * hierarchy.
- *
- * @tparam OpType Operation type (read/write) that determines the access mode
+ * @tparam OpType Operation type (specfem::io::read or specfem::io::write)
  */
 template <typename OpType> class NPY {
 public:

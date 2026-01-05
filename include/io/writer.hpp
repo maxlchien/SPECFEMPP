@@ -9,8 +9,10 @@ template <specfem::dimension::type DimensionTag> class assembly;
 namespace specfem {
 namespace io {
 /**
- * @brief Base writer class
+ * @brief Base writer class for outputting simulation data
  *
+ * Abstract interface for implementing format-specific writers.
+ * Derived classes must implement write() for both 2D and 3D assemblies.
  */
 class writer {
 public:

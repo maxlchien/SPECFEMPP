@@ -19,6 +19,7 @@ New structure
 
     specfem/assembly/index
     specfem/chunk_element/index
+    specfem/io/index
     specfem/macros/index
     specfem/periodic_tasks/index
     specfem/point/index
@@ -36,13 +37,13 @@ Old structure
     :maxdepth: 2
     :glob:
 
+    algorithms/index
     enumerations/index
     quadrature/index
     material/index
     mesh/index
     datatypes/index
     execution/index
-    IO/index
     operators/index
     medium/index
     kokkos_kernels/index

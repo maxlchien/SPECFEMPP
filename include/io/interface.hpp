@@ -10,6 +10,15 @@
 
 namespace specfem {
 
+/**
+ * @namespace specfem::io
+ * @brief Input/Output operations for SPECFEM++ simulations
+ *
+ * Provides high-level functions for reading mesh databases, sources, and
+ * receivers, along with specialized readers and writers for wavefields,
+ * seismograms, properties, and sensitivity kernels. Supports multiple I/O
+ * backends (HDF5, ASCII, NPY, NPZ, ADIOS2).
+ */
 namespace io {
 
 /**

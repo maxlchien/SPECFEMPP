@@ -6,10 +6,32 @@
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @file divergence.hpp
+ * @brief Algorithms for computing divergence of tensor fields in spectral
+ * elements
+ * @ingroup AlgorithmsDivergence
+ */
+
 namespace specfem {
 namespace algorithms {
 
+/// @brief Implementation details
 namespace impl {
+/**
+ * @brief Compute the divergence of a tensor field at a specific point in a 2D
+ * spectral element
+ *
+ * @tparam TensorFieldType Type of the tensor field (must be 2D)
+ * @tparam WeightsType Type of the quadrature weights
+ * @tparam QuadratureType Type of the Lagrange derivative polynomial
+ * @param f Tensor field to compute divergence of
+ * @param local_index Local indices within the spectral element
+ * @param weights Quadrature weights for integration
+ * @param lagrange_derivative Lagrange derivative polynomials for
+ * differentiation
+ * @return Auto-deduced return type containing the divergence values
+ */
 template <typename TensorFieldType, typename WeightsType,
           typename QuadratureType,
           typename std::enable_if_t<TensorFieldType::dimension_tag ==
@@ -51,6 +73,20 @@ element_divergence(const TensorFieldType &f,
   return result;
 }
 
+/**
+ * @brief Compute the divergence of a tensor field at a specific point in a 3D
+ * spectral element
+ *
+ * @tparam TensorFieldType Type of the tensor field (must be 3D)
+ * @tparam WeightsType Type of the quadrature weights
+ * @tparam QuadratureType Type of the Lagrange derivative polynomial
+ * @param f Tensor field to compute divergence of
+ * @param local_index Local indices within the spectral element
+ * @param weights Quadrature weights for integration
+ * @param lagrange_derivative Lagrange derivative polynomials for
+ * differentiation
+ * @return Auto-deduced return type containing the divergence values
+ */
 template <typename TensorFieldType, typename WeightsType,
           typename QuadratureType,
           typename std::enable_if_t<TensorFieldType::dimension_tag ==

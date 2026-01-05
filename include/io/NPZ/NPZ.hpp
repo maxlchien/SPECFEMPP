@@ -9,12 +9,12 @@
 namespace specfem::io {
 
 /**
- * @brief
+ * @brief NPZ I/O backend for compressed NumPy archive format
  *
+ * Provides File, Group, and Dataset abstractions for .npz files (ZIP archives
+ * of .npy). Offers compact storage while maintaining NumPy compatibility.
  *
- * Zipped archive of NPY format.
- *
- * @tparam OpType Operation type (read/write)
+ * @tparam OpType Operation type (specfem::io::read or specfem::io::write)
  */
 template <typename OpType> class NPZ {
 public:

@@ -9,8 +9,10 @@ template <specfem::dimension::type DimensionTag> class assembly;
 namespace specfem {
 namespace io {
 /**
- * @brief Base reader class
+ * @brief Base reader class for loading simulation data
  *
+ * Abstract interface for implementing format-specific readers.
+ * Derived classes must implement read() for 2D assemblies.
  */
 class reader {
 public:
