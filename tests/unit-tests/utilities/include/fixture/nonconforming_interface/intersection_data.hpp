@@ -14,6 +14,8 @@ static constexpr specfem::dimension::type dimension_tag_ =
     specfem::dimension::type::dim2;
 namespace specfem::test_fixture {
 
+// legacy: TODO remove if IntersectionDataPack2D is sufficient
+
 template <specfem::interface::interface_tag InterfaceTag, typename... Accessors>
 struct IntersectionAccessorPack
     : public specfem::data_access::Accessor<
@@ -56,6 +58,14 @@ struct IntersectionDataPack2D
   constexpr static auto connection_tag =
       specfem::connections::type::nonconforming;
   constexpr static auto dimension_tag = specfem::dimension::type::dim2;
+
+  template <specfem::data_access::DataClassType DataClass>
+  specfem::test_fixture::NonconformingAccessorPatch2D<InterfaceTag, BoundaryTag,
+                                                      Initializer, DataClass> &
+  get_component() {
+    return static_cast<specfem::test_fixture::NonconformingAccessorPatch2D<
+        InterfaceTag, BoundaryTag, Initializer, DataClass> >(*this);
+  }
 
   KOKKOS_INLINE_FUNCTION IntersectionDataPack2D() = default;
   IntersectionDataPack2D(const std::string &name)

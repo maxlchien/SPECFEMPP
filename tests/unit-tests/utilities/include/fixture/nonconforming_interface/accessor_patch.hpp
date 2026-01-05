@@ -21,7 +21,8 @@ struct NonconformingAccessorPatch2D<
           std::is_base_of_v<
               IntersectionDataInitializer2D::IntersectionDataInitializer2D,
               Initializer>,
-      "CoupledTransferAndNormal needs an TransferFunctionInitializer2D or "
+      "NonconformingAccessorPatch2D<...,transfer_function_self> needs an "
+      "TransferFunctionInitializer2D or "
       "IntersectionDataInitializer2D!");
   KOKKOS_INLINE_FUNCTION NonconformingAccessorPatch2D() = default;
   NonconformingAccessorPatch2D(const std::string &name)
@@ -62,7 +63,8 @@ struct NonconformingAccessorPatch2D<
           std::is_base_of_v<
               IntersectionDataInitializer2D::IntersectionDataInitializer2D,
               Initializer>,
-      "CoupledTransferAndNormal needs an TransferFunctionInitializer2D or "
+      "NonconformingAccessorPatch2D<...,transfer_function_coupled> needs an "
+      "TransferFunctionInitializer2D or "
       "IntersectionDataInitializer2D!");
   KOKKOS_INLINE_FUNCTION NonconformingAccessorPatch2D() = default;
   NonconformingAccessorPatch2D(const std::string &name)
@@ -103,7 +105,8 @@ struct NonconformingAccessorPatch2D<
           std::is_base_of_v<
               IntersectionDataInitializer2D::IntersectionDataInitializer2D,
               Initializer>,
-      "CoupledTransferAndNormal needs an IntersectionFunctionInitializer2D or "
+      "NonconformingAccessorPatch2D<...,intersection_normal> needs an "
+      "IntersectionFunctionInitializer2D or "
       "IntersectionDataInitializer2D!");
   KOKKOS_INLINE_FUNCTION NonconformingAccessorPatch2D() = default;
   NonconformingAccessorPatch2D(const std::string &name)
