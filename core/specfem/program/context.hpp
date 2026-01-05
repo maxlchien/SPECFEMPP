@@ -11,58 +11,37 @@
 namespace specfem::program {
 
 /**
- * @brief Unified SPECFEM++ context class for managing initialization
- * and finalization
+ * @brief RAII-based context managing Kokkos and MPI lifecycle
  *
- * This class provides RAII-based management of Kokkos and MPI initialization
- * and proper resource cleanup.
- *
- * Usage:
- * @code
- * int main(int argc, char* argv[]) {
- *     specfem::program::Context context(argc, argv);
- *     // Kokkos & MPI automatically initialized
- *     // ... use context ...
- *     // Automatic cleanup on scope exit
- * }
- * @endcode
+ * Initializes Kokkos and MPI on construction, finalizes on destruction.
+ * Non-copyable and non-movable to ensure single initialization/finalization.
  */
 class Context {
 public:
   /**
-   * @brief Construct Context with command line arguments
-   *
-   * @param argc Command line argument count
-   * @param argv Command line arguments
+   * @brief Initialize context from command line arguments
+   * @param argc Argument count
+   * @param argv Argument vector
    */
   Context(int argc, char *argv[]);
 
   /**
-   * @brief Construct Context with argument vector
-   *
-   * @param args Vector of command line arguments
+   * @brief Initialize context from argument vector
+   * @param args Vector of arguments
    */
   explicit Context(const std::vector<std::string> &args);
 
   /**
-   * @brief Destructor - ensures proper cleanup via RAII
+   * @brief Finalize Kokkos and MPI
    */
   ~Context();
 
-  /**
-   * @brief Delete copy constructor and assignment operator
-   *
-   * Context cannot be copied or moved to prevent multiple finalization
-   */
   Context(const Context &) = delete;
   Context &operator=(const Context &) = delete;
   Context(Context &&) = delete;
   Context &operator=(Context &&) = delete;
 
 private:
-  /**
-   * @brief Internal helper to convert string arguments to argc/argv
-   */
   static void setup_argc_argv(const std::vector<std::string> &args, int &argc,
                               char **&argv);
   static void cleanup_argc_argv(int argc, char **argv);
