@@ -1,6 +1,6 @@
 .. _specfem_macros_suppress_warnings:
 
-Suppress Warnings
-=================
+SUPPRESS_TEMPORARY_REF
+======================
 
 .. doxygenfile:: suppress_warnings.hpp

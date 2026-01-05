@@ -118,11 +118,14 @@ Material Tags
 -------------
 
 .. doxygengroup:: material_iterator_macros
-   :content-only:
 
 
 Interface Tags
 --------------
 
 .. doxygengroup:: interface_iterator_macros
-   :content-only:
+
+Enum Tags
+---------
+
+.. doxygengroup:: material_iterator_enum_tags
