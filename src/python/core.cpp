@@ -60,7 +60,7 @@ bool _execute(const std::string &parameter_string,
     // For now, default to 2D execution for backward compatibility
     // Later we can add a dimension parameter to the Python interface
     // Run 2D Cartesian program
-    program_2d(parameter_dict, default_dict, tasks, mpi);
+    program_2d(parameter_dict, default_dict, tasks);
 
     success = true;
   }

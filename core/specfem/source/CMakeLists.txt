@@ -9,7 +9,6 @@ add_library(specfem::source ALIAS source_class)
 target_link_libraries(
         source_class
         Kokkos::kokkos
-        specfem_mpi
         utilities
         specfem::source_time_functions
         yaml-cpp

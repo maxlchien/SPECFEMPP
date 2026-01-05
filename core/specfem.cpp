@@ -123,8 +123,8 @@ int main(int argc, char **argv) {
     }
 
     // Execute program with the specified dimension
-    const auto success = specfem::program::execute(
-        dimension, context.get_mpi(), parameter_dict, default_dict);
+    const auto success =
+        specfem::program::execute(dimension, parameter_dict, default_dict);
 
     // Check execution result
     if (!success) {

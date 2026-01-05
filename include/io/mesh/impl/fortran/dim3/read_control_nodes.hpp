@@ -2,7 +2,7 @@
 
 #include "enumerations/interface.hpp"
 #include "mesh/mesh.hpp"
-#include "specfem_mpi/interface.hpp"
+
 #include <fstream>
 
 namespace specfem::io::mesh::impl::fortran::dim3 {
@@ -15,11 +15,10 @@ namespace specfem::io::mesh::impl::fortran::dim3 {
  * (index, x, y, z coordinates).
  *
  * @param stream Input file stream positioned at control nodes section
- * @param mpi MPI communication object for distributed processing
  * @return ControlNodes object containing node count and 3D coordinates
  * @throws std::runtime_error if file reading fails
  */
 specfem::mesh::control_nodes<specfem::dimension::type::dim3>
-read_control_nodes(std::ifstream &stream, const specfem::MPI::MPI *mpi);
+read_control_nodes(std::ifstream &stream);
 
 } // namespace specfem::io::mesh::impl::fortran::dim3

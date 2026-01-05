@@ -41,15 +41,14 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
         const specfem::wavefield::type &wavefield_type,
         const specfem::wavefield::simulation_field &simulation_wavefield_type,
         const specfem::display::component &component, const type_real &dt,
-        const int &time_interval, const boost::filesystem::path &output_folder,
-        specfem::MPI::MPI *mpi)
+        const int &time_interval, const boost::filesystem::path &output_folder)
     : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
       wavefield_type(wavefield_type), component(component),
       plotter<dimension_tag>(time_interval), output_format(output_format),
       output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
       ngllx(assembly.mesh.element_grid.ngllx),
       nglly(assembly.mesh.element_grid.nglly),
-      ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
+      ngllz(assembly.mesh.element_grid.ngllz) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -98,15 +97,14 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim3>::
         const specfem::wavefield::type &wavefield_type,
         const specfem::wavefield::simulation_field &simulation_wavefield_type,
         const specfem::display::component &component, const type_real &dt,
-        const int &time_interval, const boost::filesystem::path &output_folder,
-        specfem::MPI::MPI *mpi)
+        const int &time_interval, const boost::filesystem::path &output_folder)
     : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
       wavefield_type(wavefield_type), component(component),
       plotter<dimension_tag>(time_interval), output_format(output_format),
       output_folder(output_folder), nspec(assembly.mesh.nspec), dt(dt),
       ngllx(assembly.mesh.element_grid.ngllx),
       nglly(assembly.mesh.element_grid.nglly),
-      ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
+      ngllz(assembly.mesh.element_grid.ngllz) {
   // Only VTK HDF5 output is supported for 3D
   if (output_format != specfem::display::format::vtkhdf) {
     throw std::runtime_error(

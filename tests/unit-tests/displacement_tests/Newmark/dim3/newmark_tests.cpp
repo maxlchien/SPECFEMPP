@@ -108,8 +108,6 @@ TEST_P(Newmark, 3D) {
             << "-------------------------------------------------------\n\n"
             << std::endl;
 
-  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
-
   const auto parameter_file = Test.specfem_config;
 
   specfem::runtime_configuration::setup setup(parameter_file, __default_file__);
@@ -122,7 +120,7 @@ TEST_P(Newmark, 3D) {
   const auto quadratures = setup.instantiate_quadrature();
 
   // Read mesh generated MESHFEM
-  auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
+  auto mesh = specfem::io::read_3d_mesh(database_filename);
   const type_real dt = setup.get_dt();
   const int nsteps = setup.get_nsteps();
 
@@ -170,9 +168,9 @@ TEST_P(Newmark, 3D) {
 
   const int max_sig_step = setup.get_max_seismogram_step();
   const int nstep_between_samples = setup.get_nstep_between_samples();
-  if (mpi->main_proc()) {
-    std::cout << "Creating the Assembly..." << std::endl;
-  }
+
+  specfem::Logger::info("Creating the Assembly...");
+
   auto start = std::chrono::high_resolution_clock::now();
   specfem::assembly::assembly<specfem::dimension::type::dim3> assembly(
       mesh, quadratures, sources, receivers, setup.get_seismogram_types(),
@@ -181,10 +179,9 @@ TEST_P(Newmark, 3D) {
       setup.instantiate_property_reader());
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = end - start;
-  if (mpi->main_proc()) {
-    std::cout << "Assembly created in " << elapsed.count() << " seconds."
-              << std::endl;
-  }
+
+  specfem::Logger::info("Assembly created in " +
+                        std::to_string(elapsed.count()) + " seconds.");
 
   // Instantiate the solver and timescheme
   auto it = setup.instantiate_timescheme(assembly.fields);

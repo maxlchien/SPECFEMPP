@@ -26,6 +26,12 @@ option(SPECFEM_ENABLE_UNITY_BUILD "Enable unity build to speed up compilation" O
 option(SPECFEMPP_CONFIGURE_TESTS "Configure test files used to generate data for unit tesats" OFF)
 set(SPECFEMPP_UNITY_BUILD_BATCH_SIZE 8 CACHE STRING "Set the batch size for unity builds (only used if SPECFEM_ENABLE_UNITY_BUILD is ON)")
 
+if (SPECFEM_ENABLE_MPI)
+    message(STATUS "Compiling SPECFEM with MPI")
+else()
+    message(STATUS "Compiling SPECFEM without MPI")
+endif()
+
 # set(CMAKE_BUILD_TYPE Release)
 set(CHUNK_SIZE 32)
 set(NUM_CHUNKS 1)
@@ -309,27 +315,7 @@ target_link_libraries(
         Kokkos::kokkos
 )
 
-add_library(
-        specfem_mpi
-        src/specfem_mpi/specfem_mpi.cpp
-)
 
-target_compile_definitions(
-        specfem_mpi
-        PUBLIC
-        $<$<BOOL:${SPECFEM_ENABLE_MPI}>:-DMPI_PARALLEL>
-)
-
-target_link_libraries(specfem_mpi
-        PUBLIC
-        $<$<BOOL:${SPECFEM_ENABLE_MPI}>:MPI::MPI_CXX>
-)
-
-if (SPECFEM_ENABLE_MPI)
-    message(STATUS "Compiling SPECFEM with MPI")
-else()
-    message(STATUS "Compiling SPECFEM without MPI")
-endif()
 
 # add_library(
 #         material_class
@@ -340,7 +326,6 @@ endif()
 # target_link_libraries(
 #         material_class
 #         Kokkos::kokkos
-#         specfem_mpi
 # )
 
 add_library(
@@ -366,7 +351,6 @@ target_link_libraries(
         mesh
         enumerations
         Kokkos::kokkos
-        specfem_mpi
         specfem::macros
         # material_class
         yaml-cpp

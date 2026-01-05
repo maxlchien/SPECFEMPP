@@ -10,8 +10,8 @@
 std::tuple<int, int, int, int,
            Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
            specfem::mesh::materials<specfem::dimension::type::dim3> >
-specfem::io::mesh::impl::fortran::dim3::read_materials(
-    std::ifstream &stream, const int ngnod, const specfem::MPI::MPI *mpi) {
+specfem::io::mesh::impl::fortran::dim3::read_materials(std::ifstream &stream,
+                                                       const int ngnod) {
 
   using MaterialsType =
       specfem::mesh::materials<specfem::dimension::type::dim3>;
