@@ -18,9 +18,10 @@
  */
 
 /**
- * @name Connection Tag macros
+ * @defgroup connection_tag_macros Connection Tag Macros
+ * @brief Macros for connection tags.
+ * @{
  */
-/// @{
 /**
  * @brief Strongly conforming connection tag
  */
@@ -41,12 +42,13 @@
 #define CONNECTION_TAG_NONCONFORMING                                           \
   (2, specfem::connections::type::nonconforming, nonconforming,                \
    _ENUM_ID_CONNECTION_TAG)
-/// @}
+/** @} */
 
 /**
- * @name Interface Tag macros
+ * @defgroup interface_tag_macros Interface Tag Macros
+ * @brief Macros for interface tags.
+ * @{
  */
-/// @{
 /**
  * @brief Elastic-Acoustic interface tag
  */
@@ -60,7 +62,7 @@
 #define INTERFACE_TAG_ACOUSTIC_ELASTIC                                         \
   (1, specfem::interface::interface_tag::acoustic_elastic, acoustic_elastic,   \
    _ENUM_ID_INTERFACE_TAG)
-/// @}
+/** @} */
 
 /// \cond
 #define _MAKE_INTERFACE_TUPLE(r, product) BOOST_PP_SEQ_TO_TUPLE(product)

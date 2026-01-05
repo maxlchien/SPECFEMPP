@@ -19,9 +19,10 @@
  */
 
 /**
- * @name Element Tag macros
+ * @defgroup dimension_tag_macros Dimension Tag Macros
+ * @brief Macros for dimension tags.
+ * @{
  */
-/// @{
 /**
  * @brief Dimension tag for 2D
  */
@@ -33,7 +34,13 @@
  */
 #define DIMENSION_TAG_DIM3                                                     \
   (1, specfem::dimension::type::dim3, dim3, _ENUM_ID_DIMENSION_TAG)
+/** @} */
 
+/**
+ * @defgroup medium_tag_macros Medium Tag Macros
+ * @brief Macros for medium tags.
+ * @{
+ */
 /**
  * @brief Medium tag for Elastic P-SV
  */
@@ -79,7 +86,13 @@
  */
 #define MEDIUM_TAG_ELASTIC                                                     \
   (6, specfem::element::medium_tag::elastic, elastic, _ENUM_ID_MEDIUM_TAG)
+/** @} */
 
+/**
+ * @defgroup property_tag_macros Property Tag Macros
+ * @brief Macros for property tags.
+ * @{
+ */
 /**
  * @brief Property tag for Isotropic
  */
@@ -100,7 +113,13 @@
 #define PROPERTY_TAG_ISOTROPIC_COSSERAT                                        \
   (2, specfem::element::property_tag::isotropic_cosserat, isotropic_cosserat,  \
    _ENUM_ID_PROPERTY_TAG)
+/** @} */
 
+/**
+ * @defgroup boundary_tag_macros Boundary Tag Macros
+ * @brief Macros for boundary tags.
+ * @{
+ */
 /**
  * @brief Boundary tag for None
  */
@@ -126,6 +145,7 @@
 #define BOUNDARY_TAG_COMPOSITE_STACEY_DIRICHLET                                \
   (3, specfem::element::boundary_tag::composite_stacey_dirichlet,              \
    composite_stacey_dirichlet, _ENUM_ID_BOUNDARY_TAG)
+/** @} */
 
 /// \cond
 /**

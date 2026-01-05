@@ -117,13 +117,39 @@ The variables inside the ``CAPTURE`` block are captured by reference as variable
 Material Tags
 -------------
 
-.. doxygengroup:: material_iterator_macros
+Dimension Tags
+~~~~~~~~~~~~~~
+
+.. doxygengroup:: dimension_tag_macros
+
+Medium Tags
+~~~~~~~~~~~
+
+.. doxygengroup:: medium_tag_macros
+
+Property Tags
+~~~~~~~~~~~~~
+
+.. doxygengroup:: property_tag_macros
+
+Boundary Tags
+~~~~~~~~~~~~~
+
+.. doxygengroup:: boundary_tag_macros
 
 
 Interface Tags
 --------------
 
-.. doxygengroup:: interface_iterator_macros
+Connection Tags
+~~~~~~~~~~~~~~~
+
+.. doxygengroup:: connection_tag_macros
+
+Interface Type Tags
+~~~~~~~~~~~~~~~~~~~
+
+.. doxygengroup:: interface_tag_macros
 
 Enum Tags
 ---------
