@@ -69,7 +69,7 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
         const specfem::display::component &component, const type_real &dt,
         const int &time_interval, const boost::filesystem::path &output_folder,
         const specfem::enums::elastic_wave elastic_wave,
-        const specfem::enums::electromagnetic_wave electromagnetic_wave, )
+        const specfem::enums::electromagnetic_wave electromagnetic_wave)
     : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
       wavefield_type(wavefield_type),
       plotter<specfem::dimension::type::dim2>(time_interval),
