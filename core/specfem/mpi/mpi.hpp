@@ -50,7 +50,7 @@ void abort(const std::string &message, int error_code, const int line,
  * @note This class cannot be instantiated. All members are static.
  * @note Only specfem::program::Context can initialize/finalize this class.
  */
-class MPI_new {
+class MPI {
 public:
   static int rank; ///< Current MPI rank (-1 if not initialized)
   static int size; ///< Total number of MPI processes (-1 if not initialized)
@@ -160,10 +160,10 @@ public:
   }
 
 private:
-  MPI_new() = default;
-  ~MPI_new() = default;
-  MPI_new(const MPI_new &) = delete;
-  MPI_new &operator=(const MPI_new &) = delete;
+  MPI() = default;
+  ~MPI() = default;
+  MPI(const MPI &) = delete;
+  MPI &operator=(const MPI &) = delete;
 
   /**
    * @brief Initialize MPI and set rank/size

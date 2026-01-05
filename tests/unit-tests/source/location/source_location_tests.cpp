@@ -134,7 +134,7 @@ TEST(SOURCES, compute_source_locations) {
   bool tested = false;
 
   for (solution &solution : solutions) {
-    if (specfem::MPI_new::get_size() == solution.nnodes) {
+    if (specfem::MPI::get_size() == solution.nnodes) {
       tested = true;
       ASSERT_EQ(sources.size(), solution.sources.size());
 
@@ -158,7 +158,7 @@ TEST(SOURCES, compute_source_locations) {
 
   if (!tested)
     FAIL() << "Solution doesn't exist for current nnodes = "
-           << specfem::MPI_new::get_size();
+           << specfem::MPI::get_size();
 }
 
 int main(int argc, char *argv[]) {

@@ -72,10 +72,10 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
   mesh.control_nodes.knods = specfem::kokkos::HostView2d<int>(
       "specfem::mesh::knods", mesh.parameters.ngnod, mesh.nspec);
 
-  int nspec_all = specfem::MPI_new::reduce(mesh.parameters.nspec, specfem::sum);
+  int nspec_all = specfem::MPI::reduce(mesh.parameters.nspec, specfem::sum);
   int nelem_acforcing_all =
-      specfem::MPI_new::reduce(mesh.parameters.nelem_acforcing, specfem::sum);
-  int nelem_acoustic_surface_all = specfem::MPI_new::reduce(
+      specfem::MPI::reduce(mesh.parameters.nelem_acforcing, specfem::sum);
+  int nelem_acoustic_surface_all = specfem::MPI::reduce(
       mesh.parameters.nelem_acoustic_surface, specfem::sum);
 
   try {

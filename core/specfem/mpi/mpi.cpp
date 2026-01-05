@@ -2,10 +2,10 @@
 
 namespace specfem {
 
-int MPI_new::rank = -1;
-int MPI_new::size = -1;
+int MPI::rank = -1;
+int MPI::size = -1;
 
-void MPI_new::initialize(int *argc, char ***argv) {
+void MPI::initialize(int *argc, char ***argv) {
 #ifdef MPI_PARALLEL
   int initialized;
   MPI_Initialized(&initialized);
@@ -23,7 +23,7 @@ void MPI_new::initialize(int *argc, char ***argv) {
 #endif
 }
 
-void MPI_new::finalize() {
+void MPI::finalize() {
 #ifdef MPI_PARALLEL
   int finalized;
   MPI_Finalized(&finalized);

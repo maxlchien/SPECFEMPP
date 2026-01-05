@@ -82,10 +82,10 @@ void Logger::set_log_file(const std::string &filename, bool per_rank,
 
   if (actual_per_rank) {
     std::ostringstream rank_str;
-    rank_str << std::setfill('0') << std::setw(5) << MPI_new::rank;
+    rank_str << std::setfill('0') << std::setw(5) << MPI::rank;
     output_filename += ".rank" + rank_str.str();
   } else {
-    if (MPI_new::rank != 0) {
+    if (MPI::rank != 0) {
       config_.logging_enabled = false;
       return;
     }
@@ -209,7 +209,7 @@ std::string Logger::format_message(LogLevel level, const std::string &message,
   }
 
   if (show_rank) {
-    prefix_oss << "[>" << std::setfill('0') << std::setw(5) << MPI_new::rank
+    prefix_oss << "[>" << std::setfill('0') << std::setw(5) << MPI::rank
                << "<]: ";
   } else {
     prefix_oss << ": ";
@@ -272,11 +272,11 @@ void Logger::log_internal(LogLevel level, const std::string &message,
     }
 
     if (allow_all_ranks_stdout) {
-      if (root_only && MPI_new::rank != 0) {
+      if (root_only && MPI::rank != 0) {
         return;
       }
     } else {
-      if (MPI_new::rank != 0) {
+      if (MPI::rank != 0) {
         return;
       }
     }

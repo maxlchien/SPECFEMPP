@@ -153,7 +153,7 @@ specfem::io::mesh::impl::fortran::dim2::read_mesh_database_header(
       stream, &dummy_b1,
       &dummy_b2); // ADD_RANDOM_PERTURBATION_TO_THE_MESH,ADD_PERTURBATION_AROUND_SOURCE_ONLY
 
-  specfem::MPI_new::sync_all();
+  specfem::MPI::sync_all();
 
   return std::make_tuple(nspec, npgeo, nproc);
 }

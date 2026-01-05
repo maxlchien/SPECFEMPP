@@ -294,7 +294,7 @@ read_acoustic_free_surface(
     }
   }
 
-  specfem::MPI_new::sync_all();
+  specfem::MPI::sync_all();
 
   return acoustic_free_surface;
 }

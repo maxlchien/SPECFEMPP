@@ -33,7 +33,7 @@ test_config get_test_config(std::string config_filename) {
   // read test config file
   YAML::Node yaml = YAML::LoadFile(config_filename);
   test_config test_config{};
-  if (specfem::MPI_new::get_size() == 1) {
+  if (specfem::MPI::get_size() == 1) {
     YAML::Node Node = yaml["SerialTest"];
     YAML::Node database = Node["database"];
     assert(database.IsSequence());
@@ -45,9 +45,9 @@ test_config get_test_config(std::string config_filename) {
     YAML::Node database = Node["database"];
     assert(database.IsSequence());
     assert(database.size() == Node["config"]["nproc"].as<int>());
-    assert(specfem::MPI_new::get_size() == Node["config"]["nproc"].as<int>());
+    assert(specfem::MPI::get_size() == Node["config"]["nproc"].as<int>());
     for (auto N : database) {
-      if (N["processor"].as<int>() == specfem::MPI_new::get_rank())
+      if (N["processor"].as<int>() == specfem::MPI::get_rank())
         N >> test_config;
     }
   }
