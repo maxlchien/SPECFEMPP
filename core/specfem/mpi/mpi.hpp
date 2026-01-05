@@ -42,8 +42,8 @@ void abort(const std::string &message, int error_code, const int line,
  * Usage:
  * @code
  * // After Context is initialized
- * int my_rank = specfem::MPI::MPI::rank;
- * int world_size = specfem::MPI::MPI::size;
+ * int my_rank = specfem::MPI::MPI::get_rank();
+ * int world_size = specfem::MPI::MPI::get_size();
  * specfem::MPI::MPI::sync();
  * @endcode
  *
@@ -51,10 +51,12 @@ void abort(const std::string &message, int error_code, const int line,
  * @note Only specfem::program::Context can initialize/finalize this class.
  */
 class MPI {
-public:
-  static int rank; ///< Current MPI rank (-1 if not initialized)
-  static int size; ///< Total number of MPI processes (-1 if not initialized)
 
+private:
+  static int rank_; ///< Current MPI rank (-1 if not initialized)
+  static int size_; ///< Total number of MPI processes (-1 if not initialized)
+
+public:
   /**
    * @brief Synchronize all MPI processes (MPI_Barrier)
    *
@@ -82,7 +84,7 @@ public:
    */
   static int get_rank() {
     check_context();
-    return rank;
+    return rank_;
   }
 
   /**
@@ -93,7 +95,7 @@ public:
    */
   static int get_size() {
     check_context();
-    return size;
+    return size_;
   }
 
   /**
@@ -104,7 +106,7 @@ public:
    */
   static bool main_proc() {
     check_context();
-    return rank == 0;
+    return rank_ == 0;
   }
 
   /**
@@ -191,7 +193,7 @@ private:
    * Exits with error code 1 if check fails.
    */
   static bool check_context() {
-    if (rank == -1 || size == -1) {
+    if (rank_ == -1 || size_ == -1) {
       std::cerr << "ERROR: MPI used outside Context scope" << std::endl;
       std::exit(1);
     }
