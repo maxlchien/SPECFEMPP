@@ -13,12 +13,6 @@
 #include <boost/preprocessor.hpp>
 
 /**
- * @defgroup material_iterator_macros Material Iterator Macros
- * @brief Macros for defining material and element tags.
- * @{
- */
-
-/**
  * @defgroup dimension_tag_macros Dimension Tag Macros
  * @brief Macros for dimension tags.
  * @{
@@ -147,7 +141,11 @@
    composite_stacey_dirichlet, _ENUM_ID_BOUNDARY_TAG)
 /** @} */
 
-/// \cond
+/**
+ * @defgroup material_iterator_macros Material Iterator Macros
+ * @brief Macros for defining material and element tags.
+ * @{
+ */
 /**
  * @brief Macro to generate a list of medium types
  *
@@ -226,6 +224,8 @@
 
 #define ELEMENT_TYPES ELEMENT_TYPES_DIM2 ELEMENT_TYPES_DIM3
 
+/** @} */
+
 /**
  * @brief Tag getters. The macros are intended to be used only in @ref DECLARE
  * and @ref INSTANTIATE.
@@ -277,45 +277,9 @@
   BOOST_PP_SEQ_TRANSFORM(_TRANSFORM_TAGS, BOUNDARY_TAG_,                       \
                          BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
 
-/**
- * @brief Iterates over the Cartesian product of tag sequences and executes a
- * code block.
- *
- * This macro simplifies the generation of code for multiple combinations of
- * template parameters or configuration tags (e.g., dimension, medium type).
- * It takes a tuple of tag sequences and iterates over every combination
- * (Cartesian product) of these tags.
- *
- * Inside the loop, the current tags are available via macros like
- * `_DIMENSION_TAG_`,
- * `_MEDIUM_TAG_`, etc., depending on the structure of the input sequences.
- *
- * @param seq A tuple of sequences defining the product space.
- *            Example: `(DIMENSION_TAG(DIM2), MEDIUM_TAG(ELASTIC, ACOUSTIC))`
- * @param ... Variadic arguments containing the action to perform.
- *            Common actions include:
- *            - `DECLARE(...)`: To declare variables.
- *            - `INSTANTIATE(...)`: To instantiate templates.
- *            - `CAPTURE(...)`: To capture variables by reference.
- *            - A raw code block `{ ... }`.
- *
- * @code
- * // Example: Instantiate a function template for 2D and multiple medium types
- * FOR_EACH_IN_PRODUCT(
- *     (DIMENSION_TAG(DIM2), MEDIUM_TAG(ELASTIC_PSV, ACOUSTIC)),
- *     INSTANTIATE(
- *         (template void my_function, (_DIMENSION_TAG_, _MEDIUM_TAG_), (int))
- *     )
- * )
- * @endcode
- */
 #define FOR_EACH_IN_PRODUCT(seq, ...)                                          \
   BOOST_PP_SEQ_FOR_EACH(                                                       \
       _FOR_ONE_TAG_SEQ, (seq)BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__),            \
       BOOST_PP_CAT(_SEQ_FOR_TAGS_, BOOST_PP_TUPLE_SIZE(seq)))
-
-/** @} */
-
-/// \endcond
 
 #include "interface_iterators.hpp"

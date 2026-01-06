@@ -1,17 +1,17 @@
 #pragma once
 
-#include "specfem/macros.hpp"
-#include <array>
-#include <tuple>
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
+#include "specfem/macros.hpp"
+#include <array>
 #include <boost/preprocessor.hpp>
+#include <tuple>
 
 namespace specfem::element {
 /**
  * @brief Generates a list of medium types within the simulation.
  *
- * Uses @ref MEDIUM_TAGS to generate the list automatically.
+ * Uses `MEDIUM_TAGS` to generate the list automatically.
  *
  * @tparam DimensionTag The dimension of the simulation.
  * @return A constexpr array of medium types.
@@ -55,7 +55,7 @@ template <> constexpr auto medium_types<specfem::dimension::type::dim3>() {
 /**
  * @brief Generates a list of material systems within the simulation.
  *
- * Uses @ref MATERIAL_SYSTEMS to generate the list automatically.
+ * Uses `MATERIAL_SYSTEMS` to generate the list automatically.
  *
  * @tparam DimensionTag The dimension of the simulation.
  * @return A constexpr array of material systems.
@@ -103,7 +103,7 @@ template <> constexpr auto material_systems<specfem::dimension::type::dim3>() {
 /**
  * @brief Generates a list of element types within the simulation.
  *
- * Uses @ref ELEMENT_TYPES to generate the list automatically.
+ * Uses `ELEMENT_TYPES` to generate the list automatically.
  *
  * @tparam DimensionTag The dimension of the simulation.
  * @return A constexpr array of element types.

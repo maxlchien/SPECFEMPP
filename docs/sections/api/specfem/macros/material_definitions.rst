@@ -121,21 +121,25 @@ Dimension Tags
 ~~~~~~~~~~~~~~
 
 .. doxygengroup:: dimension_tag_macros
+  :content-only:
 
 Medium Tags
 ~~~~~~~~~~~
 
 .. doxygengroup:: medium_tag_macros
+  :content-only:
 
 Property Tags
 ~~~~~~~~~~~~~
 
 .. doxygengroup:: property_tag_macros
+  :content-only:
 
 Boundary Tags
 ~~~~~~~~~~~~~
 
 .. doxygengroup:: boundary_tag_macros
+  :content-only:
 
 
 Interface Tags
@@ -145,13 +149,22 @@ Connection Tags
 ~~~~~~~~~~~~~~~
 
 .. doxygengroup:: connection_tag_macros
+  :content-only:
 
 Interface Type Tags
 ~~~~~~~~~~~~~~~~~~~
 
 .. doxygengroup:: interface_tag_macros
+  :content-only:
 
 Enum Tags
 ---------
 
 .. doxygengroup:: material_iterator_enum_tags
+  :content-only:
+
+Tag Combinations
+----------------
+
+.. doxygengroup:: material_iterator_macros
+  :content-only:
