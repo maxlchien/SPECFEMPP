@@ -1,6 +1,11 @@
 #pragma once
 
 #include "specfem/macros.hpp"
+#include <array>
+#include <tuple>
+#include "enumerations/dimension.hpp"
+#include "enumerations/medium.hpp"
+#include <boost/preprocessor.hpp>
 
 namespace specfem::element {
 /**
