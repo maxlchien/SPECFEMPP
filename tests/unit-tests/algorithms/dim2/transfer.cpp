@@ -325,7 +325,20 @@ using TransferFunctionTestTypes2D = ::testing::Types<
             AnalyticalFunctionType::Power<5>,
             QuadraturePoints::Asymm5Point> > >;
 
-TYPED_TEST_SUITE(TransferFunctionTest2D, TransferFunctionTestTypes2D);
+/* for test naming
+ * https://google.github.io/googletest/reference/testing.html#TYPED_TEST_SUITE
+ */
+struct TransferFunctionTest2DNames {
+  template <typename TestingTypes> static std::string GetName(int) {
+    using TestType = TransferFunctionTest2D<TestingTypes>;
+    return std::string("TransferFunctionTest2D(") +
+           TestType::TransferFunctionInitializer::name() + ", " +
+           TestType::FunctionInitializer::name() + ")";
+  }
+};
+
+TYPED_TEST_SUITE(TransferFunctionTest2D, TransferFunctionTestTypes2D,
+                 TransferFunctionTest2DNames);
 
 TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) {
   execute(this->transfer_function, this->function);
