@@ -21,6 +21,13 @@ namespace specfem::program {
 
 /**
  * @brief Execute SPECFEM simulation with runtime dimension selection
+ *
+ * This function is the main entry point that the specfem executable calls. It
+ * will call the appropriate internal program function based on the specified
+ * dimension ("2d" or "3d"). And then run an entire simulation workflow
+ * including mesh reading, source/receiver setup, assembly, time-stepping, and
+ * output writing given the parameter configuration.
+ *
  * @param dimension Dimension string ("2d" or "3d")
  * @param parameter_dict YAML parameter configuration
  * @param default_dict YAML default configuration
