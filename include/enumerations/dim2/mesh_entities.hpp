@@ -106,6 +106,9 @@ template <> struct edge<specfem::dimension::type::dim2> {
   edge() = default;
 };
 
+template <specfem::dimension::type Dimension> struct element;
+template <specfem::dimension::type Dimension> struct element_grid;
+
 /**
  * @brief 2D element grid with GLL point configuration.
  */

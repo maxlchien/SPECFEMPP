@@ -3,7 +3,7 @@
 FOR_EACH_IN_PRODUCT
 ===================
 
-The ``FOR_EACH_IN_PRODUCT`` macro is a powerful utility in SPECFEMPP for processing combinations of tags that represent different element dimensions, medium types, property types, and boundary conditions.
+The ``FOR_EACH_IN_PRODUCT`` macro is a utility in SPECFEMPP for processing combinations of tags that represent different element dimensions, medium types, property types, boundary conditions, and connection types.
 
 Description
 -----------
@@ -20,10 +20,12 @@ Syntax
         OPERATION)
 
 The first argument is a tuple of tag sequences, each defined by a macro that can be one of the following:
-- ``DIMENSION_TAG(VALUES...)``: Specifies the element dimensions (e.g., ``DIM2``, ``DIM3``).
-- ``MEDIUM_TAG(VALUES...)``: Specifies the medium types (e.g., ``ACOUSTIC``, ``ELASTIC_SH``, ``ELASTIC_PSV``).
-- ``PROPERTY_TAG(VALUES...)``: Specifies the property types (e.g., ``ISOTROPIC``, ``ANISOTROPIC``).
-- ``BOUNDARY_TAG(VALUES...)``: Specifies the boundary conditions (e.g., ``NONE``, ``STACEY``, ``COMPOSITE_STACEY_DIRICHLET``).
+
+* ``DIMENSION_TAG(VALUES...)``: Specifies the element dimensions (e.g., ``DIM2``, ``DIM3``).
+* ``MEDIUM_TAG(VALUES...)``: Specifies the medium types (e.g., ``ACOUSTIC``, ``ELASTIC_SH``, ``ELASTIC_PSV``).
+* ``CONNECTION_TAG(VALUES...)``: Specifies the connection types (e.g., ``WEAKLY_CONFORMING``, ``NONCONFORMING``).
+* ``PROPERTY_TAG(VALUES...)``: Specifies the property types (e.g., ``ISOTROPIC``, ``ANISOTROPIC``).
+* ``BOUNDARY_TAG(VALUES...)``: Specifies the boundary conditions (e.g., ``NONE``, ``STACEY``, ``COMPOSITE_STACEY_DIRICHLET``).
 
 
 The second argument ``OPERATION`` can be one of three types:
@@ -111,6 +113,58 @@ Optionally, you can capture existing variables using the ``CAPTURE`` macro:
 
 The variables inside the ``CAPTURE`` block are captured by reference as variables ``__elements__`` and ``_h_elements_``.
 
-Summary
--------
-All three patterns leverage the same underlying mechanism, generating code for every combination of the specified tags, while maintaining type safety and enabling compile-time optimizations. This approach keeps the codebase maintainable while supporting a wide range of material types and simulation parameters.
+
+Material Tags
+-------------
+
+Dimension Tags
+~~~~~~~~~~~~~~
+
+.. doxygengroup:: dimension_tag_macros
+  :content-only:
+
+Medium Tags
+~~~~~~~~~~~
+
+.. doxygengroup:: medium_tag_macros
+  :content-only:
+
+Property Tags
+~~~~~~~~~~~~~
+
+.. doxygengroup:: property_tag_macros
+  :content-only:
+
+Boundary Tags
+~~~~~~~~~~~~~
+
+.. doxygengroup:: boundary_tag_macros
+  :content-only:
+
+
+Interface Tags
+--------------
+
+Connection Tags
+~~~~~~~~~~~~~~~
+
+.. doxygengroup:: connection_tag_macros
+  :content-only:
+
+Interface Type Tags
+~~~~~~~~~~~~~~~~~~~
+
+.. doxygengroup:: interface_tag_macros
+  :content-only:
+
+Enum Tags
+---------
+
+.. doxygengroup:: material_iterator_enum_tags
+  :content-only:
+
+Tag Combinations
+----------------
+
+.. doxygengroup:: material_iterator_macros
+  :content-only:

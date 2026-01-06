@@ -16,6 +16,7 @@ target_link_libraries(
         writer
         io
         assembly
+        specfem::program
 )
 
 target_compile_definitions(

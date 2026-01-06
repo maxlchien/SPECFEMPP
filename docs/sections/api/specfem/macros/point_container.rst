@@ -6,7 +6,7 @@ POINT_CONTAINER
 Description
 -----------
 
-The ``POINT_CONTAINER`` macro is a key component in SPECFEMPP that provides an efficient and consistent way to define data containers for physical properties and kernels at quadrature points. It significantly reduces code duplication by automatically generating accessor methods, constructors, operators, and printing functionality for point data.
+The ``POINT_CONTAINER`` macro is used to define data containers for physical properties and kernels at quadrature points. It reduces code duplication by automatically generating accessor methods, constructors, operators, and printing functionality for point data.
 
 Syntax
 ------
