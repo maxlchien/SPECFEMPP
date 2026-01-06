@@ -4,6 +4,8 @@
 
 namespace specfem::program {
 
+// TODO (LUCAS : CPP20 updated) : use source_location when moving to C++20
+
 /**
  * @brief Terminate program with proper MPI cleanup
  *
