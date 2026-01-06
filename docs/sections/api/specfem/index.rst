@@ -13,6 +13,7 @@
     mpi/index
     periodic_tasks/index
     point/index
+    program/index
     receivers/index
     sources/index
     data_access/index
