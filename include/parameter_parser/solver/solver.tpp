@@ -2,8 +2,8 @@
 #define _SPECFEM_RUNTIME_CONFIGURATION_SOLVER_SOLVER_TPP_
 
 #include "kokkos_kernels/domain_kernels.hpp"
-#include "solver.hpp"
-#include "solver/time_marching.hpp"
+#include "specfem/solver.hpp"
+#include "specfem/solver/time_marching.hpp"
 #include "specfem/timescheme/newmark.hpp"
 #include <iostream>
 #include <memory>
