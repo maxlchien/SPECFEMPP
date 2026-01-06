@@ -3,7 +3,7 @@
 #include "enumerations/simulation.hpp"
 #include "enumerations/wavefield.hpp"
 #include "specfem/assembly.hpp"
-#include "specfem/timescheme.hpp"
+#include "specfem/timescheme/timescheme.hpp"
 #include "specfem_setup.hpp"
 
 namespace specfem {
