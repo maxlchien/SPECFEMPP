@@ -7,5 +7,5 @@
  */
 namespace specfem::shape_function {} // namespace specfem::shape_function
 
-#include "shape_functions/dim2/shape_functions.hpp"
-#include "shape_functions/dim3/shape_functions.hpp"
+#include "shape_function/dim2/shape_functions.hpp"
+#include "shape_function/dim3/shape_functions.hpp"
