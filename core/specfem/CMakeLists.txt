@@ -28,7 +28,7 @@ target_link_libraries(specfem_core_interface
         specfem::point
         specfem::program
         specfem::receivers
-        specfem::shape_functions
+        specfem::shape_function
         specfem::source
         specfem::timescheme
 )
