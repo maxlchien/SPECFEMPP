@@ -7,7 +7,7 @@ namespace specfem::interface {
  * @brief A constexpr function to generate a list of edges with interfaces
  * within the simulation.
  *
- * This macro uses @ref EDGES to generate a list of edges automatically.
+ * This function uses @ref EDGES to generate a list of edges automatically.
  *
  * @return constexpr auto list of edges
  */
