@@ -1,6 +1,13 @@
 #pragma once
 
 #include "specfem/macros.hpp"
+#include <array>
+#include <tuple>
+#include <boost/preprocessor.hpp>
+#include "enumerations/dimension.hpp"
+#include "enumerations/connections.hpp"
+#include "enumerations/coupled_interface.hpp"
+#include "enumerations/medium.hpp"
 
 namespace specfem::interface {
 /**
