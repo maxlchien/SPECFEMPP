@@ -7,6 +7,33 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_cosserat_stress_computation_dim2_elastic_isotropic_cosserat
+ *
+ */
+
+/**
+ * @ingroup specfem_cosserat_stress_computation_dim2_elastic_isotropic_cosserat
+ * @brief Compute Cosserat stress contribution for 2D elastic isotropic
+ * micropolar media.
+ *
+ * Implements asymmetric stress correction for Cosserat continuum with
+ * rotational degrees of freedom. Adds coupling between rotation field
+ * and force stress tensor to capture microstructural effects.
+ *
+ * **Stress corrections:**
+ * - \f$ \sigma_{zx} = \sigma_{zx}^{classical} - 2\nu\phi_y \f$
+ * - \f$ \sigma_{xz} = \sigma_{xz}^{classical} + 2\nu\phi_y \f$
+ *
+ * where:
+ * - \f$ \nu \f$: Cosserat coupling parameter
+ * - \f$ \phi_y \f$: rotation about y-axis (out-of-plane)
+ * - Asymmetric tensor: \f$ \sigma_{zx} \neq \sigma_{xz} \f$
+ *
+ * @param properties Cosserat material properties (ν)
+ * @param u Displacement field [u_x, u_z, φ_y]
+ * @param point_stress[in,out] Stress tensor (modified by Cosserat effects)
+ */
 template <typename PointPropertiesType, typename PointDisplacementType,
           typename PointStressType>
 KOKKOS_INLINE_FUNCTION void impl_compute_cosserat_stress(

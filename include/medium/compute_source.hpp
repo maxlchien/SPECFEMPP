@@ -12,6 +12,35 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @brief Compute source contribution for seismic wave simulation.
+ *
+ * Generic source computation interface that dispatches to medium-specific
+ * implementations. Computes force/moment contributions from seismic sources
+ * (earthquakes, explosions, etc.) at GLL nodes based on source type and
+ * material properties.
+ *
+ * **Supported media:**
+ * - Acoustic (2D isotropic): pressure sources
+ * - Elastic (2D/3D isotropic, 2D anisotropic, Cosserat): force/moment sources
+ * - Poroelastic (2D isotropic): coupled solid/fluid sources
+ *
+ * @tparam PointSourceType Point-wise source parameters container
+ * @tparam PointPropertiesType Point-wise material properties container
+ * @param point_source Source parameters at quadrature point (specifies source
+ * time function and lagrange interpolants)
+ * @param point_properties Material properties at quadrature point
+ * @return Source force/moment contribution for wave equation
+ *
+ * @code{.cpp}
+ * // Example usage for 2D elastic isotropic medium
+ * using Source = specfem::point::source<dim2, elastic, false>;
+ * using Properties = specfem::point::properties<dim2, elastic, isotropic,
+ * false>; Source src = ...; // Initialize source parameters Properties props =
+ * ...; // Initialize material properties auto source_contribution =
+ * specfem::medium::compute_source_contribution(src, props);
+ * @endcode
+ */
 template <typename PointSourceType, typename PointPropertiesType>
 KOKKOS_INLINE_FUNCTION auto
 compute_source_contribution(const PointSourceType &point_source,

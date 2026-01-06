@@ -7,6 +7,38 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_damping_computation_dim2_poroelastic_isotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_damping_computation_dim2_poroelastic_isotropic
+ * @brief Compute viscous damping force for 2D poroelastic isotropic media.
+ *
+ * Implements Darcy viscous damping for fluid-solid coupling in porous media.
+ * Damping arises from viscous flow resistance through pore networks,
+ * proportional to relative fluid-solid velocity and permeability.
+ *
+ * **Viscous force equations:**
+ * \f$ \mathbf{F}_{visc} = \eta_f \mathbf{K}^{-1} \mathbf{w} \f$
+ *
+ * where:
+ * - \f$ \eta_f \f$: fluid viscosity
+ * - \f$ \mathbf{K}^{-1} \f$: inverse permeability tensor
+ * - \f$ \mathbf{w} \f$: relative fluid velocity
+ *
+ * **Acceleration updates:**
+ * \f$ \ddot{\mathbf{u}} += \frac{\phi}{\alpha} \mathbf{F}_{visc} \f$ (solid
+ * coupling)
+ * \f$ \ddot{\mathbf{w}} -= \mathbf{F}_{visc} \f$ (fluid damping)
+ *
+ * @tparam T Scalar type for damping factor
+ * @param factor Time step scaling factor
+ * @param point_properties Poroelastic properties (η_f, K⁻¹, φ, α)
+ * @param velocity Velocity field [u_x, u_z, w_x, w_z]
+ * @param acceleration[in,out] Acceleration field (modified by damping)
+ */
 template <typename T, typename PointPropertiesType, typename PointVelocityType,
           typename PointAccelerationType>
 KOKKOS_FUNCTION void impl_compute_damping_force(

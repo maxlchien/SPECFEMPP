@@ -124,25 +124,26 @@ KOKKOS_INLINE_FUNCTION void impl_compute_cosserat_couple_stress(
 }
 
 /**
- * @defgroup MediumPhysics
- */
-
-/**
- * @brief Compute the damping term at a quadrature point
+ * @brief Compute Cosserat couple stress contribution for micropolar elastic
+ * media.
  *
- * @ingroup MediumPhysics
+ * Generic couple stress computation interface that adds moment equilibrium
+ * equations to classical elasticity. Provides compile-time dispatch to
+ * medium-specific implementations for extended continuum mechanics.
  *
- * @tparam PointPropertiesType Material properties at the quadrature point
- * specfem::point::properties
- * @tparam PointVelocityType Velocity at the quadrature point
- * specfem::point::field
- * @tparam PointAccelerationType Acceleration at the quadrature point
- * specfem::point::field
- * @param PointJacobianMatrixType Jacobian matrix at the quadrature point
- * @param point_properties Material properties at the quadrature point
- * @param factor Prefactor for the damping term ($wx * wz * jacobian)
- * @param F Stress integrand at the quadrature point
- * @param acceleration Acceleration at the quadrature point
+ * @note Only medium types with Cosserat couple stress support will modify the
+ *       acceleration field. Other medium types result in no-op.
+ *
+ * @tparam T Scalar type for computation factor
+ * @tparam PointJacobianMatrixType Jacobian transformation matrix
+ * @tparam PointPropertiesType Point-wise material properties
+ * @tparam PointStressIntegrandViewType Stress integrand components
+ * @tparam PointAccelerationType Point-wise acceleration field
+ * @param point_jacobian_matrix Coordinate transformation matrix
+ * @param point_properties Cosserat material properties
+ * @param factor Time step or integration factor
+ * @param F Stress integrand components for moment equilibrium
+ * @param acceleration[in,out] Acceleration field (modified by couple stress)
  */
 template <typename T, typename PointJacobianMatrixType,
           typename PointPropertiesType, typename PointStressIntegrandViewType,
