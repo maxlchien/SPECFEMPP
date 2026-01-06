@@ -17,18 +17,29 @@ namespace specfem {
 namespace medium {
 
 /**
- * @brief Compute the contribution to mass matrix at a given quadrature point
- * within an element
+ * @brief Compute mass matrix from material properties.
  *
- * @tparam DimensionTag Dimension of the element (2D or 3D)
- * @tparam MediumTag Medium tag for the element
- * @tparam PropertyTag Property tag for the element
- * @tparam UseSIMD Use SIMD instructions
- * @param properties Material properties at the quadrature point
- * @param jacobian_matrix Spatial derivatives of basis functions at the
- * quadrature point
- * @return specfem::point::mass_matrix<DimensionTag, MediumTag,
- * UseSIMD> Contribution to mass matrix at the quadrature point
+ * Generic mass matrix computation interface that dispatches to medium-specific
+ * implementations.
+ *
+ * **Supported media:**
+ * - Acoustic (2D/3D isotropic)
+ * - Elastic (2D/3D isotropic, 2D anisotropic, Cosserat)
+ * - Poroelastic (2D isotropic)
+ *
+ * @tparam DimensionTag Spatial dimension (dim2/dim3)
+ * @tparam MediumTag Medium type (acoustic, elastic, poroelastic)
+ * @tparam PropertyTag Property type (isotropic, anisotropic, etc.)
+ * @tparam UseSIMD Enable SIMD vectorization
+ * @param properties Material properties at quadrature point
+ * @return Inverse mass matrix components for time integration
+ *
+ * @code{.cpp}
+ * // Example usage for 2D elastic isotropic medium
+ * using Properties = specfem::point::properties<dim2, elastic, isotropic,
+ * false>; Properties props = ...; // Initialize material properties auto
+ * mass_inv = specfem::medium::mass_matrix_component(props);
+ * @endcode
  */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,

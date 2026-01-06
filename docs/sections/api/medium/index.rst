@@ -13,3 +13,5 @@
     properties_container/index
     kernels_container/index
     compute_stress/index
+    compute_mass_matrix/index
+    compute_wavefield
