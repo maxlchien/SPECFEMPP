@@ -27,17 +27,65 @@ compute_locations(
     const type_real gamma);
 
 /**
- * @brief Compute Jacobian matrix at \f$(\xi, \eta, \gamma)\f$.
+ * @brief Compute Jacobian matrix at reference coordinates \f$(\xi, \eta,
+ * \gamma)\f$.
  *
- * Calculates the partial derivatives and the determinant of the Jacobian.
+ * Calculates the inverse partial derivatives (metrics) and the determinant of
+ * the Jacobian.
+ *
+ * The Jacobian matrix \f$ \mathbf{J} \f$ is defined as:
+ * \f[
+ * \mathbf{J} = \begin{pmatrix}
+ * \frac{\partial x}{\partial \xi} & \frac{\partial x}{\partial \eta} &
+ * \frac{\partial x}{\partial \gamma} \\
+ * \frac{\partial y}{\partial \xi} & \frac{\partial y}{\partial \eta} &
+ * \frac{\partial y}{\partial \gamma} \\
+ * \frac{\partial z}{\partial \xi} & \frac{\partial z}{\partial \eta} &
+ * \frac{\partial z}{\partial \gamma}
+ * \end{pmatrix}
+ * \f]
+ *
+ * The function returns the determinant \f$ j = \det(\mathbf{J}) \f$ and the
+ * terms of the inverse Jacobian matrix \f$ \mathbf{J}^{-1} \f$:
+ * \f[
+ * \mathbf{J}^{-1} = \begin{pmatrix}
+ * \frac{\partial \xi}{\partial x} & \frac{\partial \xi}{\partial y} &
+ * \frac{\partial \xi}{\partial z} \\
+ * \frac{\partial \eta}{\partial x} & \frac{\partial \eta}{\partial y} &
+ * \frac{\partial \eta}{\partial z} \\
+ * \frac{\partial \gamma}{\partial x} & \frac{\partial \gamma}{\partial y} &
+ * \frac{\partial \gamma}{\partial z}
+ * \end{pmatrix}
+ * = \frac{1}{j} \begin{pmatrix}
+ * \left(\frac{\partial y}{\partial \eta}\frac{\partial z}{\partial \gamma} -
+ * \frac{\partial y}{\partial \gamma}\frac{\partial z}{\partial \eta}\right) &
+ * \left(\frac{\partial x}{\partial \gamma}\frac{\partial z}{\partial \eta} -
+ * \frac{\partial x}{\partial \eta}\frac{\partial z}{\partial \gamma}\right) &
+ * \left(\frac{\partial x}{\partial \eta}\frac{\partial y}{\partial \gamma} -
+ * \frac{\partial x}{\partial \gamma}\frac{\partial y}{\partial \eta}\right) \\
+ * \left(\frac{\partial y}{\partial \gamma}\frac{\partial z}{\partial \xi} -
+ * \frac{\partial y}{\partial \xi}\frac{\partial z}{\partial \gamma}\right) &
+ * \left(\frac{\partial x}{\partial \xi}\frac{\partial z}{\partial \gamma} -
+ * \frac{\partial x}{\partial \gamma}\frac{\partial z}{\partial \xi}\right) &
+ * \left(\frac{\partial x}{\partial \gamma}\frac{\partial y}{\partial \xi} -
+ * \frac{\partial x}{\partial \xi}\frac{\partial y}{\partial \gamma}\right) \\
+ * \left(\frac{\partial y}{\partial \xi}\frac{\partial z}{\partial \eta} -
+ * \frac{\partial y}{\partial \eta}\frac{\partial z}{\partial \xi}\right) &
+ * \left(\frac{\partial x}{\partial \eta}\frac{\partial z}{\partial \xi} -
+ * \frac{\partial x}{\partial \xi}\frac{\partial z}{\partial \eta}\right) &
+ * \left(\frac{\partial x}{\partial \xi}\frac{\partial y}{\partial \eta} -
+ * \frac{\partial x}{\partial \eta}\frac{\partial y}{\partial \xi}\right)
+ * \end{pmatrix}
+ * \f]
  *
  * @param coorg View of coordinates required for the element.
  * @param ngnod Total number of control nodes per element.
- * @param xi \f$\xi\f$ value of the point.
- * @param eta \f$\eta\f$ value of the point.
- * @param gamma \f$\gamma\f$ value of the point.
+ * @param xi \f$\xi\f$ coordinate of the point.
+ * @param eta \f$\eta\f$ coordinate of the point.
+ * @param gamma \f$\gamma\f$ coordinate of the point.
  * @return specfem::point::jacobian_matrix<specfem::dimension::type::dim3, true,
- * false> Structure containing partial derivatives and the Jacobian determinant.
+ * false> Structure containing inverse partial derivatives and the Jacobian
+ * determinant.
  */
 specfem::point::jacobian_matrix<specfem::dimension::type::dim3, true, false>
 compute_jacobian(
