@@ -2,7 +2,7 @@
 
 #include <boost/preprocessor.hpp>
 
-// ------- Implemetation Details --------
+// ------- Implementation Details --------
 
 #define _SEQ_CAT_WITH_OR(seq)                                                  \
   BOOST_PP_CAT(_SEQ_CAT_WITH_OR_, BOOST_PP_SEQ_SIZE(seq)) seq
