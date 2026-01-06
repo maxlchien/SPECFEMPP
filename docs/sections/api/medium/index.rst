@@ -10,3 +10,5 @@
     :maxdepth: 1
 
     material/index
+    properties_container/index
+    kernels_container/index
