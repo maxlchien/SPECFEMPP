@@ -43,7 +43,7 @@ struct Vectorized : AnalyticalFunctionType {
     (
         [&]() {
           const auto sub = AnalyticalFunctions::evaluate(coord);
-          std::copy(sub.start(), sub.end(), it);
+          std::copy(sub.begin(), sub.end(), it);
           it += AnalyticalFunctions::num_components;
         }(),
         ...);
@@ -52,7 +52,42 @@ struct Vectorized : AnalyticalFunctionType {
 
   static std::string description() {
     return std::string("Vectorized(") +
-           ((AnalyticalFunctions::description()), ...) + ")";
+           ((AnalyticalFunctions::description() + ",") + ...) + ")";
+  }
+};
+
+/**
+ * @brief Sums k functions.
+ *
+ */
+template <typename... AnalyticalFunctions> struct Sum : AnalyticalFunctionType {
+  static_assert(
+      ((std::is_base_of_v<AnalyticalFunctionType, AnalyticalFunctions>) && ...),
+      "Sum needs all of its parameters to be of "
+      "AnalyticalFunctionType!");
+  static constexpr int num_components =
+      std::min((AnalyticalFunctions::num_components)...);
+
+  static_assert(
+      ((AnalyticalFunctions::num_components == num_components) && ...),
+      "Sum needs all of its parameters to have the same number of components!");
+  static std::array<type_real, num_components>
+  evaluate(const type_real &coord) {
+    std::array<type_real, num_components> arr{ 0 };
+    (
+        [&]() {
+          const auto sub = AnalyticalFunctions::evaluate(coord);
+          for (int icomp = 0; icomp < num_components; ++icomp) {
+            arr[icomp] += sub[icomp];
+          }
+        }(),
+        ...);
+    return arr;
+  }
+
+  static std::string description() {
+    return std::string("Sum(") +
+           ((AnalyticalFunctions::description() + ",") + ...) + ")";
   }
 };
 

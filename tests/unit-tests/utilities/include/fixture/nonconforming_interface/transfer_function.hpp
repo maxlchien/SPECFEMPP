@@ -70,7 +70,8 @@ public:
     return transfer_function;
   }
   static std::string description() {
-    return "GLL1 ({-1, 1} on the edge), GLL2 ({-1, 0, 1} on the intersection)";
+    return std::string("edge: ") + EdgeQuadraturePoints::description() +
+           "\nintersection: " + IntersectionQuadraturePoints::description();
   }
 };
 
