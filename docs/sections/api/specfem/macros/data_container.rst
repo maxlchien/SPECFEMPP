@@ -6,7 +6,7 @@ DATA_CONTAINER
 Overview
 --------
 
-The ``DATA_CONTAINER`` macro is a powerful utility for generating standard data container structures for different medium types in SPECFEMPP. It creates a structured collection of ``DomainView2d`` elements with consistent interface methods for accessing and synchronizing data between host and device memory spaces.
+The ``DATA_CONTAINER`` macro is a utility for generating standard data container structures for different medium types in SPECFEMPP. It creates a structured collection of ``DomainView2d`` elements with consistent interface methods for accessing and synchronizing data between host and device memory spaces.
 
 Syntax
 ------
