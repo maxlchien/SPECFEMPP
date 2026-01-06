@@ -20,6 +20,7 @@ New structure
     specfem/assembly/index
     specfem/chunk_element/index
     specfem/io/index
+    specfem/jacobian/index
     specfem/macros/index
     specfem/periodic_tasks/index
     specfem/point/index
@@ -44,7 +45,6 @@ Old structure
     mesh/index
     datatypes/index
     execution/index
-    operators/index
     medium/index
     kokkos_kernels/index
     coupling_physics/coupled_interface

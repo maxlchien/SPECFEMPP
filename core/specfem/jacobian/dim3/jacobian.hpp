@@ -4,63 +4,62 @@
 #include "specfem/point.hpp"
 #include "specfem_setup.hpp"
 
-/**
- * Jacobian namespace contains overloaded functions for serial (without Kokkos)
- * and Kokkos implementations (using team policy)
- *
- */
 namespace specfem::jacobian {
 
 /**
- * @brief Compute global locations (x,z) from shape function matrix calcualted
- * at  \f$ (\xi, \gamma) \f$
+ * @brief Compute global locations \f$(x, y, z)\f$ from shape function matrix
+ * calculated at \f$(\xi, \eta, \gamma)\f$.
  *
- * @param coorg Global control node locations (x_a, z_a)
- * @param ngnod Total number of control nodes per element
- * @param xi \f$ \xi \f$ value of the point
- * @param eta \f$ \eta \f$ value of point
- * @param gamma \f$ \gamma \f$ value of point
- * @param shape3D shape function matrix calculated at  \f$ (\xi, \gamma) \f$
+ * @param coorg Global control node locations.
+ * @param ngnod Total number of control nodes per element.
+ * @param xi \f$\xi\f$ value of the point.
+ * @param eta \f$\eta\f$ value of the point.
+ * @param gamma \f$\gamma\f$ value of the point.
  * @return specfem::point::global_coordinates<specfem::dimension::type::dim3>
- * (x,y,z) value for the point
+ *         The computed \f$(x, y, z)\f$ coordinates.
  */
 specfem::point::global_coordinates<specfem::dimension::type::dim3>
 compute_locations(
     const Kokkos::View<
-        point::global_coordinates<specfem::dimension::type::dim3> *,
+        specfem::point::global_coordinates<specfem::dimension::type::dim3> *,
         Kokkos::HostSpace> &coorg,
     const int ngnod, const type_real xi, const type_real eta,
     const type_real gamma);
 
 /**
- * @brief Compute Jacobian matrix at  \f$ (\xi, \gamma) \f$
+ * @brief Compute Jacobian matrix at \f$(\xi, \eta, \gamma)\f$.
  *
- * @note This function can only be called within a team policy
+ * Calculates the partial derivatives and the determinant of the Jacobian.
  *
- * @param teamMember Kokkos team policy team member
- * @param coorg View of coorg subviewed at required element
- * @param ngnod Total number of control nodes per element
- * @param xi \f$ \xi \f$ value of the point
- * @param eta \f$ \eta \f$ value of point
- * @param gamma \f$ \gamma \f$ value of point
- * @param dershape3D derivative of shape function matrix calculated at (xi,
- * eta, gamma)
-    * @return std::tuple<type_real, type_real, type_real, type_real, type_real,
-                            type_real, type_real, type_real, type_real> partial
- derivatives \f$ (\partial \xi/ \partial x, \partial \eta/ \partial
- * x,
- * \partial \xi/ \partial z, \partial \eta/ \partial z, \partial \gamma/
- \partial
- * z) \f$
+ * @param coorg View of coordinates required for the element.
+ * @param ngnod Total number of control nodes per element.
+ * @param xi \f$\xi\f$ value of the point.
+ * @param eta \f$\eta\f$ value of the point.
+ * @param gamma \f$\gamma\f$ value of the point.
+ * @return specfem::point::jacobian_matrix<specfem::dimension::type::dim3, true,
+ * false> Structure containing partial derivatives and the Jacobian determinant.
  */
 specfem::point::jacobian_matrix<specfem::dimension::type::dim3, true, false>
 compute_jacobian(
     const Kokkos::View<
-        point::global_coordinates<specfem::dimension::type::dim3> *,
+        specfem::point::global_coordinates<specfem::dimension::type::dim3> *,
         Kokkos::HostSpace> &coorg,
     const int ngnod, const type_real xi, const type_real eta,
     const type_real gamma);
 
+/**
+ * @brief Compute Jacobian matrix for 3D elements using generic views.
+ *
+ * This function calculates the Jacobian matrix and its determinant given nodal
+ * coordinates and shape function derivatives.
+ *
+ * @tparam CoordinateView Type of the coordinate view (e.g., Kokkos::View).
+ * @tparam ShapeDerivativesView Type of the shape function derivatives view.
+ * @param coordinates View of nodal coordinates.
+ * @param shape_derivatives View of shape function derivatives.
+ * @return specfem::point::jacobian_matrix<specfem::dimension::type::dim3, true,
+ * false> Computed Jacobian matrix and determinant.
+ */
 template <typename CoordinateView, typename ShapeDerivativesView>
 KOKKOS_FUNCTION
     specfem::point::jacobian_matrix<specfem::dimension::type::dim3, true, false>
