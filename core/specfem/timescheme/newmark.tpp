@@ -4,8 +4,30 @@
 #include "execution/range_iterator.hpp"
 #include "parallel_configuration/range_config.hpp"
 #include "specfem/timescheme/newmark.hpp"
+#include "specfem/assembly.hpp"
 
-namespace {
+/**
+ * @brief Newmark time scheme implementation
+ *
+ * Template implementations for predictor and corrector phases of the Newmark
+ * time integration scheme. Uses Kokkos parallelism for GPU/CPU execution.
+ */
+namespace specfem::time_scheme::newmark_impl {
+/**
+ * @brief Implements Newmark **Corrector Phase**
+ *
+ * **Corrector Phase** updates velocity using the new acceleration computed
+ * after the predictor:
+ *
+ * \f[ v^{n+1} = v^{n+\frac{1}{2}} + \frac{\Delta t}{2} a^{n+1} \f]
+ *
+ * @tparam DimensionTag 2D or 3D simulation
+ * @tparam MediumTag Medium type (elastic, acoustic, etc.)
+ * @tparam WavefieldType Forward, adjoint, or backward wavefield
+ * @param field Simulation field containing velocity and acceleration
+ * @param deltatover2 Half of the timestep (dt/2, or -dt/2 for backward)
+ * @return Number of degrees of freedom updated
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::wavefield::simulation_field WavefieldType>
@@ -40,7 +62,7 @@ int corrector_phase_impl(
   Kokkos::Profiling::pushRegion("Compute Corrector Phase");
 
   specfem::execution::for_all(
-      "specfem::TimeScheme::Newmark::corrector_phase_impl", range,
+      "specfem::time_scheme::newmark_impl::corrector_phase_impl", range,
       KOKKOS_LAMBDA(const typename decltype(range)::base_index_type &iterator_index) {
         const auto index = iterator_index.get_index();
         PointAccelerationType acceleration;
@@ -60,6 +82,30 @@ int corrector_phase_impl(
   return nglob * ncomponents;
 }
 
+/**
+ * @brief Implements Newmark **Predictor Phase**
+ *
+ *
+ * **Predictor Phase** updates displacement and velocity, then zeros
+ * acceleration:
+ *
+ * \f[
+ * \begin{aligned}
+ *   u^{n+1} &= u^n + \Delta t \, v^n + \frac{\Delta t^2}{2} a^n \\
+ *   v^{n+\frac{1}{2}} &= v^n + \frac{\Delta t}{2} a^n \\
+ *   a^{n+1} &= 0
+ * \end{aligned}
+ * \f]
+ *
+ * @tparam DimensionTag 2D or 3D simulation
+ * @tparam MediumTag Medium type (elastic, acoustic, etc.)
+ * @tparam WavefieldType Forward, adjoint, or backward wavefield
+ * @param field Simulation field containing displacement, velocity, acceleration
+ * @param deltat Timestep (dt, or -dt for backward integration)
+ * @param deltatover2 Half timestep (dt/2, or -dt/2 for backward)
+ * @param deltasquareover2 Half of squared timestep (dt²/2)
+ * @return Number of degrees of freedom updated
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::wavefield::simulation_field WavefieldType>
@@ -99,7 +145,7 @@ int predictor_phase_impl(
   Kokkos::Profiling::pushRegion("Compute Predictor Phase");
 
   specfem::execution::for_all(
-      "specfem::TimeScheme::Newmark::corrector_phase_impl", range,
+      "specfem::time_scheme::newmark_impl::predictor_phase_impl", range,
       KOKKOS_LAMBDA(const typename decltype(range)::base_index_type &iterator_index) {
         const auto index = iterator_index.get_index();
         PointDisplacementType displacement;
@@ -125,7 +171,7 @@ int predictor_phase_impl(
 
   return nglob * ncomponents;
 }
-} // namespace
+} // namespace specfem::time_scheme::newmark_impl
 
 
 
@@ -144,7 +190,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.forward, deltatover2);
+            return specfem::time_scheme::newmark_impl::corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.forward, deltatover2);
           }
         }
       })
@@ -166,7 +212,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.forward, deltat, deltatover2, deltasquareover2);
           }
         }
@@ -189,7 +235,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.adjoint,
+            return specfem::time_scheme::newmark_impl::corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.adjoint,
                                                   deltatover2);
           }
         }
@@ -212,7 +258,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.backward, -1.0 * deltatover2);
           }
         }
@@ -235,7 +281,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.adjoint, deltat, deltatover2, deltasquareover2);
           }
         }
@@ -258,7 +304,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.backward, -1.0 * deltat, -1.0 * deltatover2,
                 deltasquareover2);
           }

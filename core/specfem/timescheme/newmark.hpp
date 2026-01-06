@@ -2,6 +2,7 @@
 
 #include "enumerations/simulation.hpp"
 #include "enumerations/wavefield.hpp"
+#include "specfem/assembly.hpp"
 #include "specfem/timescheme.hpp"
 #include "specfem_setup.hpp"
 
@@ -9,15 +10,33 @@ namespace specfem {
 namespace time_scheme {
 
 /**
- * @brief Newmark Time Scheme
+ * @brief Newmark time integration scheme implementation
  *
+ * Implements the Newmark-beta method for time integration of the wave equation.
+ * This second-order accurate scheme uses predictor-corrector steps:
+ *
+ * Specialized for forward and combined (adjoint) simulations.
+ *
+ * @tparam AssemblyFields Field assembly type containing wavefield data
+ * @tparam SimulationType Either forward or combined simulation type
  */
 template <typename AssemblyFields, specfem::simulation::type SimulationType>
 class newmark;
 
 /**
- * @brief Template specialization for the forward simulation
+ * @brief Newmark scheme for forward simulation
  *
+ * Forward-only time integration where the adjoint wavefield methods are
+ * no-ops (return 0).
+ *
+ * @code
+ * // Typical usage in a time loop
+ * for (const auto [istep, dt] : scheme.iterate_forward()) {
+ *   scheme.apply_predictor_phase_forward(medium_tag);
+ *   // ... compute forces/accelerations ...
+ *   scheme.apply_corrector_phase_forward(medium_tag);
+ * }
+ * @endcode
  */
 template <typename AssemblyFields>
 class newmark<AssemblyFields, specfem::simulation::type::forward>
@@ -66,6 +85,9 @@ public:
    * @brief Apply the predictor phase for forward simulation on fields within
    * the elements within a medium.
    *
+   * Calls newmark_impl::predictor_phase_impl() on the forward wavefield with
+   * positive timestep.
+   *
    * @param tag Medium tag for elements to apply the predictor phase
    * @return int Returns the number of degrees of freedom updated within the
    * medium
@@ -76,6 +98,9 @@ public:
   /**
    * @brief Apply the corrector phase for forward simulation on fields within
    * the elements within a medium.
+   *
+   * Calls newmark_impl::corrector_phase_impl() on the forward wavefield with
+   * positive \f$\Delta t/2\f$.
    *
    * @param tag Medium tag for elements to apply the corrector phase
    * @return int Returns the number of degrees of freedom updated within the
@@ -136,8 +161,26 @@ protected:
 };
 
 /**
- * @brief Template specialization for the adjoint simulation
+ * @brief Newmark scheme for combined forward-adjoint simulation
  *
+ * Manages three wavefields: forward (adjoint source), adjoint, and backward.
+ * Forward and adjoint integrate forward in time; backward integrates backward.
+ * Used for computing sensitivity kernels and adjoint gradients.
+ *
+ * @code
+ * // Forward phase
+ * for (const auto [istep, dt] : scheme.iterate_forward()) {
+ *   scheme.apply_predictor_phase_forward(medium_tag);
+ *   // ... compute forces ...
+ *   scheme.apply_corrector_phase_forward(medium_tag);
+ * }
+ * // Backward phase
+ * for (const auto [istep, dt] : scheme.iterate_backward()) {
+ *   scheme.apply_predictor_phase_backward(medium_tag);
+ *   // ... compute forces ...
+ *   scheme.apply_corrector_phase_backward(medium_tag);
+ * }
+ * @endcode
  */
 template <typename AssemblyFields>
 class newmark<AssemblyFields, specfem::simulation::type::combined>
@@ -186,6 +229,9 @@ public:
    * @brief Apply the predictor phase for forward simulation on fields within
    * the elements within a medium.
    *
+   * Calls newmark_impl::predictor_phase_impl() on the adjoint wavefield with
+   * positive timestep.
+   *
    * @param tag Medium tag for elements to apply the predictor phase
    * @return int Returns the number of degrees of freedom updated within the
    * medium
@@ -196,6 +242,9 @@ public:
   /**
    * @brief Apply the corrector phase for forward simulation on fields within
    * the elements within a medium.
+   *
+   * Calls newmark_impl::corrector_phase_impl() on the adjoint wavefield with
+   * positive \f$\Delta t/2\f$.
    *
    * @param tag Medium tag for elements to apply the corrector phase
    * @return int Returns the number of degrees of freedom updated within the
@@ -208,6 +257,9 @@ public:
    * @brief Apply the predictor phase for backward simulation on fields within
    * the elements within a medium.
    *
+   * Calls newmark_impl::predictor_phase_impl() on the backward wavefield with
+   * negative timestep (\f$-\Delta t\f$).
+   *
    * @param tag  Medium tag for elements to apply the predictor phase
    * @return int Returns the number of degrees of freedom updated within the
    * medium
@@ -218,6 +270,9 @@ public:
   /**
    * @brief  Apply the corrector phase for backward simulation on fields within
    * the elements within a medium.
+   *
+   * Calls newmark_impl::corrector_phase_impl() on the backward wavefield with
+   * negative \f$\Delta t/2\f$.
    *
    * @param tag  Medium tag for elements to apply the corrector phase
    * @return int Returns the number of degrees of freedom updated within the
