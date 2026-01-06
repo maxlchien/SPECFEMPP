@@ -13,6 +13,13 @@ namespace specfem {
 namespace medium {
 
 /**
+ * @defgroup specfem_medium_material_dim2_electromagnetic_isotropic 2D
+ * Electromagnetic Isotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_material_dim2_electromagnetic_isotropic
  * @brief Template specialization for electromagnetic isotropic (TE) material
  * properties
  *
@@ -115,6 +122,11 @@ public:
              this->e0 * this->e33_e0, this->sig11, this->sig33 };
   }
 
+  /**
+   * @brief Print the material properties
+   *
+   * @return std::string Formatted material properties
+   */
   inline std::string print() const {
     std::ostringstream message;
 
