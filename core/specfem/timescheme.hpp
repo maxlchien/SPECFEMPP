@@ -15,5 +15,9 @@
  */
 namespace specfem::time_scheme {}
 
-#include "specfem/timescheme/newmark.hpp"
+// Base class
 #include "specfem/timescheme/timescheme.hpp"
+
+// Specific time schemes: Newmark
+#include "specfem/timescheme/newmark.hpp"
+#include "specfem/timescheme/newmark.tpp"
