@@ -44,7 +44,7 @@ void abort(const std::string &message, int error_code, const int line,
  * // After Context is initialized
  * int my_rank = specfem::MPI::get_rank();
  * int world_size = specfem::MPI::get_size();
- * specfem::MPI::MPI::sync();
+ * specfem::MPI::sync();
  * @endcode
  *
  * @note This class cannot be instantiated. All members are static.
