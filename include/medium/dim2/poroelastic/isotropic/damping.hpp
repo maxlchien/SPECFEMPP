@@ -21,21 +21,23 @@ namespace medium {
  * proportional to relative fluid-solid velocity and permeability.
  *
  * **Viscous force equations:**
- * \f$ \mathbf{F}_{visc} = \eta_f \mathbf{K}^{-1} \mathbf{w} \f$
+ * \f$ \mathbf{F}_{\mathrm{visc}} = \eta_{\mathrm{f}} \mathbf{K}^{-1} \mathbf{w}
+ * \f$
  *
  * where:
- * - \f$ \eta_f \f$: fluid viscosity
+ * - \f$ \eta_{\mathrm{f}} \f$: fluid viscosity
  * - \f$ \mathbf{K}^{-1} \f$: inverse permeability tensor
  * - \f$ \mathbf{w} \f$: relative fluid velocity
  *
  * **Acceleration updates:**
- * \f$ \ddot{\mathbf{u}} += \frac{\phi}{\alpha} \mathbf{F}_{visc} \f$ (solid
- * coupling)
- * \f$ \ddot{\mathbf{w}} -= \mathbf{F}_{visc} \f$ (fluid damping)
+ * \f$ \ddot{\mathbf{u}} += \frac{\phi}{\alpha} \mathbf{F}_{\mathrm{visc}} \f$
+ * (solid coupling)
+ * \f$ \ddot{\mathbf{w}} -= \mathbf{F}_{\mathrm{visc}} \f$ (fluid damping)
  *
  * @tparam T Scalar type for damping factor
  * @param factor Time step scaling factor
- * @param point_properties Poroelastic properties (η_f, K⁻¹, φ, α)
+ * @param point_properties Poroelastic properties (\f$\eta_{\mathrm{f}},
+ * \mathbf{K}^{-1}, \phi, \alpha\f$)
  * @param velocity Velocity field [u_x, u_z, w_x, w_z]
  * @param acceleration[in,out] Acceleration field (modified by damping)
  */

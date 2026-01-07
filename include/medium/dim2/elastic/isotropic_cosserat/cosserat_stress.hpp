@@ -17,9 +17,10 @@ namespace medium {
  * @brief Compute Cosserat stress contribution for 2D elastic isotropic
  * micropolar media.
  *
- * Implements asymmetric stress correction for Cosserat continuum with
- * rotational degrees of freedom. Adds coupling between rotation field
- * and force stress tensor to capture microstructural effects.
+ * Implements asymmetric stress correction for a Cosserat continuum with
+ * rotational degrees of freedom. Adds coupling between the rotation field
+ * and the asymmetric Cosserat stress tensor to capture microstructural
+ * effects.
  *
  * **Stress corrections:**
  * - \f$ \sigma_{zx} = \sigma_{zx}^{classical} - 2\nu\phi_y \f$
@@ -29,8 +30,8 @@ namespace medium {
  * - \f$ \nu \f$: Cosserat coupling parameter
  * - \f$ \phi_y \f$: rotation about y-axis (out-of-plane)
  * - Asymmetric tensor: \f$ \sigma_{zx} \neq \sigma_{xz} \f$
- *
- * @param properties Cosserat material properties (ν)
+ * @param properties Cosserat material properties including the Cosserat
+ * coupling parameter \f$ \nu \f$ (nu)
  * @param u Displacement field [u_x, u_z, φ_y]
  * @param point_stress[in,out] Stress tensor (modified by Cosserat effects)
  */

@@ -125,7 +125,8 @@ KOKKOS_INLINE_FUNCTION void impl_compute_damping_force(
  * @tparam PointPropertiesType Point-wise material properties
  * @tparam PointVelocityType Point-wise velocity field
  * @tparam PointAccelerationType Point-wise acceleration field
- * @param factor Integration factor - \f$ J \cdot w \f$
+ * @param factor Integration factor (e.g., product of quadrature weight(s) and
+ * Jacobian determinant) \f$ J \, w_q \f$
  * @param point_properties Material properties at point
  * @param velocity Velocity field at point
  * @param acceleration[in,out] Acceleration field (modified by damping)

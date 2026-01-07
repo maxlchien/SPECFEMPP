@@ -33,7 +33,9 @@ namespace specfem::medium {
  * - \f$ u_x, u_z \f$: solid displacement components
  * - \f$ w_x, w_z \f$: fluid relative displacement components
  * - \f$ \phi \f$: porosity, \f$ \alpha \f$: tortuosity
- * - \f$ \rho_f, \bar{\rho} \f$: fluid and bulk densities
+ * - \f$ \rho_f \f$: fluid density, \f$ \rho_s \f$: solid density, \f$
+ * \bar{\rho} \f$: bulk density defined as \f$ \bar{\rho} = \phi \rho_f + (1 -
+ * \phi) \rho_s \f$
  *
  * @param point_source Source parameters (STF components, interpolants)
  * @param point_properties Poroelastic material properties
