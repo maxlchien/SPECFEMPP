@@ -9,7 +9,7 @@
 #include "quadrature/interface.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/logger.hpp"
-#include "specfem/solver/solver.hpp"
+#include "specfem/solver.hpp"
 #include "specfem/timescheme.hpp"
 #include "utilities/interface.hpp"
 #include "yaml-cpp/yaml.h"

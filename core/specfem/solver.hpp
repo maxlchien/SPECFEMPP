@@ -3,8 +3,8 @@
 /**
  * @brief Solver algorithms for time-domain wave propagation
  *
- * Contains base solver interfaces and implementations for explicit
- * time-stepping schemes used in spectral element wave simulations.
+ * Solver namespace contains algorithms that compute the evolution of wavefield
+ * given some initial conditions within the SEM framework.
  */
 namespace specfem::solver {}
 

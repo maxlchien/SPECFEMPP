@@ -10,7 +10,7 @@
 #include "specfem/assembly.hpp"
 #include "specfem/logger.hpp"
 #include "specfem/mpi.hpp"
-#include "specfem/solver/solver.hpp"
+#include "specfem/solver.hpp"
 #include "specfem/timescheme.hpp"
 #include "yaml-cpp/yaml.h"
 

@@ -8,7 +8,7 @@ In this chapter, we will put together the ``domain`` class that we developed in 
 
 .. code:: cpp
 
-    #include "specfem/solver/solver.hpp"
+    #include "specfem/solver.hpp"
     #include "domain/domain.hpp"
     #include "time_scheme/newmark.hpp"
 
