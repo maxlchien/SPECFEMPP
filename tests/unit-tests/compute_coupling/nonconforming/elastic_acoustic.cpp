@@ -13,7 +13,7 @@ using ComputeCouplingTest2D_ElasticAcoustic_Natural = ComputeCouplingTestSuite<
 
 using namespace specfem::test_fixture;
 
-using TransferFunctionTestTypes2D = ::testing::Types<
+using TransferFunctionTestTypes2D_ElasticAcoustic_Natural = ::testing::Types<
     std::tuple<TransferFunctionInitializer2D::FromQuadratureRules<
                    QuadraturePoints::GLL2, QuadraturePoints::GLL2>,
                IntersectionFunctionInitializer2D::FromAnalyticalFunction<
@@ -45,7 +45,7 @@ using TransferFunctionTestTypes2D = ::testing::Types<
             QuadraturePoints::Asymm5Point> > >;
 
 TYPED_TEST_SUITE(ComputeCouplingTest2D_ElasticAcoustic_Natural,
-                 TransferFunctionTestTypes2D);
+                 TransferFunctionTestTypes2D_ElasticAcoustic_Natural);
 
 TYPED_TEST(ComputeCouplingTest2D_ElasticAcoustic_Natural,
            ExecuteImplComputeCoupling) {
