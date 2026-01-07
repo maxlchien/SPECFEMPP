@@ -7,7 +7,7 @@ namespace specfem::program {
 /**
  * @brief Abort the program with proper MPI cleanup
  *
- * Checks if the program context is initialized (via MPI_new state) and
+ * Checks if the program context is initialized (via MPI state) and
  * calls MPI_Abort if MPI is active, otherwise calls std::exit.
  * Logs the error message using Logger if context exists, otherwise prints
  * to std::cerr.

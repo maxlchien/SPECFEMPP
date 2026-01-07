@@ -29,12 +29,11 @@ void operator>>(YAML::Node &Node, test_config &test_config) {
   return;
 }
 
-test_config get_test_config(std::string config_filename,
-                            specfem::MPI::MPI *mpi) {
+test_config get_test_config(std::string config_filename) {
   // read test config file
   YAML::Node yaml = YAML::LoadFile(config_filename);
   test_config test_config{};
-  if (specfem::MPI_new::get_size() == 1) {
+  if (specfem::MPI::get_size() == 1) {
     YAML::Node Node = yaml["SerialTest"];
     YAML::Node database = Node["database"];
     assert(database.IsSequence());
@@ -46,9 +45,9 @@ test_config get_test_config(std::string config_filename,
     YAML::Node database = Node["database"];
     assert(database.IsSequence());
     assert(database.size() == Node["config"]["nproc"].as<int>());
-    assert(specfem::MPI_new::get_size() == Node["config"]["nproc"].as<int>());
+    assert(specfem::MPI::get_size() == Node["config"]["nproc"].as<int>());
     for (auto N : database) {
-      if (N["processor"].as<int>() == specfem::MPI_new::get_rank())
+      if (N["processor"].as<int>() == specfem::MPI::get_rank())
         N >> test_config;
     }
   }
@@ -64,10 +63,8 @@ test_config get_test_config(std::string config_filename,
  */
 TEST(ASSEMBLY_MESH, compute_jacobian_matrix) {
 
-  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
-
   std::string config_filename = "assembly_mesh/jacobian_matrix/test_config.yml";
-  test_config test_config = get_test_config(config_filename, mpi);
+  test_config test_config = get_test_config(config_filename);
 
   // Set up GLL quadrature points
   specfem::quadrature::gll::gll gll(0.0, 0.0, 5);
@@ -75,7 +72,7 @@ TEST(ASSEMBLY_MESH, compute_jacobian_matrix) {
 
   specfem::mesh::mesh mesh = specfem::io::read_2d_mesh(
       test_config.database_filename, specfem::enums::elastic_wave::psv,
-      specfem::enums::electromagnetic_wave::te, mpi);
+      specfem::enums::electromagnetic_wave::te);
 
   specfem::assembly::mesh<specfem::dimension::type::dim2> compute_mesh(
       mesh.tags, mesh.control_nodes, quadratures, mesh.adjacency_graph);

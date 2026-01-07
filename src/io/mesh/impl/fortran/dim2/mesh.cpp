@@ -12,7 +12,6 @@
 #include "kokkos_abstractions.h"
 #include "medium/material.hpp"
 #include "specfem/logger.hpp"
-#include "specfem_mpi/interface.hpp"
 #include "specfem_setup.hpp"
 
 // External/Standard Libraries
@@ -27,8 +26,7 @@
 specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
     const std::string &filename,
     const specfem::enums::elastic_wave elastic_wave,
-    const specfem::enums::electromagnetic_wave electromagnetic_wave,
-    const specfem::MPI::MPI *mpi) {
+    const specfem::enums::electromagnetic_wave electromagnetic_wave) {
 
   // Declaring empty mesh objects
   specfem::mesh::mesh<specfem::dimension::type::dim2> mesh;
@@ -45,7 +43,7 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
   try {
     std::tie(nspec, npgeo, nproc) =
         specfem::io::mesh::impl::fortran::dim2::read_mesh_database_header(
-            stream, mpi);
+            stream);
     mesh.nspec = nspec;
     mesh.npgeo = npgeo;
     mesh.nproc = nproc;
@@ -56,16 +54,15 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
   // Mesh class to be populated from the database file.
   try {
     mesh.control_nodes.coord =
-        specfem::io::mesh::impl::fortran::dim2::read_coorg_elements(
-            stream, mesh.npgeo, mpi);
+        specfem::io::mesh::impl::fortran::dim2::read_coorg_elements(stream,
+                                                                    mesh.npgeo);
   } catch (std::runtime_error &e) {
     throw;
   }
 
   try {
     mesh.parameters =
-        specfem::io::mesh::impl::fortran::dim2::read_mesh_parameters(stream,
-                                                                     mpi);
+        specfem::io::mesh::impl::fortran::dim2::read_mesh_parameters(stream);
   } catch (std::runtime_error &e) {
     throw;
   }
@@ -75,16 +72,16 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
   mesh.control_nodes.knods = specfem::kokkos::HostView2d<int>(
       "specfem::mesh::knods", mesh.parameters.ngnod, mesh.nspec);
 
-  int nspec_all = specfem::MPI_new::reduce(mesh.parameters.nspec, specfem::sum);
+  int nspec_all = specfem::MPI::reduce(mesh.parameters.nspec, specfem::sum);
   int nelem_acforcing_all =
-      specfem::MPI_new::reduce(mesh.parameters.nelem_acforcing, specfem::sum);
-  int nelem_acoustic_surface_all = specfem::MPI_new::reduce(
+      specfem::MPI::reduce(mesh.parameters.nelem_acforcing, specfem::sum);
+  int nelem_acoustic_surface_all = specfem::MPI::reduce(
       mesh.parameters.nelem_acoustic_surface, specfem::sum);
 
   try {
     auto [n_sls, attenuation_f0_reference, read_velocities_at_f0] =
         specfem::io::mesh::impl::fortran::dim2::read_mesh_database_attenuation(
-            stream, mpi);
+            stream);
   } catch (std::runtime_error &e) {
     throw;
   }
@@ -93,7 +90,7 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
     mesh.materials =
         specfem::io::mesh::impl::fortran::dim2::read_material_properties(
             stream, mesh.parameters.numat, mesh.nspec, elastic_wave,
-            electromagnetic_wave, mesh.control_nodes.knods, mpi);
+            electromagnetic_wave, mesh.control_nodes.knods);
   } catch (std::runtime_error &e) {
     throw;
   }
@@ -107,7 +104,7 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
     mesh.boundaries = specfem::io::mesh::impl::fortran::dim2::read_boundaries(
         stream, mesh.parameters.nspec, mesh.parameters.nelemabs,
         mesh.parameters.nelem_acoustic_surface, mesh.parameters.nelem_acforcing,
-        mesh.control_nodes.knods, mpi);
+        mesh.control_nodes.knods);
   } catch (std::runtime_error &e) {
     throw;
   }
@@ -141,7 +138,7 @@ specfem::mesh::mesh<specfem::dimension::type::dim2> specfem::io::read_2d_mesh(
   try {
     mesh.axial_nodes =
         specfem::io::mesh::impl::fortran::dim2::read_axial_elements(
-            stream, mesh.parameters.nelem_on_the_axis, mesh.nspec, mpi);
+            stream, mesh.parameters.nelem_on_the_axis, mesh.nspec);
   } catch (std::runtime_error &e) {
     throw;
   }

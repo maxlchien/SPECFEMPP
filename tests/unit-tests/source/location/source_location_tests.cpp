@@ -15,27 +15,6 @@
 struct source_location {
   int islice, ispec;
   type_real xi, gamma;
-
-  // specfem::MPI::datatype get_mpi_type() {
-  //   // source_location datatype
-  //   int count = 4;
-  //   int array_of_blocklengths[] = { 1, 1, 1, 1 };
-  //   MPI_Aint array_of_displacements[] = { offsetof(source_location, islice),
-  //                                         offsetof(source_location, ispec),
-  //                                         offsetof(source_location, xi),
-  //                                         offsetof(source_location, gamma) };
-  //   specfem::MPI::datatype array_of_types[] = { MPI_INT, MPI_INT,
-  //   mpi_type_real,
-  //                                               mpi_type_real };
-  //   specfem::MPI::datatype source_location_type;
-
-  //   MPI_Type_create_struct(count, array_of_blocklengths,
-  //   array_of_displacements,
-  //                          array_of_types, &source_location_type);
-  //   //---------------------------
-
-  //   return source_location_type;
-  // }
 };
 
 void operator>>(YAML::Node &source_node, source_location &source_location) {
@@ -48,35 +27,6 @@ void operator>>(YAML::Node &source_node, source_location &source_location) {
 struct solution {
   int nnodes;
   std::vector<source_location> sources;
-  // specfem::MPI::datatype mpi_sources_type;
-
-  // ############ I might need this later on
-
-  // void get_sources_type() {
-
-  //   int count = sources.size();
-  //   // communicate correct size from main proc
-  //   mpi->bcast(count);
-  //   // resize sources for rest of processors
-  //   specfem::Logger::info("Sources size: " +
-  //   std::to_string(sources.resize(count)));
-
-  //   specfem::MPI::datatype mpi_source_type = source.get_mpi_type();
-
-  //   specfem::MPI::datatype mpi_source_type_resized;
-
-  //   // Get the constructed type lower bound and extent
-  //   MPI_Aint lb, extent;
-  //   MPI_Type_get_extent(MPI_DeltaType_proto, &lb, &extent);
-  //   if (count > 1)
-  //     extent = (char *)&deltaLine[1] - (char *)&deltaLine[0];
-
-  //   MPI_Type_create_resized(mpi_source_type, lb, extent,
-  //                           &mpi_source_type_resized);
-
-  //   MPI_Type_vector(count, 1, 1, mpi_source_type_resized,
-  //                   &this->mpi_sources_type);
-  // }
 };
 
 void operator>>(YAML::Node &node, solution &solution) {
@@ -144,9 +94,6 @@ test_config parse_test_config(std::string config_filename) {
 TEST(SOURCES, compute_source_locations) {
   std::string config_filename = "source/test_config.yml";
 
-  //  alias the mpi environment pointer
-  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
-
   // parse solutions file for future use
   test_config test_config = parse_test_config(config_filename);
   std::vector<solution> solutions =
@@ -187,7 +134,7 @@ TEST(SOURCES, compute_source_locations) {
   bool tested = false;
 
   for (solution &solution : solutions) {
-    if (specfem::MPI_new::get_size() == solution.nnodes) {
+    if (specfem::MPI::get_size() == solution.nnodes) {
       tested = true;
       ASSERT_EQ(sources.size(), solution.sources.size());
 
@@ -211,7 +158,7 @@ TEST(SOURCES, compute_source_locations) {
 
   if (!tested)
     FAIL() << "Solution doesn't exist for current nnodes = "
-           << specfem::MPI_new::get_size();
+           << specfem::MPI::get_size();
 }
 
 int main(int argc, char *argv[]) {

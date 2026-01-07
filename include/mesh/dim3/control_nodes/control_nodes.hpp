@@ -23,8 +23,7 @@ template <specfem::dimension::type DimensionTag> struct control_nodes;
  * // Read from binary file using IO routine
  * // The following code is only used internally by the IO module
  * auto control_nodes =
- * specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_control_nodes(stream,
- * mpi);
+ * specfem::io::mesh::impl::fortran::dim3::meshfem3d::read_control_nodes(stream);
  *
  * // Access node coordinates
  * type_real x = control_nodes.coordinates(node_id, 0);  // x-coordinate
