@@ -25,7 +25,7 @@ New structure
     specfem/periodic_tasks/index
     specfem/point/index
     specfem/receivers/index
-    specfem/shape_functions/index
+    specfem/shape_function/index
     specfem/sources/index
     specfem/data_access/index
     specfem/source_time_functions/index
