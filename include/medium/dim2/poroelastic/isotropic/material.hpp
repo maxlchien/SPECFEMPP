@@ -102,6 +102,11 @@ public:
     return !(*this == other);
   }
 
+  /**
+   * @brief Get the material properties
+   *
+   * @return specfem::point::properties Material properties
+   */
   inline specfem::point::properties<dimension_tag, medium_tag, property_tag,
                                     false>
   get_properties() const {
@@ -120,6 +125,11 @@ public:
              C_Biot, M_Biot, permxx, permxz,     permzz, eta_f };
   }
 
+  /**
+   * @brief Print the material properties
+   *
+   * @return std::string Formatted material properties
+   */
   inline std::string print() const {
     std::ostringstream message;
 

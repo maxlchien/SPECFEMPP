@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file expand_seq.hpp
+ * @brief Macros for expanding sequences
+ */
+
 #include <boost/preprocessor.hpp>
 
 /**

@@ -10,6 +10,7 @@
     assembly/index
     chunk_element/index
     io/index
+    macros/index
     mpi/index
     periodic_tasks/index
     point/index

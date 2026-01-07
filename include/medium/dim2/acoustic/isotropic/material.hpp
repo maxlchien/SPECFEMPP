@@ -102,6 +102,11 @@ public:
              this->kappa };
   }
 
+  /**
+   * @brief Print the material properties
+   *
+   * @return std::string Formatted material properties
+   */
   inline std::string print() const {
     std::ostringstream message;
 
