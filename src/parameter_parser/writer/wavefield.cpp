@@ -36,37 +36,37 @@ specfem::runtime_configuration::wavefield::wavefield(
   }
 
   const int time_interval = [&]() -> int {
-    if (Node["time_interval"]) {
-      return Node["time_interval"].as<int>();
+    if (Node["time-interval"]) {
+      return Node["time-interval"].as<int>();
     } else {
       return 0;
     }
   }();
 
   const std::string time_interval_by_memory = [&]() -> std::string {
-    if (Node["time_interval_by_memory"]) {
+    if (Node["time-interval-by-memory"]) {
       if (time_interval != 0) {
         throw std::runtime_error(
-            "time_interval and time_interval_by_memory cannot be used "
+            "time-interval and time-interval-by-memory cannot be used "
             "simultaneously");
       }
-      return Node["time_interval_by_memory"].as<std::string>();
+      return Node["time-interval-by-memory"].as<std::string>();
     } else {
       return "";
     }
   }();
 
   const bool include_last_step = [&]() -> bool {
-    if (Node["include_last_step"]) {
-      return Node["include_last_step"].as<bool>();
+    if (Node["include-last-step"]) {
+      return Node["include-last-step"].as<bool>();
     } else {
       return true;
     }
   }();
 
   const bool for_adjoint_simulations = [&]() -> bool {
-    if (Node["for_adjoint_simulations"]) {
-      return Node["for_adjoint_simulations"].as<bool>();
+    if (Node["for-adjoint-simulations"]) {
+      return Node["for-adjoint-simulations"].as<bool>();
     } else {
       return false;
     }
@@ -179,8 +179,6 @@ template std::shared_ptr<
     specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim2> >
 specfem::runtime_configuration::wavefield::instantiate_wavefield_writer<
     specfem::dimension::type::dim2>() const;
-
-
 
 template std::shared_ptr<
     specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim2> >

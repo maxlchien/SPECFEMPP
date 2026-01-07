@@ -347,6 +347,7 @@ Parameter definitions
                             wavefield:
                                 format: HDF5
                                 directory: /path/to/output/folder
+                                time-interval: 10
 
                             display:
                                 format: PNG
@@ -424,12 +425,20 @@ Parameter definitions
 
                             :possible values: [string]
 
-                        .. dropdown:: ``for_adjoint_simulations`` [optional]
+                        .. dropdown:: ``time-interval`` [optional]
 
-                            Flag to indicate if the wavefield written with the intension to
-                            be used in adjoint simulations.
+                            Time step interval for writing the wavefield.
 
-                            :default value: False
+                            :default value: 1 (-> every time step)
+
+                            :possible values: [int]
+
+                        .. dropdown:: ``include-last-step`` [optional]
+
+                            Flag to indicate if the last time step should be included
+                            when writing the wavefield.
+
+                            :default value: True
 
                             :possible values: [bool]
 
