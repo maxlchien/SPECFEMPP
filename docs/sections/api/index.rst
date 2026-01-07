@@ -41,11 +41,9 @@ Old structure
     algorithms/index
     enumerations/index
     quadrature/index
-    material/index
     mesh/index
     datatypes/index
     execution/index
-    operators/index
     medium/index
     kokkos_kernels/index
     coupling_physics/coupled_interface
