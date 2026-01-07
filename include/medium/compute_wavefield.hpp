@@ -23,6 +23,12 @@ namespace medium {
  * @tparam DimensionTag Spatial dimension (dim2/dim3)
  * @tparam MediumTag Medium type (acoustic, elastic, poroelastic)
  * @tparam PropertyTag Property type (isotropic, anisotropic, etc.)
+ * @tparam ChunkIndexType Type of element chunk identifier
+ * @tparam DisplacementFieldType Type of displacement field
+ * @tparam VelocityFieldType Type of velocity field
+ * @tparam AccelerationFieldType Type of acceleration field
+ * @tparam QuadratureType Type of quadrature rule
+ * @tparam WavefieldViewType Kokkos view type for output wavefield
  * @param chunk_index Element chunk identifier
  * @param assembly Spectral element assembly information
  * @param quadrature Quadrature rule for GLL nodes

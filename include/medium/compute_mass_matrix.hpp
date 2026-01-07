@@ -15,7 +15,7 @@
 
 namespace specfem {
 namespace medium {
-
+// clang-format off
 /**
  * @brief Compute mass matrix from material properties.
  *
@@ -36,11 +36,12 @@ namespace medium {
  *
  * @code{.cpp}
  * // Example usage for 2D elastic isotropic medium
- * using Properties = specfem::point::properties<dim2, elastic, isotropic,
- * false>; Properties props = ...; // Initialize material properties auto
- * mass_inv = specfem::medium::mass_matrix_component(props);
+ * using Properties = specfem::point::properties<dim2, elastic, isotropic, false>;
+ * Properties props = ...; // Initialize material properties
+ * auto mass_inv = specfem::medium::mass_matrix_component(props);
  * @endcode
  */
+// clang-format on
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, bool UseSIMD>
