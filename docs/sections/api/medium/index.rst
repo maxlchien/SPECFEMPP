@@ -1,9 +1,12 @@
-.. _medium:
+.. _api_medium:
 
-Medium modules
-==============
+``specfem::medium``
+===================
 
-Functions within medium modules define the physics related to a particular medium.
+.. doxygennamespace:: specfem::medium
+    :desc-only:
 
-.. doxygengroup:: MediumPhysics
-    :content-only:
+.. toctree::
+    :maxdepth: 1
+
+    material/index
