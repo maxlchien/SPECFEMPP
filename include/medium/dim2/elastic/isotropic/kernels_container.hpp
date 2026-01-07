@@ -20,8 +20,7 @@ namespace kernels {
  *
  * Stores sensitivity kernels for seismic inversion of elastic material
  * parameters. Kernels quantify how changes in material properties affect the
- * seismic misfit, enabling gradient-based optimization in full waveform
- * inversion.
+ * seismic misfit, enabling gradient-based optimization.
  *
  * **Kernel types:**
  * - `rho`: Density kernel

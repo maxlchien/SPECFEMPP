@@ -15,7 +15,7 @@ namespace medium {
  * @brief Misfit kernel storage container for seismic inversion.
  *
  * Template container that stores sensitivity kernels (Frechet derivatives)
- * for seismic full waveform inversion. Kernels represent the gradient of
+ * which represent the gradient of
  * the misfit function with respect to material parameters and are computed
  * from the interaction of forward and adjoint wavefields.
  *
@@ -108,8 +108,8 @@ struct kernels_container<specfem::dimension::type::dim2, MediumTag, PropertyTag>
  * points. Data layout: kernels[element][ngllz][nglly][ngllx] where ngllz,
  * nglly, and ngllx are quadrature points in z, y, and x directions.
  *
- * Used for accumulating kernel contributions during 3D adjoint simulation
- * for full waveform inversion applications. Provides efficient storage
+ * Used for accumulating kernel contributions during 3D adjoint simulation.
+ * Provides efficient storage
  * and access patterns for 3D kernel accumulation operations.
  *
  * @tparam MediumTag Physical medium (acoustic, elastic)

@@ -13,7 +13,7 @@ namespace kernels {
  *
  * Stores sensitivity kernels for seismic inversion of porous media parameters.
  * Kernels quantify how changes in material properties affect the seismic
- * wavefield, enabling gradient-based optimization in full waveform inversion.
+ * wavefield, enabling gradient-based optimization.
  *
  * **Kernel types:**
  * - `rhot`, `rhof`: Density kernels (total, fluid)

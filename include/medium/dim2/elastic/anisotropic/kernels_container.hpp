@@ -20,8 +20,7 @@ namespace kernels {
  *
  * Stores sensitivity kernels for seismic inversion of anisotropic elastic
  * parameters. Kernels quantify how changes in elastic stiffness tensor
- * components affect the seismic misfit, enabling gradient-based optimization in
- * full waveform inversion.
+ * components affect the seismic misfit, enabling gradient-based optimization.
  *
  * **Kernel types:**
  * - `rho`: Density kernel

@@ -11,7 +11,7 @@
 ``specfem::medium::properties::data_container< dim3, elastic, anisotropic >``
 =============================================================================
 
-.. doxyGengroup:: specfem_medium_properties_dim2_elastic_anisotropic
+.. doxygengroup:: specfem_medium_properties_dim2_elastic_anisotropic
     :content-only:
     :members:
     :private-members:
@@ -19,7 +19,7 @@
 ``specfem::medium::properties::data_container< dim3, elastic, isotropic_cosserat >``
 ====================================================================================
 
-.. doxyGengroup:: specfem_medium_properties_dim2_elastic_isotropic_cosserat
+.. doxygengroup:: specfem_medium_properties_dim2_elastic_isotropic_cosserat
     :content-only:
     :members:
     :private-members:

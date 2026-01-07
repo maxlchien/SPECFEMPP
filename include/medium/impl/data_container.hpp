@@ -327,10 +327,10 @@ namespace kernels {
 /**
  * @brief Sensitivity kernel storage container template.
  *
- * Base data container for storing misfit kernels (Frechet derivatives) used
- * in seismic full waveform inversion. Kernels represent gradients of the misfit
- * function with respect to material parameters and are accumulated during
- * adjoint simulations from forward/adjoint wavefield correlations.
+ * Base data container for storing misfit kernels (Frechet derivatives)
+ * representing gradients of the misfit function with respect to material
+ * parameters and are accumulated during adjoint simulations from
+ * forward/adjoint wavefield correlations.
  */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,

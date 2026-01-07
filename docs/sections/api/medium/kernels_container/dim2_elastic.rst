@@ -11,7 +11,7 @@
 ``specfem::medium::kernels::data_container< dim2, elastic, anisotropic >``
 =============================================================================
 
-.. doxyGengroup:: specfem_medium_kernels_dim2_elastic_anisotropic
+.. doxygengroup:: specfem_medium_kernels_dim2_elastic_anisotropic
     :content-only:
     :members:
     :private-members:
