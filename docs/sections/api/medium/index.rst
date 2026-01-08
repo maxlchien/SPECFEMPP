@@ -12,3 +12,4 @@
     material/index
     properties_container/index
     kernels_container/index
+    compute_stress/index

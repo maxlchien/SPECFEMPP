@@ -7,6 +7,42 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_stress_computation_dim3_elastic_isotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_stress_computation_dim3_elastic_isotropic
+ * @brief Compute stress tensor for 3D elastic isotropic media.
+ *
+ * Implements constitutive relation for 3D elastic wave propagation in isotropic
+ * solids using Hooke's law. Computes full 3x3 symmetric stress tensor from
+ * displacement gradients and Lamé parameters.
+ *
+ * **Stress components:**
+ * - Normal: \f$\sigma_{xx}\f$, \f$\sigma_{yy}\f$, \f$\sigma_{zz}\f$ (diagonal
+ * terms with volumetric coupling)
+ * - Shear: \f$\sigma_{xy}\f$, \f$\sigma_{xz}\f$, \f$\sigma_{yz}\f$
+ * (off-diagonal terms, symmetric tensor)
+ *
+ * **Constitutive relations:**
+ * - \f$\sigma_{ii} = (\lambda + 2\mu) \frac{\partial u_i}{\partial x_i} +
+ * \lambda \left(\frac{\partial u_j}{\partial x_j} + \frac{\partial
+ * u_k}{\partial x_k}\right)\f$
+ * - \f$\sigma_{ij} = \mu \left(\frac{\partial u_i}{\partial x_j} +
+ * \frac{\partial u_j}{\partial x_i}\right)\f$ for \f$i \neq j\f$
+ *
+ * Supports both P and S wave propagation with isotropic velocities:
+ * \f$V_p = \sqrt{\frac{\lambda + 2\mu}{\rho}}\f$, \f$V_s =
+ * \sqrt{\frac{\mu}{\rho}}\f$.
+ *
+ * @tparam UseSIMD Enable SIMD vectorization for performance
+ * @param properties Material properties (\f$\lambda\f$, \f$\mu\f$, \f$\rho\f$)
+ * @param field_derivatives Displacement gradients (\f$\frac{\partial
+ * u_i}{\partial x_j}\f$)
+ * @return 3x3 symmetric stress tensor
+ */
 template <bool UseSIMD>
 KOKKOS_INLINE_FUNCTION specfem::point::stress<
     specfem::dimension::type::dim3, specfem::element::medium_tag::elastic,
