@@ -30,7 +30,7 @@ parameters:
         writer:
           seismogram:
             format: ascii
-            directory: "displacement_tests/Newmark/serial/dim2/HomogeneousElasticDomainMomentTensorHeaviside/seismograms"
+            directory: "."
 
   receivers:
     stations: "displacement_tests/Newmark/serial/dim2/HomogeneousElasticDomainMomentTensorHeaviside/STATIONS"
