@@ -2,7 +2,6 @@
 
 #include "enumerations/interface.hpp"
 #include "specfem/periodic_tasks/periodic_task.hpp"
-#include "specfem_mpi/interface.hpp"
 #include <Kokkos_Core.hpp>
 #include <memory>
 #include <string>
@@ -12,8 +11,7 @@
 namespace specfem::program {
 
 /**
- * @brief Unified SPECFEM++ context class for managing initialization
- * and finalization
+ * @brief RAII-based context managing Kokkos and MPI lifecycle
  *
  * This class provides RAII-based management of Kokkos and MPI initialization
  * and proper resource cleanup.
@@ -27,56 +25,61 @@ namespace specfem::program {
  *     // Automatic cleanup on scope exit
  * }
  * @endcode
+ *
  */
 class Context {
 public:
   /**
-   * @brief Construct Context with command line arguments
-   *
-   * @param argc Command line argument count
-   * @param argv Command line arguments
+   * @brief Initialize context from command line arguments
+   * @param argc Argument count
+   * @param argv Argument vector
    */
   Context(int argc, char *argv[]);
 
   /**
-   * @brief Construct Context with argument vector
-   *
-   * @param args Vector of command line arguments
+   * @brief Initialize context from argument vector
+   * @param args Vector of arguments
    */
   explicit Context(const std::vector<std::string> &args);
 
   /**
-   * @brief Get MPI instance
-   *
-   * @return Pointer to MPI instance
-   */
-  specfem::MPI::MPI *get_mpi() const;
-
-  /**
-   * @brief Destructor - ensures proper cleanup via RAII
+   * @brief Finalize Kokkos and MPI
    */
   ~Context();
 
   /**
-   * @brief Delete copy constructor and assignment operator
+   * @name Deleted copy/move constructors and assignment operators
    *
-   * Context cannot be copied or moved to prevent multiple finalization
+   * Context manages global resources (Kokkos and MPI) with RAII semantics.
+   * Copying or moving would violate single-ownership and could lead to
+   * double-finalization or resource corruption.
+   *
+   * @{
    */
   Context(const Context &) = delete;
   Context &operator=(const Context &) = delete;
   Context(Context &&) = delete;
   Context &operator=(Context &&) = delete;
+  /** @} */
 
 private:
   /**
-   * @brief Internal helper to convert string arguments to argc/argv
+   * @brief Convert string vector to argc/argv format
+   * @param args Vector of string arguments
+   * @param argc Output argument count
+   * @param argv Output argument vector (dynamically allocated)
    */
   static void setup_argc_argv(const std::vector<std::string> &args, int &argc,
                               char **&argv);
-  static void cleanup_argc_argv(int argc, char **argv);
 
-  std::unique_ptr<Kokkos::ScopeGuard> kokkos_guard_;
-  std::unique_ptr<specfem::MPI::MPI> mpi_;
+  /**
+   * @brief Clean up dynamically allocated argc/argv
+   * @param argc Argument count
+   * @param argv Argument vector to deallocate
+   */
+  static void cleanup_argc_argv(int argc, char **argv);
+  std::unique_ptr<Kokkos::ScopeGuard> kokkos_guard_; ///< Scope Guard for Kokkos
+                                                     ///< lifecycle management
 };
 
 } // namespace specfem::program

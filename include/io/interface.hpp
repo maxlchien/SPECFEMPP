@@ -4,7 +4,7 @@
 #include "mesh/mesh.hpp"
 #include "specfem/receivers.hpp"
 #include "specfem/source.hpp"
-#include "specfem_mpi/interface.hpp"
+
 #include "specfem_setup.hpp"
 #include <yaml-cpp/yaml.h>
 
@@ -25,31 +25,28 @@ namespace io {
  * @brief Construct a mesh object from a Fortran binary database file
  *
  * @param filename Fortran binary database filename
- * @param mpi pointer to MPI object to manage communication
  * @return specfem::mesh::mesh Specfem mesh object for dimension type dim2
  *
  */
 specfem::mesh::mesh<specfem::dimension::type::dim2>
 read_2d_mesh(const std::string &filename,
              const specfem::enums::elastic_wave wave,
-             const specfem::enums::electromagnetic_wave electromagnetic_wave,
-             const specfem::MPI::MPI *mpi);
+             const specfem::enums::electromagnetic_wave electromagnetic_wave);
 
 /**
  * @brief Construct a 3D mesh object from MESHFEM3D Fortran binary database file
  *
  * @param database_file MESHFEM3D database file
- * @param mpi pointer to MPI object to manage communication
  * @return specfem::mesh::mesh<specfem::dimension::type::dim3>
  *         Specfem mesh object for dimension type dim3
  *
  * @code
  * // Read 3D mesh from MESHFEM3D database file
- * auto mesh = specfem::io::meshfem3d::read_3d_mesh("DATABASES_MPI", mpi);
+ * auto mesh = specfem::io::read_3d_mesh("DATABASES_MPI");
  * @endcode
  */
 specfem::mesh::mesh<specfem::dimension::type::dim3>
-read_3d_mesh(const std::string &database_file, const specfem::MPI::MPI *mpi);
+read_3d_mesh(const std::string &database_file);
 
 /**
  * @brief Read station file

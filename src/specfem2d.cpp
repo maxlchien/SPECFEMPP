@@ -67,8 +67,8 @@ int main(int argc, char **argv) {
     const YAML::Node default_dict = YAML::LoadFile(default_file);
 
     // Execute program for 2D
-    const auto success = specfem::program::execute(
-        "2d", context.get_mpi(), parameter_dict, default_dict);
+    const auto success =
+        specfem::program::execute("2d", parameter_dict, default_dict);
 
     // Check execution result
     if (!success) {

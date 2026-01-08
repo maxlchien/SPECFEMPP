@@ -14,21 +14,10 @@ New structure
 -------------
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :glob:
 
-    specfem/assembly/index
-    specfem/chunk_element/index
-    specfem/io/index
-    specfem/jacobian/index
-    specfem/macros/index
-    specfem/periodic_tasks/index
-    specfem/point/index
-    specfem/receivers/index
-    specfem/sources/index
-    specfem/data_access/index
-    specfem/source_time_functions/index
-    specfem/chunk_edge/index
+    specfem/index
 
 
 Old structure
@@ -36,12 +25,10 @@ Old structure
 
 .. toctree::
     :maxdepth: 2
-    :glob:
 
     algorithms/index
     enumerations/index
     quadrature/index
-    material/index
     mesh/index
     datatypes/index
     execution/index

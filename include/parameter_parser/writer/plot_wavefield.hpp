@@ -4,7 +4,7 @@
 #include "enumerations/specfem_enums.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/periodic_tasks.hpp"
-#include "specfem_mpi/interface.hpp"
+
 #include "yaml-cpp/yaml.h"
 #include <string>
 
@@ -72,7 +72,7 @@ public:
   std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
   instantiate_wavefield_plotter(
       const specfem::assembly::assembly<DimensionTag> &assembly,
-      const type_real &dt, specfem::MPI::MPI *mpi) const;
+      const type_real &dt) const;
 
 private:
   std::string output_format; ///< format of output file

@@ -11,14 +11,26 @@
 
 namespace specfem {
 namespace medium {
+/**
+ * @defgroup specfem_medium_material_dim2_elastic_isotropic_cosserat 2D Elastic
+ * Isotropic Material
+ */
 
 /**
- * @brief Template specialization for 2D elastic spin isotropic material
+ * @ingroup specfem_medium_material_dim2_elastic_isotropic_cosserat
  * properties
+ * @brief Material specialization for 2D elastic isotropic cosserat media
  *
- * This class is mainly a container to hold the material properties that are
- * putput by the mesher and read by the mesh reader.
+ * This struct holds the properties of an elastic isotropic cosserat material in
+ * 2D.
  *
+ * @tparam MediumTag The medium tag that must satisfy elastic medium properties
+ * @tparam PropertyTag The property tag that must be isotropic
+ * @tparam Enable The enable_if condition that must be satisfied
+ *
+ * @see specfem::element::is_elastic
+ * @see specfem::dimension::type::dim2
+ * @see specfem::medium::material
  */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag>
@@ -110,6 +122,11 @@ public:
     return { rho, kappa, mu, nu, j, lambda_c, mu_c, nu_c };
   }
 
+  /**
+   * @brief Print the material properties
+   *
+   * @return std::string Formatted material properties
+   */
   inline std::string print() const {
     std::ostringstream message;
 

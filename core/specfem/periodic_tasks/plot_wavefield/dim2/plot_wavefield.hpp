@@ -5,7 +5,6 @@
 #include "specfem/assembly.hpp"
 #include "specfem/periodic_tasks/plot_wavefield.hpp"
 #include "specfem/periodic_tasks/plotter.hpp"
-#include "specfem_mpi/interface.hpp"
 #include <boost/filesystem.hpp>
 
 #ifdef NO_VTK
@@ -62,8 +61,7 @@ public:
       const specfem::display::component &component, const type_real &dt,
       const int &time_interval, const boost::filesystem::path &output_folder,
       const specfem::enums::elastic_wave elastic_wave,
-      const specfem::enums::electromagnetic_wave electromagnetic_wave,
-      specfem::MPI::MPI *mpi);
+      const specfem::enums::electromagnetic_wave electromagnetic_wave);
 
   /**
    * @brief Updates the wavefield within open window
@@ -111,9 +109,6 @@ public:
   int nspec; ///< Number of elements
   int ngllx; ///< Number of GLL points in x direction per element
   int ngllz; ///< Number of GLL points in z direction per element
-
-  // MPI object
-  specfem::MPI::MPI *mpi;
 
   type_real dt; ///< Time step
 

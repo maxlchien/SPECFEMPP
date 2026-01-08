@@ -4,7 +4,6 @@
 #include "enumerations/wavefield.hpp"
 #include "plotter.hpp"
 #include "specfem/assembly.hpp"
-#include "specfem_mpi/interface.hpp"
 #include <boost/filesystem.hpp>
 
 namespace specfem::periodic_tasks {
