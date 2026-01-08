@@ -25,8 +25,7 @@ namespace specfem::assembly {
  * For 3D elements: xix, xiy, xiz, etax, etay, etaz, gammax, gammay, gammaz,
  * jacobian
  *
- * @tparam IndexType Point index type (specfem::point::index or
- * specfem::point::simd_index)
+ * @tparam IndexType Point index type (specfem::point::index)
  * @tparam ContainerType Jacobian matrix container type for the mesh
  * @tparam PointType Local point Jacobian matrix type
  *

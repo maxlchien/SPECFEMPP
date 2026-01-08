@@ -7,9 +7,6 @@
    :members:
 
 
-.. doxygentypedef:: specfem::point::simd_index
-
-
 2D Specialization
 ^^^^^^^^^^^^^^^^^
 

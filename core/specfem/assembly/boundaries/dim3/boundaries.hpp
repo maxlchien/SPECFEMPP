@@ -77,8 +77,7 @@ public:
  *
  * @ingroup BoundaryConditionDataAccess
  *
- * @tparam IndexType Index type. Needs to be of @ref specfem::point::index or
- * @ref specfem::point::simd_index
+ * @tparam IndexType Index type. Needs to be of @ref specfem::point::index
  * @tparam PointBoundaryType Point boundary type. Needs to be of @ref
  * specfem::point::boundary
  * @param index Index of the quadrature point
@@ -114,8 +113,7 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(
  *
  * @ingroup BoundaryConditionDataAccess
  *
- * @tparam IndexType Index type. Needs to be of @ref specfem::point::index or
- * @ref specfem::point::simd_index
+ * @tparam IndexType Index type. Needs to be of @ref specfem::point::index
  * @tparam PointBoundaryType Point boundary type. Needs to be of @ref
  * specfem::point::boundary
  * @param index Index of the quadrature point

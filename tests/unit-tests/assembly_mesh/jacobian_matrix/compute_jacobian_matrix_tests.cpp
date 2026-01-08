@@ -127,7 +127,7 @@ TEST(ASSEMBLY_MESH, compute_jacobian_matrix) {
       for (int ispec = 0; ispec < nspec; ispec += vector_length) {
         const int num_elements =
             (ispec + vector_length < nspec) ? vector_length : nspec - ispec;
-        const specfem::point::simd_index<specfem::dimension::type::dim2>
+        const specfem::point::index<specfem::dimension::type::dim2, true>
             simd_index(ispec, num_elements, iz, ix);
         const auto point_jacobian_matrix = [&]() {
           specfem::point::jacobian_matrix<specfem::dimension::type::dim2, true,
