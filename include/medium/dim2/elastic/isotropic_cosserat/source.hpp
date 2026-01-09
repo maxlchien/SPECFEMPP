@@ -7,6 +7,36 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup
+ * specfem_medium_dim2_compute_source_contribution_elastic_isotropic_cosserat
+ *
+ */
+
+/**
+ * @ingroup
+ * specfem_medium_dim2_compute_source_contribution_elastic_isotropic_cosserat
+ * @brief Compute source contribution for 2D elastic isotropic Cosserat media.
+ *
+ * Implements force and moment source contribution for Cosserat (micropolar)
+ * elastic media with rotational degrees of freedom. Sources inject both
+ * body forces and body couples to generate extended wave phenomena.
+ *
+ * **Source equations:**
+ * - \f$ \ddot{u}_x = S_x(t) \cdot L_x(\mathbf{x}) \f$
+ * - \f$ \ddot{u}_z = S_z(t) \cdot L_z(\mathbf{x}) \f$
+ * - \f$ \ddot{\omega}_y = M_y(t) \cdot L_{\omega}(\mathbf{x}) \f$
+ *
+ * where:
+ * - \f$ S_x(t), S_z(t) \f$: body force components
+ * - \f$ M_y(t) \f$: body couple (moment about y-axis)
+ * - \f$ \omega_y \f$: rotational degree of freedom
+ *
+ * @param point_source Source parameters (STF components, interpolants)
+ * @param point_properties Material properties (unused for force/moment sources)
+ * @return Acceleration contributions [\f$\ddot{u}_x, \ddot{u}_z,
+ * \ddot{\omega}_y\f$]
+ */
 template <typename PointSourcesType, typename PointPropertiesType>
 KOKKOS_INLINE_FUNCTION auto impl_compute_source_contribution(
     const std::integral_constant<specfem::dimension::type,

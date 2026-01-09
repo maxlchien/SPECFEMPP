@@ -22,11 +22,6 @@ namespace medium {
  * Generic mass matrix computation interface that dispatches to medium-specific
  * implementations.
  *
- * **Supported media:**
- * - Acoustic (2D/3D isotropic)
- * - Elastic (2D/3D isotropic, 2D anisotropic, Cosserat)
- * - Poroelastic (2D isotropic)
- *
  * @tparam DimensionTag Spatial dimension (dim2/dim3)
  * @tparam MediumTag Medium type (acoustic, elastic, poroelastic)
  * @tparam PropertyTag Property type (isotropic, anisotropic, etc.)

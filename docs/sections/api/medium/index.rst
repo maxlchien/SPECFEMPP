@@ -15,3 +15,7 @@
     compute_stress/index
     compute_mass_matrix/index
     compute_wavefield
+    compute_source_contribution/index
+    compute_damping/index
+    cosserat_stress/index
+    cosserat_coupled_stress/index
