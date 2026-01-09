@@ -31,14 +31,17 @@ def get_git_branch(confdir):
     """Get the current git branch name.
 
     Handles both local development and ReadTheDocs builds.
-    On ReadTheDocs, uses READTHEDOCS_VERSION which is the branch/tag being built.
+    On ReadTheDocs, uses READTHEDOCS_GIT_IDENTIFIER which contains the actual
+    branch name or commit SHA even for PR builds.
     Locally, uses git command.
     """
     # Check if we're on ReadTheDocs
-    rtd_version = os.environ.get("READTHEDOCS_VERSION")
-    if rtd_version:
-        # On ReadTheDocs, use the version being built (branch or tag name)
-        return rtd_version
+    # READTHEDOCS_GIT_IDENTIFIER contains the actual branch/commit, even for PRs
+    # READTHEDOCS_VERSION may contain PR number (e.g., "123") for PR builds
+    rtd_identifier = os.environ.get("READTHEDOCS_GIT_IDENTIFIER")
+    if rtd_identifier:
+        # On ReadTheDocs, use the git identifier (branch name or commit SHA)
+        return rtd_identifier
 
     # Local development: try to get branch from git
     try:
