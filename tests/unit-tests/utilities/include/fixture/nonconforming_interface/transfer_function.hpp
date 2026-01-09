@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../impl/descriptions.hpp"
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
@@ -28,8 +29,9 @@ private:
 public:
   static ArrayType init_transfer_function() { return { 0 }; }
 
+  static std::string name() { return "Zero(1,5,5)"; }
   static std::string description() {
-    return "A blank transfer function. This should zero out all values";
+    return "A blank transfer function. This should zero out all values.";
   }
 };
 
@@ -69,8 +71,22 @@ public:
     }
     return transfer_function;
   }
+  static std::string name() {
+    return std::string("FromQuadratureRules(") +
+           specfem::test_fixture::impl::name<EdgeQuadraturePoints>::get() +
+           ", " +
+           specfem::test_fixture::impl::name<
+               IntersectionQuadraturePoints>::get() +
+           ")";
+  }
   static std::string description() {
-    return "GLL1 ({-1, 1} on the edge), GLL2 ({-1, 0, 1} on the intersection)";
+    return std::string(
+               "Transfer Function generated from quadrature rules\n- Edge:\n") +
+           specfem::test_fixture::impl::description<EdgeQuadraturePoints>::get(
+               4) +
+           "\n- Intersection:\n" +
+           specfem::test_fixture::impl::description<
+               IntersectionQuadraturePoints>::get(4);
   }
 };
 
@@ -101,7 +117,12 @@ public:
 
   static constexpr int nquad_intersection = Initializer::nquad_intersection;
 
-  static std::string description() { return Initializer::description(); }
+  static std::string description(const int &indent = 0) {
+    return specfem::test_fixture::impl::description<Initializer>::get(indent);
+  }
+  static std::string initializer_name() {
+    return specfem::test_fixture::impl::name<Initializer>::get();
+  }
 
 private:
   std::array<std::array<std::array<type_real, nquad_intersection>, nquad_edge>,

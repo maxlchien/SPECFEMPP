@@ -1,4 +1,3 @@
-
 #include <array>
 #include <stdexcept>
 #include <tuple>
@@ -264,72 +263,81 @@ void execute(const TransferFunction2D &transfer_function,
 using namespace specfem::algorithms_test;
 
 /**
- * @brief Test fixture for 2D transfer function algorithms.
- * @tparam TestingTypes Tuple of (TransferFunctionInitializer,
- * FunctionInitializer)
+ * @brief Test parameter struct for parameterized tests
  */
-template <typename TestingTypes>
-struct TransferFunctionTest2D : public ::testing::Test {
-  using TransferFunctionInitializer = std::tuple_element_t<0, TestingTypes>;
-  using FunctionInitializer = std::tuple_element_t<1, TestingTypes>;
-
-  /**
-   * @brief Set up test with initialized transfer function and field.
-   */
-  TransferFunctionTest2D()
-      : transfer_function(TransferFunctionInitializer()),
-        function(FunctionInitializer()) {}
-
-  specfem::test_fixture::TransferFunction2D<TransferFunctionInitializer>
-      transfer_function;                                               /**< Test
-                                                  transfer
-                                                  function
-                                                */
-  specfem::test_fixture::EdgeFunction2D<FunctionInitializer> function; /**<
-                                                                           Test
-                                                                           field
-                                                                         */
+struct TransferFunctionTestParam {
+  std::function<void()> execute_test;
+  std::string name;
 };
+
+// Custom PrintTo to suppress verbose parameter output
+void PrintTo(const TransferFunctionTestParam &, std::ostream *os) { *os << ""; }
+
+/**
+ * @brief Test fixture for 2D transfer function algorithms using value
+ * parameters
+ */
+class TransferFunctionTest2D
+    : public ::testing::TestWithParam<TransferFunctionTestParam> {};
+
+TEST_P(TransferFunctionTest2D, ExecuteTransferFunction) {
+  GetParam().execute_test();
+}
+
 using namespace specfem::test_fixture;
 
-/** Test type combinations for parameterized testing */
-using TransferFunctionTestTypes2D = ::testing::Types<
-    std::tuple<specfem::test_fixture::TransferFunctionInitializer2D::Zero,
-               specfem::test_fixture::EdgeFunctionInitializer2D::Uniform>,
-    std::tuple<TransferFunctionInitializer2D::FromQuadratureRules<
-                   QuadraturePoints::GLL1, QuadraturePoints::GLL2>,
-               EdgeFunctionInitializer2D::FromAnalyticalFunction<
-                   AnalyticalFunctionType::Power<0>, QuadraturePoints::GLL1> >,
-    std::tuple<TransferFunctionInitializer2D::FromQuadratureRules<
-                   QuadraturePoints::GLL2, QuadraturePoints::GLL1>,
-               EdgeFunctionInitializer2D::FromAnalyticalFunction<
-                   AnalyticalFunctionType::Power<1>, QuadraturePoints::GLL2> >,
-    std::tuple<TransferFunctionInitializer2D::FromQuadratureRules<
-                   QuadraturePoints::GLL2, QuadraturePoints::GLL2>,
-               EdgeFunctionInitializer2D::FromAnalyticalFunction<
-                   AnalyticalFunctionType::Power<2>, QuadraturePoints::GLL2> >,
-    std::tuple<
-        TransferFunctionInitializer2D::FromQuadratureRules<
-            QuadraturePoints::Asymm4Point, QuadraturePoints::Asymm5Point>,
-        EdgeFunctionInitializer2D::FromAnalyticalFunction<
-            AnalyticalFunctionType::Power<3>, QuadraturePoints::Asymm4Point> >,
-    std::tuple<
-        TransferFunctionInitializer2D::FromQuadratureRules<
-            QuadraturePoints::Asymm5Point, QuadraturePoints::Asymm4Point>,
-        EdgeFunctionInitializer2D::FromAnalyticalFunction<
-            AnalyticalFunctionType::Power<4>, QuadraturePoints::Asymm5Point> >,
-    std::tuple<
-        TransferFunctionInitializer2D::FromQuadratureRules<
-            QuadraturePoints::Asymm5Point, QuadraturePoints::Asymm5Point>,
-        EdgeFunctionInitializer2D::FromAnalyticalFunction<
-            AnalyticalFunctionType::Power<5>,
-            QuadraturePoints::Asymm5Point> > >;
-
-TYPED_TEST_SUITE(TransferFunctionTest2D, TransferFunctionTestTypes2D);
-
-TYPED_TEST(TransferFunctionTest2D, ExecuteTransferFunction) {
-  execute(this->transfer_function, this->function);
+// Helper template to create test execution lambdas
+template <typename TFInit, typename EFInit>
+TransferFunctionTestParam make_test_param(const std::string &name) {
+  return { []() {
+            auto transfer_function = TransferFunction2D<TFInit>(TFInit());
+            auto function = EdgeFunction2D<EFInit>(EFInit());
+            execute(transfer_function, function);
+          },
+           name };
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    TransferFunction2DTests, TransferFunctionTest2D,
+    ::testing::Values(
+        make_test_param<TransferFunctionInitializer2D::Zero,
+                        EdgeFunctionInitializer2D::Uniform>("Zero_Uniform"),
+        make_test_param<TransferFunctionInitializer2D::FromQuadratureRules<
+                            QuadraturePoints::GLL1, QuadraturePoints::GLL2>,
+                        EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                            AnalyticalFunctionType::Power<0>,
+                            QuadraturePoints::GLL1> >("GLL1_GLL2_Pow0"),
+        make_test_param<TransferFunctionInitializer2D::FromQuadratureRules<
+                            QuadraturePoints::GLL2, QuadraturePoints::GLL1>,
+                        EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                            AnalyticalFunctionType::Power<1>,
+                            QuadraturePoints::GLL2> >("GLL2_GLL1_Pow1"),
+        make_test_param<TransferFunctionInitializer2D::FromQuadratureRules<
+                            QuadraturePoints::GLL2, QuadraturePoints::GLL2>,
+                        EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                            AnalyticalFunctionType::Power<2>,
+                            QuadraturePoints::GLL2> >("GLL2_GLL2_Pow2"),
+        make_test_param<
+            TransferFunctionInitializer2D::FromQuadratureRules<
+                QuadraturePoints::Asymm4Point, QuadraturePoints::Asymm5Point>,
+            EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                AnalyticalFunctionType::Power<3>,
+                QuadraturePoints::Asymm4Point> >("Asymm4_Asymm5_Pow3"),
+        make_test_param<
+            TransferFunctionInitializer2D::FromQuadratureRules<
+                QuadraturePoints::Asymm5Point, QuadraturePoints::Asymm4Point>,
+            EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                AnalyticalFunctionType::Power<4>,
+                QuadraturePoints::Asymm5Point> >("Asymm5_Asymm4_Pow4"),
+        make_test_param<
+            TransferFunctionInitializer2D::FromQuadratureRules<
+                QuadraturePoints::Asymm5Point, QuadraturePoints::Asymm5Point>,
+            EdgeFunctionInitializer2D::FromAnalyticalFunction<
+                AnalyticalFunctionType::Power<5>,
+                QuadraturePoints::Asymm5Point> >("Asymm5_Asymm5_Pow5")),
+    [](const ::testing::TestParamInfo<TransferFunctionTestParam> &info) {
+      return info.param.name;
+    });
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
