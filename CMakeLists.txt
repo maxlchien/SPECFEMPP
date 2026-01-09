@@ -434,20 +434,6 @@ target_link_libraries(
 )
 
 add_library(
-        solver
-        src/solver/time_marching.cpp
-)
-
-target_link_libraries(
-        solver
-        Kokkos::kokkos
-        timescheme
-        kokkos_kernels
-        periodic_tasks
-        specfem::logger
-)
-
-add_library(
         writer
         src/io/seismogram/writer.cpp
         src/io/kernel/writer.cpp
@@ -467,7 +453,6 @@ target_link_libraries(
 add_library(
         parameter_reader
         src/parameter_parser/run_setup.cpp
-        # src/parameter_parser/solver/solver.cpp
         src/parameter_parser/time_scheme/time_scheme.cpp
         src/parameter_parser/database_configuration.cpp
         src/parameter_parser/header.cpp
@@ -486,14 +471,14 @@ add_library(
 target_link_libraries(
         parameter_reader
         quadrature
-        timescheme
+        specfem::timescheme
         specfem::receivers
         yaml-cpp
-        periodic_tasks
+        specfem::periodic_tasks
         writer
         reader
         kokkos_kernels
-        solver
+        specfem::solver
         ${BOOST_LIBS}
 )
 

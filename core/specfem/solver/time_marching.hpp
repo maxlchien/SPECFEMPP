@@ -8,17 +8,19 @@
 #include "solver.hpp"
 #include "specfem/periodic_tasks.hpp"
 #include "specfem/timescheme.hpp"
-#include "specfem/timescheme/newmark.hpp"
 
 namespace specfem {
 namespace solver {
 /**
- * @brief Time marching solver
+ * @brief Explicit time-stepping solver for spectral element wave propagation
  *
- * @tparam Simulation Type of the simulation (forward or combined)
- * @tparam DimensionTag Dimension of the simulation (2D or 3D)
- * @tparam qp_type Quadrature points type defining compile time or runtime
- * quadrature points
+ * Implements predictor-corrector time integration schemes for various wave
+ * types (acoustic, elastic, poroelastic). Handles multi-physics coupling,
+ * source interactions, and seismogram generation.
+ *
+ * @tparam Simulation Simulation type (forward or combined adjoint+backward)
+ * @tparam DimensionTag Spatial dimension (2D or 3D)
+ * @tparam NGLL Number of Gauss-Lobatto-Legendre quadrature points per element
  */
 template <specfem::simulation::type Simulation,
           specfem::dimension::type DimensionTag, int NGLL>
@@ -40,10 +42,13 @@ public:
   ///@{
 
   /**
-   * @brief Construct a new time marching solver
+   * @brief Construct solver for forward wave propagation
    *
-   * @param kernels Computational kernels
-   * @param time_scheme Time scheme
+   * @param kernels Domain computational kernels for wavefield updates
+   * @param time_scheme Time integration scheme (e.g., Newmark)
+   * @param tasks Periodic tasks executed during simulation (e.g., output,
+   * plotting)
+   * @param assembly Spectral element assembly containing mesh and field data
    */
   time_marching(
       const specfem::kokkos_kernels::domain_kernels<
@@ -59,7 +64,24 @@ public:
   ///@}
 
   /**
-   * @brief Run the time marching solver
+   * @brief Execute time-stepping loop for forward simulation
+   *
+   * Performs explicit time integration using predictor-corrector phases:
+   * 1. Predictor: updates velocity/displacement from @f$ t^n @f$ to @f$
+   * t^{n+1/2} @f$
+   * 2. Corrector: finalizes update to @f$ t^{n+1} @f$
+   *
+   * @par Execution Order (critical for multi-physics coupling):
+   * At each timestep, media are processed in this specific sequence:
+   * 1. **Predictor phase** for all media (acoustic, elastic, poroelastic)
+   * 2. **Acoustic update**: wavefield computation → corrector phase
+   * 3. **Elastic update**: wavefield computation (elastic, elastic_psv,
+   * elastic_sh) → corrector phase
+   * 4. **Poroelastic update**: wavefield computation → corrector phase
+   *
+   * This ordering ensures proper coupling at fluid-solid and solid-solid
+   * interfaces. Computes seismograms and runs periodic tasks at specified
+   * intervals.
    */
   void run() override;
 
@@ -94,12 +116,16 @@ public:
   ///@{
 
   /**
-   * @brief Construct a new time marching solver
+   * @brief Construct solver for combined adjoint and backward simulations
    *
-   * @param assembly Spectral element assembly object
-   * @param adjoint_kernels Adjoint computational kernels
-   * @param backward_kernels Backward computational kernels
-   * @param time_scheme Time scheme
+   * Used for computing Fréchet derivatives (sensitivity kernels) via the
+   * adjoint method.
+   *
+   * @param assembly Spectral element assembly containing mesh and field data
+   * @param adjoint_kernels Domain kernels for adjoint wavefield propagation
+   * @param backward_kernels Domain kernels for backward wavefield propagation
+   * @param time_scheme Time integration scheme
+   * @param tasks Periodic tasks executed during simulation
    */
   time_marching(
       const specfem::assembly::assembly<dimension_tag> &assembly,
@@ -118,8 +144,28 @@ public:
   ///@}
 
   /**
-   * @brief
+   * @brief Execute time-stepping loop for combined adjoint and backward
+   * simulations
    *
+   * Performs backward time integration of both adjoint and backward wavefields:
+   * - Adjoint field: propagates adjoint sources backward in time
+   * - Backward field: reconstructs forward wavefield from stored buffer
+   *
+   * @par Execution Order (per timestep, backward iteration):
+   * **Adjoint wavefield (forward-style update):**
+   * 1. Predictor phase for all media
+   * 2. Acoustic update → corrector phase
+   * 3. Elastic update → corrector phase
+   * 4. Poroelastic update → corrector phase
+   *
+   * **Backward wavefield (reverse-time reconstruction):**
+   * 1. Predictor phase for all media
+   * 2. Elastic update → corrector phase
+   * 3. Acoustic update → corrector phase
+   * 4. Poroelastic update → corrector phase
+   *
+   * **Fréchet kernels:** Computed after both wavefields are updated,
+   * correlating adjoint and backward fields for gradient-based inversion.
    */
   void run() override;
 
