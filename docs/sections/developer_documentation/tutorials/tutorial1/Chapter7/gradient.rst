@@ -14,7 +14,7 @@ The following code snippet demonstrates how to compute the gradient of displacem
 
 .. code:: cpp
 
-    #include "specfem/algorithms/gradient.hpp"
+    #include "specfem/algorithms.hpp"
     #include "polcies/chunk_element.hpp"
 
     using namespace specfem::algorithms;

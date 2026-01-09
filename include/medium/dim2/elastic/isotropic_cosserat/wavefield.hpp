@@ -2,7 +2,7 @@
 
 #include "enumerations/medium.hpp"
 #include "medium/compute_stress.hpp"
-#include "specfem/algorithms/gradient.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/macros.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
