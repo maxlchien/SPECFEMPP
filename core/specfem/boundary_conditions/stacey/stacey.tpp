@@ -1,6 +1,6 @@
 #pragma once
 
-#include "boundary_conditions/boundary_conditions.hpp"
+#include "specfem/boundary_conditions.hpp"
 #include "enumerations/medium.hpp"
 #include "specfem/point.hpp"
 #include "stacey.hpp"

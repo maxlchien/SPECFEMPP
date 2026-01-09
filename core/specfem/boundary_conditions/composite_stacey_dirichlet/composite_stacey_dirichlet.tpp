@@ -1,9 +1,9 @@
 #pragma once
 
 #include "composite_stacey_dirichlet.hpp"
-#include "boundary_conditions/boundary_conditions.hpp"
-#include "boundary_conditions/dirichlet/dirichlet.hpp"
-#include "boundary_conditions/stacey/stacey.hpp"
+#include "specfem/boundary_conditions.hpp"
+#include "specfem/boundary_conditions/dirichlet/dirichlet.hpp"
+#include "specfem/boundary_conditions/stacey/stacey.hpp"
 #include "enumerations/boundary.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>

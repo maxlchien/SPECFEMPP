@@ -1,6 +1,6 @@
 #pragma once
 
-#include "boundary_conditions/boundary_conditions.hpp"
+#include "specfem/boundary_conditions.hpp"
 #include "compute_coupling.hpp"
 #include "enumerations/connections.hpp"
 #include "enumerations/interface.hpp"
