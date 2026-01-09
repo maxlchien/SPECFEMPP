@@ -34,7 +34,7 @@ private:
 
   template <typename PointValues>
   KOKKOS_INLINE_FUNCTION void
-  get_data_on_device(const specfem::point::simd_index<dimension> &index,
+  get_data_on_device(const specfem::point::index<dimension, true> &index,
                      PointValues &values) const {
 
     using simd = typename PointValues::simd;
@@ -50,7 +50,7 @@ private:
   }
 
   template <typename PointValues>
-  void get_data_on_host(const specfem::point::simd_index<dimension> &index,
+  void get_data_on_host(const specfem::point::index<dimension, true> &index,
                         PointValues &values) const {
 
     using simd = typename PointValues::simd;
@@ -84,7 +84,7 @@ private:
 
   template <typename PointValues>
   KOKKOS_INLINE_FUNCTION void
-  set_data_on_device(const specfem::point::simd_index<dimension> &index,
+  set_data_on_device(const specfem::point::index<dimension, true> &index,
                      const PointValues &values) const {
 
     using simd = typename PointValues::simd;
@@ -100,7 +100,7 @@ private:
   }
 
   template <typename PointValues>
-  void set_data_on_host(const specfem::point::simd_index<dimension> &index,
+  void set_data_on_host(const specfem::point::index<dimension, true> &index,
                         const PointValues &values) const {
 
     using simd = typename PointValues::simd;
@@ -134,7 +134,7 @@ private:
 
   template <typename PointValues>
   KOKKOS_INLINE_FUNCTION void
-  add_data_on_device(const specfem::point::simd_index<dimension> &index,
+  add_data_on_device(const specfem::point::index<dimension, true> &index,
                      const PointValues &values) const {
 
     using simd = typename PointValues::simd;
@@ -152,7 +152,7 @@ private:
   }
 
   template <typename PointValues>
-  void add_data_on_host(const specfem::point::simd_index<dimension> &index,
+  void add_data_on_host(const specfem::point::index<dimension, true> &index,
                         const PointValues &values) const {
 
     using simd = typename PointValues::simd;

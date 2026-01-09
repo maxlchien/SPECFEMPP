@@ -2,9 +2,7 @@
  Wave propagation through a nonconforming fluid-solid interface
 ################################################################
 
-This `example
-<https://github.com/PrincetonUniversity/SPECFEMPP/tree/main/examples/dim2/fluid-solid-nonconforming>`_
-extends the :doc:`fluid-solid-bathymetry
+This example extends the :doc:`fluid-solid-bathymetry
 </sections/cookbooks/dim2/fluid-solid-bathymetry/index>` example,
 however this cookbook does not expect that you have done it.
 

@@ -42,19 +42,21 @@ void abort(const std::string &message, int error_code, const int line,
  * Usage:
  * @code
  * // After Context is initialized
- * int my_rank = specfem::MPI::MPI::rank;
- * int world_size = specfem::MPI::MPI::size;
- * specfem::MPI::MPI::sync();
+ * int my_rank = specfem::MPI::get_rank();
+ * int world_size = specfem::MPI::get_size();
+ * specfem::MPI::sync();
  * @endcode
  *
  * @note This class cannot be instantiated. All members are static.
  * @note Only specfem::program::Context can initialize/finalize this class.
  */
-class MPI_new {
-public:
-  static int rank; ///< Current MPI rank (-1 if not initialized)
-  static int size; ///< Total number of MPI processes (-1 if not initialized)
+class MPI {
 
+private:
+  static int rank_; ///< Current MPI rank (-1 if not initialized)
+  static int size_; ///< Total number of MPI processes (-1 if not initialized)
+
+public:
   /**
    * @brief Synchronize all MPI processes (MPI_Barrier)
    *
@@ -82,7 +84,7 @@ public:
    */
   static int get_rank() {
     check_context();
-    return rank;
+    return rank_;
   }
 
   /**
@@ -93,7 +95,7 @@ public:
    */
   static int get_size() {
     check_context();
-    return size;
+    return size_;
   }
 
   /**
@@ -104,7 +106,7 @@ public:
    */
   static bool main_proc() {
     check_context();
-    return rank == 0;
+    return rank_ == 0;
   }
 
   /**
@@ -160,10 +162,10 @@ public:
   }
 
 private:
-  MPI_new() = default;
-  ~MPI_new() = default;
-  MPI_new(const MPI_new &) = delete;
-  MPI_new &operator=(const MPI_new &) = delete;
+  MPI() = default;
+  ~MPI() = default;
+  MPI(const MPI &) = delete;
+  MPI &operator=(const MPI &) = delete;
 
   /**
    * @brief Initialize MPI and set rank/size
@@ -191,7 +193,7 @@ private:
    * Exits with error code 1 if check fails.
    */
   static bool check_context() {
-    if (rank == -1 || size == -1) {
+    if (rank_ == -1 || size_ == -1) {
       std::cerr << "ERROR: MPI used outside Context scope" << std::endl;
       std::exit(1);
     }

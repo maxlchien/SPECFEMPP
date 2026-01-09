@@ -1,7 +1,7 @@
 #pragma once
 
 #include "kokkos_abstractions.h"
-#include "specfem_mpi/interface.hpp"
+
 #include "specfem_setup.hpp"
 #include <fstream>
 #include <iostream>
@@ -21,32 +21,27 @@ namespace dim2 {
  *
  * @param stream Stream object for fortran binary file buffered to header
  * section
- * @param mpi Pointer to MPI object
  * @return std::tuple<int, int, int> nspec, npgeo, nproc values read from
  * database file
  */
-std::tuple<int, int, int>
-read_mesh_database_header(std::ifstream &stream, const specfem::MPI::MPI *mpi);
+std::tuple<int, int, int> read_mesh_database_header(std::ifstream &stream);
 /**
  * @brief Read coorg elements from fortran binary database file
  *
  * @param stream Stream object for fortran binary file buffered to header
  * section
  * @param npgeo Total number of control nodes in simulation box
- * @param mpi Pointer to MPI object
  * @return std::tuple<int, int, int>  nspec, npgeo, nproc values read from
  */
 specfem::kokkos::HostView2d<type_real>
-read_coorg_elements(std::ifstream &stream, const int npgeo,
-                    const specfem::MPI::MPI *mpi);
+read_coorg_elements(std::ifstream &stream, const int npgeo);
 
 /**
  * @warning These two routines need to be implemented
  */
 
 std::tuple<int, type_real, bool>
-read_mesh_database_attenuation(std::ifstream &stream,
-                               const specfem::MPI::MPI *mpi);
+read_mesh_database_attenuation(std::ifstream &stream);
 
 } // namespace dim2
 } // namespace fortran

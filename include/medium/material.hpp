@@ -10,73 +10,42 @@ namespace specfem {
 namespace medium {
 
 /**
- * @brief Material properties for a given medium and property
+ * @brief Template for material properties in seismic simulations.
  *
- * @tparam MediumTag Medium tag for the material
- * @tparam PropertyTag Property tag for the material
+ * This template stores physical material parameters (density, elastic moduli,
+ * wave speeds) and converts them to computational point properties. Different
+ * specializations handle various combinations of spatial dimension, medium
+ * type, and material properties.
+ *
+ * Each specialization provides:
+ * - Constructor accepting medium-specific physical parameters
+ * - get_properties() method returning specfem::point::properties
+ * - Equality comparison operators (==, !=)
+ *
+ * Example usage:
+ * @code
+ * // Create 2D elastic isotropic material
+ * using Mat = specfem::medium::material<
+ *     specfem::dimension::type::dim2,
+ *     specfem::element::medium_tag::elastic,
+ *     specfem::element::property_tag::isotropic>;
+ *
+ * Mat material(lambda, mu, density);
+ * auto properties = material.get_properties();
+ * @endcode
+ *
+ * @tparam dimension_tag Spatial dimension (dim2 or dim3)
+ * @tparam MediumTag Medium type (acoustic, elastic, etc.)
+ * @tparam PropertyTag Property type (isotropic, anisotropic, etc.)
+ * @tparam Enable SFINAE parameter for template specialization
+ *
+ * @note This stores properties for a domain section. For GLL-level properties,
+ * use specfem::assembly::properties.
  */
 template <specfem::dimension::type dimension_tag,
           specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, typename Enable = void>
-struct material;
-
-// /**
-//  * @brief Material properties for a given medium and property
-//  *
-//  * @tparam MediumTag Medium tag for the material
-//  * @tparam PropertyTag Property tag for the material
-//  */
-// template <specfem::element::medium_tag MediumTag,
-//           specfem::element::property_tag PropertyTag>
-// class impl_material;
-
-// /**
-//  * @brief Material properties for a given medium and property
-//  *
-//  * @tparam MediumTag Medium tag for the material
-//  * @tparam PropertyTag Property tag for the material
-//  */
-// template <specfem::element::medium_tag MediumTag,
-//           specfem::element::property_tag PropertyTag>
-// class material : public impl_material<MediumTag, PropertyTag> {
-// public:
-//   constexpr static auto medium_tag = MediumTag;     ///< Medium tag
-//   constexpr static auto property_tag = PropertyTag; ///< Property tag
-
-//   /**
-//    * @name Constructors
-//    */
-//   ///@{
-
-//   /**
-//    * @brief Construct a new material object
-//    *
-//    */
-//   material() = default;
-
-//   /**
-//    * @brief Construct a new material object
-//    *
-//    * @tparam Args Arguments to forward to the properties constructor
-//    * @param args Properties of the material (density, wave speeds, etc.)
-//    */
-//   template <typename... Args>
-//   material(Args &&...args)
-//       : specfem::medium::impl_material<MediumTag, PropertyTag>(
-//             std::forward<Args>(args)...) {}
-//   ///@}
-
-//   ~material() = default;
-
-//   /**
-//    * @brief Get the medium tag of the material
-//    *
-//    * @return constexpr specfem::element::medium_tag Medium tag
-//    */
-//   constexpr specfem::element::medium_tag get_type() const {
-//     return medium_tag;
-//   };
-// };
+class material;
 
 } // namespace medium
 } // namespace specfem

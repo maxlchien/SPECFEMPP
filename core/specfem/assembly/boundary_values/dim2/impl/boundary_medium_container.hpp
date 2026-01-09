@@ -102,7 +102,7 @@ public:
       typename std::enable_if_t<AccelerationType::simd::using_simd, int> = 0>
   KOKKOS_FUNCTION void
   load_on_device(const int istep,
-                 const specfem::point::simd_index<dimension_tag> &index,
+                 const specfem::point::index<dimension_tag, true> &index,
                  AccelerationType &acceleration) const {
 
     if (values.size() == 0)
@@ -130,7 +130,7 @@ public:
       typename std::enable_if_t<AccelerationType::simd::using_simd, int> = 0>
   KOKKOS_FUNCTION void
   store_on_device(const int istep,
-                  const specfem::point::simd_index<dimension_tag> &index,
+                  const specfem::point::index<dimension_tag, true> &index,
                   const AccelerationType &acceleration) const {
 
     if (values.size() == 0)

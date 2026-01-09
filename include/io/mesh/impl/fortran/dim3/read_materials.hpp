@@ -2,7 +2,7 @@
 
 #include "enumerations/interface.hpp"
 #include "mesh/mesh.hpp"
-#include "specfem_mpi/interface.hpp"
+
 #include <Kokkos_Core.hpp>
 #include <fstream>
 #include <tuple>
@@ -19,7 +19,6 @@ namespace specfem::io::mesh::impl::fortran::dim3 {
  * @param stream Input file stream positioned at the materials section
  * @param ngnod Number of control nodes per spectral element (e.g., 8 for
  * hexahedral elements)
- * @param mpi MPI interface for parallel communication and error handling
  *
  * @return std::tuple containing:
  *         - Number of spectral elements in the mesh
@@ -36,7 +35,6 @@ namespace specfem::io::mesh::impl::fortran::dim3 {
 std::tuple<int, int, int, int,
            Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::HostSpace>,
            specfem::mesh::materials<specfem::dimension::type::dim3> >
-read_materials(std::ifstream &stream, const int ngnod,
-               const specfem::MPI::MPI *mpi);
+read_materials(std::ifstream &stream, const int ngnod);
 
 } // namespace specfem::io::mesh::impl::fortran::dim3

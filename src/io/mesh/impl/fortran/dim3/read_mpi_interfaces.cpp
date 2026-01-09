@@ -1,10 +1,9 @@
 #include "io/mesh/impl/fortran/dim3/read_mpi_interfaces.hpp"
 #include "io/fortranio/interface.hpp"
-#include "specfem_mpi/interface.hpp"
 #include <fstream>
 
 void specfem::io::mesh::impl::fortran::dim3::read_mpi_interfaces(
-    std::ifstream &stream, const specfem::MPI::MPI *mpi) {
+    std::ifstream &stream) {
 
   int num_interfaces, max_elements_per_interface;
 

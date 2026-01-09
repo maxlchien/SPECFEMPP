@@ -255,7 +255,7 @@ public:
    *
    * @param assembly 2D assembly containing mesh and field information
    * @param dt Time step size
-   * @param mpi MPI communication handler
+
    * @return Shared pointer to 2D wavefield plotter or nullptr if not configured
    */
   std::shared_ptr<
@@ -263,10 +263,9 @@ public:
   instantiate_wavefield_plotter(
       const specfem::assembly::assembly<specfem::dimension::type::dim2>
           &assembly,
-      const type_real &dt, specfem::MPI::MPI *mpi) const {
+      const type_real &dt) const {
     if (this->plot_wavefield) {
-      return this->plot_wavefield->instantiate_wavefield_plotter(assembly, dt,
-                                                                 mpi);
+      return this->plot_wavefield->instantiate_wavefield_plotter(assembly, dt);
     } else {
       return nullptr;
     }
@@ -277,7 +276,6 @@ public:
    *
    * @param assembly 3D assembly containing mesh and field information
    * @param dt Time step size
-   * @param mpi MPI communication handler
    * @return Shared pointer to 3D wavefield plotter or nullptr if not configured
    */
   std::shared_ptr<
@@ -285,10 +283,9 @@ public:
   instantiate_wavefield_plotter(
       const specfem::assembly::assembly<specfem::dimension::type::dim3>
           &assembly,
-      const type_real &dt, specfem::MPI::MPI *mpi) const {
+      const type_real &dt) const {
     if (this->plot_wavefield) {
-      return this->plot_wavefield->instantiate_wavefield_plotter(assembly, dt,
-                                                                 mpi);
+      return this->plot_wavefield->instantiate_wavefield_plotter(assembly, dt);
     } else {
       return nullptr;
     }

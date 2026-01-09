@@ -4,20 +4,18 @@
 
 namespace specfem::program {
 
+// TODO (LUCAS : CPP20 updated) : use source_location when moving to C++20
+
 /**
- * @brief Abort the program with proper MPI cleanup
+ * @brief Terminate program with proper MPI cleanup
  *
- * Checks if the program context is initialized (via MPI_new state) and
- * calls MPI_Abort if MPI is active, otherwise calls std::exit.
- * Logs the error message using Logger if context exists, otherwise prints
- * to std::cerr.
+ * Calls MPI_Abort if MPI is active, otherwise std::exit. Logs error using
+ * Logger if context exists, otherwise prints to std::cerr.
  *
- * @param message Error message to display (default: empty string)
- * @param error_code Error code to return (default: 30)
- * @param line Line number where abort is called (default: -1)
- * @param file File name where abort is called (default: nullptr)
- *
- * @note This function does not return - the program will be terminated
+ * @param message Error message to display
+ * @param error_code Exit code (default: 30)
+ * @param line Source line number (default: -1)
+ * @param file Source file name (default: "")
  */
 [[noreturn]]
 void abort(const std::string &message = "", int error_code = 30,

@@ -3,7 +3,7 @@
 Wave propagation through homogeneous media
 ==========================================
 
-In this `example <https://github.com/PrincetonUniversity/SPECFEMPP/tree/main/examples/homogeneous-medium-flat-topography>`_ we simulate wave propagation through a 2-dimensional homogeneous medium.
+In this example (see :repo-file:`benchmarks/src/dim2/homogeneous-medium-flat-topography`) we simulate wave propagation through a 2-dimensional homogeneous medium.
 
 Setting up your workspace
 --------------------------
@@ -113,8 +113,7 @@ and (5000,3000). The number of spectral elements in the vertical direction for
 each layer is also defined in this file. In this case, we have 60 spectral
 elements in the vertical direction. For a detailed description example with an
 interface that has complex topography refer to the fluid-solid bathymetry
-`example topography file here
-<https://github.com/PrincetonUniversity/SPECFEMPP/blob/devel/examples/fluid-solid-bathymetry/topography_file.dat>`_.
+:repo-file:`fluid-solid-bathymetry/topography_file.dat`.
 
 
 Running ``xmeshfem2D``
