@@ -7,6 +7,36 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_medium_dim2_compute_source_contribution_acoustic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_dim2_compute_source_contribution_acoustic
+ * @brief Compute source contribution for 2D acoustic isotropic media.
+ *
+ * Implements pressure source contribution for acoustic wave propagation.
+ *
+ * **Source equation:**
+ * \f$ \ddot{\chi} = -\frac{S(t) \cdot L(\mathbf{x})}{\kappa} \f$
+ *
+ * where:
+ * - \f$ \chi \f$: acoustic potential (related to pressure: \f$ p = -\ddot{\chi}
+ * \f$)
+ * - \f$ S(t) \f$: source time function
+ * - \f$ L(\mathbf{x}) \f$: Lagrange interpolant for spatial localization
+ * - \f$ \kappa \f$: bulk modulus of fluid
+ *
+ * **Sign convention:**
+ * Negative sign ensures \f$ +S(t) \f$ produces \f$ +p \f$ in pressure field.
+ *
+ * @tparam PointSourceType Point-wise source parameters
+ * @tparam PointPropertiesType Point-wise material properties
+ * @param point_source Source parameters (STF, interpolant)
+ * @param point_properties Material properties (κ)
+ * @return Acceleration contribution for acoustic potential
+ */
 template <typename PointSourceType, typename PointPropertiesType>
 KOKKOS_INLINE_FUNCTION auto impl_compute_source_contribution(
     const std::integral_constant<specfem::dimension::type,
