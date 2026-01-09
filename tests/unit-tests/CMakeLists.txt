@@ -346,11 +346,10 @@ target_link_libraries(
 #   mesh
 #   assembly
 #   quadrature
-#   mpi_environment
-#   kokkos_environment
 #   yaml-cpp
 #   compare_arrays
 #   boost
+#   specfem_environment
 #   # material_class
 #   -lpthread -lm
 # )
@@ -401,8 +400,7 @@ target_link_libraries(
 #   mesh
 #   assembly
 #   quadrature
-#   mpi_environment
-#   kokkos_environment
+#   specfem_environment
 #   yaml-cpp
 #   compare_arrays
 #   io
@@ -654,8 +652,7 @@ target_link_libraries(
 #   kokkos_environment
 #   gtest_main
 #   Kokkos::kokkos
-#   mpi_environment
-#   kokkos_environment
+#   specfem_environment
 #   enumerations
 #   ${BOOST_LIBS}
 #   -lpthread -lm

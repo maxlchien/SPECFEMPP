@@ -29,7 +29,7 @@ void abort(const std::string &message, int error_code, const int line,
   if (!full_message.empty()) {
     // Determine if we are inside a valid program context WITHOUT exiting
     const bool have_context =
-        (specfem::MPI_new::rank != -1 && specfem::MPI_new::size != -1);
+        (specfem::MPI::rank_ != -1 && specfem::MPI::size_ != -1);
 
     if (have_context) {
       // Context exists, use Logger
@@ -47,7 +47,7 @@ void abort(const std::string &message, int error_code, const int line,
 
   // Check if we're inside a valid program context by directly inspecting state
   const bool have_context =
-      (specfem::MPI_new::rank != -1 && specfem::MPI_new::size != -1);
+      (specfem::MPI::rank_ != -1 && specfem::MPI::size_ != -1);
   if (have_context) {
     // MPI is initialized, use MPI_Abort for proper parallel cleanup
 #ifdef MPI_PARALLEL

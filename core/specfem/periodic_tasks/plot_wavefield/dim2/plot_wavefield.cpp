@@ -69,8 +69,7 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
         const specfem::display::component &component, const type_real &dt,
         const int &time_interval, const boost::filesystem::path &output_folder,
         const specfem::enums::elastic_wave elastic_wave,
-        const specfem::enums::electromagnetic_wave electromagnetic_wave,
-        specfem::MPI::MPI *mpi)
+        const specfem::enums::electromagnetic_wave electromagnetic_wave)
     : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
       wavefield_type(wavefield_type),
       plotter<specfem::dimension::type::dim2>(time_interval),
@@ -78,7 +77,7 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
       component(component), nspec(assembly.mesh.nspec), dt(dt),
       elastic_wave(elastic_wave), electromagnetic_wave(electromagnetic_wave),
       ngllx(assembly.mesh.element_grid.ngllx),
-      ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
+      ngllz(assembly.mesh.element_grid.ngllz) {
   std::ostringstream message;
   message
       << "Display section is not enabled, since SPECFEM++ was built without "
@@ -133,8 +132,7 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
         const specfem::display::component &component, const type_real &dt,
         const int &time_interval, const boost::filesystem::path &output_folder,
         const specfem::enums::elastic_wave elastic_wave,
-        const specfem::enums::electromagnetic_wave electromagnetic_wave,
-        specfem::MPI::MPI *mpi)
+        const specfem::enums::electromagnetic_wave electromagnetic_wave)
     : assembly(assembly), simulation_wavefield_type(simulation_wavefield_type),
       wavefield_type(wavefield_type),
       plotter<specfem::dimension::type::dim2>(time_interval),
@@ -142,7 +140,7 @@ specfem::periodic_tasks::plot_wavefield<specfem::dimension::type::dim2>::
       component(component), nspec(assembly.mesh.nspec), dt(dt),
       elastic_wave(elastic_wave), electromagnetic_wave(electromagnetic_wave),
       ngllx(assembly.mesh.element_grid.ngllx),
-      ngllz(assembly.mesh.element_grid.ngllz), mpi(mpi) {
+      ngllz(assembly.mesh.element_grid.ngllz) {
 
   // Deciding if the field to be plotted should have a non-negative range
   // and hence colormapping.

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "specfem_mpi/interface.hpp"
 #include <fstream>
 
 namespace specfem::io::mesh::impl::fortran::dim3 {
@@ -15,10 +14,7 @@ namespace specfem::io::mesh::impl::fortran::dim3 {
  *
  * @param stream Input file stream positioned at the PML boundaries section of
  * the MESHFEM3D database
- * @param mpi MPI interface for parallel communication and error handling
  *
- * @throws std::runtime_error Currently throws error if non-zero PML boundaries
- * are found, as PML boundary support is not yet implemented for 3D simulations
  * @throws std::ios_base::failure If stream operations encounter errors
  *
  * @note **Current Status**: This function is a placeholder implementation that
@@ -31,26 +27,19 @@ namespace specfem::io::mesh::impl::fortran::dim3 {
  * @code
  * // Example usage in MESHFEM3D database reading
  * std::ifstream database_stream("proc000000_mesh.bin", std::ios::binary);
- * specfem::MPI::MPI mpi;
  *
  * // Read other mesh components first...
  *
  * // Read PML boundaries (currently validates only)
- * try {
- *     specfem::io::mesh::impl::fortran::dim3::read_pml_boundaries(database_stream,
- * &mpi); } catch (const std::runtime_error& e) {
- *     // Handle unsupported PML boundary data
- *     mpi.cout("PML boundaries not supported: " + std::string(e.what()));
- * }
+ * specfem::io::mesh::impl::fortran::dim3::read_pml_boundaries(database_stream);
  * @endcode
  *
- * @see specfem::MPI::MPI
  * @see specfem::io::mesh::impl::fortran::dim3::mesh
  * @see Perfectly Matched Layer theory in computational electromagnetics and
  * seismology
  * @todo Implement full PML boundary processing for 3D absorbing boundary
  * conditions
  */
-void read_pml_boundaries(std::ifstream &stream, const specfem::MPI::MPI *mpi);
+void read_pml_boundaries(std::ifstream &stream);
 
 } // namespace specfem::io::mesh::impl::fortran::dim3

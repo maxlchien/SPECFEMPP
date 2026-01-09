@@ -20,7 +20,10 @@ template <int power> struct Power : AnalyticalFunctionType {
   }
 
   static std::string description() {
-    return std::string("xi^") + std::to_string(power);
+    return std::string("x^") + std::to_string(power);
+  }
+  static std::string name() {
+    return std::string("Pow(x,") + std::to_string(power) + ")";
   }
 };
 

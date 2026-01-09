@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../impl/descriptions.hpp"
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
@@ -37,9 +38,8 @@ public:
     return edge_function;
   }
 
-  static std::string description() {
-    return std::string("ngll = 5 field of all ones");
-  }
+  static std::string description() { return "ngll = 5 field of all ones"; }
+  static std::string name() { return "Uniform(1,5,1)"; }
 };
 
 template <typename AnalyticalFunction, typename EdgePoints>
@@ -61,8 +61,20 @@ struct FromAnalyticalFunction : EdgeFunctionInitializer2D {
       EdgeQuadraturePoints::quadrature_points;
 
   static std::string description() {
-    return std::string("EdgeField-initialized function (description: \"") +
-           AnalyticalFunction::description() + "\")";
+    /*    Format:
+     *
+     * Edge Function from analytical function:
+     *   AnalyticalFunction description with this indent
+     *
+     */
+    return std::string("Edge Function from analytical function:\n") +
+           specfem::test_fixture::impl::description<
+               AnalyticalFunctionType>::get(2);
+  }
+  static std::string name() {
+    return std::string("FromAnalytical(") +
+           specfem::test_fixture::impl::name<AnalyticalFunctionType>::get() +
+           ")";
   }
 
 private:
@@ -107,7 +119,12 @@ public:
   static constexpr int nquad_edge = Initializer::nquad_edge;
   using memory_space = Kokkos::DefaultExecutionSpace::memory_space;
 
-  static std::string description() { return Initializer::description(); }
+  static std::string description(const int &indent = 0) {
+    return specfem::test_fixture::impl::description<Initializer>::get(indent);
+  }
+  static std::string initializer_name() {
+    return specfem::test_fixture::impl::name<Initializer>::get();
+  }
 
 private:
   std::array<std::array<std::array<type_real, num_components>, nquad_edge>,

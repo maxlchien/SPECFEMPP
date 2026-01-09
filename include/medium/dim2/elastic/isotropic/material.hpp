@@ -17,9 +17,8 @@ namespace medium {
  */
 
 /**
- * @addtogroup specfem_medium_material_dim2_elastic_isotropic
+ * @ingroup specfem_medium_material_dim2_elastic_isotropic
  * @brief Material specialization for 2D elastic isotropic media
- * @{
  *
  * This struct holds the properties of an elastic isotropic material in 2D
  * space. It includes the density, shear wave speed, compressional wave speed,
@@ -129,6 +128,11 @@ public:
     return { this->kappa, this->mu, this->density };
   }
 
+  /**
+   * @brief Print the material properties
+   *
+   * @return std::string Formatted material properties
+   */
   inline std::string print() const {
     std::ostringstream message;
 
@@ -163,7 +167,6 @@ protected:
   type_real young;           ///< Young's modulus
   type_real poisson;         ///< Poisson's ratio
 };
-/* @} */ // end of group specfem_medium_material_dim2_elastic_isotropic
 
 } // namespace medium
 } // namespace specfem

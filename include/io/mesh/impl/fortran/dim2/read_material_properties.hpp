@@ -2,7 +2,7 @@
 
 #include "enumerations/dimension.hpp"
 #include "mesh/mesh.hpp"
-#include "specfem_mpi/interface.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -21,7 +21,6 @@ namespace dim2 {
  * @param stream Stream object for fortran binary file buffered to materials
  * section
  * @param numat Number of materials to be read
- * @param mpi Pointer to MPI object
  * @return std::vector<specfem::medium *> Pointer to material objects read
  * from the database file
  */
@@ -31,7 +30,7 @@ read_material_properties(
     std::ifstream &stream, const int numat, const int nspec,
     const specfem::enums::elastic_wave wave,
     const specfem::enums::electromagnetic_wave electromagnetic_wave,
-    const specfem::kokkos::HostView2d<int> knods, const specfem::MPI::MPI *mpi);
+    const specfem::kokkos::HostView2d<int> knods);
 
 } // namespace dim2
 } // namespace fortran
