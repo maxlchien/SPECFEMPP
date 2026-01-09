@@ -1,7 +1,6 @@
 #pragma once
 
-#include "solver.hpp"
-#include "time_marching.hpp"
+#include "specfem/solver/time_marching.hpp"
 #include "specfem/timescheme/newmark.hpp"
 #include "specfem/logger.hpp"
 #include <Kokkos_Core.hpp>

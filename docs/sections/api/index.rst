@@ -35,7 +35,6 @@ Old structure
     medium/index
     kokkos_kernels/index
     coupling_physics/coupled_interface
-    solver/index
     setup_parameters/index
     macros/index
     parallel_configuration/index
