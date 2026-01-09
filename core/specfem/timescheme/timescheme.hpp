@@ -11,11 +11,7 @@ namespace specfem::time_scheme {
  * simulations. Handles forward and backward time integration, seismogram
  * output control, and predictor-corrector phases.
  *
- * Derived classes implement specific integration schemes (e.g., Newmark).
- *
- * @note The time scheme uses predictor-corrector steps:
- * - Predictor: Updates displacement and velocity, resets acceleration
- * - Corrector: Updates velocity using new acceleration
+ * Derived classes implement specific integration schemes (e.g., `newmark`).
  */
 class time_scheme {
 public:
@@ -104,28 +100,6 @@ public:
    */
   int get_seismogram_step() const { return seismogram_timestep; }
 
-  virtual int
-  apply_predictor_phase_forward(const specfem::element::medium_tag tag) = 0;
-
-  virtual int
-  apply_corrector_phase_forward(const specfem::element::medium_tag tag) = 0;
-
-  virtual int
-  apply_predictor_phase_backward(const specfem::element::medium_tag tag) = 0;
-
-  virtual int
-  apply_corrector_phase_backward(const specfem::element::medium_tag tag) = 0;
-
-  virtual specfem::enums::time_scheme::type timescheme() const = 0;
-
-  virtual ~time_scheme() = default;
-
-  virtual std::string to_string() const = 0;
-
-  virtual void print(std::ostream &out) const = 0;
-
-  virtual type_real get_timestep() const = 0;
-
   /**
    * @brief Get the maximum seismogram step
    *
@@ -139,6 +113,84 @@ public:
    * @return int Number of timesteps between seismogram samples
    */
   int get_nstep_between_samples() const { return nstep_between_samples; }
+
+  /**
+   * @brief Apply predictor phase for forward time integration
+   *
+   * Updates displacement and velocity using current acceleration for the
+   * forward wavefield. Pure virtual method implemented by derived classes.
+   *
+   * @param tag Medium type to process (elastic, acoustic, etc.)
+   * @return Number of degrees of freedom updated
+   */
+  virtual int
+  apply_predictor_phase_forward(const specfem::element::medium_tag tag) = 0;
+
+  /**
+   * @brief Apply corrector phase for forward time integration
+   *
+   * Updates velocity using newly computed acceleration for the forward
+   * wavefield. Pure virtual method implemented by derived classes.
+   *
+   * @param tag Medium type to process (elastic, acoustic, etc.)
+   * @return Number of degrees of freedom updated
+   */
+  virtual int
+  apply_corrector_phase_forward(const specfem::element::medium_tag tag) = 0;
+
+  /**
+   * @brief Apply predictor phase for backward time integration
+   *
+   * Updates displacement and velocity using current acceleration for the
+   * backward wavefield. Pure virtual method implemented by derived classes.
+   *
+   * @param tag Medium type to process (elastic, acoustic, etc.)
+   * @return Number of degrees of freedom updated
+   */
+  virtual int
+  apply_predictor_phase_backward(const specfem::element::medium_tag tag) = 0;
+
+  /**
+   * @brief Apply corrector phase for backward time integration
+   *
+   * Updates velocity using newly computed acceleration for the backward
+   * wavefield. Pure virtual method implemented by derived classes.
+   *
+   * @param tag Medium type to process (elastic, acoustic, etc.)
+   * @return Number of degrees of freedom updated
+   */
+  virtual int
+  apply_corrector_phase_backward(const specfem::element::medium_tag tag) = 0;
+
+  /**
+   * @brief Get the time scheme type
+   *
+   * @return Type of time integration scheme (e.g., Newmark)
+   */
+  virtual specfem::enums::time_scheme::type timescheme() const = 0;
+
+  virtual ~time_scheme() = default;
+
+  /**
+   * @brief Convert time scheme to string representation
+   *
+   * @return String describing the time scheme configuration
+   */
+  virtual std::string to_string() const = 0;
+
+  /**
+   * @brief Print time scheme details to output stream
+   *
+   * @param out Output stream
+   */
+  virtual void print(std::ostream &out) const = 0;
+
+  /**
+   * @brief Get the time increment per step
+   *
+   * @return Time step size
+   */
+  virtual type_real get_timestep() const = 0;
 
 private:
   int nstep;                 ///< Number of timesteps
