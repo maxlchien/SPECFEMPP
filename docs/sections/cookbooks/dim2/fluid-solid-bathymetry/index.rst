@@ -1,8 +1,7 @@
 Wave propagation through fluid-solid interface with bathymetry
 ==============================================================
 
-This `example
-<https://github.com/PrincetonUniversity/SPECFEMPP/tree/main/examples/fluid-solid-bathymetry>`_
+This example (see :repo-file:`benchmarks/src/dim2/fluid-solid-bathymetry`)
 simulates wave propagation in a tele-seismic plane wave scenario within a
 fluid-solid domain with complex bathymetry. This example demonstrates the use of
 the ``xmeshfem2D`` mesher to generate interface between 2 conforming material
