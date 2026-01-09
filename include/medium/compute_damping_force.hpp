@@ -112,24 +112,24 @@ KOKKOS_INLINE_FUNCTION void impl_compute_damping_force(
 }
 
 /**
- * @defgroup MediumPhysics
- */
-
-/**
- * @brief Compute the damping term at a quadrature point
+ * @brief Compute damping force for wave attenuation.
  *
- * @ingroup MediumPhysics
+ * Generic damping force computation interface that adds viscous damping
+ * to wave propagation equations. Provides compile-time dispatch to
+ * medium-specific implementations based on element attributes.
  *
- * @tparam PointPropertiesType Material properties at the quadrature point
- * specfem::point::properties
- * @tparam PointVelocityType Velocity at the quadrature point
- * specfem::point::field
- * @tparam PointAccelerationType Acceleration at the quadrature point
- * specfem::point::field
- * @param factor Prefactor for the damping term ($wx * wz * jacobian)
- * @param point_properties Material properties at the quadrature point
- * @param velocity Velocity at the quadrature point
- * @param acceleration Acceleration at the quadrature point
+ * @note Only medium types with damping force support will modify the
+ * acceleration. Medium types without damping force support will result a no-op.
+ *
+ * @tparam T Scalar type for damping factor
+ * @tparam PointPropertiesType Point-wise material properties
+ * @tparam PointVelocityType Point-wise velocity field
+ * @tparam PointAccelerationType Point-wise acceleration field
+ * @param factor Integration factor (e.g., product of quadrature weight(s) and
+ * Jacobian determinant) \f$ J \, w_q \f$
+ * @param point_properties Material properties at point
+ * @param velocity Velocity field at point
+ * @param acceleration[in,out] Acceleration field (modified by damping)
  */
 template <typename T, typename PointPropertiesType, typename PointVelocityType,
           typename PointAccelerationType>

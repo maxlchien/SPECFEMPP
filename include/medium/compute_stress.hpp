@@ -20,11 +20,6 @@ namespace medium {
  * implementations based on dimension, medium type, and property tags.
  * Provides compile-time type safety through static assertions.
  *
- * **Supported media:**
- * - Acoustic (2D/3D isotropic)
- * - Elastic (2D/3D isotropic, 2D anisotropic)
- * - Poroelastic (2D isotropic)
- *
  * @tparam PointPropertiesType Point-wise material properties container
  * @tparam PointFieldDerivativesType Point-wise displacement derivatives container
  * @param properties Material properties at quadrature point

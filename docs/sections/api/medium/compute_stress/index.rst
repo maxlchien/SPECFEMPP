@@ -1,4 +1,4 @@
-.. api_medium_compute_stress:
+.. _api_medium_compute_stress:
 
 ``specfem::medium::compute_stress``
 ===================================
