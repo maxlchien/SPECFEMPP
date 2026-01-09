@@ -32,3 +32,4 @@ Implementation Details
     compute_coupling
     invert_mass_matrix
     divide_mass_matrix
+    compute_seismogram

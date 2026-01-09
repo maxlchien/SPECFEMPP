@@ -7,6 +7,28 @@ namespace specfem {
 namespace medium {
 
 namespace kernels {
+
+/**
+ * @brief Poroelastic isotropic misfit kernels container.
+ *
+ * Stores sensitivity kernels for seismic inversion of porous media parameters.
+ * Kernels quantify how changes in material properties affect the seismic
+ * wavefield, enabling gradient-based optimization.
+ *
+ * **Kernel types:**
+ * - `rhot`, `rhof`: Density kernels (total, fluid)
+ * - `eta`: Fluid viscosity kernel
+ * - `sm`, `mu_fr`: Shear modulus kernels
+ * - `B`, `C`, `M`: Biot elastic constant kernels
+ * - `phi`: Porosity kernel
+ * - `cpI`, `cpII`, `cs`: Wave velocity kernels (P1, P2, S)
+ * - `ratio`: Permeability ratio kernel
+ * - `rhob`, `rhofb`, `mu_frb`, `rhobb`, `rhofbb`, `phib` : Bulk parameters
+ *
+ * @tparam DimensionTag Spatial dimension (dim2/dim3)
+ *
+ * @see DATA_CONTAINER macro for details on generated members and methods.
+ */
 template <specfem::dimension::type DimensionTag>
 struct data_container<DimensionTag, specfem::element::medium_tag::poroelastic,
                       specfem::element::property_tag::isotropic> {

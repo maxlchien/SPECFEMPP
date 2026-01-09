@@ -31,6 +31,14 @@ namespace specfem {
 namespace medium {
 namespace properties {
 
+/**
+ * @brief Material properties storage container template.
+ *
+ * Base data container for storing material properties (density, elastic moduli,
+ * wave speeds, etc.) at quadrature points within spectral elements. Uses the
+ * DATA_CONTAINER macro to generate efficient Kokkos-based storage with
+ * device/host synchronization capabilities.
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, typename Enable = void>
@@ -39,6 +47,15 @@ struct data_container;
 } // namespace properties
 
 namespace kernels {
+
+/**
+ * @brief Sensitivity kernel storage container template.
+ *
+ * Base data container for storing misfit kernels (Frechet derivatives)
+ * representing gradients of the misfit function with respect to material
+ * parameters and are accumulated during adjoint simulations from
+ * forward/adjoint wavefield correlations.
+ */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, typename Enable = void>

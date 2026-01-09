@@ -9,6 +9,26 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_medium_dim3_compute_mass_matrix_elastic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_dim3_compute_mass_matrix_elastic
+ * @brief Compute mass matrix inverse for 3D elastic isotropic media.
+ *
+ * **Mass matrix:**
+ * \f$ M_{ij} = \rho \delta_{ij} \f$
+ *
+ * **Components:**
+ * \f$ [M_x, M_y, M_z] = [\rho, \rho, \rho] \f$
+ *
+ * @tparam UseSIMD Enable SIMD vectorization
+ * @tparam PropertyTag Property type (isotropic, anisotropic)
+ * @param properties Material properties
+ * @return Mass inverse components for \f$ [u_x, u_y, u_z] \f$
+ */
 template <bool UseSIMD, specfem::element::property_tag PropertyTag>
 KOKKOS_FUNCTION
     specfem::point::mass_inverse<specfem::dimension::type::dim3,

@@ -12,34 +12,31 @@ namespace specfem {
 namespace medium {
 
 /**
- * @brief Compute the values of wavefield of a given component within a spectral
- * element.
+ * @brief Convert intrinsic fields values to wavefield of interest on GLL grid.
  *
+ * Computes specified wavefield component (displacement, velocity, acceleration,
+ * pressure, stress, etc.) from intrinsic field values at GLL nodes for
+ * different medium types using medium-specific implementations.
  *
- * This function computes the wavefield values given the intrinsic field values
- * within that element. For example, for elastic medium  when the wavefield
- * component is pressure, the function computes the pressure values from the
- * displacement field values.
+ * @see specfem::kokkos_kernels::impl::compute_seismograms for usage example.
  *
- *
- * @ingroup MediumPhysics
- *
- * @tparam MediumTag The medium tag of the element
- * @tparam PropertyTag The property tag of the element
- * @tparam ChunkIndexType Chunk index type that stores the indices and iterator
- * for elements in the chunk
- * @tparam ChunkFieldType Chunk field type that stores the intrinsic field
- * values specfem::chunk_element::field
- * @tparam QuadratureType The quadrature type that stores the lagrange
- * polynomial values specfem::quadrature::lagrange_derivative
- * @tparam WavefieldViewType 4 dimensional Kokkos view (output)
- * @param chunk_index The chunk index that contains the spectral element indices
- * @param assembly SPECFEM++ assembly object
- * @param quadrature The quadrature object containing lagrange polynomial values
- * @param field Instrinsic field values
- * @param wavefield_component The wavefield component to compute
- * @param wavefield_on_entire_grid The wavefield view to store the computed
- * values
+ * @tparam DimensionTag Spatial dimension (dim2/dim3)
+ * @tparam MediumTag Medium type (acoustic, elastic, poroelastic)
+ * @tparam PropertyTag Property type (isotropic, anisotropic, etc.)
+ * @tparam ChunkIndexType Type of element chunk identifier
+ * @tparam DisplacementFieldType Type of displacement field
+ * @tparam VelocityFieldType Type of velocity field
+ * @tparam AccelerationFieldType Type of acceleration field
+ * @tparam QuadratureType Type of quadrature rule
+ * @tparam WavefieldViewType Kokkos view type for output wavefield
+ * @param chunk_index Element chunk identifier
+ * @param assembly Spectral element assembly information
+ * @param quadrature Quadrature rule for GLL nodes
+ * @param displacement Displacement field at GLL nodes
+ * @param velocity Velocity field at GLL nodes
+ * @param acceleration Acceleration field at GLL nodes
+ * @param wavefield_component Type of wavefield to compute
+ * @param wavefield_on_entire_grid Output wavefield values on GLL grid
  */
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
