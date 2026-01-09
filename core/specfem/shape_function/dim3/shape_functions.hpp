@@ -16,12 +16,12 @@ namespace specfem::shape_function {
  * @param xi \f$ \xi \f$ coordinate of the point.
  * @param eta \f$ \eta \f$ coordinate of the point.
  * @param zeta \f$ \zeta \f$ coordinate of the point.
- * @param ngod Total number of control nodes per element.
+ * @param ngnod Total number of control nodes per element.
  * @return std::vector<T> shape function values \f$ N_a(\xi, \eta, \zeta) \f$.
  */
 template <typename T>
 std::vector<T> shape_function(const T xi, const T eta, const T zeta,
-                              const int ngod);
+                              const int ngnod);
 
 /** @brief Calculate shape function derivatives for a 3D element
  * given natural coordinates \f$ (\xi, \eta, \zeta) \f$.
@@ -43,13 +43,13 @@ std::vector<T> shape_function(const T xi, const T eta, const T zeta,
  * @param xi \f$ \xi \f$ coordinate of the point.
  * @param eta \f$ \eta \f$ coordinate of the point.
  * @param zeta \f$ \zeta \f$ coordinate of the point.
- * @param ngod Total number of control nodes per element.
+ * @param ngnod Total number of control nodes per element.
  * @return std::vector<std::vector<T>> Matrix of shape function derivatives
  * (size: \f$ 3 \times \text{ngnod} \f$).
  */
 template <typename T>
 std::vector<std::vector<T> > shape_function_derivatives(const T xi, const T eta,
                                                         const T zeta,
-                                                        const int ngod);
+                                                        const int ngnod);
 
 } // namespace specfem::shape_function
