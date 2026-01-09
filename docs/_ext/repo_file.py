@@ -1,3 +1,4 @@
+import os
 import subprocess
 from docutils import nodes
 from sphinx.util.docutils import SphinxRole
@@ -27,7 +28,19 @@ class RepoFileRole(SphinxRole):
 
 
 def get_git_branch(confdir):
-    """Get the current git branch name."""
+    """Get the current git branch name.
+
+    Handles both local development and ReadTheDocs builds.
+    On ReadTheDocs, uses READTHEDOCS_VERSION which is the branch/tag being built.
+    Locally, uses git command.
+    """
+    # Check if we're on ReadTheDocs
+    rtd_version = os.environ.get("READTHEDOCS_VERSION")
+    if rtd_version:
+        # On ReadTheDocs, use the version being built (branch or tag name)
+        return rtd_version
+
+    # Local development: try to get branch from git
     try:
         git_branch = (
             subprocess.check_output(
@@ -38,9 +51,13 @@ def get_git_branch(confdir):
             .decode("utf-8")
             .strip()
         )
+        # If in detached HEAD state, fall back to main
+        if git_branch == "HEAD":
+            git_branch = "main"
     except (subprocess.CalledProcessError, FileNotFoundError):
         # Fallback to main if git command fails
         git_branch = "main"
+
     return git_branch
 
 
