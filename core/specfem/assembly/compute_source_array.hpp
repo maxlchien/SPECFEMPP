@@ -54,13 +54,30 @@ void compute_source_array(
  * quadrature points for a 3D source.
  *
  * 3D version supporting vector and tensor sources with trilinear Lagrange
- * interpolation across xi, eta, and gamma coordinates.
+ * interpolation across xi, eta, and gamma coordinates. Supports both vector
+ * and tensor sources:
+ * - Vector sources: Direct force components multiplied by Lagrange interpolants
+ * - Tensor sources: Moment tensor components transformed via spatial
+ * derivatives
  *
  * @tparam SourceArrayViewType Kokkos view type (must be rank-4)
  * @param source Source object (vector_source or tensor_source)
  * @param mesh Mesh containing quadrature information
  * @param jacobian_matrix Jacobian matrix for coordinate transformations
  * @param source_array Output array of shape (ncomponents, ngllz, nglly, ngllx)
+ *
+ * @code
+ * // Vector source example
+ * auto force = std::make_shared<specfem::sources::force<dim3>>(
+ *     x, y, z, angle, stf, wavefield_type);
+ * Kokkos::View<type_real****> source_array("src", 3, ngllz, nglly, ngllx);
+ * compute_source_array(force, mesh, jacobian_matrix, source_array);
+ *
+ * // Tensor source example
+ * auto moment_tensor = std::make_shared<specfem::sources::moment_tensor<dim3>>(
+ *     x, y, z, Mxx, Myy, Mzz, Mxy, Mxz, Myz, stf, wavefield_type);
+ * compute_source_array(moment_tensor, mesh, jacobian_matrix, source_array);
+ * @endcode
  */
 template <typename SourceArrayViewType>
 void compute_source_array(

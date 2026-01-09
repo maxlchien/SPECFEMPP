@@ -11,25 +11,8 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
-// Local namespace for implementation details
 namespace specfem::assembly::compute_source_array_impl {
 
-/**
- * @brief Compute 2D tensor source array using precomputed Jacobians.
- *
- * Algorithm:
- * 1. Compute Lagrange polynomials and derivatives at source location
- * 2. Build source polynomial field from interpolants
- * 3. Transform to physical space using Jacobian chain rule:
- *    @f$ \frac{\partial L}{\partial x} = \frac{\partial L}{\partial \xi}
- * \frac{\partial \xi}{\partial x} + \frac{\partial L}{\partial \gamma}
- * \frac{\partial \gamma}{\partial x} @f$
- * 4. Apply moment tensor: @f$ S_i = M_{i,0} \frac{\partial L}{\partial x} +
- * M_{i,1} \frac{\partial L}{\partial z} @f$
- *
- * @note The derivatives are computed using element Jacobian matrices to map
- * from reference coordinates (xi, gamma) to physical coordinates (x, z).
- */
 void compute_source_array_from_tensor_and_element_jacobian(
     const specfem::sources::tensor_source<specfem::dimension::type::dim2>
         &tensor_source,

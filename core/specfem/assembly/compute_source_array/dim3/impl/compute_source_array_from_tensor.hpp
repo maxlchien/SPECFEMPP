@@ -38,12 +38,26 @@ void from_tensor(
  * @brief Helper function computing tensor source array with precomputed
  * Jacobians.
  *
+ * Algorithm:
+ * 1. Compute Lagrange polynomials and derivatives at source location
+ * 2. Build 3D source polynomial field from interpolants
+ * 3. Transform to physical space using 3D Jacobian chain rule:
+ *    @f$ \frac{\partial L}{\partial x} = \sum_{\zeta \in \{\xi,\eta,\gamma\}}
+ * \frac{\partial L}{\partial \zeta} \frac{\partial \zeta}{\partial x} @f$
+ * 4. Apply moment tensor:
+ *    @f$ S_i = M_{i,0} \frac{\partial L}{\partial x} + M_{i,1} \frac{\partial
+ * L}{\partial y} + M_{i,2} \frac{\partial L}{\partial z} @f$
+ *
  * Separates Jacobian extraction from computation for testability.
  *
  * @param tensor_source Tensor source object
  * @param element_jacobian_matrix Precomputed Jacobian matrices for the element
  * @param quadrature Quadrature containing GLL points
  * @param source_array Output array
+ *
+ * @note The derivatives are computed using element Jacobian matrices to map
+ * from reference coordinates (xi, eta, gamma) to physical coordinates (x, y,
+ * z).
  */
 void compute_source_array_from_tensor_and_element_jacobian(
     const specfem::sources::tensor_source<specfem::dimension::type::dim3>

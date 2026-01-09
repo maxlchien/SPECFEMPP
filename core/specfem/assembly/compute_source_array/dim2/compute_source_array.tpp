@@ -10,19 +10,6 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
-/**
- * @brief Template implementation for 2D source array computation.
- *
- * Dispatches to vector or tensor source implementations based on source type.
- * Vector sources directly apply force components, while tensor sources compute
- * spatial derivatives for moment tensor contributions.
- *
- * @tparam SourceArrayViewType Must be rank-3 Kokkos view
- * @param source Source object (polymorphic pointer)
- * @param mesh Mesh containing quadrature data
- * @param jacobian_matrix Jacobian matrices for coordinate transformations
- * @param source_array Output array of shape (ncomponents, ngllz, ngllx)
- */
 template<typename SourceArrayViewType>
 void specfem::assembly::compute_source_array(
     const std::shared_ptr<
