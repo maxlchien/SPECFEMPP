@@ -17,31 +17,64 @@ class RepoFileRole(SphinxRole):
     def run(self):
         # Access config values (github_url registered in conf.py)
         github_url = self.env.config.github_url
-        git_branch = self.env.config.git_branch
+        git_ref = self.env.config.git_ref
+        use_tree = self.env.config.use_tree
 
-        print(f"DEBUG: RepoFileRole using branch: {git_branch} for file: {self.text}")
+        print(
+            f"DEBUG: RepoFileRole using ref: {git_ref} (use_tree: {use_tree}) for file: {self.text}"
+        )
 
-        url = f"{github_url}/blob/{git_branch}/{self.text}"
+        # For PR builds and tag builds, use /tree/ with commit hash or tag name
+        # For branch builds, use /blob/ with branch name
+        path_type = "tree" if use_tree else "blob"
+        url = f"{github_url}/{path_type}/{git_ref}/{self.text}"
         node = nodes.reference("", "", internal=False, refuri=url)
         node += nodes.literal(self.text, self.text)
         return [node], []
 
 
-def get_git_branch(confdir):
-    """Get the current git branch name.
+def get_git_ref_info(confdir):
+    """Get git reference information for linking to GitHub.
 
     Handles both local development and ReadTheDocs builds.
-    On ReadTheDocs, uses READTHEDOCS_GIT_IDENTIFIER which contains the actual
-    branch name or commit SHA even for PR builds.
-    Locally, uses git command.
+
+    Returns:
+        tuple: (git_ref, use_tree) where:
+            - git_ref: branch name, tag name, or commit hash
+            - use_tree: True if should use /tree/ in URL, False for /blob/
+
+    On ReadTheDocs:
+        - For PR builds (READTHEDOCS_VERSION_TYPE="external"):
+          Uses READTHEDOCS_GIT_COMMIT_HASH for the commit SHA, use_tree=True
+        - For tag builds (READTHEDOCS_VERSION_TYPE="tag"):
+          Uses READTHEDOCS_GIT_IDENTIFIER for tag name, use_tree=True
+        - For branch builds (READTHEDOCS_VERSION_TYPE="branch"):
+          Uses READTHEDOCS_GIT_IDENTIFIER for branch name, use_tree=False
+
+    Locally: Uses git command to get current branch, use_tree=False
     """
     # Check if we're on ReadTheDocs
-    # READTHEDOCS_GIT_IDENTIFIER contains the actual branch/commit, even for PRs
-    # READTHEDOCS_VERSION may contain PR number (e.g., "123") for PR builds
-    rtd_identifier = os.environ.get("READTHEDOCS_GIT_IDENTIFIER")
-    if rtd_identifier:
-        # On ReadTheDocs, use the git identifier (branch name or commit SHA)
-        return rtd_identifier
+    rtd_version_type = os.environ.get("READTHEDOCS_VERSION_TYPE")
+
+    if rtd_version_type:
+        # On ReadTheDocs
+        is_pr_build = rtd_version_type == "external"
+        is_tag_build = rtd_version_type == "tag"
+
+        if is_pr_build:
+            # For PR builds, use the commit hash with /tree/
+            git_ref = os.environ.get("READTHEDOCS_GIT_COMMIT_HASH", "main")
+            use_tree = True
+        elif is_tag_build:
+            # For tag builds, use the tag name with /tree/
+            git_ref = os.environ.get("READTHEDOCS_GIT_IDENTIFIER", "main")
+            use_tree = True
+        else:
+            # For branch builds, use the branch name with /blob/
+            git_ref = os.environ.get("READTHEDOCS_GIT_IDENTIFIER", "main")
+            use_tree = False
+
+        return git_ref, use_tree
 
     # Local development: try to get branch from git
     try:
@@ -61,17 +94,18 @@ def get_git_branch(confdir):
         # Fallback to main if git command fails
         git_branch = "main"
 
-    return git_branch
+    return git_branch, False
 
 
 def setup(app):
-    # Detect the current git branch
-    git_branch = get_git_branch(app.confdir)
+    # Detect the git reference and build type
+    git_ref, use_tree = get_git_ref_info(app.confdir)
 
-    print(f"DEBUG: Detected git branch: {git_branch}")
+    print(f"DEBUG: Detected git ref: {git_ref} (use_tree: {use_tree})")
 
-    # Register config value - can be overridden in conf.py
-    app.add_config_value("git_branch", git_branch, "html")
+    # Register config values - can be overridden in conf.py
+    app.add_config_value("git_ref", git_ref, "html")
+    app.add_config_value("use_tree", use_tree, "html")
 
     # Register the custom role
     app.add_role("repo-file", RepoFileRole())
