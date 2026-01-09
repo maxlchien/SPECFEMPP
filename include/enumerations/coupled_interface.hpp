@@ -1,6 +1,8 @@
 #pragma once
 
-#include "enumerations/interface.hpp"
+#include "connections.hpp"
+#include "dimension.hpp"
+#include "medium.hpp"
 
 namespace specfem::point {
 

@@ -13,8 +13,19 @@ namespace specfem::program {
 /**
  * @brief RAII-based context managing Kokkos and MPI lifecycle
  *
- * Initializes Kokkos and MPI on construction, finalizes on destruction.
- * Non-copyable and non-movable to ensure single initialization/finalization.
+ * This class provides RAII-based management of Kokkos and MPI initialization
+ * and proper resource cleanup.
+ *
+ * Usage:
+ * @code
+ * int main(int argc, char* argv[]) {
+ *     specfem::program::Context context(argc, argv);
+ *     // Kokkos & MPI automatically initialized
+ *     // ... use context ...
+ *     // Automatic cleanup on scope exit
+ * }
+ * @endcode
+ *
  */
 class Context {
 public:
@@ -36,17 +47,39 @@ public:
    */
   ~Context();
 
+  /**
+   * @name Deleted copy/move constructors and assignment operators
+   *
+   * Context manages global resources (Kokkos and MPI) with RAII semantics.
+   * Copying or moving would violate single-ownership and could lead to
+   * double-finalization or resource corruption.
+   *
+   * @{
+   */
   Context(const Context &) = delete;
   Context &operator=(const Context &) = delete;
   Context(Context &&) = delete;
   Context &operator=(Context &&) = delete;
+  /** @} */
 
 private:
+  /**
+   * @brief Convert string vector to argc/argv format
+   * @param args Vector of string arguments
+   * @param argc Output argument count
+   * @param argv Output argument vector (dynamically allocated)
+   */
   static void setup_argc_argv(const std::vector<std::string> &args, int &argc,
                               char **&argv);
-  static void cleanup_argc_argv(int argc, char **argv);
 
-  std::unique_ptr<Kokkos::ScopeGuard> kokkos_guard_;
+  /**
+   * @brief Clean up dynamically allocated argc/argv
+   * @param argc Argument count
+   * @param argv Argument vector to deallocate
+   */
+  static void cleanup_argc_argv(int argc, char **argv);
+  std::unique_ptr<Kokkos::ScopeGuard> kokkos_guard_; ///< Scope Guard for Kokkos
+                                                     ///< lifecycle management
 };
 
 } // namespace specfem::program

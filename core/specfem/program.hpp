@@ -20,18 +20,21 @@
 namespace specfem::program {
 
 /**
- * @brief Execute SPECFEM simulation with runtime dimension selection
+ * @brief Execute complete SPECFEM simulation with runtime dimension selection
  *
- * This function is the main entry point that the specfem executable calls. It
- * will call the appropriate internal program function based on the specified
- * dimension ("2d" or "3d"). And then run an entire simulation workflow
- * including mesh reading, source/receiver setup, assembly, time-stepping, and
- * output writing given the parameter configuration.
+ * Main entry point for the SPECFEM executable that dispatches to the
+ * appropriate dimension-specific implementation (2D or 3D), which orchestrate
+ * the full simulation workflow: mesh reading, database generation,
+ * source/receiver configuration, assembly, time integration, and seismogram and
+ * wavefield/kernel outputs.
  *
- * @param dimension Dimension string ("2d" or "3d")
- * @param parameter_dict YAML parameter configuration
- * @param default_dict YAML default configuration
- * @return true if successful, false otherwise
+ * @param dimension Simulation dimension: "2d" or "3d"
+ * @param parameter_dict User-provided YAML configuration overriding defaults
+ * @param default_dict YAML default values for all simulation parameters
+ * @return true on successful completion, false on failure
+ *
+ * @throws std::runtime_error if dimension is invalid or simulation encounters
+ * fatal error
  */
 bool execute(const std::string &dimension, const YAML::Node &parameter_dict,
              const YAML::Node &default_dict);

@@ -17,9 +17,9 @@ namespace medium {
  */
 
 /**
- * @addtogroup specfem_medium_material_dim2_elastic_anisotropic
+ * @ingroup specfem_medium_material_dim2_elastic_anisotropic
  * @brief Template specialization for elastic anisotropic material properties
- * @{
+ *
  * This struct holds the properties of an elastic anisotropic material in 2D
  * space. It includes the density, elastic constants, and attenuation factors.
  * The struct also provides constructors, comparison operators, and a method to
@@ -133,6 +133,11 @@ public:
     return { c11, c13, c15, c33, c35, c55, c12, c23, c25, density };
   }
 
+  /**
+   * @brief Print the material properties
+   *
+   * @return std::string Formatted material properties
+   */
   inline std::string print() const {
     std::ostringstream message;
 
@@ -167,7 +172,6 @@ protected:
   type_real Qkappa;  ///< Attenuation factor for bulk modulus
   type_real Qmu;     ///< Attenuation factor for shear modulus
 };
-/** @} */ // end of group specfem_medium_material_dim2_elastic_anisotropic
 
 } // namespace medium
 } // namespace specfem

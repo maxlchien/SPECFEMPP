@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file material_iterators.hpp
+ * @brief Macros for material and element definitions
+ */
+
 #include "enum_tags.hpp"
 #include "enumerations/interface.hpp"
 #include "macros_impl/array.hpp"
@@ -8,57 +13,139 @@
 #include <boost/preprocessor.hpp>
 
 /**
- * @name Element Tag macros
- *
- * @defgroup element_tags Element Tags
- *
+ * @defgroup dimension_tag_macros Dimension Tag Macros
+ * @brief Macros for dimension tags.
+ * @{
  */
-/// @{
+/**
+ * @brief Dimension tag for 2D
+ */
 #define DIMENSION_TAG_DIM2                                                     \
   (0, specfem::dimension::type::dim2, dim2, _ENUM_ID_DIMENSION_TAG)
+
+/**
+ * @brief Dimension tag for 3D
+ */
 #define DIMENSION_TAG_DIM3                                                     \
   (1, specfem::dimension::type::dim3, dim3, _ENUM_ID_DIMENSION_TAG)
+/** @} */
 
+/**
+ * @defgroup medium_tag_macros Medium Tag Macros
+ * @brief Macros for medium tags.
+ * @{
+ */
+/**
+ * @brief Medium tag for Elastic P-SV
+ */
 #define MEDIUM_TAG_ELASTIC_PSV                                                 \
   (0, specfem::element::medium_tag::elastic_psv, elastic_psv,                  \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Elastic SH
+ */
 #define MEDIUM_TAG_ELASTIC_SH                                                  \
   (1, specfem::element::medium_tag::elastic_sh, elastic_sh, _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Elastic P-SV Transverse Isotropic
+ */
 #define MEDIUM_TAG_ELASTIC_PSV_T                                               \
   (2, specfem::element::medium_tag::elastic_psv_t, elastic_psv_t,              \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Acoustic
+ */
 #define MEDIUM_TAG_ACOUSTIC                                                    \
   (3, specfem::element::medium_tag::acoustic, acoustic, _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Poroelastic
+ */
 #define MEDIUM_TAG_POROELASTIC                                                 \
   (4, specfem::element::medium_tag::poroelastic, poroelastic,                  \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Electromagnetic TE
+ */
 #define MEDIUM_TAG_ELECTROMAGNETIC_TE                                          \
   (5, specfem::element::medium_tag::electromagnetic_te, electromagnetic_te,    \
    _ENUM_ID_MEDIUM_TAG)
+
+/**
+ * @brief Medium tag for Elastic
+ */
 #define MEDIUM_TAG_ELASTIC                                                     \
   (6, specfem::element::medium_tag::elastic, elastic, _ENUM_ID_MEDIUM_TAG)
+/** @} */
 
+/**
+ * @defgroup property_tag_macros Property Tag Macros
+ * @brief Macros for property tags.
+ * @{
+ */
+/**
+ * @brief Property tag for Isotropic
+ */
 #define PROPERTY_TAG_ISOTROPIC                                                 \
   (0, specfem::element::property_tag::isotropic, isotropic,                    \
    _ENUM_ID_PROPERTY_TAG)
+
+/**
+ * @brief Property tag for Anisotropic
+ */
 #define PROPERTY_TAG_ANISOTROPIC                                               \
   (1, specfem::element::property_tag::anisotropic, anisotropic,                \
    _ENUM_ID_PROPERTY_TAG)
+
+/**
+ * @brief Property tag for Isotropic Cosserat
+ */
 #define PROPERTY_TAG_ISOTROPIC_COSSERAT                                        \
   (2, specfem::element::property_tag::isotropic_cosserat, isotropic_cosserat,  \
    _ENUM_ID_PROPERTY_TAG)
+/** @} */
 
+/**
+ * @defgroup boundary_tag_macros Boundary Tag Macros
+ * @brief Macros for boundary tags.
+ * @{
+ */
+/**
+ * @brief Boundary tag for None
+ */
 #define BOUNDARY_TAG_NONE                                                      \
   (0, specfem::element::boundary_tag::none, none, _ENUM_ID_BOUNDARY_TAG)
+
+/**
+ * @brief Boundary tag for Stacey
+ */
 #define BOUNDARY_TAG_STACEY                                                    \
   (1, specfem::element::boundary_tag::stacey, stacey, _ENUM_ID_BOUNDARY_TAG)
+
+/**
+ * @brief Boundary tag for Acoustic Free Surface
+ */
 #define BOUNDARY_TAG_ACOUSTIC_FREE_SURFACE                                     \
   (2, specfem::element::boundary_tag::acoustic_free_surface,                   \
    acoustic_free_surface, _ENUM_ID_BOUNDARY_TAG)
+
+/**
+ * @brief Boundary tag for Composite Stacey Dirichlet
+ */
 #define BOUNDARY_TAG_COMPOSITE_STACEY_DIRICHLET                                \
   (3, specfem::element::boundary_tag::composite_stacey_dirichlet,              \
    composite_stacey_dirichlet, _ENUM_ID_BOUNDARY_TAG)
+/** @} */
 
+/**
+ * @defgroup material_iterator_macros Material Iterator Macros
+ * @brief Macros for defining material and element tags.
+ * @{
+ */
 /**
  * @brief Macro to generate a list of medium types
  *
@@ -137,6 +224,8 @@
 
 #define ELEMENT_TYPES ELEMENT_TYPES_DIM2 ELEMENT_TYPES_DIM3
 
+/** @} */
+
 /**
  * @brief Tag getters. The macros are intended to be used only in @ref DECLARE
  * and @ref INSTANTIATE.
@@ -188,139 +277,9 @@
   BOOST_PP_SEQ_TRANSFORM(_TRANSFORM_TAGS, BOUNDARY_TAG_,                       \
                          BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
 
-/**
- * @brief Declare variables or run code for all material systems
- * listed in macro sequence @ref MATERIAL_SYSTEMS.
- * @param seq A sequence filter for material systems.
- * @param ... To declare variabled, use DECLARE() as the first argument,
- * e.g. DECLARE((IndexViewType, elements),
- *  (IndexViewType::HostMirror, h_elements),
- *  ((properties)((_MEDIUM_TAG_, _PROPERTY_TAG_)), value))
- * To capture existing variables as reference in the code block, add a tuple as
- * argument, e.g. CAPTURE(value, elements, h_elements). The last argument is the
- * code block to be executed.
- */
 #define FOR_EACH_IN_PRODUCT(seq, ...)                                          \
   BOOST_PP_SEQ_FOR_EACH(                                                       \
       _FOR_ONE_TAG_SEQ, (seq)BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__),            \
       BOOST_PP_CAT(_SEQ_FOR_TAGS_, BOOST_PP_TUPLE_SIZE(seq)))
 
-namespace specfem {
-namespace element {
-
-/**
- * @brief A constexpr function to generate a list of medium types within the
- * simulation.
- *
- * This macro uses @ref MEDIUM_TAGS to generate a list of medium types
- * automatically.
- *
- * @return constexpr auto list of medium types
- */
-template <specfem::dimension::type DimensionTag> constexpr auto medium_types();
-
-template <> constexpr auto medium_types<specfem::dimension::type::dim2>() {
-  // Use boost preprocessor library to generate a list of medium
-  // types
-  constexpr int total_medium_types = BOOST_PP_SEQ_SIZE(MEDIUM_TAGS_DIM2);
-  constexpr std::array<std::tuple<specfem::dimension::type, medium_tag>,
-                       total_medium_types>
-      medium_types{ _MAKE_CONSTEXPR_ARRAY(MEDIUM_TAGS_DIM2) };
-
-  return medium_types;
-}
-
-template <> constexpr auto medium_types<specfem::dimension::type::dim3>() {
-  // Use boost preprocessor library to generate a list of medium
-  // types
-  constexpr int total_medium_types = BOOST_PP_SEQ_SIZE(MEDIUM_TAGS_DIM3);
-  constexpr std::array<std::tuple<specfem::dimension::type, medium_tag>,
-                       total_medium_types>
-      medium_types{ _MAKE_CONSTEXPR_ARRAY(MEDIUM_TAGS_DIM3) };
-
-  return medium_types;
-}
-
-/**
- * @brief A constexpr function to generate a list of material systems within the
- * simulation
- *
- * This macro uses @ref MATERIAL_SYSTEMS to generate a list of material systems
- * automatically.
- *
- * @return constexpr auto list of material systems
- */
-template <specfem::dimension::type DimensionTag>
-constexpr auto material_systems();
-
-template <> constexpr auto material_systems<specfem::dimension::type::dim2>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_material_systems =
-      BOOST_PP_SEQ_SIZE(MATERIAL_SYSTEMS_DIM2);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag>,
-      total_material_systems>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(MATERIAL_SYSTEMS_DIM2) };
-
-  return material_systems;
-}
-
-template <> constexpr auto material_systems<specfem::dimension::type::dim3>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_material_systems =
-      BOOST_PP_SEQ_SIZE(MATERIAL_SYSTEMS_DIM3);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag>,
-      total_material_systems>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(MATERIAL_SYSTEMS_DIM3) };
-
-  return material_systems;
-}
-
-/**
- * @brief A constexpr function to generate a list of element types within the
- * simulation
- *
- * This macro uses @ref ELEMENT_TYPES to generate a list of element types
- * automatically.
- *
- * @return constexpr auto list of element types
- */
-template <specfem::dimension::type DimensionTag> constexpr auto element_types();
-
-template <> constexpr auto element_types<specfem::dimension::type::dim2>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_element_types = BOOST_PP_SEQ_SIZE(ELEMENT_TYPES_DIM2);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag,
-                 specfem::element::boundary_tag>,
-      total_element_types>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM2) };
-
-  return material_systems;
-}
-
-template <> constexpr auto element_types<specfem::dimension::type::dim3>() {
-  // Use boost preprocessor library to generate a list of
-  // material systems
-  constexpr int total_element_types = BOOST_PP_SEQ_SIZE(ELEMENT_TYPES_DIM3);
-  constexpr std::array<
-      std::tuple<specfem::dimension::type, specfem::element::medium_tag,
-                 specfem::element::property_tag,
-                 specfem::element::boundary_tag>,
-      total_element_types>
-      material_systems{ _MAKE_CONSTEXPR_ARRAY(ELEMENT_TYPES_DIM3) };
-
-  return material_systems;
-}
-
-} // namespace element
-} // namespace specfem
-
-#include "interface_definitions.hpp"
+#include "interface_iterators.hpp"

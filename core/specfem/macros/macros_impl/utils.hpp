@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file utils.hpp
+ * @brief Utility macros for tag manipulation and sequence processing
+ */
+
 #include "enumerations/interface.hpp"
 #include "expand_seq.hpp"
 #include <boost/preprocessor.hpp>
