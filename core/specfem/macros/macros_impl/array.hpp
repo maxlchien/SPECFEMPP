@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @file array.hpp
+ * @brief Macros for creating arrays from sequences
+ */
+
 #include <boost/preprocessor.hpp>
 
 /**

@@ -8,10 +8,11 @@
  * spectral element wave propagation simulations. Supports both forward and
  * backward time integration for regular and adjoint simulations.
  *
- * The time_scheme namespace defines the interface for time integration schemes.
- * The base class `time_scheme` provides methods for iterating over time steps,
- * managing seismogram output, and applying predictor-corrector phases.
- * Specific schemes (e.g., Newmark) are implemented in derived classes.
+ * The `time_scheme` namespace defines the interface for time integration
+ * schemes. The base class `time_scheme` provides methods for iterating over
+ * time steps, managing seismogram output, and applying predictor-corrector
+ * phases. Specific schemes (e.g., `newmark`) are implemented in derived
+ * classes.
  */
 namespace specfem::time_scheme {}
 

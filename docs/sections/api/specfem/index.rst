@@ -12,6 +12,7 @@
     chunk_element/index
     data_access/index
     io/index
+    macros/index
     mpi/index
     periodic_tasks/index
     point/index
