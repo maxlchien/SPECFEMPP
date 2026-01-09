@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/interface.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/assembly/element_types.hpp"
 #include "specfem/assembly/mesh.hpp"
 #include "specfem/source.hpp"

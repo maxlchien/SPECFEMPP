@@ -3,12 +3,16 @@
 #include "enumerations/interface.hpp"
 #include "execution/for_each_level.hpp"
 #include "execution/team_thread_md_range_iterator.hpp"
-#include "specfem/assembly.hpp"
+#include "specfem/assembly/nonconforming_interfaces.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 
+namespace specfem::assembly {
+template <specfem::dimension::type DimensionTag> struct assembly;
+}
+
 /**
- * @file coupling_integral1d.hpp
+ * @file coupling_integral.hpp
  * @brief 1D coupling integrals for interface computations
  * @ingroup AlgorithmsIntegration
  *

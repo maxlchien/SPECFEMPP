@@ -26,7 +26,6 @@ Old structure
 .. toctree::
     :maxdepth: 2
 
-    algorithms/index
     enumerations/index
     quadrature/index
     mesh/index

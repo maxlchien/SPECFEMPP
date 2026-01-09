@@ -1,4 +1,5 @@
 # Add existing subdirectories
+add_subdirectory(algorithms)
 add_subdirectory(mpi)
 add_subdirectory(logger)
 add_subdirectory(macros)
@@ -23,6 +24,7 @@ add_library(specfem::core ALIAS specfem_core_interface)
 target_link_libraries(specfem_core_interface
     INTERFACE
         specfem::assembly
+        specfem::algorithms
         specfem::jacobian
         specfem::mpi
         specfem::periodic_tasks

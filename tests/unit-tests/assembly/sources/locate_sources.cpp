@@ -1,9 +1,9 @@
 
 #include "../test_fixture/test_fixture.hpp"
-#include "algorithms/interface.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/point.hpp"
 #include "specfem_setup.hpp"

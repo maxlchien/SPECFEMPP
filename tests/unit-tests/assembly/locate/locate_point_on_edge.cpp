@@ -1,7 +1,7 @@
 #include "../test_fixture/test_fixture.hpp"
-#include "algorithms/interface.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/point.hpp"
 #include "specfem/point/global_coordinates.hpp"
 #include <gtest/gtest.h>

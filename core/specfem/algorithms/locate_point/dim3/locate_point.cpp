@@ -1,5 +1,5 @@
-#include "algorithms/locate_point.hpp"
-#include "algorithms/locate_point_impl.hpp"
+#include "specfem/algorithms/locate_point.hpp"
+#include "specfem/algorithms/locate_point/locate_point_impl.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/jacobian.hpp"
 #include "specfem/point.hpp"

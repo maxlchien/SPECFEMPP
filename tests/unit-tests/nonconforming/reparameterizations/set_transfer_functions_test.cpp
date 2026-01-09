@@ -3,7 +3,7 @@
 #include <ios>
 #include <stdexcept>
 
-#include "algorithms/interface.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/assembly/nonconforming_interfaces/dim2/impl/compute_intersection.tpp"
 #include "specfem_setup.hpp"
 #include <gtest/gtest.h>

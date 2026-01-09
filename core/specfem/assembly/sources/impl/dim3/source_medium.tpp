@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/interface.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/point.hpp"
 #include "../source_medium.hpp"
 #include "specfem/assembly/compute_source_array.hpp"

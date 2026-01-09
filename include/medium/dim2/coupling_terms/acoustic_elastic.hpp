@@ -1,7 +1,7 @@
 #pragma once
 
-#include "algorithms/transfer.hpp"
 #include "enumerations/interface.hpp"
+#include "specfem/algorithms/transfer.hpp"
 #include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
