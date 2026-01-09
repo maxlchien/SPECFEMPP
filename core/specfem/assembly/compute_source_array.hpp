@@ -11,19 +11,34 @@
 namespace specfem::assembly {
 
 /**
- * @brief Compute the lagrange interpolants for a specific 2d source location in
- * an element.
+ * @brief Compute Lagrange interpolant-weighted source contributions at GLL
+ * quadrature points for a 2D source.
  *
- * This is a helper function that computes the source array for a given
- * source. We implement it here instead of the source to remove dependency of
- * source on the assembly module.
+ * Computes the source array for a given source by evaluating Lagrange
+ * interpolants at the source location and distributing source contributions to
+ * GLL points. Supports both vector and tensor sources:
+ * - Vector sources: Direct force components multiplied by Lagrange interpolants
+ * - Tensor sources: Moment tensor components transformed via spatial
+ * derivatives
  *
- * @param source The source for which the source array is computed.
- * @param mesh The mesh on which the source is defined.
- * @param jacobian_matrix The Jacobian matrix for the mesh.
- * @param element_types The element types for the mesh.
- * @param source_array The output source array to be filled.
+ * @tparam SourceArrayViewType Kokkos view type (must be rank-3)
+ * @param source Source object (vector_source or tensor_source)
+ * @param mesh Mesh containing quadrature information
+ * @param jacobian_matrix Jacobian matrix for coordinate transformations
+ * @param source_array Output array of shape (ncomponents, ngllz, ngllx)
  *
+ * @code
+ * // Vector source example
+ * auto force = std::make_shared<specfem::sources::force<dim2>>(
+ *     x, z, angle, stf, wavefield_type);
+ * Kokkos::View<type_real***> source_array("src", 2, ngllz, ngllx);
+ * compute_source_array(force, mesh, jacobian_matrix, source_array);
+ *
+ * // Tensor source example
+ * auto moment_tensor = std::make_shared<specfem::sources::moment_tensor<dim2>>(
+ *     x, z, Mxx, Mzz, Mxz, stf, wavefield_type);
+ * compute_source_array(moment_tensor, mesh, jacobian_matrix, source_array);
+ * @endcode
  */
 template <typename SourceArrayViewType>
 void compute_source_array(
@@ -35,16 +50,17 @@ void compute_source_array(
     SourceArrayViewType &source_array);
 
 /**
- * @brief Compute the lagrange interpolants for a specific 3d source location
- * in a 3d element.
+ * @brief Compute Lagrange interpolant-weighted source contributions at GLL
+ * quadrature points for a 3D source.
  *
- * This is a helper function that dispatches the computation to the appropriate
- * implementation based on the source type.
+ * 3D version supporting vector and tensor sources with trilinear Lagrange
+ * interpolation across xi, eta, and gamma coordinates.
  *
- * @param source The source for which the source array is computed.
- * @param mesh The mesh on which the source is defined.
- * @param jacobian_matrix The Jacobian matrix for the mesh.
- * @param source_array The output source array to be filled.
+ * @tparam SourceArrayViewType Kokkos view type (must be rank-4)
+ * @param source Source object (vector_source or tensor_source)
+ * @param mesh Mesh containing quadrature information
+ * @param jacobian_matrix Jacobian matrix for coordinate transformations
+ * @param source_array Output array of shape (ncomponents, ngllz, nglly, ngllx)
  */
 template <typename SourceArrayViewType>
 void compute_source_array(

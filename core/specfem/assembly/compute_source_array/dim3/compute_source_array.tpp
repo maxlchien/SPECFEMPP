@@ -10,6 +10,19 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @brief Template implementation for 3D source array computation.
+ *
+ * Dispatches to vector or tensor source implementations based on source type.
+ * Supports interpolation in 3D with proper handling of all three
+ * spatial coordinates (xi, eta, gamma).
+ *
+ * @tparam SourceArrayViewType Must be rank-4 Kokkos view
+ * @param source Source object (polymorphic pointer)
+ * @param mesh Mesh containing quadrature data
+ * @param jacobian_matrix Jacobian matrices for coordinate transformations
+ * @param source_array Output array of shape (ncomponents, ngllz, nglly, ngllx)
+ */
 template<typename SourceArrayViewType>
 void specfem::assembly::compute_source_array(
     const std::shared_ptr<

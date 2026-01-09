@@ -13,6 +13,19 @@
 // Local namespace for implementation details
 namespace specfem::assembly::compute_source_array_impl {
 
+/**
+ * @brief Compute 3D tensor source array using precomputed Jacobians.
+ *
+ * Algorithm:
+ * 1. Compute Lagrange polynomials and derivatives
+ * 2. Build 3D source polynomial field
+ * 3. Transform to physical space using 3D Jacobian chain rule:
+ *    @f$ \frac{\partial L}{\partial x} = \sum_{\zeta \in \{\xi,\eta,\gamma\}}
+ * \frac{\partial L}{\partial \zeta} \frac{\partial \zeta}{\partial x} @f$
+ * 4. Apply moment tensor:
+ *    @f$ S_i = M_{i,0} \frac{\partial L}{\partial x} + M_{i,1} \frac{\partial
+ * L}{\partial y} + M_{i,2} \frac{\partial L}{\partial z} @f$
+ */
 void compute_source_array_from_tensor_and_element_jacobian(
     const specfem::sources::tensor_source<specfem::dimension::type::dim3>
         &tensor_source,
@@ -110,6 +123,17 @@ void compute_source_array_from_tensor_and_element_jacobian(
 
 } // namespace specfem::assembly::compute_source_array_impl
 
+/**
+ * @brief Main entry point for 3D tensor source array computation.
+ *
+ * Extracts element Jacobian matrices from global storage and delegates to
+ * helper function for computation.
+ *
+ * @param tensor_source Moment tensor source object
+ * @param mesh Mesh containing quadrature information
+ * @param jacobian_matrix Global Jacobian matrix storage
+ * @param source_array Output array
+ */
 void specfem::assembly::compute_source_array_impl::from_tensor(
     const specfem::sources::tensor_source<specfem::dimension::type::dim3>
         &tensor_source,

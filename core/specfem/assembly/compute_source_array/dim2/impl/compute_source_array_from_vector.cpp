@@ -11,6 +11,21 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @brief Implementation of 2D vector source array computation.
+ *
+ * Algorithm:
+ * 1. Extract GLL quadrature points from source_array dimensions
+ * 2. Compute Lagrange interpolants at source location (xi, gamma)
+ * 3. Distribute force vector to GLL points weighted by interpolant products
+ *
+ * For a source at local coordinates @f$ (\xi_s, \gamma_s) @f$ with force
+ * vector @f$ \mathbf{f} @f$, the source array is:
+ * @f$ S_{i,jz,jx} = L_{jx}(\xi_s) L_{jz}(\gamma_s) f_i @f$
+ *
+ * where @f$ L_{jx}(\xi_s) @f$ is the Lagrange polynomial evaluated at the
+ * source location.
+ */
 void specfem::assembly::compute_source_array_impl::from_vector(
     const specfem::sources::vector_source<specfem::dimension::type::dim2>
         &vector_source,

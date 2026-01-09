@@ -13,6 +13,7 @@
 
     assembly
     boundary/boundary
+    compute_source_array/compute_source_array
     coupled_interfaces/coupled_interfaces
     element_types/element_types
     edge_types/edge_types
