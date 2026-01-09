@@ -800,8 +800,8 @@ target_link_libraries(
   point
   algorithms
   kokkos_kernels
-  solver
-  periodic_tasks
+  specfem::solver
+  specfem::periodic_tasks
   boost
   -lpthread -lm
 )
@@ -826,8 +826,8 @@ target_link_libraries(
   point
   algorithms
   kokkos_kernels
-  solver
-  periodic_tasks
+  specfem::solver
+  specfem::periodic_tasks
   boost
   -lpthread -lm
 )
