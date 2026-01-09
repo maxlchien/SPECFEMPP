@@ -72,22 +72,21 @@ int predictor_phase_impl(
     const type_real deltat, const type_real deltatover2,
     const type_real deltasquareover2);
 } // namespace newmark_impl
-newmark_impl
 
-    /**
-     * @brief Newmark time integration scheme implementation
-     *
-     * Implements the Newmark-beta method for time integration of the wave
-     * equation. This second-order accurate scheme uses predictor-corrector
-     * steps:
-     *
-     * Specialized for forward and combined (adjoint) simulations.
-     *
-     * @tparam AssemblyFields Field assembly type containing wavefield data
-     * @tparam SimulationType Either forward or combined simulation type
-     */
-    template <typename AssemblyFields, specfem::simulation::type SimulationType>
-    class newmark;
+/**
+ * @brief Newmark time integration scheme implementation
+ *
+ * Implements the Newmark-beta method for time integration of the wave
+ * equation. This second-order accurate scheme uses predictor-corrector
+ * steps:
+ *
+ * Specialized for forward and combined (adjoint) simulations.
+ *
+ * @tparam AssemblyFields Field assembly type containing wavefield data
+ * @tparam SimulationType Either forward or combined simulation type
+ */
+template <typename AssemblyFields, specfem::simulation::type SimulationType>
+class newmark;
 
 /**
  * @brief Newmark scheme for forward simulation
