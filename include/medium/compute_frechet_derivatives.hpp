@@ -10,6 +10,33 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @brief Compute Fréchet derivatives for seismic inversion kernels.
+ *
+ * Calculates sensitivity kernels used in adjoint-based seismic inversion
+ * by computing derivatives of wavefield observables with respect to
+ * material parameters.
+ * @tparam PointPropertiesType Material properties at a point
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Field spatial derivatives
+ *
+ * @param properties Material properties (density, elastic moduli)
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Sensitivity kernels for material parameters
+ *
+ * @code
+ * auto kernels = compute_frechet_derivatives(
+ *     properties, adjoint_vel, adjoint_acc,
+ *     backward_disp, adj_deriv, back_deriv, dt);
+ * @endcode
+ */
 template <typename PointPropertiesType, typename AdjointPointVelocityType,
           typename AdjointPointAccelerationType,
           typename BackwardPointDisplacementType,

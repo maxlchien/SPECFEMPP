@@ -10,6 +10,47 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_medium_frechet_derivative_dim2_elastic_isotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_isotropic
+ * @brief Compute Fréchet derivatives for 2D elastic PSV isotropic media.
+ *
+ * Calculates sensitivity kernels for elastic properties in PSV wave
+ * propagation. Based on Tromp et al. 2005, computes kernels for density (ρ),
+ * shear modulus (μ), bulk modulus (κ), and derived parameters (ρ', α, β).
+ *
+ * The kernels are computed using deviatoric strain tensor formulations:
+ * \f[
+ * \kappa_{KL} = -\kappa \Delta t \, \text{div}(u^{\dagger}) \cdot
+ * \text{div}(u^b)
+ * \f]
+ * \f[
+ * \mu_{KL} = -2\mu \Delta t \left[ \varepsilon^{\dagger} : \varepsilon^b -
+ * \frac{1}{3}\kappa_{KL} \right]
+ * \f]
+ * \f[
+ * \rho_{KL} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ * \f]
+ *
+ * @tparam PointPropertiesType Elastic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Elastic material properties (ρ, μ, κ)
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels containing all elastic parameter sensitivities
+ */
 template <typename PointPropertiesType, typename AdjointPointVelocityType,
           typename AdjointPointAccelerationType,
           typename BackwardPointDisplacementType,
@@ -138,6 +179,41 @@ impl_compute_frechet_derivatives(
   return { rho_kl, mu_kl, kappa_kl, rhop_kl, alpha_kl, beta_kl };
 }
 
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_isotropic
+ * @brief Compute Fréchet derivatives for 2D elastic SH isotropic media.
+ *
+ * Calculates sensitivity kernels for SH (shear horizontal) wave propagation
+ * using membrane wave assumptions (ux=uz=0, ∂/∂y=0). Only shear modulus
+ * and density kernels are non-zero for SH waves.
+ *
+ * The kernels use deviatoric strain formulation:
+ * \f[
+ * \mu_{KL} = -\mu \Delta t \left( \frac{\partial u_y^{\dagger}}{\partial x}
+ * \frac{\partial u_y^b}{\partial x} + \frac{\partial u_y^{\dagger}}{\partial z}
+ * \frac{\partial u_y^b}{\partial z} \right)
+ * \f]
+ * \f[
+ * \rho_{KL} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ * \f]
+ *
+ * @tparam PointPropertiesType Elastic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Elastic material properties
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels with SH-specific parameter sensitivities
+ *
+ * @note For SH waves: κ_KL = 0, α_KL = 0, β_KL = 2μ_KL
+ */
 template <typename PointPropertiesType, typename AdjointPointVelocityType,
           typename AdjointPointAccelerationType,
           typename BackwardPointDisplacementType,

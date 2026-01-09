@@ -7,6 +7,57 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_medium_frechet_derivative_dim2_acoustic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_acoustic
+ * @brief Compute Fréchet derivatives for 2D acoustic isotropic media.
+ *
+ * Calculates sensitivity kernels for density and bulk modulus in
+ * 2D acoustic wave propagation. Returns kernels \f$\rho_{KL}\f$ and
+ * \f$\kappa_{KL}\f$ used in seismic inversion.
+ *
+ * The kernels are computed using the following equations:
+ *
+ * Density kernel:
+ * \f[
+ * \rho_{KL} = \left( \frac{\partial u^{\dagger}}{\partial x} \frac{\partial
+ * u^{b}}{\partial x} +
+ *                    \frac{\partial u^{\dagger}}{\partial z} \frac{\partial
+ * u^{b}}{\partial z} \right)
+ *             \frac{1}{\rho} \Delta t
+ * \f]
+ *
+ * Bulk modulus kernel:
+ * \f[
+ * \kappa_{KL} = \ddot{u}^{\dagger} \cdot u^{b} \frac{1}{\kappa} \Delta t
+ * \f]
+ *
+ * where \f$u^{\dagger}\f$ is the adjoint field, \f$u^{b}\f$ is the backward
+ * field,
+ * \f$\ddot{u}^{\dagger}\f$ is the adjoint acceleration, and \f$\Delta t\f$ is
+ * the time step.
+ *
+ * @tparam PointPropertiesType Acoustic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Acoustic material properties (density, bulk modulus)
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels containing density and bulk modulus sensitivities
+ *
+ * @note This is the specialized implementation for 2D acoustic isotropic media
+ */
 template <typename PointPropertiesType, typename AdjointPointVelocityType,
           typename AdjointPointAccelerationType,
           typename BackwardPointDisplacementType,
