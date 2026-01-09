@@ -18,6 +18,7 @@
     program/index
     receivers/index
     sources/index
+    shape_function/index
     data_access/index
     source_time_functions/index
     chunk_edge/index
