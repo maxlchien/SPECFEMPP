@@ -22,7 +22,7 @@
 .. doxygenfunction:: specfem::boundary_conditions::compute_mass_matrix_terms(const type_real dt, const PointBoundaryType &boundary, const PointPropertyType &property, PointMassMatrixType &mass_matrix)
 
 Implementation Details
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
    :maxdepth: 1
