@@ -1,5 +1,5 @@
 #include "../test_fixture/test_fixture.hpp"
-#include "algorithms/locate_point.hpp"
+#include "algorithms/interface.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
 #include "specfem/point.hpp"

@@ -1,5 +1,5 @@
 #include "../SPECFEM_Environment.hpp"
-#include "algorithms/locate_point.hpp"
+#include "algorithms/interface.hpp"
 #include "io/interface.hpp"
 #include "kokkos_abstractions.h"
 #include "mesh/mesh.hpp"

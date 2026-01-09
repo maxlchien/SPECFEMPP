@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/locate_point.hpp"
+#include "algorithms/interface.hpp"
 #include "specfem/point.hpp"
 #include "../source_medium.hpp"
 #include "specfem/assembly/compute_source_array.hpp"

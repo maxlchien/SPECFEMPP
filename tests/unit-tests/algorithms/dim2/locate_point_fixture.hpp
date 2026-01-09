@@ -2,7 +2,7 @@
 #include "../../mesh_utilities/mapping.hpp"
 #include "../../test_macros.hpp"
 #include "SPECFEM_Environment.hpp"
-#include "algorithms/locate_point.hpp"
+#include "algorithms/interface.hpp"
 #include "algorithms/locate_point_impl.hpp"
 #include "kokkos_abstractions.h"
 #include "specfem/point.hpp"

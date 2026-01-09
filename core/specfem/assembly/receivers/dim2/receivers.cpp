@@ -1,5 +1,5 @@
 #include "specfem/receivers.hpp"
-#include "algorithms/locate_point.hpp"
+#include "algorithms/interface.hpp"
 #include "globals.h"
 #include "kokkos_abstractions.h"
 #include "quadrature/interface.hpp"

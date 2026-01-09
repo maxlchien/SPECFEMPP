@@ -1,5 +1,5 @@
 #include "../../SPECFEM_Environment.hpp"
-#include "algorithms/locate_point.hpp"
+#include "algorithms/interface.hpp"
 #include "io/interface.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/assembly/nonconforming_interfaces/dim2/impl/compute_intersection.tpp"

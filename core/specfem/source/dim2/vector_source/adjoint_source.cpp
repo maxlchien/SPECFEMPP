@@ -1,4 +1,4 @@
-#include "algorithms/locate_point.hpp"
+#include "algorithms/interface.hpp"
 #include "enumerations/interface.hpp"
 #include "globals.h"
 #include "specfem/source.hpp"
