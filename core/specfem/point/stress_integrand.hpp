@@ -1,6 +1,6 @@
 #pragma once
 
-#include "datatypes/point_view.hpp"
+#include "datatypes/interface.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>

@@ -3,7 +3,7 @@
 #include "specfem/algorithms.hpp"
 #include "specfem/boundary_conditions.hpp"
 #include "specfem/boundary_conditions.tpp"
-#include "datatypes/simd.hpp"
+#include "datatypes/interface.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"

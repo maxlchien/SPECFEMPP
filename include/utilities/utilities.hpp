@@ -1,6 +1,6 @@
 #pragma once
 
-#include "datatypes/simd.hpp"
+#include "datatypes/interface.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem_setup.hpp"
 #include <string>
