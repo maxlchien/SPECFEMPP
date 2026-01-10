@@ -13,8 +13,8 @@
  */
 namespace specfem::datatype {}
 
-#include "chunk_edge_view.hpp"
-#include "chunk_element_view.hpp"
-#include "element_view.hpp"
-#include "point_view.hpp"
-#include "simd.hpp"
+#include "datatype/chunk_edge_view.hpp"
+#include "datatype/chunk_element_view.hpp"
+#include "datatype/element_view.hpp"
+#include "datatype/point_view.hpp"
+#include "datatype/simd.hpp"

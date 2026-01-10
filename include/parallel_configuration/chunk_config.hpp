@@ -1,8 +1,8 @@
 #pragma once
 
 #include "constants.hpp"
-#include "datatype/interface.hpp"
 #include "enumerations/dimension.hpp"
+#include "specfem/datatype.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {

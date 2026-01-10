@@ -1,8 +1,8 @@
 #pragma once
 
-#include "datatype/point_view.hpp"
 #include "execution/for_each_level.hpp"
 #include "kokkos_abstractions.h"
+#include "specfem/datatype.hpp"
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 

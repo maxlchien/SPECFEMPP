@@ -1,7 +1,7 @@
 #pragma once
 
-#include "datatype/interface.hpp"
 #include "enumerations/interface.hpp"
+#include "specfem/datatype.hpp"
 #include "specfem_setup.hpp"
 #include <string>
 

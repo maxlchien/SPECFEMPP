@@ -1,7 +1,7 @@
 #pragma once
 
-#include "datatype/impl/register_array.hpp"
 #include "policy.hpp"
+#include "specfem/datatype/impl/register_array.hpp"
 #include "void_iterator.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
