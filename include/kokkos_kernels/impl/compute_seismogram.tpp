@@ -3,7 +3,7 @@
 #include "specfem/algorithms.hpp"
 #include "specfem/chunk_element.hpp"
 #include "compute_seismogram.hpp"
-#include "datatypes/interface.hpp"
+#include "datatype/interface.hpp"
 #include "quadrature/lagrange_derivative.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"

@@ -28,8 +28,8 @@
 #include <vector>
 
 #include "SPECFEM_Environment.hpp"
-#include "datatypes/point_view.hpp"
-#include "datatypes/simd.hpp"
+#include "datatype/point_view.hpp"
+#include "datatype/simd.hpp"
 #include "enumerations/interface.hpp"
 #include "execution/chunked_domain_iterator.hpp"
 #include "execution/for_each_level.hpp"

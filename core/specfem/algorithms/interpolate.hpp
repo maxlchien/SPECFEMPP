@@ -1,6 +1,6 @@
 #pragma once
 
-#include "datatypes/point_view.hpp"
+#include "datatype/point_view.hpp"
 #include "execution/for_each_level.hpp"
 #include "kokkos_abstractions.h"
 #include "specfem_setup.hpp"

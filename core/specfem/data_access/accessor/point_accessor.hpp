@@ -1,6 +1,6 @@
 #pragma once
 
-#include "datatypes/interface.hpp"
+#include "datatype/interface.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/data_access/accessor.hpp"
 

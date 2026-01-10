@@ -1,5 +1,5 @@
 #include "../test_fixture/test_fixture.hpp"
-#include "datatypes/simd.hpp"
+#include "datatype/simd.hpp"
 #include "enumerations/dimension.hpp"
 #include "execution/chunked_domain_iterator.hpp"
 #include "execution/for_all.hpp"

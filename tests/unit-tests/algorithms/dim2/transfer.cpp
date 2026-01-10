@@ -7,7 +7,7 @@
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest.h>
 
-#include "datatypes/chunk_edge_view.hpp"
+#include "datatype/chunk_edge_view.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/algorithms/transfer.hpp"
 #include "specfem/chunk_edge.hpp"

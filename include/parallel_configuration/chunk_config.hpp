@@ -1,7 +1,7 @@
 #pragma once
 
 #include "constants.hpp"
-#include "datatypes/interface.hpp"
+#include "datatype/interface.hpp"
 #include "enumerations/dimension.hpp"
 #include <Kokkos_Core.hpp>
 

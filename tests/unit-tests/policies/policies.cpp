@@ -1,5 +1,5 @@
 #include "../SPECFEM_Environment.hpp"
-#include "datatypes/simd.hpp"
+#include "datatype/simd.hpp"
 #include "enumerations/interface.hpp"
 #include "execution/chunked_domain_iterator.hpp"
 #include "execution/for_all.hpp"

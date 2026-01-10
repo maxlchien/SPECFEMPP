@@ -1,6 +1,6 @@
 #pragma once
 
-#include "datatypes/simd.hpp"
+#include "datatype/simd.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/data_access/accessor.hpp"
 #include <Kokkos_Core.hpp>
