@@ -1,9 +1,8 @@
 #pragma once
 
 #include "enumerations/interface.hpp"
-#include "execution/for_each_level.hpp"
-#include "execution/team_thread_md_range_iterator.hpp"
 #include "specfem/assembly/nonconforming_interfaces.hpp"
+#include "specfem/execution.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 

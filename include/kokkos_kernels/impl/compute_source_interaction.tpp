@@ -9,8 +9,7 @@
 #include "enumerations/wavefield.hpp"
 #include "medium/compute_source.hpp"
 #include "parallel_configuration/chunk_config.hpp"
-#include "execution/mapped_chunked_domain_iterator.hpp"
-#include "execution/for_all.hpp"
+#include "specfem/execution.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 

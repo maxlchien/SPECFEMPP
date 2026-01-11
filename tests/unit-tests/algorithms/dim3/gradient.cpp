@@ -34,13 +34,12 @@
 
 #include "SPECFEM_Environment.hpp"
 #include "enumerations/interface.hpp"
-#include "execution/chunked_domain_iterator.hpp"
-#include "execution/for_each_level.hpp"
 #include "parallel_configuration/chunk_config.hpp"
 #include "quadrature/interface.hpp"
 #include "specfem/algorithms/gradient.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/datatype.hpp"
+#include "specfem/execution.hpp"
 
 namespace specfem::algorithms_test {
 

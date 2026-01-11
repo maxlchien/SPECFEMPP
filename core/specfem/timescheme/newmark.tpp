@@ -1,7 +1,6 @@
 #pragma once
 
-#include "execution/for_all.hpp"
-#include "execution/range_iterator.hpp"
+#include "specfem/execution.hpp"
 #include "parallel_configuration/range_config.hpp"
 #include "specfem/timescheme/newmark.hpp"
 #include "specfem/assembly.hpp"

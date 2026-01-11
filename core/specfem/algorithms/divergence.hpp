@@ -1,7 +1,7 @@
 #pragma once
 
-#include "execution/for_each_level.hpp"
 #include "specfem/datatype.hpp"
+#include "specfem/execution.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 

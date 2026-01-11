@@ -2,8 +2,7 @@
 
 #include "specfem/algorithms.hpp"
 #include "compute_material_derivatives.hpp"
-#include "execution/chunked_domain_iterator.hpp"
-#include "execution/for_each_level.hpp"
+#include "specfem/execution.hpp"
 #include "medium/compute_frechet_derivatives.hpp"
 #include "parallel_configuration/chunk_config.hpp"
 #include "specfem/assembly.hpp"
