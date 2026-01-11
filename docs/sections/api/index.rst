@@ -29,7 +29,6 @@ Old structure
     enumerations/index
     quadrature/index
     mesh/index
-    execution/index
     medium/index
     kokkos_kernels/index
     coupling_physics/coupled_interface

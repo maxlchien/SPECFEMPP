@@ -1,7 +1,7 @@
 .. _execution:
 
-Execution Framework
-===================
+``specfem::execution``
+======================
 
 .. toctree::
     :maxdepth: 1

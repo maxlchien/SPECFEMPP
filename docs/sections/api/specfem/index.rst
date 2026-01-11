@@ -13,6 +13,7 @@
     chunk_element/index
     datatype/index
     data_access/index
+    execution/index
     io/index
     jacobian/index
     macros/index
