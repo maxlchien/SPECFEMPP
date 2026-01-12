@@ -1,6 +1,6 @@
-#include "kokkos_kernels/impl/compute_mass_matrix.hpp"
+#include "compute_mass_matrix.hpp"
+#include "compute_mass_matrix.tpp"
 #include "enumerations/interface.hpp"
-#include "kokkos_kernels/impl/compute_mass_matrix.tpp"
 #include "specfem/assembly.hpp"
 #include "specfem/macros.hpp"
 

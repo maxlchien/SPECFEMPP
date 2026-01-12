@@ -1,6 +1,6 @@
-#include "kokkos_kernels/impl/compute_seismogram.hpp"
+#include "compute_seismogram.hpp"
+#include "compute_seismogram.tpp"
 #include "enumerations/interface.hpp"
-#include "kokkos_kernels/impl/compute_seismogram.tpp"
 #include "specfem/assembly.hpp"
 #include "specfem/macros.hpp"
 

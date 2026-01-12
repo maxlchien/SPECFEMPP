@@ -1,6 +1,6 @@
-#include "kokkos_kernels/impl/compute_material_derivatives.hpp"
+#include "compute_material_derivatives.hpp"
+#include "compute_material_derivatives.tpp"
 #include "enumerations/interface.hpp"
-#include "kokkos_kernels/impl/compute_material_derivatives.tpp"
 #include "specfem/assembly.hpp"
 #include "specfem/macros.hpp"
 

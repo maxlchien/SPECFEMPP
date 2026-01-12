@@ -1,6 +1,6 @@
-#include "kokkos_kernels/impl/compute_coupling.hpp"
+#include "compute_coupling.hpp"
+#include "compute_coupling.tpp"
 #include "enumerations/interface.hpp"
-#include "kokkos_kernels/impl/compute_coupling.tpp"
 #include "specfem/macros.hpp"
 #include <type_traits>
 

@@ -367,31 +367,6 @@ target_link_libraries(
 )
 
 add_library(
-        kokkos_kernels
-        src/kokkos_kernels/impl/compute_mass_matrix.cpp
-        src/kokkos_kernels/impl/invert_mass_matrix.cpp
-        src/kokkos_kernels/impl/divide_mass_matrix.cpp
-        src/kokkos_kernels/impl/compute_seismogram.cpp
-        src/kokkos_kernels/impl/compute_source_interaction.cpp
-        src/kokkos_kernels/impl/compute_stiffness_interaction.cpp
-        src/kokkos_kernels/impl/compute_material_derivatives.cpp
-        src/kokkos_kernels/impl/compute_coupling.cpp
-        src/kokkos_kernels/frechet_kernels.cpp
-)
-
-set_target_properties(kokkos_kernels PROPERTIES
-        UNITY_BUILD $<NOT:$<BOOL:${__APPLE__}>>
-        UNITY_BUILD_BATCH_SIZE $<IF:$<BOOL:${__APPLE__}>,0,4>
-)
-
-target_link_libraries(
-        kokkos_kernels
-        PRIVATE
-        assembly
-        Kokkos::kokkos
-)
-
-add_library(
         writer
         src/io/seismogram/writer.cpp
         src/io/kernel/writer.cpp

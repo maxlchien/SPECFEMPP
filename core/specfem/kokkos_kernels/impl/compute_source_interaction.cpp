@@ -1,6 +1,6 @@
-#include "kokkos_kernels/impl/compute_source_interaction.hpp"
+#include "compute_source_interaction.hpp"
+#include "compute_source_interaction.tpp"
 #include "enumerations/interface.hpp"
-#include "kokkos_kernels/impl/compute_source_interaction.tpp"
 #include "specfem/assembly.hpp"
 #include "specfem/macros.hpp"
 
