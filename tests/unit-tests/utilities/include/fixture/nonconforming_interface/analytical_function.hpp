@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../impl/descriptions.hpp"
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
@@ -54,8 +55,19 @@ struct Vectorized : AnalyticalFunctionType {
   }
 
   static std::string description() {
+    return std::string("Vectorized (") + std::to_string(num_components) +
+           " components)\n" +
+           ((specfem::test_fixture::impl::description<AnalyticalFunctions>::get(
+                 2) +
+             "\n") +
+            ...);
+  }
+  static std::string name() {
     return std::string("Vectorized(") +
-           ((AnalyticalFunctions::description() + ",") + ...) + ")";
+           ((specfem::test_fixture::impl::name<AnalyticalFunctions>::get() +
+             ",") +
+            ...) +
+           ")";
   }
 };
 
@@ -89,6 +101,14 @@ template <typename... AnalyticalFunctions> struct Sum : AnalyticalFunctionType {
   }
 
   static std::string description() {
+    return std::string("Sum (") + std::to_string(num_components) +
+           " components)\n" +
+           ((specfem::test_fixture::impl::description<AnalyticalFunctions>::get(
+                 2) +
+             "\n") +
+            ...);
+  }
+  static std::string name() {
     return std::string("Sum(") +
            ((AnalyticalFunctions::description() + ",") + ...) + ")";
   }
