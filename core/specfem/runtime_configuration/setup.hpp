@@ -9,6 +9,7 @@
 #include "receivers.hpp"
 #include "run_setup.hpp"
 #include "solver.hpp"
+#include "solver.tpp"
 #include "sources.hpp"
 #include "specfem_setup.hpp"
 #include "time_scheme.hpp"
