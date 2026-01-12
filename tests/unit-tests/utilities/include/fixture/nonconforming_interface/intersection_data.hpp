@@ -41,6 +41,12 @@ struct IntersectionAccessorPack
       delete;
 
   static std::string description() {
+    return std::string("IntersectionAccessorPack:\n") +
+           ((specfem::test_fixture::impl::description<Accessors>::get(2) +
+             "\n") +
+            ...);
+  }
+  static std::string name() {
     return std::string("IntersectionAccessorPack (...)");
   }
 };
@@ -71,6 +77,15 @@ struct IntersectionDataPack2D
   IntersectionDataPack2D(const std::string &name)
       : specfem::test_fixture::NonconformingAccessorPatch2D<
             InterfaceTag, BoundaryTag, Initializer, PackedTypes>(name)... {}
+
+  static std::string description() {
+    return std::string("IntersectionDataPack2D:\n") +
+           specfem::test_fixture::impl::description<Initializer>::get(2) +
+           ((std::string("\n  - ") + std::to_string(PackedTypes)) + ...);
+  }
+  static std::string name() {
+    return specfem::test_fixture::impl::name<Initializer>::get();
+  }
 };
 
 namespace IntersectionDataInitializer2D {

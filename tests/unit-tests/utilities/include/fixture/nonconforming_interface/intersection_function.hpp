@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../impl/descriptions.hpp"
 #include "initializers.hpp"
 #include "specfem_setup.hpp"
 
@@ -42,6 +43,7 @@ public:
   static std::string description() {
     return std::string("ngll = 5 field of all ones");
   }
+  static std::string name() { return "Uniform(1,5,1)"; }
 };
 
 template <typename AnalyticalFunction, typename IntersectionPoints>
@@ -62,10 +64,13 @@ struct FromAnalyticalFunction : IntersectionFunctionInitializer2D {
   static constexpr auto Intersection_quadrature_points =
       IntersectionQuadraturePoints::quadrature_points;
 
+  static std::string name() {
+    return std::string("FromAnalyticalFunction(") +
+           specfem::test_fixture::impl::name<AnalyticalFunction>::get() + ")";
+  }
   static std::string description() {
-    return std::string(
-               "IntersectionField-initialized function (description: \"") +
-           AnalyticalFunction::description() + "\")";
+    return std::string("IntersectionField-initialized function:\n") +
+           specfem::test_fixture::impl::description<AnalyticalFunction>::get(2);
   }
 
 private:
