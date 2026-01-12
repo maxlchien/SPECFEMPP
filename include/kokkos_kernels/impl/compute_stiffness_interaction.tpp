@@ -13,7 +13,7 @@
 #include "medium/compute_damping_force.hpp"
 #include "medium/compute_stress.hpp"
 #include "specfem/parallel_configuration.hpp"
-#include "quadrature/lagrange_derivative.hpp"
+#include "specfem/quadrature.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/chunk_element.hpp"
 #include "specfem/point.hpp"

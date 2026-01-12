@@ -1,5 +1,4 @@
-#ifndef GLL_LIBRARY_H
-#define GLL_LIBRARY_H
+#pragma once
 
 #include "gll_utils.hpp"
 #include "kokkos_abstractions.h"
@@ -79,5 +78,3 @@ zwgljd(const int np, const type_real alpha, const type_real beta);
 } // namespace gll
 } // namespace quadrature
 } // namespace specfem
-
-#endif // GLL_LIBRARY_H

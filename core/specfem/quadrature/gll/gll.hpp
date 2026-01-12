@@ -1,5 +1,4 @@
-#ifndef _GLL_HPP
-#define _GLL_HPP
+#pragma once
 
 #include "../quadrature.hpp"
 #include "kokkos_abstractions.h"
@@ -139,4 +138,3 @@ private:
 } // namespace gll
 } // namespace quadrature
 } // namespace specfem
-#endif

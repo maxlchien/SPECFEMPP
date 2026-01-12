@@ -6,9 +6,9 @@
 #include "impl/points.hpp"
 #include "impl/shape_functions.hpp"
 #include "mesh/mesh.hpp"
-#include "quadrature/interface.hpp"
 #include "specfem/assembly/mesh/impl/quadrature.hpp"
 #include "specfem/point.hpp"
+#include "specfem/quadrature.hpp"
 #include "specfem_setup.hpp"
 #include <vector>
 

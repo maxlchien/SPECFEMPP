@@ -1,7 +1,6 @@
-#ifndef _QUADRATURE_QUADRATURES_HPP
-#define _QUADRATURE_QUADRATURES_HPP
+#pragma once
 
-#include "quadrature/gll/interface.hpp"
+#include "gll.hpp"
 
 namespace specfem {
 namespace quadrature {
@@ -22,5 +21,3 @@ struct quadratures {
 };
 } // namespace quadrature
 } // namespace specfem
-
-#endif

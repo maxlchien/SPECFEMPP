@@ -5,7 +5,7 @@
 #include "kokkos_abstractions.h"
 #include "mesh.hpp"
 #include "specfem/parallel_configuration.hpp"
-#include "quadrature/interface.hpp"
+#include "specfem/quadrature.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/jacobian.hpp"
 #include "specfem/shape_functions.hpp"

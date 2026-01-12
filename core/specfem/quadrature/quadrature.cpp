@@ -1,4 +1,4 @@
-#include "quadrature/interface.hpp"
+#include "quadrature.hpp"
 #include "specfem_setup.hpp"
 #include <ostream>
 

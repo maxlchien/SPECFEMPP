@@ -1,5 +1,5 @@
 #include "parameter_parser/quadrature.hpp"
-#include "quadrature/interface.hpp"
+#include "specfem/quadrature.hpp"
 #include "utilities/strings.hpp"
 #include "yaml-cpp/yaml.h"
 #include <iostream>

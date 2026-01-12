@@ -1,4 +1,4 @@
-#include "quadrature/gll/gll_utils.hpp"
+#include "gll_utils.hpp"
 #include "kokkos_abstractions.h"
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>

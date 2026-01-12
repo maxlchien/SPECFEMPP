@@ -19,7 +19,7 @@
 #include "enumerations/connections.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
-#include "quadrature/interface.hpp"
+#include "specfem/quadrature.hpp"
 #include "specfem/shape_functions.hpp"
 #include "specfem_setup.hpp"
 #include "utilities/interface.hpp"

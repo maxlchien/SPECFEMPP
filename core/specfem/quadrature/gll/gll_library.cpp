@@ -1,5 +1,5 @@
-#include "quadrature/gll/gll_library.hpp"
-#include "quadrature/gll/gll_utils.hpp"
+#include "gll_library.hpp"
+#include "gll_utils.hpp"
 #include "specfem_setup.hpp"
 #include <cmath>
 #include <iostream>
