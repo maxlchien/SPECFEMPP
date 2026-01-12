@@ -22,4 +22,5 @@
     solver/index
     source_time_functions/index
     sources/index
+    shape_function/index
     timescheme/index

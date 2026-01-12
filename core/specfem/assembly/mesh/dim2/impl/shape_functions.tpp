@@ -1,7 +1,7 @@
 #pragma once
 
 #include "shape_functions.hpp"
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include <Kokkos_Core.hpp>
 
 specfem::assembly::mesh_impl::shape_functions<specfem::dimension::type::dim2>::
