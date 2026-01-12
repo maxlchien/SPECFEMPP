@@ -1,5 +1,5 @@
 #include "parameter_parser/setup.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"
 #include <chrono>
 #include <ctime>

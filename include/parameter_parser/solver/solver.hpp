@@ -4,7 +4,7 @@
 #include "specfem/periodic_tasks.hpp"
 #include "specfem/solver.hpp"
 #include "specfem/timescheme/newmark.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include <memory>
 #include <string>
 

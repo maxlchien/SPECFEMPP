@@ -3,7 +3,7 @@
 #include "enumerations/interface.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/quadrature.hpp"
-#include "utilities/utilities.hpp"
+#include "specfem/utilities.hpp"
 #include <gtest/gtest.h>
 #include <vector>
 

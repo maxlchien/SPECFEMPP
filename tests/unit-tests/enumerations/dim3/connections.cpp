@@ -4,8 +4,8 @@
 #include "enumerations/mesh_entities.hpp"
 #include "specfem/quadrature.hpp"
 #include "specfem/shape_functions.hpp"
+#include "specfem/utilities.hpp"
 #include "specfem_setup.hpp"
-#include "utilities/interface.hpp"
 #include "gtest/gtest.h"
 #include <Kokkos_Core.hpp>
 #include <array>

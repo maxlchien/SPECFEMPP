@@ -1,4 +1,4 @@
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include <algorithm>
 
 namespace specfem {
