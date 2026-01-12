@@ -17,7 +17,9 @@ using none_type = std::integral_constant<specfem::element::boundary_tag,
                                          specfem::element::boundary_tag::none>;
 
 /**
- * @brief Apply no boundary conditions
+ * @brief Apply no boundary conditions. 
+ *
+ * Calling this function results in a no-op.
  *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type
@@ -41,6 +43,7 @@ KOKKOS_INLINE_FUNCTION void impl_apply_boundary_conditions(
 /**
  * @brief Compute mass matrix terms for no boundary conditions
  *
+ * Calling this function results in a no-op.
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type
  * @tparam PointMassMatrixType Point mass matrix type
@@ -65,6 +68,8 @@ KOKKOS_INLINE_FUNCTION void impl_compute_mass_matrix_terms(
 
 /**
  * @brief Apply no boundary conditions
+ *
+ * Calling this function results in a no-op.
  *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointAccelerationType Point acceleration type
