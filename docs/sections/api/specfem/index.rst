@@ -22,6 +22,7 @@
     periodic_tasks/index
     point/index
     program/index
+    quadrature/index
     receivers/index
     solver/index
     source_time_functions/index
