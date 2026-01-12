@@ -2,10 +2,11 @@
 
 namespace specfem {
 
-int MPI_new::rank = -1;
-int MPI_new::size = -1;
+// Static storage for MPI rank and size (-1 indicates uninitialized)
+int MPI::rank_ = -1;
+int MPI::size_ = -1;
 
-void MPI_new::initialize(int *argc, char ***argv) {
+void MPI::initialize(int *argc, char ***argv) {
 #ifdef MPI_PARALLEL
   int initialized;
   MPI_Initialized(&initialized);
@@ -14,27 +15,29 @@ void MPI_new::initialize(int *argc, char ***argv) {
     MPI_Init(argc, argv);
   }
 
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size_);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
 #else
   // Non-MPI build: single process
-  rank = 0;
-  size = 1;
+  rank_ = 0;
+  size_ = 1;
 #endif
 }
 
-void MPI_new::finalize() {
+void MPI::finalize() {
 #ifdef MPI_PARALLEL
   int finalized;
   MPI_Finalized(&finalized);
 
+  // Only finalize if not already finalized externally
   if (!finalized) {
     MPI_Finalize();
   }
 #endif
 
-  rank = -1;
-  size = -1;
+  // Reset to uninitialized state
+  rank_ = -1;
+  size_ = -1;
 }
 
 } // namespace specfem

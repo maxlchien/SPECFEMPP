@@ -7,6 +7,28 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_medium_dim3_compute_source_contribution_elastic_isotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_dim3_compute_source_contribution_elastic_isotropic
+ * @brief Compute source contribution for 3D elastic isotropic media.
+ *
+ * Implements force source contribution for 3D elastic wave propagation
+ * in isotropic media. Sources inject body forces that generate both
+ * P and S waves with uniform propagation in all directions.
+ *
+ * **Source equations:**
+ * - \f$ \ddot{u}_x = S_x(t) \cdot L_x(\mathbf{x}) \f$
+ * - \f$ \ddot{u}_y = S_y(t) \cdot L_y(\mathbf{x}) \f$
+ * - \f$ \ddot{u}_z = S_z(t) \cdot L_z(\mathbf{x}) \f$
+ *
+ * @param point_source Source parameters (STF components, interpolants)
+ * @param point_properties Material properties (unused for force sources)
+ * @return Acceleration contributions [\f$\ddot{u}_x, \ddot{u}_y, \ddot{u}_z\f$]
+ */
 template <typename PointSourceType, typename PointPropertiesType>
 KOKKOS_INLINE_FUNCTION auto impl_compute_source_contribution(
     const std::integral_constant<specfem::dimension::type,

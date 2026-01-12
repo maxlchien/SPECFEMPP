@@ -12,8 +12,7 @@
 #include <string>
 
 specfem::mesh::mesh<specfem::dimension::type::dim3>
-specfem::io::read_3d_mesh(const std::string &database_file,
-                          const specfem::MPI::MPI *mpi) {
+specfem::io::read_3d_mesh(const std::string &database_file) {
   // Read mesh parameters
   std::ifstream param_stream(database_file, std::ios::in | std::ios::binary);
   if (!param_stream.is_open()) {
@@ -33,11 +32,10 @@ specfem::io::read_3d_mesh(const std::string &database_file,
   specfem::mesh::mesh<specfem::dimension::type::dim3> mesh;
 
   mesh.control_nodes =
-      specfem::io::mesh::impl::fortran::dim3::read_control_nodes(param_stream,
-                                                                 mpi);
+      specfem::io::mesh::impl::fortran::dim3::read_control_nodes(param_stream);
   const auto [nspec, ngllz, nglly, ngllx, control_node_index, materials] =
       specfem::io::mesh::impl::fortran::dim3::read_materials(
-          param_stream, mesh.control_nodes.ngnod, mpi);
+          param_stream, mesh.control_nodes.ngnod);
   mesh.nspec = nspec;
   mesh.element_grid.ngllz = ngllz;
   mesh.element_grid.nglly = nglly;
@@ -46,25 +44,23 @@ specfem::io::read_3d_mesh(const std::string &database_file,
   mesh.control_nodes.control_node_index = control_node_index;
   mesh.materials = materials;
   mesh.boundaries = specfem::io::mesh::impl::fortran::dim3::read_boundaries(
-      param_stream, nspec, mesh.control_nodes, mpi);
+      param_stream, nspec, mesh.control_nodes);
 
   mesh.tags = specfem::mesh::tags<specfem::dimension::type::dim3>(
       nspec, mesh.materials);
 
   // CPML boundaries are not supported yet
   // TODO (Rohit: PML_BOUNDARIES): Add support for PML boundaries
-  specfem::io::mesh::impl::fortran::dim3::read_pml_boundaries(param_stream,
-                                                              mpi);
+  specfem::io::mesh::impl::fortran::dim3::read_pml_boundaries(param_stream);
 
   // MPI interfaces are not supported yet
   // TODO (Rohit: MPI_INTERFACES): Add support for MPI interfaces
-  specfem::io::mesh::impl::fortran::dim3::read_mpi_interfaces(param_stream,
-                                                              mpi);
+  specfem::io::mesh::impl::fortran::dim3::read_mpi_interfaces(param_stream);
 
   // Read adjacency information
   mesh.adjacency_graph =
-      specfem::io::mesh::impl::fortran::dim3::read_adjacency_graph(
-          param_stream, mesh.nspec, mpi);
+      specfem::io::mesh::impl::fortran::dim3::read_adjacency_graph(param_stream,
+                                                                   mesh.nspec);
 
   param_stream.close();
 

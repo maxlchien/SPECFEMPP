@@ -11,7 +11,6 @@
 #include "specfem/receivers.hpp"
 #include "specfem/source.hpp"
 #include "specfem/timescheme.hpp"
-#include "specfem_mpi/interface.hpp"
 #include "specfem_setup.hpp"
 #include "yaml-cpp/yaml.h"
 #include <Kokkos_Core.hpp>
@@ -80,8 +79,7 @@ void program_2d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
         specfem::dimension::type::dim2> > >
-        tasks,
-    specfem::MPI::MPI *mpi) {
+        tasks) {
 
   // --------------------------------------------------------------
   //                    Read parameter file
@@ -105,7 +103,7 @@ void program_2d(
 
   const auto mesh = specfem::io::read_2d_mesh(
       database_filename, setup.get_elastic_wave_type(),
-      setup.get_electromagnetic_wave_type(), mpi);
+      setup.get_electromagnetic_wave_type());
 
   specfem::Logger::info("Mesh Information:");
   specfem::Logger::info("-------------------------------");
@@ -206,7 +204,7 @@ void program_2d(
   //                   Instantiate plotter
   // --------------------------------------------------------------
   const auto wavefield_plotter =
-      setup.instantiate_wavefield_plotter(assembly, dt, mpi);
+      setup.instantiate_wavefield_plotter(assembly, dt);
   if (wavefield_plotter) {
     tasks.push_back(wavefield_plotter);
   }
@@ -272,8 +270,7 @@ void program_3d(
     const YAML::Node &parameter_dict, const YAML::Node &default_dict,
     std::vector<std::shared_ptr<specfem::periodic_tasks::periodic_task<
         specfem::dimension::type::dim3> > >
-        tasks,
-    specfem::MPI::MPI *mpi) {
+        tasks) {
 
   // --------------------------------------------------------------
   //                    Read parameter file
@@ -297,7 +294,7 @@ void program_3d(
   specfem::Logger::info("Reading the mesh...");
   specfem::Logger::info("===================");
   auto mesh_start_time = std::chrono::system_clock::now();
-  const auto mesh = specfem::io::read_3d_mesh(database_filename, mpi);
+  const auto mesh = specfem::io::read_3d_mesh(database_filename);
   auto mesh_read_time = std::chrono::system_clock::now() - mesh_start_time;
   specfem::Logger::info("Time to read mesh: " +
                         std::to_string(mesh_read_time.count()) + " seconds");
@@ -374,7 +371,7 @@ void program_3d(
   specfem::Logger::info("(If set) Instantiate wavefield plotter");
   specfem::Logger::info("-------------------------------");
   const auto wavefield_plotter =
-      setup.instantiate_wavefield_plotter(assembly, dt, mpi);
+      setup.instantiate_wavefield_plotter(assembly, dt);
   if (wavefield_plotter) {
     tasks.push_back(wavefield_plotter);
   }
@@ -425,8 +422,8 @@ void program_3d(
   return;
 }
 
-bool execute(const std::string &dimension, specfem::MPI::MPI *mpi,
-             const YAML::Node &parameter_dict, const YAML::Node &default_dict) {
+bool execute(const std::string &dimension, const YAML::Node &parameter_dict,
+             const YAML::Node &default_dict) {
   try {
     // Use simulation model enumeration for validation
     specfem::simulation::model simulation_model =
@@ -444,7 +441,7 @@ bool execute(const std::string &dimension, specfem::MPI::MPI *mpi,
       tasks.push_back(signal_task);
 
       // Run 2D Cartesian program
-      program_2d(parameter_dict, default_dict, tasks, mpi);
+      program_2d(parameter_dict, default_dict, tasks);
 
       return true;
     }
@@ -459,7 +456,7 @@ bool execute(const std::string &dimension, specfem::MPI::MPI *mpi,
       tasks.push_back(signal_task);
 
       // Run 3D Cartesian program
-      program_3d(parameter_dict, default_dict, tasks, mpi);
+      program_3d(parameter_dict, default_dict, tasks);
 
       return true;
     }

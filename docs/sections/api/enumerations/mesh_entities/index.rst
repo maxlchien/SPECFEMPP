@@ -3,43 +3,43 @@
 ``specfem::mesh_entity::edge``
 ==============================
 
-.. doxygenclass:: specfem::mesh_entity::edge
+.. doxygenstruct:: specfem::mesh_entity::edge
     :members:
 
 Dimension-Specific Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. doxygenclass:: specfem::mesh_entity::edge< specfem::dimension::type::dim2 >
+.. doxygenstruct:: specfem::mesh_entity::edge< specfem::dimension::type::dim2 >
     :members:
 
 ``specfem::mesh_entity::element``
 =================================
 
-.. doxygenclass:: specfem::mesh_entity::element
+.. doxygenstruct:: specfem::mesh_entity::element
     :members:
 
 Dimension-Specific Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. doxygenclass:: specfem::mesh_entity::element< specfem::dimension::type::dim2 >
+.. doxygenstruct:: specfem::mesh_entity::element< specfem::dimension::type::dim2 >
     :members:
 
-.. doxygenclass:: specfem::mesh_entity::element< specfem::dimension::type::dim3 >
+.. doxygenstruct:: specfem::mesh_entity::element< specfem::dimension::type::dim3 >
     :members:
 
 ``specfem::mesh_entity::element_grid``
 ======================================
 
-.. doxygenclass:: specfem::mesh_entity::element_grid
+.. doxygenstruct:: specfem::mesh_entity::element_grid
     :members:
 
 Dimension-Specific Implementations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. doxygenclass:: specfem::mesh_entity::element_grid< specfem::dimension::type::dim2 >
+.. doxygenstruct:: specfem::mesh_entity::element_grid< specfem::dimension::type::dim2 >
     :members:
 
-.. doxygenclass:: specfem::mesh_entity::element_grid< specfem::dimension::type::dim3 >
+.. doxygenstruct:: specfem::mesh_entity::element_grid< specfem::dimension::type::dim3 >
     :members:
 
 ``specfem::mesh_entity::dim2::type``

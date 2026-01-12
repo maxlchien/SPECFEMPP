@@ -3,7 +3,7 @@
 #include "enumerations/specfem_enums.hpp"
 #include "enumerations/wavefield.hpp"
 #include "specfem/periodic_tasks.hpp"
-#include "specfem_mpi/interface.hpp"
+
 #include "utilities/strings.hpp"
 #include <boost/filesystem.hpp>
 
@@ -81,7 +81,7 @@ template <specfem::dimension::type DimensionTag>
 std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
 specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
     const specfem::assembly::assembly<DimensionTag> &assembly,
-    const type_real &dt, specfem::MPI::MPI *mpi) const {
+    const type_real &dt) const {
 
   const auto output_format = [&]() {
     if (specfem::utilities::is_png_string(this->output_format)) {
@@ -175,12 +175,12 @@ specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter(
         specfem::periodic_tasks::plot_wavefield<DimensionTag> >(
         assembly, output_format, field_type, simulation_wavefield_type,
         component, dt, time_interval, this->output_folder, this->elastic_wave,
-        this->electromagnetic_wave, mpi);
+        this->electromagnetic_wave);
   } else if constexpr (DimensionTag == specfem::dimension::type::dim3) {
     return std::make_shared<
         specfem::periodic_tasks::plot_wavefield<DimensionTag> >(
         assembly, output_format, field_type, simulation_wavefield_type,
-        component, dt, time_interval, this->output_folder, mpi);
+        component, dt, time_interval, this->output_folder);
   }
 
   throw std::runtime_error("Unsupported dimension for wavefield plotter");
@@ -192,11 +192,11 @@ template std::shared_ptr<
 specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter<
     specfem::dimension::type::dim2>(
     const specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
-    const type_real &dt, specfem::MPI::MPI *mpi) const;
+    const type_real &dt) const;
 
 template std::shared_ptr<
     specfem::periodic_tasks::periodic_task<specfem::dimension::type::dim3> >
 specfem::runtime_configuration::plot_wavefield::instantiate_wavefield_plotter<
     specfem::dimension::type::dim3>(
     const specfem::assembly::assembly<specfem::dimension::type::dim3> &assembly,
-    const type_real &dt, specfem::MPI::MPI *mpi) const;
+    const type_real &dt) const;

@@ -10,6 +10,7 @@
 #include "solver/solver.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/logger.hpp"
+#include "specfem/mpi.hpp"
 #include "specfem/timescheme.hpp"
 #include "yaml-cpp/yaml.h"
 
@@ -29,15 +30,14 @@ void operator>>(const YAML::Node &Node, test_config &test_config) {
   return;
 }
 
-test_config parse_test_config(std::string test_configuration_file,
-                              specfem::MPI::MPI *mpi) {
+test_config parse_test_config(std::string test_configuration_file) {
 
   YAML::Node yaml = YAML::LoadFile(test_configuration_file);
   const YAML::Node &tests = yaml["Tests"];
   const YAML::Node &serial = tests["serial"];
 
   test_config test_config;
-  if (specfem::MPI_new::get_size() == 1) {
+  if (specfem::MPI::get_size() == 1) {
     serial >> test_config;
   }
 
@@ -74,9 +74,7 @@ void read_field(
 TEST(SEISMOGRAM_TESTS, elastic_seismograms_test) {
   std::string config_filename = "seismogram/elastic/test_config.yaml";
 
-  specfem::MPI::MPI *mpi = SPECFEMEnvironment::get_mpi();
-
-  test_config test_config = parse_test_config(config_filename, mpi);
+  test_config test_config = parse_test_config(config_filename);
 
   const std::string parameter_file = test_config.specfem_config;
 
@@ -89,7 +87,7 @@ TEST(SEISMOGRAM_TESTS, elastic_seismograms_test) {
   const auto quadratures = setup.instantiate_quadrature();
 
   // Read mesh generated MESHFEM
-  specfem::mesh::mesh mesh = specfem::io::read_2d_mesh(database_file, mpi);
+  specfem::mesh::mesh mesh = specfem::io::read_2d_mesh(database_file);
 
   std::vector<std::shared_ptr<specfem::sources::source> > sources(0);
 
