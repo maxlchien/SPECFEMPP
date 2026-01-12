@@ -34,4 +34,3 @@ Old structure
     coupling_physics/coupled_interface
     setup_parameters/index
     macros/index
-    parallel_configuration/index

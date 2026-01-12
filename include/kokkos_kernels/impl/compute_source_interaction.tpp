@@ -8,7 +8,7 @@
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"
 #include "medium/compute_source.hpp"
-#include "parallel_configuration/chunk_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "specfem/execution.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>

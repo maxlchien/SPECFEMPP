@@ -1,9 +1,8 @@
 #include "../SPECFEM_Environment.hpp"
 #include "enumerations/interface.hpp"
-#include "parallel_configuration/chunk_config.hpp"
-#include "parallel_configuration/range_config.hpp"
 #include "specfem/datatype.hpp"
 #include "specfem/execution.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest-param-test.h>
 #include <gtest/gtest.h>

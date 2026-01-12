@@ -4,7 +4,7 @@
 #include "compute_material_derivatives.hpp"
 #include "specfem/execution.hpp"
 #include "medium/compute_frechet_derivatives.hpp"
-#include "parallel_configuration/chunk_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/chunk_element.hpp"
 #include "specfem/point.hpp"

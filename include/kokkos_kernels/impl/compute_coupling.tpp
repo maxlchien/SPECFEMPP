@@ -6,7 +6,7 @@
 #include "enumerations/interface.hpp"
 #include "specfem/execution.hpp"
 #include "medium/compute_coupling.hpp"
-#include "parallel_configuration/chunk_edge_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "specfem/algorithms.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/chunk_edge.hpp"

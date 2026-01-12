@@ -1,7 +1,7 @@
 #pragma once
 
 #include "specfem/execution.hpp"
-#include "parallel_configuration/range_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "specfem/timescheme/newmark.hpp"
 #include "specfem/assembly.hpp"
 

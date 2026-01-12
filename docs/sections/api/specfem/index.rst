@@ -18,6 +18,7 @@
     jacobian/index
     macros/index
     mpi/index
+    parallel_configuration/index
     periodic_tasks/index
     point/index
     program/index
