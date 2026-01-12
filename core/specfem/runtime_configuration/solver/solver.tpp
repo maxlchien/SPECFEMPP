@@ -1,5 +1,4 @@
-#ifndef _SPECFEM_RUNTIME_CONFIGURATION_SOLVER_SOLVER_TPP_
-#define _SPECFEM_RUNTIME_CONFIGURATION_SOLVER_SOLVER_TPP_
+#pragma once
 
 #include "kokkos_kernels/domain_kernels.hpp"
 #include "specfem/solver.hpp"
@@ -47,5 +46,3 @@ specfem::runtime_configuration::solver::solver::instantiate(
     throw std::runtime_error("Simulation type not recognized");
   }
 }
-
-#endif

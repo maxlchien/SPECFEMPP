@@ -1,5 +1,4 @@
-#ifndef _PARAMETER_QUADRATURE_HPP
-#define _PARAMETER_QUADRATURE_HPP
+#pragma once
 
 #include "specfem/quadrature.hpp"
 #include "specfem_setup.hpp"
@@ -57,5 +56,3 @@ private:
 
 } // namespace runtime_configuration
 } // namespace specfem
-
-#endif

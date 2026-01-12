@@ -1,4 +1,4 @@
-#include "parameter_parser/receivers.hpp"
+#include "receivers.hpp"
 #include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"
 

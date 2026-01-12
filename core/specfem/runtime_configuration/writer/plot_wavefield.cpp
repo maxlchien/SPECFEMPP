@@ -1,4 +1,4 @@
-#include "parameter_parser/writer/plot_wavefield.hpp"
+#include "plot_wavefield.hpp"
 #include "enumerations/display.hpp"
 #include "enumerations/specfem_enums.hpp"
 #include "enumerations/wavefield.hpp"

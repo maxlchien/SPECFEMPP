@@ -7,6 +7,7 @@ add_subdirectory(assembly)
 add_subdirectory(point)
 add_subdirectory(quadrature)
 add_subdirectory(receivers)
+add_subdirectory(runtime_configuration)
 add_subdirectory(shape_functions)
 add_subdirectory(solver)
 add_subdirectory(source)
@@ -35,6 +36,7 @@ target_link_libraries(specfem_core_interface
         specfem::program
         specfem::quadrature
         specfem::receivers
+        specfem::runtime_configuration
         specfem::shape_functions
         specfem::source
         specfem::timescheme

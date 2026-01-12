@@ -1,5 +1,4 @@
-#ifndef _PARAMETER_SEISMOGRAM_HPP
-#define _PARAMETER_SEISMOGRAM_HPP
+#pragma once
 
 #include "io/seismogram/writer.hpp"
 #include "specfem_setup.hpp"
@@ -58,5 +57,3 @@ private:
 
 } // namespace runtime_configuration
 } // namespace specfem
-
-#endif

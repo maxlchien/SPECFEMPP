@@ -407,40 +407,6 @@ target_link_libraries(
         utilities
 )
 
-
-add_library(
-        parameter_reader
-        src/parameter_parser/run_setup.cpp
-        src/parameter_parser/time_scheme/time_scheme.cpp
-        src/parameter_parser/database_configuration.cpp
-        src/parameter_parser/header.cpp
-        src/parameter_parser/quadrature.cpp
-        src/parameter_parser/elastic_wave.cpp
-        src/parameter_parser/electromagnetic_wave.cpp
-        src/parameter_parser/receivers.cpp
-        src/parameter_parser/writer/seismogram.cpp
-        src/parameter_parser/setup.cpp
-        src/parameter_parser/writer/wavefield.cpp
-        src/parameter_parser/writer/plot_wavefield.cpp
-        src/parameter_parser/writer/kernel.cpp
-        src/parameter_parser/writer/property.cpp
-)
-
-target_link_libraries(
-        parameter_reader
-        quadrature
-        specfem::timescheme
-        specfem::receivers
-        yaml-cpp
-        specfem::periodic_tasks
-        writer
-        reader
-        kokkos_kernels
-        specfem::solver
-        ${BOOST_LIBS}
-)
-
-
 # specfem2d executable for backward compatibility
 add_executable(specfem2d src/specfem2d.cpp)
 target_link_libraries(specfem2d

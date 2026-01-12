@@ -1,5 +1,4 @@
-#ifndef _RUNTIME_CONFIGURATION_RECEIVERS_HPP
-#define _RUNTIME_CONFIGURATION_RECEIVERS_HPP
+#pragma once
 
 #include "constants.hpp"
 #include "enumerations/specfem_enums.hpp"
@@ -57,5 +56,3 @@ private:
 };
 } // namespace runtime_configuration
 } // namespace specfem
-
-#endif

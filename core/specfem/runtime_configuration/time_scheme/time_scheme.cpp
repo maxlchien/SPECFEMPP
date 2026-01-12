@@ -1,4 +1,4 @@
-#include "parameter_parser/time_scheme/time_scheme.hpp"
+#include "time_scheme.hpp"
 #include "specfem/timescheme/newmark.hpp"
 #include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"

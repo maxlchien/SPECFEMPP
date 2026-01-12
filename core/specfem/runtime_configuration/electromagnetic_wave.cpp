@@ -1,4 +1,4 @@
-#include "parameter_parser/electromagnetic_wave.hpp"
+#include "electromagnetic_wave.hpp"
 
 specfem::runtime_configuration::electromagnetic_wave::electromagnetic_wave(
     const YAML::Node &Node) {

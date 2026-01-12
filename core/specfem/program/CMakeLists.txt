@@ -16,7 +16,7 @@ target_link_libraries(specfem_program
         quadrature
         assembly
         source_class
-        parameter_reader
+        runtime_configuration
         specfem::receivers
         writer
         periodic_tasks
