@@ -5,8 +5,6 @@
 #include "utilities/include/fixture/nonconforming_interface/intersection_function.hpp"
 #include "utilities/include/fixture/nonconforming_interface/quadrature.hpp"
 
-#include <ostream>
-#include <string>
 #include <tuple>
 
 namespace {
@@ -53,40 +51,8 @@ template <typename TestTypes> void run_acoustic_elastic_test() {
       transfer_function, intersection_normal, edge_function, expected_solution);
 }
 
-enum class AcousticElasticCase {
-  Asymm4to5_VectorizedPower,
-};
-
-struct AcousticElasticParams {
-  AcousticElasticCase which;
-  const char *name;
-};
-
-void PrintTo(const AcousticElasticParams &, std::ostream *os) { *os << ""; }
-
-std::ostream &operator<<(std::ostream &os,
-                         const AcousticElasticParams &params) {
-  return os << params.name;
+TEST(NonconformingAcousticElastic, Asymm4to5_VectorizedPower) {
+  run_acoustic_elastic_test<Asymm4to5_VectorizedPower>();
 }
-
-class NonconformingAcousticElasticTest
-    : public ::testing::TestWithParam<AcousticElasticParams> {};
-
-TEST_P(NonconformingAcousticElasticTest, ComputeCoupling) {
-  switch (GetParam().which) {
-  case AcousticElasticCase::Asymm4to5_VectorizedPower:
-    run_acoustic_elastic_test<Asymm4to5_VectorizedPower>();
-    return;
-  }
-}
-
-INSTANTIATE_TEST_SUITE_P(
-    Polynomial, NonconformingAcousticElasticTest,
-    ::testing::Values(AcousticElasticParams{
-        AcousticElasticCase::Asymm4to5_VectorizedPower,
-        "Asymm4to5_VectorizedPower",
-    }),
-    [](const ::testing::TestParamInfo<AcousticElasticParams> &info)
-        -> std::string { return info.param.name; });
 
 } // anonymous namespace

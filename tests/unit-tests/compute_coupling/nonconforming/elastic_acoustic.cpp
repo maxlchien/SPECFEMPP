@@ -5,9 +5,6 @@
 #include "utilities/include/fixture/nonconforming_interface/intersection_function.hpp"
 #include "utilities/include/fixture/nonconforming_interface/quadrature.hpp"
 
-#include <cctype>
-#include <ostream>
-#include <string>
 #include <tuple>
 
 namespace {
@@ -65,60 +62,12 @@ template <typename TestTypes> void run_elastic_acoustic_test() {
       transfer_function, intersection_normal, edge_function, expected_solution);
 }
 
-enum class ElasticAcousticCase {
-  GLL2_Constant,
-  Asymm4to5_HigherOrder,
-};
-
-struct ElasticAcousticParams {
-  ElasticAcousticCase which;
-  const char *name;
-};
-
-void PrintTo(const ElasticAcousticParams &, std::ostream *os) { *os << ""; }
-
-std::ostream &operator<<(std::ostream &os,
-                         const ElasticAcousticParams &params) {
-  return os << params.name;
+TEST(NonconformingElasticAcoustic, GLL2_Constant) {
+  run_elastic_acoustic_test<GLL2_Constant>();
 }
 
-class NonconformingElasticAcousticTest
-    : public ::testing::TestWithParam<ElasticAcousticParams> {};
-
-TEST_P(NonconformingElasticAcousticTest, ComputeCoupling) {
-  switch (GetParam().which) {
-  case ElasticAcousticCase::GLL2_Constant:
-    run_elastic_acoustic_test<GLL2_Constant>();
-    return;
-  case ElasticAcousticCase::Asymm4to5_HigherOrder:
-    run_elastic_acoustic_test<Asymm4to5_HigherOrder>();
-    return;
-  }
+TEST(NonconformingElasticAcoustic, Asymm4to5_HigherOrder) {
+  run_elastic_acoustic_test<Asymm4to5_HigherOrder>();
 }
-
-INSTANTIATE_TEST_SUITE_P(
-    Polynomial, NonconformingElasticAcousticTest,
-    ::testing::Values(ElasticAcousticParams{ ElasticAcousticCase::GLL2_Constant,
-                                             "GLL2_Constant" },
-                      ElasticAcousticParams{
-                          ElasticAcousticCase::Asymm4to5_HigherOrder,
-                          "Asymm4to5_HigherOrder" }),
-    [](const ::testing::TestParamInfo<ElasticAcousticParams> &info)
-        -> std::string {
-      const std::string name = info.param.name;
-      std::string out;
-      out.reserve(name.size());
-      for (unsigned char ch : name) {
-        out.push_back(std::isalnum(ch) ? static_cast<char>(ch) : '_');
-      }
-      if (out.empty()) {
-        out = "Case";
-      }
-      const unsigned char first = static_cast<unsigned char>(out.front());
-      if (!(std::isalpha(first) || out.front() == '_')) {
-        out.insert(out.begin(), '_');
-      }
-      return out;
-    });
 
 } // namespace
