@@ -6,7 +6,15 @@
 #include <iostream>
 #include <string>
 
-boost::program_options::options_description define_args() {
+/**
+ * @brief Define command line options for SPECFEM++ executable
+ * @return Boost program options description
+ *
+ * @code{.sh}
+ * specfem --help
+ * @endcode
+ */
+boost::program_options::options_description define_specfem_args() {
   namespace po = boost::program_options;
 
   po::options_description desc{
@@ -39,10 +47,18 @@ boost::program_options::options_description define_args() {
   return desc;
 }
 
+/**
+ * @brief Parse and validate command line arguments
+ * @param argc Argument count
+ * @param argv Argument vector
+ * @param vm Variables map to store parsed arguments
+ * @param dimension Output parameter for dimension (2d/3d)
+ * @return 1 if successful, 0 if help requested, -1 if error
+ */
 int parse_args(int argc, char **argv, boost::program_options::variables_map &vm,
                std::string &dimension) {
 
-  const auto desc = define_args();
+  const auto desc = define_specfem_args();
 
   try {
     // Check for minimum arguments (program name + dimension)

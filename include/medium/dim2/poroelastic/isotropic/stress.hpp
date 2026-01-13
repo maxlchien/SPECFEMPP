@@ -7,6 +7,53 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_stress_computation_dim2_poroelastic
+ *
+ */
+
+/**
+ * @ingroup specfem_stress_computation_dim2_poroelastic
+ * @brief Compute stress tensor for 2D poroelastic isotropic media.
+ *
+ * Implements Biot's constitutive relations for fluid-saturated porous media
+ * with solid-fluid coupling. Computes both solid stress tensor and fluid
+ * pressure from solid and fluid displacement gradients.
+ *
+ * **Stress components:**
+ * - Solid stress: \f$\sigma_{xx}\f$, \f$\sigma_{zz}\f$, \f$\sigma_{xz}\f$
+ * (modified by fluid pressure coupling)
+ * - Fluid pressure: \f$\sigma_p\f$ (coupled to solid deformation)
+ *
+ * **Key physics:**
+ * - Biot coupling: \f$C_{Biot}\f$ links solid deformation to fluid pressure
+ * - Fluid modulus: \f$M_{Biot}\f$ governs fluid compressibility
+ * - Porosity effects: \f$\phi/\alpha\f$ coupling between fluid and solid phases
+ *
+ * **Constitutive relations:**
+ * \f{eqnarray}{
+ * \sigma_{xx} &=& (\lambda + 2\mu)_G \frac{\partial u_x}{\partial x} +
+ * \lambda_G \frac{\partial u_z}{\partial z} + C_{Biot}\left(\frac{\partial
+ * w_x}{\partial x} + \frac{\partial w_z}{\partial z}\right) \\
+ * \sigma_{zz} &=& (\lambda + 2\mu)_G \frac{\partial u_z}{\partial z} +
+ * \lambda_G \frac{\partial u_x}{\partial x} + C_{Biot}\left(\frac{\partial
+ * w_x}{\partial x} + \frac{\partial w_z}{\partial z}\right) \\
+ * \sigma_{xz} &=& \mu_G \left(\frac{\partial u_z}{\partial x} + \frac{\partial
+ * u_x}{\partial z}\right) \\
+ * \sigma_p &=& C_{Biot}\left(\frac{\partial u_x}{\partial x} + \frac{\partial
+ * u_z}{\partial z}\right) + M_{Biot}\left(\frac{\partial w_x}{\partial x} +
+ * \frac{\partial w_z}{\partial z}\right)
+ * \f}
+ *
+ * **Variables:**
+ * - \f$u_x, u_z\f$: Solid displacements
+ * - \f$w_x, w_z\f$: Fluid displacements relative to solid
+ *
+ * @tparam UseSIMD Enable SIMD vectorization for performance
+ * @param properties Poroelastic material properties (Biot parameters)
+ * @param field_derivatives Solid and fluid displacement gradients
+ * @return 4x2 coupled stress tensor (solid + fluid)
+ */
 template <bool UseSIMD>
 KOKKOS_INLINE_FUNCTION
     specfem::point::stress<specfem::dimension::type::dim2,

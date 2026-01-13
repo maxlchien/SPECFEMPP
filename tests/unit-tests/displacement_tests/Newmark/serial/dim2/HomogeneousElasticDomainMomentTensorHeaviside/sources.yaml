@@ -1,0 +1,16 @@
+number-of-sources: 1
+sources:
+  - moment-tensor:
+      x: 2500.0
+      z: 2500.0
+      source_surf: false
+      angle: 0.0
+      vx : 0.0
+      vz : 0.0
+      Mxx: 0.0
+      Mzz: 0.0
+      Mxz: 1.0
+      Heaviside:
+        hdur: 0.1
+        factor: 1e8
+        tshift: 0.0

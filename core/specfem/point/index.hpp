@@ -17,15 +17,6 @@ namespace point {
 template <specfem::dimension::type DimensionTag, bool using_simd = false>
 struct index;
 
-/**
- * @brief Alias for the simd index
- *
- * @tparam DimensionTag Dimension of the element where the quadrature point is
- * located
- */
-template <specfem::dimension::type DimensionTag>
-using simd_index = index<DimensionTag, true>;
-
 //--------------------------- 2D Specializations -----------------------------//
 
 /**
@@ -77,8 +68,6 @@ struct index<specfem::dimension::type::dim2, false>
 
 /**
  * @brief 2D specialization of the index struct for the SIMD case
- *
- * @copydoc simd_index
  *
  */
 template <>
@@ -205,8 +194,6 @@ struct index<specfem::dimension::type::dim3, false>
 /**
  * @brief Template specialization for 2D elements for the SIMD index
  * implementation.
- *
- * @copydoc simd_index
  *
  */
 template <>

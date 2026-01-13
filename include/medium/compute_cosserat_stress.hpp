@@ -111,24 +111,22 @@ KOKKOS_INLINE_FUNCTION void impl_compute_cosserat_stress(
 }
 
 /**
- * @defgroup MediumPhysics
- */
-
-/**
- * @brief Compute the damping term at a quadrature point
+ * @brief Compute Cosserat stress contribution for micropolar elastic media.
  *
- * @ingroup MediumPhysics
+ * Generic Cosserat stress computation interface that adds couple stress
+ * and asymmetric force stress contributions to classical elasticity.
+ * Provides compile-time dispatch to medium-specific implementations.
  *
- * @tparam PointPropertiesType Material properties at the quadrature point
- * specfem::point::properties
- * @tparam PointVelocityType Velocity at the quadrature point
- * specfem::point::field
- * @tparam PointAccelerationType Acceleration at the quadrature point
- * specfem::point::field
- * @param factor Prefactor for the damping term ($wx * wz * jacobian)
- * @param point_properties Material properties at the quadrature point
- * @param velocity Velocity at the quadrature point
- * @param acceleration Acceleration at the quadrature point
+ * @note Only medium types with Cosserat stress support will modify the
+ * stress field. Other medium types result in no-op unless explicitly
+ * implemented.
+ *
+ * @tparam PointPropertiesType Point-wise material properties
+ * @tparam PointDisplacementType Point-wise displacement field
+ * @tparam PointStressType Point-wise stress field
+ * @param point_properties Cosserat material properties
+ * @param point_displacement Displacement field at point
+ * @param point_stress[in,out] Stress field (modified by Cosserat contribution)
  */
 template <typename PointPropertiesType, typename PointDisplacementType,
           typename PointStressType>

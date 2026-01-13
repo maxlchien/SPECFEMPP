@@ -1,0 +1,1 @@
+.. include:: ../impl/accessor.rst

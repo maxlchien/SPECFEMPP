@@ -230,8 +230,8 @@ public:
  *
  * @ingroup BoundaryConditionDataAccess
  *
- * @tparam IndexType Index type for quadrature point location. Must be either
- * @ref specfem::point::index or @ref specfem::point::simd_index, with SIMD
+ * @tparam IndexType Index type for quadrature point location. Must be
+ * @ref specfem::point::index with SIMD
  * usage matching PointBoundaryType
  * @tparam PointBoundaryType Point boundary data container. Must be @ref
  * specfem::point::boundary specialized for the appropriate boundary tag and
@@ -342,8 +342,8 @@ KOKKOS_FORCEINLINE_FUNCTION void load_on_device(
  *
  * @ingroup BoundaryConditionDataAccess
  *
- * @tparam IndexType Index type for quadrature point location. Must be either
- * @ref specfem::point::index or @ref specfem::point::simd_index, with SIMD
+ * @tparam IndexType Index type for quadrature point location. Must be
+ * @ref specfem::point::index with SIMD
  * usage matching PointBoundaryType
  * @tparam PointBoundaryType Point boundary data container. Must be @ref
  * specfem::point::boundary specialized for the appropriate boundary tag and

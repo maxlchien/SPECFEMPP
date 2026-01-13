@@ -220,7 +220,6 @@ public:
    * on device
    *
    * @tparam IndexType Must be a valid SIMD index type
-   * (specfem::point::simd_index)
    *
    * @param index SIMD index containing multiple quadrature point locations
    * @param boundary Output SIMD boundary object with vectorized tag storage

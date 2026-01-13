@@ -4,12 +4,13 @@
 #include "execution/range_iterator.hpp"
 #include "parallel_configuration/range_config.hpp"
 #include "specfem/timescheme/newmark.hpp"
+#include "specfem/assembly.hpp"
 
-namespace {
+
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::wavefield::simulation_field WavefieldType>
-int corrector_phase_impl(
+int specfem::time_scheme::newmark_impl::corrector_phase_impl(
     const specfem::assembly::simulation_field<DimensionTag, WavefieldType> &field,
     const type_real deltatover2) {
 
@@ -40,7 +41,7 @@ int corrector_phase_impl(
   Kokkos::Profiling::pushRegion("Compute Corrector Phase");
 
   specfem::execution::for_all(
-      "specfem::TimeScheme::Newmark::corrector_phase_impl", range,
+      "specfem::time_scheme::newmark_impl::corrector_phase_impl", range,
       KOKKOS_LAMBDA(const typename decltype(range)::base_index_type &iterator_index) {
         const auto index = iterator_index.get_index();
         PointAccelerationType acceleration;
@@ -63,7 +64,7 @@ int corrector_phase_impl(
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::wavefield::simulation_field WavefieldType>
-int predictor_phase_impl(
+int specfem::time_scheme::newmark_impl::predictor_phase_impl(
     const specfem::assembly::simulation_field<DimensionTag, WavefieldType> &field,
     const type_real deltat, const type_real deltatover2,
     const type_real deltasquareover2) {
@@ -99,7 +100,7 @@ int predictor_phase_impl(
   Kokkos::Profiling::pushRegion("Compute Predictor Phase");
 
   specfem::execution::for_all(
-      "specfem::TimeScheme::Newmark::corrector_phase_impl", range,
+      "specfem::time_scheme::newmark_impl::predictor_phase_impl", range,
       KOKKOS_LAMBDA(const typename decltype(range)::base_index_type &iterator_index) {
         const auto index = iterator_index.get_index();
         PointDisplacementType displacement;
@@ -125,9 +126,6 @@ int predictor_phase_impl(
 
   return nglob * ncomponents;
 }
-} // namespace
-
-
 
 template<typename AssemblyFields>
 int specfem::time_scheme::newmark<AssemblyFields,
@@ -144,7 +142,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.forward, deltatover2);
+            return specfem::time_scheme::newmark_impl::corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.forward, deltatover2);
           }
         }
       })
@@ -166,7 +164,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.forward, deltat, deltatover2, deltasquareover2);
           }
         }
@@ -189,7 +187,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.adjoint,
+            return specfem::time_scheme::newmark_impl::corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(fields.adjoint,
                                                   deltatover2);
           }
         }
@@ -212,7 +210,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::corrector_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.backward, -1.0 * deltatover2);
           }
         }
@@ -235,7 +233,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.adjoint, deltat, deltatover2, deltasquareover2);
           }
         }
@@ -258,7 +256,7 @@ int specfem::time_scheme::newmark<AssemblyFields,
       {
         if constexpr (dimension_tag == _dimension_tag_) {
           if (tag == _medium_tag_) {
-            return predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
+            return specfem::time_scheme::newmark_impl::predictor_phase_impl<dimension_tag, _medium_tag_, wavefield>(
                 fields.backward, -1.0 * deltat, -1.0 * deltatover2,
                 deltasquareover2);
           }
