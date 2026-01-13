@@ -109,17 +109,6 @@ void compute_source_array_from_tensor_and_element_jacobian(
 
 } // namespace specfem::assembly::compute_source_array_impl
 
-/**
- * @brief Main entry point for 3D tensor source array computation.
- *
- * Extracts element Jacobian matrices from global storage and delegates to
- * helper function for computation.
- *
- * @param tensor_source Moment tensor source object
- * @param mesh Mesh containing quadrature information
- * @param jacobian_matrix Global Jacobian matrix storage
- * @param source_array Output array
- */
 void specfem::assembly::compute_source_array_impl::from_tensor(
     const specfem::sources::tensor_source<specfem::dimension::type::dim3>
         &tensor_source,
