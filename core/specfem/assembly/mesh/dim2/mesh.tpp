@@ -4,7 +4,7 @@
 #include "specfem/macros.hpp"
 #include "kokkos_abstractions.h"
 #include "mesh.hpp"
-#include "parallel_configuration/chunk_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "quadrature/interface.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/jacobian.hpp"

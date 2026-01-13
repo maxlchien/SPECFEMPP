@@ -11,7 +11,7 @@
 #include "medium/compute_cosserat_stress.hpp"
 #include "medium/compute_damping_force.hpp"
 #include "medium/compute_stress.hpp"
-#include "parallel_configuration/chunk_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "quadrature/lagrange_derivative.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/chunk_element.hpp"

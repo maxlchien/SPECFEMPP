@@ -10,7 +10,7 @@
 #include "enumerations/wavefield.hpp"
 #include "specfem/execution.hpp"
 #include "medium/compute_wavefield.hpp"
-#include "parallel_configuration/chunk_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>

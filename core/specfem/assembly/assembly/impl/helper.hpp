@@ -2,11 +2,11 @@
 
 #include "enumerations/interface.hpp"
 #include "medium/medium.hpp"
-#include "parallel_configuration/chunk_config.hpp"
 #include "specfem/assembly/assembly.hpp"
 #include "specfem/assembly/assembly/impl/helper.hpp"
 #include "specfem/chunk_element.hpp"
 #include "specfem/execution.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>
 

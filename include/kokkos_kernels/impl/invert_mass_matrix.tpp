@@ -1,7 +1,7 @@
 #pragma once
 
 #include "specfem/assembly.hpp"
-#include "parallel_configuration/range_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "specfem/execution.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>

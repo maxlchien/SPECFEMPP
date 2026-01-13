@@ -1,6 +1,6 @@
 #include "specfem/assembly/mesh/dim2/impl/utilities.hpp"
 #include "kokkos_abstractions.h"
-#include "parallel_configuration/chunk_config.hpp"
+#include "specfem/parallel_configuration.hpp"
 #include "test_macros.hpp"
 #include "utilities/utilities.hpp"
 #include <gtest/gtest.h>
