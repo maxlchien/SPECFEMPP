@@ -21,6 +21,13 @@ using acoustic_free_surface_type = std::integral_constant<
 /**
  * @brief Apply Dirichlet boundary conditions (non-SIMD)
  *
+ * Enforces homogeneous Dirichlet boundary conditions by setting the
+ * acceleration to zero on the boundary.
+ *
+ * \f[
+ * \mathbf{a} = \mathbf{0} \quad \text{on } \Gamma
+ * \f]
+ *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type
  * @tparam PointFieldType Point field type
@@ -56,6 +63,13 @@ KOKKOS_FORCEINLINE_FUNCTION void impl_apply_boundary_conditions(
 
 /**
  * @brief Apply Dirichlet boundary conditions (SIMD)
+ *
+ * Enforces homogeneous Dirichlet boundary conditions by setting the
+ * acceleration to zero on the boundary.
+ *
+ * \f[
+ * \mathbf{a} = \mathbf{0} \quad \text{on } \Gamma
+ * \f]
  *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type
@@ -98,6 +112,8 @@ KOKKOS_FORCEINLINE_FUNCTION void impl_apply_boundary_conditions(
 /**
  * @brief Compute mass matrix terms for Dirichlet boundary conditions
  *
+ * No additional mass matrix terms are required for Dirichlet boundaries.
+ *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type
  * @tparam PointMassMatrixType Point mass matrix type
@@ -121,6 +137,13 @@ KOKKOS_FORCEINLINE_FUNCTION void impl_compute_mass_matrix_terms(
 
 /**
  * @brief Apply Dirichlet boundary conditions (non-SIMD)
+ *
+ * Enforces homogeneous Dirichlet boundary conditions by setting the
+ * acceleration to zero on the boundary.
+ *
+ * \f[
+ * \mathbf{a} = \mathbf{0} \quad \text{on } \Gamma
+ * \f]
  *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointAccelerationType Point acceleration type
@@ -153,6 +176,13 @@ impl_apply_boundary_conditions(const acoustic_free_surface_type &,
 
 /**
  * @brief Apply Dirichlet boundary conditions (SIMD)
+ *
+ * Enforces homogeneous Dirichlet boundary conditions by setting the
+ * acceleration to zero on the boundary.
+ *
+ * \f[
+ * \mathbf{a} = \mathbf{0} \quad \text{on } \Gamma
+ * \f]
  *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointAccelerationType Point acceleration type

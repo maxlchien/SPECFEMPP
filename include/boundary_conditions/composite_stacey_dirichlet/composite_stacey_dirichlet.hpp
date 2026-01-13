@@ -20,6 +20,15 @@ using composite_stacey_dirichlet_type = std::integral_constant<
 /**
  * @brief Apply composite Stacey and Dirichlet boundary conditions
  *
+ * Handles boundary conditions for points situated at the intersection
+ * of an Absorbing (Stacey) boundary and a Fixed (Dirichlet) boundary,
+ * such as the corner of a domain.
+ *
+ * This function applies the Stacey absorbing condition (using `t_traction`)
+ * to the components normal to the absorbing boundary, while enforcing
+ * the Dirichlet condition (zeroing out acceleration/velocity) on the
+ * components constrained by the fixed boundary.
+ *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type
  * @tparam PointFieldType Point field type
@@ -39,6 +48,13 @@ KOKKOS_FUNCTION void impl_apply_boundary_conditions(
 /**
  * @brief Compute mass matrix terms for composite Stacey and Dirichlet boundary
  * conditions
+ *
+ * Modifies the mass matrix for points at the intersection of Stacey and
+ * Dirichlet boundaries (e.g. domain corners).
+ *
+ * Adds the contribution from the Stacey absorbing boundary (related to time
+ * step `dt` and material properties) to the mass matrix diagonal for the
+ * absorbing components, ensuring proper damping at the corner.
  *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type

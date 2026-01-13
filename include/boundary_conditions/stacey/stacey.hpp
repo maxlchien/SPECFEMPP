@@ -20,6 +20,26 @@ using stacey_type =
 /**
  * @brief Apply Stacey absorbing boundary conditions
  *
+ * Implements the first-order paraxial absorbing boundary condition (Stacey
+ * condition). The traction vector \f$\mathbf{t}\f$ is computed to absorb
+ * outgoing waves based on the velocity field \f$\mathbf{v}\f$ and the medium
+ * properties.
+ *
+ * The boundary condition is defined as:
+ * \f[
+ * \mathbf{t} = - \rho V_p (\mathbf{v} \cdot \mathbf{n}) \mathbf{n} - \rho V_s
+ * (\mathbf{v} - (\mathbf{v} \cdot \mathbf{n}) \mathbf{n})
+ * \f]
+ *
+ * where:
+ * - \f$\rho\f$ is the density,
+ * - \f$V_p\f$ is the P-wave velocity,
+ * - \f$V_s\f$ is the S-wave velocity,
+ * - \f$\mathbf{n}\f$ is the outward unit normal vector to the boundary.
+ *
+ * This effectively separates the wavefield into normal (P-wave) and tangential
+ * (S-wave) components and applies the corresponding impedance to absorb them.
+ *
  * @tparam PointBoundaryType Point boundary type
  * @tparam PointPropertyType Point property type
  * @tparam PointFieldType Point field type
