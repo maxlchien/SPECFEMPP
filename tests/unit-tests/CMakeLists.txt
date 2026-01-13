@@ -699,9 +699,9 @@ add_executable(
   compute_coupling_tests
   compute_coupling/acoustic_elastic.cpp
   compute_coupling/elastic_acoustic.cpp
-  compute_coupling/runner.cpp
   compute_coupling/nonconforming/acoustic_elastic.cpp
   compute_coupling/nonconforming/elastic_acoustic.cpp
+  compute_coupling/runner.cpp
 )
 
 target_link_libraries(
