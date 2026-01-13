@@ -25,7 +25,7 @@ specfem::assembly::mesh_impl::control_nodes<specfem::dimension::type::dim2>::
       "specfem::assembly::control_nodes::assign_control_node_mapping",
       Kokkos::MDRangePolicy<Kokkos::DefaultHostExecutionSpace,
                             Kokkos::Rank<2, Kokkos::Iterate::Right> >(
-          { 0, 0 }, { nspec, ngnod }),
+          { 0, 0 }, { ngnod, nspec }),
       [=](const int in, const int ispec) {
         const int ispec_mesh = mapping.compute_to_mesh(ispec);
         const int index = control_nodes.knods(in, ispec_mesh);
