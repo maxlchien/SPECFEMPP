@@ -39,35 +39,16 @@ using Asymm4to5_HigherOrder = std::tuple<
                                            AnalyticalFunctionType::Power<3> >,
         QuadraturePoints::Asymm5Point> >;
 
-template <typename TestTypes> void run_elastic_acoustic_test() {
-  using TransferFunctionInit = std::tuple_element_t<0, TestTypes>;
-  using IntersectionNormalInit = std::tuple_element_t<1, TestTypes>;
-  using EdgeFunctionInit = std::tuple_element_t<2, TestTypes>;
-  using ExpectedSolutionInit = std::tuple_element_t<3, TestTypes>;
-
-  specfem::test_fixture::TransferFunction2D<TransferFunctionInit>
-      transfer_function{ TransferFunctionInit{} };
-  specfem::test_fixture::IntersectionFunction2D<IntersectionNormalInit>
-      intersection_normal{ IntersectionNormalInit{} };
-  specfem::test_fixture::EdgeFunction2D<EdgeFunctionInit> edge_function{
-    EdgeFunctionInit{}
-  };
-  specfem::test_fixture::IntersectionFunction2D<ExpectedSolutionInit>
-      expected_solution{ ExpectedSolutionInit{} };
-
-  execute_impl_compute_coupling<
-      specfem::interface::interface_tag::elastic_acoustic,
-      EdgeFunctionAccessor<
-          specfem::interface::interface_tag::elastic_acoustic> >(
-      transfer_function, intersection_normal, edge_function, expected_solution);
-}
-
 TEST(NonconformingElasticAcoustic, GLL2_Constant) {
-  run_elastic_acoustic_test<GLL2_Constant>();
+  specfem::compute_coupling_test::nonconforming::run_case<
+      specfem::interface::interface_tag::elastic_acoustic,
+      specfem::interface::flux_scheme_tag::natural, GLL2_Constant>();
 }
 
 TEST(NonconformingElasticAcoustic, Asymm4to5_HigherOrder) {
-  run_elastic_acoustic_test<Asymm4to5_HigherOrder>();
+  specfem::compute_coupling_test::nonconforming::run_case<
+      specfem::interface::interface_tag::elastic_acoustic,
+      specfem::interface::flux_scheme_tag::natural, Asymm4to5_HigherOrder>();
 }
 
 } // namespace

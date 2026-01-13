@@ -27,32 +27,11 @@ using Asymm4to5_VectorizedPower = std::tuple<
                                     AnalyticalFunctionType::Power<3> >,
         QuadraturePoints::Asymm5Point> >;
 
-// Helper to run test with specific types
-template <typename TestTypes> void run_acoustic_elastic_test() {
-  using TransferFunctionInit = std::tuple_element_t<0, TestTypes>;
-  using IntersectionNormalInit = std::tuple_element_t<1, TestTypes>;
-  using EdgeFunctionInit = std::tuple_element_t<2, TestTypes>;
-  using ExpectedSolutionInit = std::tuple_element_t<3, TestTypes>;
-
-  specfem::test_fixture::TransferFunction2D<TransferFunctionInit>
-      transfer_function{ TransferFunctionInit{} };
-  specfem::test_fixture::IntersectionFunction2D<IntersectionNormalInit>
-      intersection_normal{ IntersectionNormalInit{} };
-  specfem::test_fixture::EdgeFunction2D<EdgeFunctionInit> edge_function{
-    EdgeFunctionInit{}
-  };
-  specfem::test_fixture::IntersectionFunction2D<ExpectedSolutionInit>
-      expected_solution{ ExpectedSolutionInit{} };
-
-  execute_impl_compute_coupling<
-      specfem::interface::interface_tag::acoustic_elastic,
-      EdgeFunctionAccessor<
-          specfem::interface::interface_tag::acoustic_elastic> >(
-      transfer_function, intersection_normal, edge_function, expected_solution);
-}
-
 TEST(NonconformingAcousticElastic, Asymm4to5_VectorizedPower) {
-  run_acoustic_elastic_test<Asymm4to5_VectorizedPower>();
+  specfem::compute_coupling_test::nonconforming::run_case<
+      specfem::interface::interface_tag::acoustic_elastic,
+      specfem::interface::flux_scheme_tag::natural,
+      Asymm4to5_VectorizedPower>();
 }
 
 } // anonymous namespace
