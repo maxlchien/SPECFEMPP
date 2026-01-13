@@ -11,7 +11,7 @@ target_link_libraries(
         PRIVATE
         algorithms
         enumerations
-        quadrature
+        specfem::quadrature
         mesh
         source_class
         jacobian
