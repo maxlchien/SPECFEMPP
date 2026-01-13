@@ -428,7 +428,7 @@ add_library(
 
 target_link_libraries(
         parameter_reader
-        quadrature
+        specfem::quadrature
         specfem::timescheme
         specfem::receivers
         yaml-cpp

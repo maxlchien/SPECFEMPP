@@ -132,7 +132,7 @@ add_executable(
 target_link_libraries(
   gll_tests
   gtest_main
-  quadrature
+  specfem::quadrature
   specfem_environment
   point
   -lpthread -lm
@@ -146,7 +146,7 @@ add_executable(
 target_link_libraries(
   lagrange_tests
   gtest_main
-  quadrature
+  specfem::quadrature
   specfem_environment
   -lpthread -lm
 )
@@ -182,7 +182,7 @@ add_executable(
 target_link_libraries(
   enumerations_tests
   enumerations
-  quadrature
+  specfem::quadrature
   shape_functions
   gtest_main
   specfem_environment
@@ -327,7 +327,7 @@ target_link_libraries(
   nonconforming_tests
   mesh
   assembly
-  quadrature
+  specfem::quadrature
   specfem_environment
   yaml-cpp
   specfem::utilities
@@ -429,7 +429,7 @@ target_link_libraries(
   writer
   mesh
   assembly
-  quadrature
+  specfem::quadrature
   specfem_environment
   io
   yaml-cpp
@@ -477,7 +477,7 @@ target_link_libraries(
   writer
   mesh
   assembly
-  quadrature
+  specfem::quadrature
   specfem_environment
   io
 
@@ -485,7 +485,7 @@ target_link_libraries(
   specfem::utilities
   enumerations
   shape_functions
-  quadrature
+  specfem::quadrature
   boost
 
   -lpthread -lm
@@ -505,7 +505,7 @@ target_link_libraries(
   assembly_receivers_tests
   mesh
   assembly
-  quadrature
+  specfem::quadrature
   specfem_environment
   yaml-cpp
   io
@@ -545,9 +545,9 @@ add_executable(
 
 target_link_libraries(
   interpolate_function
-  quadrature
+  specfem::quadrature
   specfem_environment
-  algorithms
+  specfem::algorithms
   io
   boost
   point
@@ -563,7 +563,7 @@ add_executable(
 target_link_libraries(
   locate_point_fixture_2d
   mesh_utilities_mapping
-  algorithms
+  specfem::algorithms
   jacobian
   point
   specfem::utilities
@@ -580,7 +580,7 @@ add_executable(
 target_link_libraries(
   locate_point_fixture_3d
   mesh_utilities_mapping
-  algorithms
+  specfem::algorithms
   jacobian
   point
   specfem::utilities
@@ -596,13 +596,12 @@ add_executable(
 
 target_link_libraries(
   gradient_tests
-  quadrature
-  algorithms
+  specfem::quadrature
+  specfem::algorithms
   gtest_main
   Kokkos::kokkos
   specfem_environment
   assembly
-  quadrature
   specfem::utilities
   -lpthread -lm
 )
@@ -617,7 +616,7 @@ add_executable(
 
 target_link_libraries(
   transfer_tests
-  algorithms
+  specfem::algorithms
   enumerations
   gtest_main
   Kokkos::kokkos
@@ -788,7 +787,7 @@ add_executable(
 
 target_link_libraries(
   displacement_newmark_2d_tests
-  quadrature
+  specfem::quadrature
   mesh
   # material_class
   yaml-cpp
@@ -798,7 +797,7 @@ target_link_libraries(
   compare_arrays
   timescheme
   point
-  algorithms
+  specfem::algorithms
   kokkos_kernels
   specfem::solver
   specfem::periodic_tasks
@@ -814,7 +813,7 @@ add_executable(
 
 target_link_libraries(
   displacement_newmark_3d_tests
-  quadrature
+  specfem::quadrature
   mesh
   # material_class
   yaml-cpp
@@ -824,7 +823,7 @@ target_link_libraries(
   compare_arrays
   timescheme
   point
-  algorithms
+  specfem::algorithms
   kokkos_kernels
   specfem::solver
   specfem::periodic_tasks
@@ -952,7 +951,7 @@ if(NOT MPI_PARALLEL)
   # the tests can access them from the build folder.
 
   set(LINK_DIRS
-    algorithms
+    specfem::algorithms
     assembly
     assembly_mesh
     data
