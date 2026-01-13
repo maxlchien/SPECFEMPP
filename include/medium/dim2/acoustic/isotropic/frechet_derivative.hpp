@@ -24,8 +24,8 @@ namespace medium {
  *
  * Density kernel:
  * \f[
- *  K_{rho} = \left( \frac{\partial u^{\dagger}}{\partial x} \frac{\partial
- * u^{b}}{\partial x} +
+ *  \Delta K_{rho} = \left( \frac{\partial u^{\dagger}}{\partial x}
+ * \frac{\partial u^{b}}{\partial x} +
  *                    \frac{\partial u^{\dagger}}{\partial z} \frac{\partial
  * u^{b}}{\partial z} \right)
  *             \frac{1}{\rho} \Delta t
@@ -33,7 +33,7 @@ namespace medium {
  *
  * Bulk modulus kernel:
  * \f[
- *  K_{kappa} = \ddot{u}^{\dagger} \cdot u^{b} \frac{1}{\kappa} \Delta t
+ *  \Delta K_{kappa} = \ddot{u}^{\dagger} \cdot u^{b} \frac{1}{\kappa} \Delta t
  * \f]
  *
  * where \f$u^{\dagger}\f$ is the adjoint field, \f$u^{b}\f$ is the backward

@@ -24,11 +24,12 @@ namespace medium {
  *
  * Based on Tromp et al. 2005, Equation 15 for anisotropic kernels:
  * \f[
- * K_{c_{ijkl}} = -\varepsilon_{ij}^{\dagger} \varepsilon_{kl}^b \, c_{ijkl} \,
+ * \Delta K_{c_{ijkl}} = -\varepsilon_{ij}^{\dagger} \varepsilon_{kl}^b \,
+ * c_{ijkl} \,
  * \Delta t
  * \f]
  * \f[
- * K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ * \Delta K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
  * \f]
  *
  * @tparam PointPropertiesType Anisotropic material properties
