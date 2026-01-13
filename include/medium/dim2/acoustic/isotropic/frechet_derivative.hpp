@@ -17,14 +17,14 @@ namespace medium {
  * @brief Compute Fréchet derivatives for 2D acoustic isotropic media.
  *
  * Calculates sensitivity kernels for density and bulk modulus in
- * 2D acoustic wave propagation. Returns kernels \f$\KL_{rho}\f$ and
- * \f$\KL_{kappa}\f$ used in seismic inversion.
+ * 2D acoustic wave propagation. Returns kernels \f$ K_{rho}\f$ and
+ * \f$ K_{kappa}\f$ used in seismic inversion.
  *
  * The kernels are computed using the following equations:
  *
  * Density kernel:
  * \f[
- * \KL_{rho} = \left( \frac{\partial u^{\dagger}}{\partial x} \frac{\partial
+ *  K_{rho} = \left( \frac{\partial u^{\dagger}}{\partial x} \frac{\partial
  * u^{b}}{\partial x} +
  *                    \frac{\partial u^{\dagger}}{\partial z} \frac{\partial
  * u^{b}}{\partial z} \right)
@@ -33,7 +33,7 @@ namespace medium {
  *
  * Bulk modulus kernel:
  * \f[
- * \KL_{kappa} = \ddot{u}^{\dagger} \cdot u^{b} \frac{1}{\kappa} \Delta t
+ *  K_{kappa} = \ddot{u}^{\dagger} \cdot u^{b} \frac{1}{\kappa} \Delta t
  * \f]
  *
  * where \f$u^{\dagger}\f$ is the adjoint field, \f$u^{b}\f$ is the backward

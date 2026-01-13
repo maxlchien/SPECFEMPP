@@ -25,15 +25,15 @@ namespace medium {
  *
  * The kernels are computed using deviatoric strain tensor formulations:
  * \f[
- * \KL_{kappa} = -\kappa \Delta t \, \text{div}(u^{\dagger}) \cdot
+ *  K_{kappa} = -\kappa \Delta t \, \text{div}(u^{\dagger}) \cdot
  * \text{div}(u^b)
  * \f]
  * \f[
- * \KL_{mu} = -2\mu \Delta t \left[ \varepsilon^{\dagger} : \varepsilon^b -
- * \frac{1}{3}\KL_{kappa} \right]
+ *  K_{mu} = -2\mu \Delta t \left[ \varepsilon^{\dagger} : \varepsilon^b -
+ * \frac{1}{3} K_{kappa} \right]
  * \f]
  * \f[
- * \KL_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ *  K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
  * \f]
  *
  * @tparam PointPropertiesType Elastic material properties
@@ -189,12 +189,12 @@ impl_compute_frechet_derivatives(
  *
  * The kernels use deviatoric strain formulation:
  * \f[
- * \KL_{mu} = -\mu \Delta t \left( \frac{\partial u_y^{\dagger}}{\partial x}
+ *  K_{mu} = -\mu \Delta t \left( \frac{\partial u_y^{\dagger}}{\partial x}
  * \frac{\partial u_y^b}{\partial x} + \frac{\partial u_y^{\dagger}}{\partial z}
  * \frac{\partial u_y^b}{\partial z} \right)
  * \f]
  * \f[
- * \KL_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ *  K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
  * \f]
  *
  * @tparam PointPropertiesType Elastic material properties
@@ -212,7 +212,7 @@ impl_compute_frechet_derivatives(
  * @param dt Time step size
  * @return Point kernels with SH-specific parameter sensitivities
  *
- * @note For SH waves: κ_KL = 0, α_KL = 0, β_KL = 2μ_KL
+ * @note For SH waves: K_{kappa} = 0, K_{alpha} = 0, K_{beta} = 2K_{mu}
  */
 template <typename PointPropertiesType, typename AdjointPointVelocityType,
           typename AdjointPointAccelerationType,
