@@ -1,9 +1,11 @@
 #pragma once
 
 #include "boundary_conditions/composite_stacey_dirichlet/composite_stacey_dirichlet.hpp"
+#include "boundary_conditions/composite_stacey_dirichlet/composite_stacey_dirichlet.tpp"
 #include "boundary_conditions/dirichlet/dirichlet.hpp"
 #include "boundary_conditions/none/none.hpp"
 #include "boundary_conditions/stacey/stacey.hpp"
+#include "boundary_conditions/stacey/stacey.tpp"
 #include "enumerations/interface.hpp"
 #include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
