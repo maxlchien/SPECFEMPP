@@ -11,6 +11,7 @@
     assembly/index
     chunk_edge/index
     chunk_element/index
+    datatype/index
     data_access/index
     io/index
     jacobian/index

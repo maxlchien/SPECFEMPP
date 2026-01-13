@@ -2,7 +2,6 @@
 
 #include "enumerations/interface.hpp"
 #include "point_view.hpp"
-#include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {

@@ -1,4 +1,4 @@
-#include "datatypes/simd.hpp"
+#include "specfem/datatype.hpp"
 #include "specfem_setup.hpp"
 #include "test_macros.hpp"
 #include <gtest/gtest.h>

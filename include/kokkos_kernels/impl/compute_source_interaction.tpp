@@ -2,7 +2,7 @@
 
 #include "specfem/boundary_conditions.hpp"
 #include "specfem/assembly.hpp"
-#include "datatypes/simd.hpp"
+#include "specfem/datatype.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "enumerations/wavefield.hpp"

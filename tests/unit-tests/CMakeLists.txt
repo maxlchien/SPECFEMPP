@@ -194,7 +194,7 @@ set_target_properties(enumerations_tests PROPERTIES UNITY_BUILD OFF)
 
 add_executable(
   simd_tests
-  datatypes/simd_tests.cpp
+  datatype/simd_tests.cpp
 )
 target_link_libraries(
   simd_tests

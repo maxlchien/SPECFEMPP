@@ -1,7 +1,7 @@
 #pragma once
 
-#include "datatypes/point_view.hpp"
 #include "enumerations/dimension.hpp"
+#include "specfem/datatype/point_view.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem::datatype::impl {

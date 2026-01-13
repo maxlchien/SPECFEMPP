@@ -33,8 +33,6 @@
 #include <vector>
 
 #include "SPECFEM_Environment.hpp"
-#include "datatypes/point_view.hpp"
-#include "datatypes/simd.hpp"
 #include "enumerations/interface.hpp"
 #include "execution/chunked_domain_iterator.hpp"
 #include "execution/for_each_level.hpp"
@@ -42,6 +40,7 @@
 #include "quadrature/interface.hpp"
 #include "specfem/algorithms/gradient.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/datatype.hpp"
 
 namespace specfem::algorithms_test {
 

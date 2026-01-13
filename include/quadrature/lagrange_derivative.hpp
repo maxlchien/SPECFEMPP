@@ -1,15 +1,16 @@
 #pragma once
 
-#include "datatypes/element_view.hpp"
 #include "enumerations/interface.hpp"
 #include "specfem/data_access.hpp"
+#include "specfem/datatype.hpp"
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
 namespace quadrature {
 /**
- * @brief Struct used to store derivatives of Lagrange interpolants within an element at GLL points. 
+ * @brief Struct used to store derivatives of Lagrange interpolants within an
+ * element at GLL points.
  *
  * Currently we store the derivatives of the Lagrange polynomials since these
  * are the variables required when computing gradients and divergences in
@@ -95,7 +96,8 @@ struct lagrange_derivative {
    * @param ix Index of the GLL point
    * @return Reference to the derivative value
    */
-  KOKKOS_INLINE_FUNCTION constexpr const auto &xi(const int l, const int ix) const {
+  KOKKOS_INLINE_FUNCTION constexpr const auto &xi(const int l,
+                                                  const int ix) const {
     return hprime_gll(l, ix);
   }
 
@@ -109,7 +111,8 @@ struct lagrange_derivative {
   template <
       specfem::dimension::type D = DimensionTag,
       typename std::enable_if_t<D == specfem::dimension::type::dim3, int> = 0>
-  KOKKOS_INLINE_FUNCTION constexpr const auto &eta(const int l, const int iy) const {
+  KOKKOS_INLINE_FUNCTION constexpr const auto &eta(const int l,
+                                                   const int iy) const {
     return hprime_gll(l, iy);
   }
 
@@ -121,7 +124,7 @@ struct lagrange_derivative {
    * @return Reference to the derivative value
    */
   KOKKOS_INLINE_FUNCTION constexpr const auto &gamma(const int l,
-                                               const int iz) const {
+                                                     const int iz) const {
     return hprime_gll(l, iz);
   }
 };
