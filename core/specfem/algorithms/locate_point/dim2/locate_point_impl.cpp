@@ -1,5 +1,5 @@
-#include "algorithms/locate_point_impl.hpp"
-#include "algorithms/locate_point.hpp"
+#include "specfem/algorithms/locate_point/locate_point_impl.hpp"
+#include "specfem/algorithms/locate_point.hpp"
 #include "specfem/jacobian.hpp"
 #include "specfem/point.hpp"
 #include <Kokkos_Core.hpp>

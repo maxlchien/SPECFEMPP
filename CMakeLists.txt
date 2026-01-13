@@ -392,23 +392,6 @@ target_link_libraries(
 )
 
 add_library(
-        algorithms
-        src/algorithms/dim2/locate_point.cpp
-        src/algorithms/dim2/locate_point_impl.cpp
-        src/algorithms/dim3/locate_point.cpp
-        src/algorithms/dim3/locate_point_impl.cpp
-)
-
-target_link_libraries(
-        algorithms
-        Kokkos::kokkos
-        jacobian
-        point
-        assembly
-        ${BOOST_LIBS}
-)
-
-add_library(
         kokkos_kernels
         src/kokkos_kernels/impl/compute_mass_matrix.cpp
         src/kokkos_kernels/impl/invert_mass_matrix.cpp

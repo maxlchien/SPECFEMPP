@@ -9,7 +9,7 @@ target_link_libraries(
         specfem::macros
         $<$<BOOL:${SPECFEM_ENABLE_VTK}>:${VTK_LIBRARIES}>
         PRIVATE
-        algorithms
+        specfem::algorithms
         enumerations
         quadrature
         mesh

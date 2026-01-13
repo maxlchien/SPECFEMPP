@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/interpolate.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/chunk_element.hpp"
 #include "compute_seismogram.hpp"
 #include "datatypes/simd.hpp"

@@ -1,7 +1,7 @@
 #include "../SPECFEM_Environment.hpp"
-#include "algorithms/transfer.hpp"
 #include "medium/compute_coupling.hpp"
 #include "parallel_configuration/chunk_edge_config.hpp"
+#include "specfem/algorithms/transfer.hpp"
 #include "specfem/chunk_edge.hpp"
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest.h>

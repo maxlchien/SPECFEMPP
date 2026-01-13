@@ -547,7 +547,7 @@ target_link_libraries(
   interpolate_function
   quadrature
   specfem_environment
-  algorithms
+  specfem::algorithms
   io
   boost
   point
@@ -563,7 +563,7 @@ add_executable(
 target_link_libraries(
   locate_point_fixture_2d
   mesh_utilities_mapping
-  algorithms
+  specfem::algorithms
   jacobian
   point
   utilities
@@ -580,7 +580,7 @@ add_executable(
 target_link_libraries(
   locate_point_fixture_3d
   mesh_utilities_mapping
-  algorithms
+  specfem::algorithms
   jacobian
   point
   utilities
@@ -597,7 +597,7 @@ add_executable(
 target_link_libraries(
   gradient_tests
   quadrature
-  algorithms
+  specfem::algorithms
   gtest_main
   Kokkos::kokkos
   specfem_environment
@@ -617,7 +617,7 @@ add_executable(
 
 target_link_libraries(
   transfer_tests
-  algorithms
+  specfem::algorithms
   enumerations
   gtest_main
   Kokkos::kokkos
@@ -798,7 +798,7 @@ target_link_libraries(
   compare_arrays
   timescheme
   point
-  algorithms
+  specfem::algorithms
   kokkos_kernels
   specfem::solver
   specfem::periodic_tasks
@@ -824,7 +824,7 @@ target_link_libraries(
   compare_arrays
   timescheme
   point
-  algorithms
+  specfem::algorithms
   kokkos_kernels
   specfem::solver
   specfem::periodic_tasks
@@ -952,7 +952,7 @@ if(NOT MPI_PARALLEL)
   # the tests can access them from the build folder.
 
   set(LINK_DIRS
-    algorithms
+    specfem::algorithms
     assembly
     assembly_mesh
     data

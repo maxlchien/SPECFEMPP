@@ -8,6 +8,7 @@
 #include "execution/for_all.hpp"
 #include "medium/compute_coupling.hpp"
 #include "parallel_configuration/chunk_edge_config.hpp"
+#include "specfem/algorithms.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/chunk_edge.hpp"
 #include "specfem/macros.hpp"
@@ -15,8 +16,6 @@
 #include "specfem/point/interface_index.hpp"
 #include <Kokkos_Core.hpp>
 #include <type_traits>
-
-#include "algorithms/integrate/coupling_integral1d.hpp"
 
 template <specfem::dimension::type DimensionTag,
           specfem::wavefield::simulation_field WavefieldType,

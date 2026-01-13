@@ -3,6 +3,7 @@
 #include "enumerations/dimension.hpp"
 #include "impl/chunk_edge_subview.hpp"
 #include "simd.hpp"
+#include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 
 // Forward declarations

@@ -7,6 +7,7 @@
 .. toctree::
     :maxdepth: 2
 
+    algorithms/index
     assembly/index
     chunk_edge/index
     chunk_element/index

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algorithms/gradient.hpp"
+#include "specfem/algorithms.hpp"
 #include "compute_material_derivatives.hpp"
 #include "execution/chunked_domain_iterator.hpp"
 #include "execution/for_each_level.hpp"

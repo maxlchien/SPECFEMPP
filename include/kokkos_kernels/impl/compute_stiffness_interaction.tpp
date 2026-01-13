@@ -1,7 +1,6 @@
 #pragma once
 
-#include "algorithms/divergence.hpp"
-#include "algorithms/gradient.hpp"
+#include "specfem/algorithms.hpp"
 #include "boundary_conditions/boundary_conditions.hpp"
 #include "boundary_conditions/boundary_conditions.tpp"
 #include "datatypes/simd.hpp"
