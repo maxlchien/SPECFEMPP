@@ -15,6 +15,7 @@ add_subdirectory(jacobian)
 add_subdirectory(timescheme)
 add_subdirectory(periodic_tasks)
 add_subdirectory(program)
+add_subdirectory(utilities)
 
 
 
@@ -27,14 +28,17 @@ target_link_libraries(specfem_core_interface
         specfem::assembly
         specfem::algorithms
         specfem::jacobian
+        specfem::macros
         specfem::mpi
         specfem::periodic_tasks
         specfem::point
         specfem::program
+        specfem::quadrature
         specfem::receivers
         specfem::shape_functions
         specfem::source
         specfem::timescheme
+        specfem::utilities
 )
 
 target_include_directories(specfem_core_interface

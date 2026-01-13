@@ -6,7 +6,7 @@
 #include "specfem/algorithms.hpp"
 #include "specfem/algorithms/locate_point/locate_point_impl.hpp"
 #include "specfem/point.hpp"
-#include "utilities/utilities.hpp"
+#include "specfem/utilities.hpp"
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest.h>
 

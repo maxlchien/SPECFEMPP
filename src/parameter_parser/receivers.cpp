@@ -1,5 +1,5 @@
 #include "parameter_parser/receivers.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"
 
 // External Includes

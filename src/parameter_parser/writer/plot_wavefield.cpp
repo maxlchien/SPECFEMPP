@@ -4,7 +4,7 @@
 #include "enumerations/wavefield.hpp"
 #include "specfem/periodic_tasks.hpp"
 
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include <boost/filesystem.hpp>
 
 specfem::runtime_configuration::plot_wavefield::plot_wavefield(

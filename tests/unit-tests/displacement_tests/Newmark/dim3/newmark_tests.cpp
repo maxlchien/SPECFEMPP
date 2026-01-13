@@ -11,7 +11,7 @@
 #include "specfem/quadrature.hpp"
 #include "specfem/solver.hpp"
 #include "specfem/timescheme.hpp"
-#include "utilities/interface.hpp"
+#include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"
 #include <algorithm>
 #include <boost/filesystem.hpp>

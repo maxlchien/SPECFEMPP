@@ -3,7 +3,7 @@
 #include "mesh/mesh.hpp"
 #include "specfem/logger.hpp"
 
-#include "utilities/interface.hpp"
+#include "specfem/utilities.hpp"
 #include <Kokkos_Core.hpp>
 #include <vector>
 

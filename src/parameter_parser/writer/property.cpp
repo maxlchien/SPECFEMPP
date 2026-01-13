@@ -6,7 +6,7 @@
 #include "io/NPZ/NPZ.hpp"
 #include "io/property/reader.hpp"
 #include "io/property/writer.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include <boost/filesystem.hpp>
 
 specfem::runtime_configuration::property::property(const YAML::Node &Node,

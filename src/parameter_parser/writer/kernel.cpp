@@ -5,7 +5,7 @@
 #include "io/NPY/NPY.hpp"
 #include "io/NPZ/NPZ.hpp"
 #include "io/kernel/writer.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include <boost/filesystem.hpp>
 
 specfem::runtime_configuration::kernel::kernel(

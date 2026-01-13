@@ -3,8 +3,8 @@
 #include "enumerations/interface.hpp"
 #include "specfem/data_access.hpp"
 #include "specfem/macros.hpp"
+#include "specfem/utilities.hpp"
 #include "specfem_setup.hpp"
-#include "utilities/interface.hpp"
 #include <Kokkos_SIMD.hpp>
 #include <boost/preprocessor.hpp>
 #include <iostream>

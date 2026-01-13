@@ -5,7 +5,7 @@
 #include "mesh/mesh.hpp"
 #include "specfem/logger.hpp"
 
-#include "utilities/interface.hpp"
+#include "specfem/utilities.hpp"
 #include <memory>
 #include <sstream>
 #include <vector>

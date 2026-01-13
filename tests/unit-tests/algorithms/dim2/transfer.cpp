@@ -12,8 +12,8 @@
 #include "specfem/chunk_edge.hpp"
 #include "specfem/data_access.hpp"
 #include "specfem/datatype.hpp"
+#include "specfem/utilities.hpp"
 #include "utilities/include/fixture/nonconforming_interface.hpp"
-#include "utilities/interface.hpp"
 
 #include "SPECFEM_Environment.hpp"
 

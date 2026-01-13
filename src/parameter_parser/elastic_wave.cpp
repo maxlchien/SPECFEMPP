@@ -1,5 +1,5 @@
 #include "parameter_parser/elastic_wave.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 
 specfem::runtime_configuration::elastic_wave::elastic_wave(
     const YAML::Node &Node) {

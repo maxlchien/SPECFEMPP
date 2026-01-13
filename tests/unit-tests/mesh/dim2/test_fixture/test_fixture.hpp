@@ -5,7 +5,7 @@
 #include "io/interface.hpp"
 #include "mesh/mesh.hpp"
 #include "specfem/source.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include <gtest/gtest.h>
 #include <iostream>
 #include <vector>

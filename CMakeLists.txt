@@ -352,16 +352,6 @@ target_link_libraries(
         Kokkos::kokkos
         )
 
-add_library(utilities
-        src/utilities/strings.cpp
-)
-
-target_link_libraries(
-        utilities
-        Kokkos::kokkos
-        ${BOOST_LIBS}
-)
-
 add_library(
         reader
         src/io/property/reader.cpp
@@ -373,7 +363,7 @@ target_link_libraries(
         assembly
         io
         read_seismogram
-        utilities
+        specfem::utilities
 )
 
 add_library(
@@ -414,7 +404,7 @@ target_link_libraries(
         assembly
         specfem::receivers
         io
-        utilities
+        specfem::utilities
 )
 
 

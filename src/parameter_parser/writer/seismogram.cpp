@@ -1,6 +1,6 @@
 #include "parameter_parser/writer/seismogram.hpp"
 #include "io/seismogram/writer.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"
 #include <boost/filesystem.hpp>
 #include <string>

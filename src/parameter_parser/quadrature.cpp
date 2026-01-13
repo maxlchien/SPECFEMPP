@@ -1,6 +1,6 @@
 #include "parameter_parser/quadrature.hpp"
 #include "specfem/quadrature.hpp"
-#include "utilities/strings.hpp"
+#include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"
 #include <iostream>
 #include <ostream>
