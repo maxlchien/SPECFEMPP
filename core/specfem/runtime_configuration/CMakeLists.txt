@@ -5,7 +5,7 @@ add_library(specfem::runtime_configuration ALIAS specfem_runtime_configuration)
 
 target_link_libraries(
         specfem_runtime_configuration
-        quadrature
+        specfem::quadrature
         specfem::timescheme
         specfem::receivers
         yaml-cpp
