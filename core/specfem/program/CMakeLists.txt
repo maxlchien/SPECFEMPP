@@ -21,7 +21,7 @@ target_link_libraries(specfem_program
         writer
         periodic_tasks
         reader
-        kokkos_kernels
+        specfem::kokkos_kernels
         specfem::solver
         # Add MPI dependency when available
         $<TARGET_NAME_IF_EXISTS:MPI::MPI_CXX>

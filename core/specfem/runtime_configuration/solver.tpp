@@ -2,7 +2,6 @@
 
 #include "specfem/kokkos_kernels.hpp"
 #include "specfem/solver.hpp"
-#include "specfem/solver.hpp"
 #include "specfem/timescheme/newmark.hpp"
 #include <iostream>
 #include <memory>
