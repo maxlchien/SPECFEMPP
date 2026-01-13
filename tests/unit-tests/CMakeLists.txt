@@ -284,7 +284,7 @@ add_executable(
 target_link_libraries(
   mesh_dim2_tests
   gtest_main
-  mesh
+  specfem::mesh
   specfem_environment
   yaml-cpp
   io
@@ -308,7 +308,7 @@ add_executable(
 target_link_libraries(
   mesh_dim3_tests
   gtest_main
-  mesh
+  specfem::mesh
   specfem_environment
   io
   utilities
@@ -325,7 +325,7 @@ add_executable(
 
 target_link_libraries(
   nonconforming_tests
-  mesh
+  specfem::mesh
   assembly
   quadrature
   specfem_environment
@@ -427,7 +427,7 @@ target_link_libraries(
   nonconforming_assembly_tests
   reader
   writer
-  mesh
+  specfem::mesh
   assembly
   quadrature
   specfem_environment
@@ -475,7 +475,7 @@ target_link_libraries(
   assembly_tests
   reader
   writer
-  mesh
+  specfem::mesh
   assembly
   quadrature
   specfem_environment
@@ -503,7 +503,7 @@ add_executable(
 
 target_link_libraries(
   assembly_receivers_tests
-  mesh
+  specfem::mesh
   assembly
   quadrature
   specfem_environment
@@ -633,7 +633,7 @@ add_executable(
 
 target_link_libraries(
   policies_tests
-  mesh
+  specfem::mesh
   source_class
   specfem::receivers
   specfem_environment
@@ -789,7 +789,7 @@ add_executable(
 target_link_libraries(
   displacement_newmark_2d_tests
   quadrature
-  mesh
+  specfem::mesh
   # material_class
   yaml-cpp
   specfem_environment
@@ -815,7 +815,7 @@ add_executable(
 target_link_libraries(
   displacement_newmark_3d_tests
   quadrature
-  mesh
+  specfem::mesh
   # material_class
   yaml-cpp
   specfem_environment
@@ -960,7 +960,7 @@ if(NOT MPI_PARALLEL)
     domain
     fortran_io
     io
-    mesh
+    specfem::mesh
     policies
   )
 

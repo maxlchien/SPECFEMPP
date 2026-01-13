@@ -262,7 +262,7 @@ add_library(
 
 target_link_libraries(
         io
-        mesh
+        specfem::mesh
         source_class
         specfem::receivers
         yaml-cpp

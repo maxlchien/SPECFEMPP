@@ -12,7 +12,7 @@ target_link_libraries(specfem_program
         specfem::logger
         specfem::mpi
         Kokkos::kokkos
-        mesh
+        specfem::mesh
         quadrature
         assembly
         source_class
