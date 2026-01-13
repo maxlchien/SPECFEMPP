@@ -1,7 +1,6 @@
 #pragma once
 
 #include "specfem/boundary_conditions.hpp"
-#include "specfem/boundary_conditions.tpp"
 #include "specfem/assembly.hpp"
 #include "specfem/datatype.hpp"
 #include "enumerations/dimension.hpp"

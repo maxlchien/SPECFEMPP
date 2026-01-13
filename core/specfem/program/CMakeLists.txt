@@ -13,10 +13,10 @@ target_link_libraries(specfem_program
         specfem::mpi
         Kokkos::kokkos
         mesh
-        quadrature
+        specfem::quadrature
         assembly
         source_class
-        runtime_configuration
+        specfem::runtime_configuration
         specfem::receivers
         writer
         periodic_tasks

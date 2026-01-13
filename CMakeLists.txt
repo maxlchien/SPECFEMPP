@@ -363,7 +363,7 @@ target_link_libraries(
         assembly
         io
         read_seismogram
-        utilities
+        specfem::utilities
 )
 
 add_library(
@@ -379,7 +379,7 @@ target_link_libraries(
         assembly
         specfem::receivers
         io
-        utilities
+        specfem::utilities
 )
 
 # specfem2d executable for backward compatibility
