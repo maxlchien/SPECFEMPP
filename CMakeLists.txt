@@ -231,21 +231,6 @@ set(CMAKE_MESSAGE_LOG_LEVEL ${_saved_CMAKE_MESSAGE_LOG_LEVEL})
 # Add module subdirectories
 add_subdirectory(core)
 
-# Build specfem2d libraries
-add_library(
-        quadrature
-        src/quadrature/quadrature.cpp
-        src/quadrature/gll/gll_utils.cpp
-        src/quadrature/gll/gll_library.cpp
-        src/quadrature/gll/lagrange_poly.cpp
-        src/quadrature/gll/gll.cpp
-)
-
-target_link_libraries(
-        quadrature
-        Kokkos::kokkos
-)
-
 add_library(
         io
         # IO libraries
@@ -453,7 +438,7 @@ add_library(
 
 target_link_libraries(
         parameter_reader
-        quadrature
+        specfem::quadrature
         specfem::timescheme
         specfem::receivers
         yaml-cpp

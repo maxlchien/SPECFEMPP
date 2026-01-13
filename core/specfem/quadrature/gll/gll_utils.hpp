@@ -1,8 +1,7 @@
-#ifndef GLL_UTILS_H
-#define GLL_UTILS_H
+#pragma once
 
-#include "../include/kokkos_abstractions.h"
-#include "../include/specfem_setup.hpp"
+#include "kokkos_abstractions.h"
+#include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 #include <tuple>
 
@@ -100,5 +99,3 @@ type_real endw2(const int n, const type_real alpha, const type_real beta);
 } // namespace gll
 } // namespace quadrature
 } // namespace specfem
-
-#endif // GLL_UTILS_H

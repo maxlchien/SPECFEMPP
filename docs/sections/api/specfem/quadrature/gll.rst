@@ -1,6 +1,6 @@
 
-GLL quadrature
-====================
+``specfem::quadrature::gll``
+============================
 
 Gauss-Legendre-Lobatto quadrature rule.
 

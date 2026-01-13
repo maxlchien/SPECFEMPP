@@ -1,5 +1,5 @@
-#include "quadrature/gll/lagrange_poly.hpp"
-#include "quadrature/gll/gll_library.hpp"
+#include "lagrange_poly.hpp"
+#include "gll_library.hpp"
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 

@@ -1,5 +1,4 @@
-#ifndef _QUADRATURE_HPP
-#define _QUADRATURE_HPP
+#pragma once
 
 #include "kokkos_abstractions.h"
 #include "specfem_setup.hpp"
@@ -106,5 +105,3 @@ std::ostream &operator<<(std::ostream &out,
                          specfem::quadrature::quadrature &quad);
 } // namespace quadrature
 } // namespace specfem
-
-#endif

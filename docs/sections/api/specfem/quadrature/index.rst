@@ -1,10 +1,13 @@
 
 .. _quadrature_api:
 
-Quadrature API
-===================
+``specfem::quadrature``
+=======================
 
 The ``quadrature`` class provides methods to compute the quadrature points and weights required to compute integrals and derivatives of functions within a spectral element.
+
+``specfem::quadrature::quadrature``
+-----------------------------------
 
 .. doxygenclass:: specfem::quadrature::quadrature
    :members:
@@ -12,7 +15,7 @@ The ``quadrature`` class provides methods to compute the quadrature points and w
    :private-members:
 
 Types of quadratures implemented
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
    :maxdepth: 1

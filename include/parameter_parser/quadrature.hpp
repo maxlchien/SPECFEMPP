@@ -1,7 +1,7 @@
 #ifndef _PARAMETER_QUADRATURE_HPP
 #define _PARAMETER_QUADRATURE_HPP
 
-#include "quadrature/interface.hpp"
+#include "specfem/quadrature.hpp"
 #include "specfem_setup.hpp"
 #include "yaml-cpp/yaml.h"
 #include <tuple>

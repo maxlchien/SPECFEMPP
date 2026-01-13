@@ -27,7 +27,6 @@ Old structure
     :maxdepth: 2
 
     enumerations/index
-    quadrature/index
     mesh/index
     medium/index
     kokkos_kernels/index
