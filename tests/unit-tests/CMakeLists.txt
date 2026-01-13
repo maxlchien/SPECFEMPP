@@ -60,7 +60,7 @@ add_executable(
 target_link_libraries(
   test_mesh_utilities_mapping_2d
   mesh_utilities_mapping
-  utilities
+  specfem::utilities
   gtest_main
 )
 
@@ -72,7 +72,7 @@ add_executable(
 target_link_libraries(
   test_mesh_utilities_mapping_3d
   mesh_utilities_mapping
-  utilities
+  specfem::utilities
   gtest_main
 )
 
@@ -119,7 +119,7 @@ add_executable(
 
 target_link_libraries(
   is_close_tests
-  utilities
+  specfem::utilities
   gtest_main
   Kokkos::kokkos
 )
@@ -186,7 +186,7 @@ target_link_libraries(
   shape_functions
   gtest_main
   specfem_environment
-  utilities
+  specfem::utilities
   -lpthread -lm
 )
 
@@ -288,7 +288,7 @@ target_link_libraries(
   specfem_environment
   yaml-cpp
   io
-  utilities
+  specfem::utilities
 
   # material_class
   -lpthread -lm
@@ -311,7 +311,7 @@ target_link_libraries(
   mesh
   specfem_environment
   io
-  utilities
+  specfem::utilities
 
   -lpthread -lm
 )
@@ -330,7 +330,7 @@ target_link_libraries(
   quadrature
   specfem_environment
   yaml-cpp
-  utilities
+  specfem::utilities
   boost
   -lpthread -lm
   gtest_main
@@ -433,7 +433,7 @@ target_link_libraries(
   specfem_environment
   io
   yaml-cpp
-  utilities
+  specfem::utilities
   boost
 
   -lpthread -lm
@@ -482,7 +482,7 @@ target_link_libraries(
   io
 
   yaml-cpp
-  utilities
+  specfem::utilities
   enumerations
   shape_functions
   quadrature
@@ -566,7 +566,7 @@ target_link_libraries(
   algorithms
   jacobian
   point
-  utilities
+  specfem::utilities
   specfem_environment
   gtest_main
 )
@@ -583,7 +583,7 @@ target_link_libraries(
   algorithms
   jacobian
   point
-  utilities
+  specfem::utilities
   specfem_environment
   gtest_main
 )
@@ -603,7 +603,7 @@ target_link_libraries(
   specfem_environment
   assembly
   quadrature
-  utilities
+  specfem::utilities
   -lpthread -lm
 )
 
@@ -622,7 +622,7 @@ target_link_libraries(
   gtest_main
   Kokkos::kokkos
   specfem_environment
-  utilities
+  specfem::utilities
   -lpthread -lm
 )
 
