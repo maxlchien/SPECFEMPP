@@ -1,4 +1,4 @@
-#include "parameter_parser/setup.hpp"
+#include "setup.hpp"
 #include "specfem/utilities.hpp"
 #include "yaml-cpp/yaml.h"
 #include <chrono>

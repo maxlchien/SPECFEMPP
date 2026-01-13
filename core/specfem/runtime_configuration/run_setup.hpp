@@ -1,5 +1,4 @@
-#ifndef _PARAMETER_RUN_SETUP_HPP
-#define _PARAMETER_RUN_SETUP_HPP
+#pragma once
 
 #include "specfem_setup.hpp"
 #include "yaml-cpp/yaml.h"
@@ -39,5 +38,3 @@ private:
 
 } // namespace runtime_configuration
 } // namespace specfem
-
-#endif

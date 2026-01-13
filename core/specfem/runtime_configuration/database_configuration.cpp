@@ -1,4 +1,4 @@
-#include "parameter_parser/database_configuration.hpp"
+#include "database_configuration.hpp"
 
 #include "yaml-cpp/yaml.h"
 #include <ostream>

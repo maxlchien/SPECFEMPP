@@ -24,6 +24,7 @@
     program/index
     quadrature/index
     receivers/index
+    runtime_configuration/index
     solver/index
     source_time_functions/index
     sources/index

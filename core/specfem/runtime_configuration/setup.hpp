@@ -1,18 +1,18 @@
-#ifndef _PARAMETER_SETUP_HPP
-#define _PARAMETER_SETUP_HPP
+#pragma once
 
 #include "database_configuration.hpp"
 #include "elastic_wave.hpp"
 #include "electromagnetic_wave.hpp"
 #include "header.hpp"
 #include "io/reader.hpp"
-#include "parameter_parser/solver/interface.hpp"
 #include "quadrature.hpp"
 #include "receivers.hpp"
 #include "run_setup.hpp"
+#include "solver.hpp"
+#include "solver.tpp"
 #include "sources.hpp"
 #include "specfem_setup.hpp"
-#include "time_scheme/interface.hpp"
+#include "time_scheme.hpp"
 #include "writer/kernel.hpp"
 #include "writer/plot_wavefield.hpp"
 #include "writer/property.hpp"
@@ -426,5 +426,3 @@ private:
 };
 } // namespace runtime_configuration
 } // namespace specfem
-
-#endif

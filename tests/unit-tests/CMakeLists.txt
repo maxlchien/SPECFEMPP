@@ -793,7 +793,7 @@ target_link_libraries(
   yaml-cpp
   specfem_environment
   assembly
-  parameter_reader
+  specfem::runtime_configuration
   compare_arrays
   timescheme
   point
@@ -819,7 +819,7 @@ target_link_libraries(
   yaml-cpp
   specfem_environment
   assembly
-  parameter_reader
+  specfem::runtime_configuration
   compare_arrays
   timescheme
   point
@@ -843,7 +843,7 @@ target_link_libraries(
 #   yaml-cpp
 #   specfem_environment
 #   assembly
-#   parameter_reader
+#   specfem::runtime_configuration
 #   writer
 #   periodic_tasks
 #   domain
@@ -864,7 +864,7 @@ target_link_libraries(
 #   yaml-cpp
 #   specfem_environment
 #   assembly
-#   parameter_reader
+#   specfem::runtime_configuration
 #   writer
 #   periodic_tasks
 #   domain

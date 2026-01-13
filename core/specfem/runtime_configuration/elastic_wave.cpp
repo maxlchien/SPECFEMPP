@@ -1,4 +1,4 @@
-#include "parameter_parser/elastic_wave.hpp"
+#include "elastic_wave.hpp"
 #include "specfem/utilities.hpp"
 
 specfem::runtime_configuration::elastic_wave::elastic_wave(
