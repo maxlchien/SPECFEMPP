@@ -16,6 +16,7 @@
     execution/index
     io/index
     jacobian/index
+    kokkos_kernels/index
     macros/index
     mpi/index
     parallel_configuration/index

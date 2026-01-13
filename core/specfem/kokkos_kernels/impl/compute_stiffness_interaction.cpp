@@ -1,6 +1,6 @@
-#include "kokkos_kernels/impl/compute_stiffness_interaction.hpp"
+#include "compute_stiffness_interaction.hpp"
+#include "compute_stiffness_interaction.tpp"
 #include "enumerations/interface.hpp"
-#include "kokkos_kernels/impl/compute_stiffness_interaction.tpp"
 #include "specfem/assembly.hpp"
 #include "specfem/macros.hpp"
 

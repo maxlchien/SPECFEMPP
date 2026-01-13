@@ -13,6 +13,7 @@ add_subdirectory(solver)
 add_subdirectory(source)
 add_subdirectory(source_time_functions)
 add_subdirectory(jacobian)
+add_subdirectory(kokkos_kernels)
 add_subdirectory(timescheme)
 add_subdirectory(periodic_tasks)
 add_subdirectory(program)
@@ -29,6 +30,7 @@ target_link_libraries(specfem_core_interface
         specfem::assembly
         specfem::algorithms
         specfem::jacobian
+        specfem::kokkos_kernels
         specfem::macros
         specfem::mpi
         specfem::periodic_tasks

@@ -1,4 +1,4 @@
-#include "kokkos_kernels/frechet_kernels.hpp"
+#include "frechet_kernels.hpp"
 
 // Explicit template instantiation
 template class specfem::kokkos_kernels::frechet_kernels<

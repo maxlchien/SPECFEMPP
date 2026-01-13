@@ -12,7 +12,7 @@ target_link_libraries(
         specfem::periodic_tasks
         writer
         reader
-        kokkos_kernels
+        specfem::kokkos_kernels
         specfem::solver
         ${BOOST_LIBS}
 )

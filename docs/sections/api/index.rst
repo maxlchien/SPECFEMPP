@@ -29,6 +29,5 @@ Old structure
     enumerations/index
     mesh/index
     medium/index
-    kokkos_kernels/index
     coupling_physics/coupled_interface
     macros/index
