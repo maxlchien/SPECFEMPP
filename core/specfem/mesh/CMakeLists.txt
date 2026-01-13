@@ -1,10 +1,10 @@
 file(GLOB_RECURSE MESH_SOURCE_FILES "./*.cpp" "./**/*.cpp")
 
-add_library(mesh ${MESH_SOURCE_FILES})
-add_library(specfem::mesh ALIAS mesh)
+add_library(specfem_mesh ${MESH_SOURCE_FILES})
+add_library(specfem::mesh ALIAS specfem_mesh)
 
 target_link_libraries(
-        mesh
+        specfem_mesh
         enumerations
         Kokkos::kokkos
         specfem::macros
