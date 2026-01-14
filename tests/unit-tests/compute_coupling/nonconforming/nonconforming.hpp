@@ -14,6 +14,7 @@
 
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest.h>
+#include <tuple>
 #include <type_traits>
 
 // We need to simulate a chunk_edge iteration:
@@ -204,41 +205,32 @@ struct EdgeFunctionAccessor<
           specfem::data_access::DataClassType::displacement,
           specfem::dimension::type::dim2, false> {};
 
+namespace specfem::compute_coupling_test::nonconforming {
+
 template <specfem::interface::interface_tag InterfaceTag,
-          specfem::interface::flux_scheme_tag FluxSchemeTag>
-struct ComputeCouplingTestSuite {
+          specfem::interface::flux_scheme_tag FluxSchemeTag, typename TestTypes>
+void run_case() {
+  static_assert(FluxSchemeTag == specfem::interface::flux_scheme_tag::natural,
+                "Only the 'natural' flux scheme is supported here for now");
 
-  template <typename TestingTypes>
-  struct ComputeCouplingTest2D : public ::testing::Test {
-    using TransferFunctionInitializer = std::tuple_element_t<0, TestingTypes>;
-    using IntersectionNormalInitializer = std::tuple_element_t<1, TestingTypes>;
-    using EdgeFunctionInitializer = std::tuple_element_t<2, TestingTypes>;
-    using IntersectionFunctionInitializer =
-        std::tuple_element_t<3, TestingTypes>;
+  using TransferFunctionInit = std::tuple_element_t<0, TestTypes>;
+  using IntersectionNormalInit = std::tuple_element_t<1, TestTypes>;
+  using EdgeFunctionInit = std::tuple_element_t<2, TestTypes>;
+  using ExpectedSolutionInit = std::tuple_element_t<3, TestTypes>;
 
-    /**
-     * @brief Set up test with initialized transfer function and field.
-     */
-    ComputeCouplingTest2D()
-        : transfer_function(TransferFunctionInitializer()),
-          intersection_normal(IntersectionNormalInitializer()),
-          edge_function(EdgeFunctionInitializer()),
-          expected_solution(IntersectionFunctionInitializer()) {}
-
-    specfem::test_fixture::TransferFunction2D<TransferFunctionInitializer>
-        transfer_function; /**< Test transfer function */
-    specfem::test_fixture::EdgeFunction2D<EdgeFunctionInitializer>
-        edge_function; /**< Test field */
-    specfem::test_fixture::IntersectionFunction2D<IntersectionNormalInitializer>
-        intersection_normal; /**< Normal of interface */
-    specfem::test_fixture::IntersectionFunction2D<
-        IntersectionFunctionInitializer>
-        expected_solution;
-    void run_test() {
-      execute_impl_compute_coupling<InterfaceTag,
-                                    EdgeFunctionAccessor<InterfaceTag> >(
-          transfer_function, intersection_normal, edge_function,
-          expected_solution);
-    }
+  specfem::test_fixture::TransferFunction2D<TransferFunctionInit>
+      transfer_function{ TransferFunctionInit{} };
+  specfem::test_fixture::IntersectionFunction2D<IntersectionNormalInit>
+      intersection_normal{ IntersectionNormalInit{} };
+  specfem::test_fixture::EdgeFunction2D<EdgeFunctionInit> edge_function{
+    EdgeFunctionInit{}
   };
-};
+  specfem::test_fixture::IntersectionFunction2D<ExpectedSolutionInit>
+      expected_solution{ ExpectedSolutionInit{} };
+
+  execute_impl_compute_coupling<InterfaceTag,
+                                EdgeFunctionAccessor<InterfaceTag> >(
+      transfer_function, intersection_normal, edge_function, expected_solution);
+}
+
+} // namespace specfem::compute_coupling_test::nonconforming
