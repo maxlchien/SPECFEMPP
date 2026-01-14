@@ -1,6 +1,7 @@
 # SPECFEM++
 
 [![Documentation Status](https://readthedocs.org/projects/specfem2d-kokkos/badge/?version=latest)](https://specfem2d-kokkos.readthedocs.io/en/latest/?badge=latest)
+[![Publish to Docker](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)<br>
 ![GCC (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FGNU_main&build=last&subject=GCC%20(main))
 ![IntelLLVM (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FIntel_main&build=last&subject=IntelLLVM%20(main))
