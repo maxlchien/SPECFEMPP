@@ -5,8 +5,10 @@
 #include <iostream>
 #include <stdexcept>
 
-using HostMirror1d = specfem::kokkos::HostMirror1d<type_real>;
-using HostView1d = specfem::kokkos::HostView1d<type_real>;
+using HostMirror1d =
+    Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace>;
+using HostView1d = Kokkos::View<type_real *, Kokkos::LayoutRight,
+                                Kokkos::DefaultExecutionSpace>;
 
 type_real specfem::quadrature::gll::gll_library::pnleg(const type_real z,
                                                        const int n) {
@@ -146,7 +148,8 @@ void specfem::quadrature::gll::gll_library::zwgljd(HostMirror1d z,
   return;
 }
 
-std::tuple<HostView1d, HostView1d>
+std::tuple<Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace>,
+           Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace> >
 specfem::quadrature::gll::gll_library::zwgljd(const int np,
                                               const type_real alpha,
                                               const type_real beta) {
