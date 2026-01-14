@@ -27,6 +27,7 @@ Old structure
     :maxdepth: 2
 
     algorithms/index
+    boundary_conditions/index
     enumerations/index
     quadrature/index
     mesh/index
