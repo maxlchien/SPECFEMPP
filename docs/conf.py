@@ -13,8 +13,6 @@
 import os
 import sys
 import subprocess
-from docutils import nodes
-from sphinx.util.docutils import SphinxRole
 
 # Add the _ext directory to the path add path to include custom extensions
 sys.path.insert(0, os.path.abspath("_ext"))
@@ -72,7 +70,8 @@ extensions = [
     "sphinx_design",
     "breathe",
     "sphinx_copybutton",
-    "download_folder",
+    "download_folder",  # Local extension to add download buttons to code blocks
+    "repo_file",  # Local extension to add links to GitHub source files
 ]
 
 # Adding this to avoid the WARNING: duplicate label warning
@@ -120,19 +119,9 @@ extlinks = {
 }
 
 
-class RepoFileRole(SphinxRole):
-    """Role for linking to files in the GitHub repository."""
-
-    def run(self):
-        url = f"{github_url}/blob/main/{self.text}"
-        node = nodes.reference("", "", internal=False, refuri=url)
-        node += nodes.literal(self.text, self.text)
-        return [node], []
-
-
-# Register the custom role
+# Register custom config values
 def setup(app):
-    app.add_role("repo-file", RepoFileRole())
+    app.add_config_value("github_url", github_url, "html")
 
 
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -13,7 +13,7 @@ add_subdirectory(program)
 add_subdirectory(quadrature)
 add_subdirectory(receivers)
 add_subdirectory(runtime_configuration)
-add_subdirectory(shape_functions)
+add_subdirectory(shape_function)
 add_subdirectory(solver)
 add_subdirectory(source)
 add_subdirectory(source_time_functions)
@@ -42,7 +42,7 @@ target_link_libraries(specfem_core_interface
         specfem::quadrature
         specfem::receivers
         specfem::runtime_configuration
-        specfem::shape_functions
+        specfem::shape_function
         specfem::solver
         specfem::source
         specfem::source_time_functions

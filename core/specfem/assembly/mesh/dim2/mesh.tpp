@@ -8,7 +8,7 @@
 #include "specfem/quadrature.hpp"
 #include "specfem/assembly.hpp"
 #include "specfem/jacobian.hpp"
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include "impl/utilities.hpp"
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>

@@ -3,7 +3,7 @@
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
 #include "specfem/quadrature.hpp"
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include "specfem/utilities.hpp"
 #include "specfem_setup.hpp"
 #include "gtest/gtest.h"
