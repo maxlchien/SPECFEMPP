@@ -28,7 +28,8 @@ SPECFEM++ is a complete re-write of SPECFEM suite of packages (SPECFEM2D, SPECFE
 ## Documentation
 
 
-The online documentation for SPECFEM++ is located [here](https://specfem2d-kokkos.readthedocs.io/en/latest/index.html#)
+The online documentation for SPECFEM++ is located
+[here](https://specfem2d-kokkos.readthedocs.io/en/latest/index.html#)
 
 ## Getting Started with SPECFEM++
 
@@ -40,9 +41,15 @@ We recommend starting with the [cookbook examples](https://specfem2d-kokkos.read
 
 ## Contributing to SPECFEM++
 
-SPECFEM is a community project that lives by the participation of its members — i.e., including you! It is our goal to build an inclusive and participatory community so we are happy that you are interested in participating! Please see [this page](https://specfem2d-kokkos.readthedocs.io/en/latest/developer_documentation/index.html) for developer documentation.
+SPECFEM is a community project that lives by the participation of its members —
+i.e., including you! It is our goal to build an inclusive and participatory
+community so we are happy that you are interested in participating! Please see
+[this
+page](https://specfem2d-kokkos.readthedocs.io/en/latest/sections/developer_documentation/contributing.html)
+for developer documentation.
 
-In particular you should follow the git development workflow and pre-commit style checks when contributing to SPECEFM.
+In particular you should follow the git development workflow and pre-commit
+style checks when contributing to SPECFEM++.
 
 ## License
 
