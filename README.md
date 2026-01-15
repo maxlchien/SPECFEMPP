@@ -5,11 +5,11 @@
 ![GCC (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FGNU_main&build=last&subject=GCC%20(main))
 ![IntelLLVM (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FIntel_main&build=last&subject=IntelLLVM%20(main))
 ![NVIDIA (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FNVIDIA_main&build=last&subject=NVIDIA%20(main))
-[![Docker (main)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)<br>
+[![Docker (main)](https://img.shields.io/github/actions/workflow/status/PrincetonUniversity/SPECFEMPP/docker.yml?label=Docker%20(main)&branch=main)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)<br>
 ![GCC (devel)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FGNU_devel&build=last&subject=GCC%20(devel))
 ![IntelLLVM (devel)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FIntel_devel&build=last&subject=IntelLLVM%20(devel))
 ![NVIDIA (devel)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FNVIDIA_devel&build=last&subject=NVIDIA%20(devel))
-[![Docker (devel)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml/badge.svg?branch=devel)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)
+[![Docker (devel)](https://img.shields.io/github/actions/workflow/status/PrincetonUniversity/SPECFEMPP/docker.yml?label=Docker%20(devel)&branch=devel)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)
 
 
 
