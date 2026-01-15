@@ -147,13 +147,17 @@ public:
    */
   TransferFunctionView get_view() const {
     TransferFunctionView view("transfer_function_view");
+    auto host_view =
+        Kokkos::create_mirror_view(view); // Create host mirror to copy data
     for (size_t i = 0; i < num_edges; ++i) {
       for (size_t j = 0; j < nquad_edge; ++j) {
         for (size_t k = 0; k < nquad_intersection; ++k) {
-          view(i, j, k) = (*this)(i, j, k);
+          host_view(i, j, k) = (*this)(i, j, k);
         }
       }
     }
+
+    Kokkos::deep_copy(view, host_view);
     return view;
   }
 
