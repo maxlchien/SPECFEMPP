@@ -5,7 +5,8 @@ add_subdirectory(macros)
 add_subdirectory(assembly)
 add_subdirectory(point)
 add_subdirectory(receivers)
-add_subdirectory(shape_functions)
+add_subdirectory(shape_function)
+add_subdirectory(solver)
 add_subdirectory(source)
 add_subdirectory(source_time_functions)
 add_subdirectory(jacobian)
@@ -28,7 +29,7 @@ target_link_libraries(specfem_core_interface
         specfem::point
         specfem::program
         specfem::receivers
-        specfem::shape_functions
+        specfem::shape_function
         specfem::source
         specfem::timescheme
 )

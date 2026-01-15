@@ -22,7 +22,7 @@
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
 #include "quadrature/interface.hpp"
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include "utilities/interface.hpp"
 #include <Kokkos_Core.hpp>
 #include <array>

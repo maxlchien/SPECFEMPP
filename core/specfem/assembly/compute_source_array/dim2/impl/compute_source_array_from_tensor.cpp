@@ -11,7 +11,6 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
-// Local namespace for implementation details
 namespace specfem::assembly::compute_source_array_impl {
 
 void compute_source_array_from_tensor_and_element_jacobian(

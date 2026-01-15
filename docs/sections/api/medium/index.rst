@@ -19,3 +19,4 @@
     compute_damping/index
     cosserat_stress/index
     cosserat_coupled_stress/index
+    compute_frechet_derivatives/index

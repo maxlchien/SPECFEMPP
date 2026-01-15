@@ -183,27 +183,27 @@ template <typename T>
 std::vector<std::vector<T> >
 specfem::shape_function::shape_function_derivatives(const T xi, const T eta,
                                                     const T zeta,
-                                                    const int ngod) {
+                                                    const int ngnod) {
 
   static_assert(std::is_floating_point<T>::value,
                 "Template type must be floating point");
 
-  if (ngod == 8) {
+  if (ngnod == 8) {
     return shape_function_derivatives_8node(xi, eta, zeta);
-  } else if (ngod == 27) {
+  } else if (ngnod == 27) {
     return shape_function_derivatives_27node(xi, eta, zeta);
   }
-  throw std::invalid_argument("ngod must be either 8 or 27");
+  throw std::invalid_argument("ngnod must be either 8 or 27");
 }
 
 template std::vector<std::vector<float> >
 specfem::shape_function::shape_function_derivatives(const float xi,
                                                     const float eta,
                                                     const float zeta,
-                                                    const int ngod);
+                                                    const int ngnod);
 
 template std::vector<std::vector<double> >
 specfem::shape_function::shape_function_derivatives(const double xi,
                                                     const double eta,
                                                     const double zeta,
-                                                    const int ngod);
+                                                    const int ngnod);

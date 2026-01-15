@@ -7,7 +7,10 @@
 #include <Kokkos_Core.hpp>
 #include <type_traits>
 
-namespace {
+namespace specfem {
+namespace boundary_conditions {
+namespace impl {
+
 using elastic_psv_type =
     std::integral_constant<specfem::element::medium_tag,
                            specfem::element::medium_tag::elastic_psv>;
@@ -43,7 +46,7 @@ using isotropic_cosserat_type =
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void impl_base_elastic_psv_traction(
     const PointBoundaryType &boundary, const PointPropertyType &property,
     const PointVelocityType &velocity, ViewType &traction) {
@@ -79,7 +82,7 @@ KOKKOS_FUNCTION void impl_base_elastic_psv_traction(
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void impl_base_elastic_psv_traction(
     const PointBoundaryType &boundary, const PointPropertyType &property,
     const PointVelocityType &velocity, ViewType &traction) {
@@ -123,7 +126,7 @@ KOKKOS_FUNCTION void impl_base_elastic_psv_traction(
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void impl_base_elastic_sh_traction(
     const PointBoundaryType &boundary, const PointPropertyType &property,
     const PointVelocityType &velocity, ViewType &traction) {
@@ -145,7 +148,7 @@ KOKKOS_FUNCTION void impl_base_elastic_sh_traction(
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void impl_base_elastic_sh_traction(
     const PointBoundaryType &boundary, const PointPropertyType &property,
     const PointVelocityType &velocity, ViewType &traction) {
@@ -175,7 +178,7 @@ KOKKOS_FUNCTION void impl_base_elastic_sh_traction(
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void
 impl_base_elastic_psv_t_traction(const PointBoundaryType &boundary,
                               const PointPropertyType &property,
@@ -225,7 +228,7 @@ impl_base_elastic_psv_t_traction(const PointBoundaryType &boundary,
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void
 impl_base_elastic_psv_t_traction(const PointBoundaryType &boundary,
                               const PointPropertyType &property,
@@ -288,7 +291,7 @@ impl_base_elastic_psv_t_traction(const PointBoundaryType &boundary,
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<!PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void
 impl_enforce_traction(const acoustic_type &, const isotropic_type &,
                       const PointBoundaryType &boundary,
@@ -326,7 +329,7 @@ impl_enforce_traction(const acoustic_type &, const isotropic_type &,
 template <
     typename PointBoundaryType, typename PointPropertyType,
     typename PointVelocityType, typename ViewType,
-    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int> = 0>
+    typename std::enable_if_t<PointBoundaryType::simd::using_simd, int>>
 KOKKOS_FUNCTION void
 impl_enforce_traction(const acoustic_type &, const isotropic_type &,
                       const PointBoundaryType &boundary,
@@ -788,7 +791,9 @@ impl_enforce_traction(const elastic_psv_t_type &, const isotropic_cosserat_type 
 
   return;
 }
-} // namespace
+} // namespace impl
+} // namespace boundary_conditions
+} // namespace specfem
 
 template <typename PointBoundaryType, typename PointPropertyType,
           typename PointVelocityType, typename PointAccelerationType>
@@ -801,7 +806,7 @@ specfem::boundary_conditions::impl_apply_boundary_conditions(
   constexpr auto MediumTag = PointPropertyType::medium_tag;
   constexpr auto PropertyTag = PointPropertyType::property_tag;
 
-  impl_enforce_traction(
+  impl::impl_enforce_traction(
       std::integral_constant<specfem::element::medium_tag, MediumTag>{},
       std::integral_constant<specfem::element::property_tag, PropertyTag>{},
       boundary, property, velocity, acceleration);
@@ -841,7 +846,7 @@ specfem::boundary_conditions::impl_compute_mass_matrix_terms(
 
   PointVelocityType velocity(velocity_factor);
 
-  impl_enforce_traction(
+  impl::impl_enforce_traction(
       std::integral_constant<specfem::element::medium_tag, MediumTag>{},
       std::integral_constant<specfem::element::property_tag, PropertyTag>{},
       boundary, property, velocity, mass_matrix);

@@ -8,7 +8,9 @@
     :maxdepth: 2
 
     assembly/index
+    chunk_edge/index
     chunk_element/index
+    data_access/index
     io/index
     jacobian/index
     macros/index
@@ -17,8 +19,8 @@
     point/index
     program/index
     receivers/index
-    sources/index
-    timescheme/index
-    data_access/index
+    solver/index
     source_time_functions/index
-    chunk_edge/index
+    sources/index
+    shape_function/index
+    timescheme/index

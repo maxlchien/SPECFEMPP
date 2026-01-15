@@ -1,6 +1,6 @@
 #pragma once
 
-#include <regex>
+#include <sstream>
 #include <string>
 #include <type_traits>
 
@@ -43,13 +43,18 @@ struct description<
   static constexpr bool has = true;
   static std::string get(const int &indent = 0) {
     std::string indent_str(indent, ' ');
-    return std::regex_replace(
-        T::description(),
-        std::regex("^(.+)$", // capture each line individually (endl included in
-                             // capture group)
-                   std::regex_constants::multiline),
-        indent_str + "$&" // prepend indentation string to line
-    );
+    std::string desc = T::description();
+    std::string result;
+    std::istringstream stream(desc);
+    std::string line;
+    bool first = true;
+    while (std::getline(stream, line)) {
+      if (!first)
+        result += "\n";
+      result += indent_str + line;
+      first = false;
+    }
+    return result;
   }
 };
 

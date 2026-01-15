@@ -1,8 +1,8 @@
-#include "specfem/shape_functions.hpp"
 #include "../test_fixture.hpp"
 #include "enumerations/interface.hpp"
 #include "quadrature/interface.hpp"
 #include "specfem/assembly.hpp"
+#include "specfem/shape_function.hpp"
 #include "utilities/utilities.hpp"
 #include <gtest/gtest.h>
 #include <vector>

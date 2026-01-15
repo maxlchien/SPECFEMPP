@@ -1,4 +1,4 @@
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include "specfem_setup.hpp"
 #include <cmath>
 #include <gtest/gtest.h>

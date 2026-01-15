@@ -8,7 +8,7 @@
 
 #include "algorithms/interpolate.hpp"
 #include "quadrature/interface.hpp"
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include <Kokkos_Core.hpp>
 /*
  * Square element with 4 nodes
