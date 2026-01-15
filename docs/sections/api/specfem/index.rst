@@ -9,6 +9,7 @@
 
     algorithms/index
     assembly/index
+    boundary_conditions/index
     chunk_edge/index
     chunk_element/index
     datatype/index

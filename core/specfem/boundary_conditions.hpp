@@ -13,15 +13,34 @@
 
 namespace specfem {
 
+/**
+ * @brief Boundary conditions
+ *
+ * This namespace contains functions to apply boundary conditions.
+ */
 namespace boundary_conditions {
 
-template <typename PointBoundaryType, typename PointAccelerationType,
+/**
+ * @brief Apply boundary conditions for Dirichlet or None boundaries (time
+ * independent)
+ *
+ * @tparam PointBoundaryType Point boundary type
+ * @tparam PointAccelerationType Point acceleration type
+ * @param boundary Boundary object
+ * @param acceleration Acceleration object
+ */
+template <typename PointBoundaryType,
+          typename PointAccelerationType
+          // \cond
+          ,
           typename std::enable_if_t<
               ((PointBoundaryType::boundary_tag ==
                 specfem::element::boundary_tag::none) ||
                (PointBoundaryType::boundary_tag ==
                 specfem::element::boundary_tag::acoustic_free_surface)),
-              int> = 0>
+              int> = 0
+          // \endcond
+          >
 KOKKOS_FORCEINLINE_FUNCTION void
 apply_boundary_conditions(const PointBoundaryType &boundary,
                           PointAccelerationType &acceleration) {
@@ -47,6 +66,7 @@ apply_boundary_conditions(const PointBoundaryType &boundary,
   return;
 }
 
+// \cond
 // for some reason, the nonconforming kernel doesn't compile on cuda 11.8
 // without an instance of a stacey and composite overload.
 // this should not be called at runtime.
@@ -62,7 +82,20 @@ apply_boundary_conditions(const PointBoundaryType &boundary,
                           PointAccelerationType &acceleration) {
   return;
 }
+// \endcond
 
+/**
+ * @brief Apply boundary conditions (time dependent/absorbing)
+ *
+ * @tparam PointBoundaryType Point boundary type
+ * @tparam PointPropertyType Point property type
+ * @tparam PointVelocityType Point velocity type
+ * @tparam PointAccelerationType Point acceleration type
+ * @param boundary Boundary object
+ * @param property Property object
+ * @param field Field object
+ * @param acceleration Acceleration object
+ */
 template <typename PointBoundaryType, typename PointPropertyType,
           typename PointVelocityType, typename PointAccelerationType>
 KOKKOS_FORCEINLINE_FUNCTION void apply_boundary_conditions(
@@ -95,6 +128,17 @@ KOKKOS_FORCEINLINE_FUNCTION void apply_boundary_conditions(
                                  acceleration);
 }
 
+/**
+ * @brief Compute mass matrix terms for boundary conditions
+ *
+ * @tparam PointBoundaryType Point boundary type
+ * @tparam PointPropertyType Point property type
+ * @tparam PointMassMatrixType Point mass matrix type
+ * @param dt Time step
+ * @param boundary Boundary object
+ * @param property Property object
+ * @param mass_matrix Mass matrix object
+ */
 template <typename PointBoundaryType, typename PointPropertyType,
           typename PointMassMatrixType>
 KOKKOS_FORCEINLINE_FUNCTION void
