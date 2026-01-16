@@ -5,11 +5,11 @@
 ![GCC (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FGNU_main&build=last&subject=GCC%20(main))
 ![IntelLLVM (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FIntel_main&build=last&subject=IntelLLVM%20(main))
 ![NVIDIA (main)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FNVIDIA_main&build=last&subject=NVIDIA%20(main))
-[![Docker (main)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)<br>
+[![Docker (main)](https://img.shields.io/github/actions/workflow/status/PrincetonUniversity/SPECFEMPP/docker.yml?label=Docker%20(main)&branch=main)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)<br>
 ![GCC (devel)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FGNU_devel&build=last&subject=GCC%20(devel))
 ![IntelLLVM (devel)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FIntel_devel&build=last&subject=IntelLLVM%20(devel))
 ![NVIDIA (devel)](https://jenkins.princeton.edu/buildStatus/icon?job=SpecFEM_KOKKOS%2FNVIDIA_devel&build=last&subject=NVIDIA%20(devel))
-[![Docker (devel)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml/badge.svg?branch=devel)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)
+[![Docker (devel)](https://img.shields.io/github/actions/workflow/status/PrincetonUniversity/SPECFEMPP/docker.yml?label=Docker%20(devel)&branch=devel)](https://github.com/PrincetonUniversity/SPECFEMPP/actions/workflows/docker.yml)
 
 
 
@@ -28,7 +28,8 @@ SPECFEM++ is a complete re-write of SPECFEM suite of packages (SPECFEM2D, SPECFE
 ## Documentation
 
 
-The online documentation for SPECFEM++ is located [here](https://specfem2d-kokkos.readthedocs.io/en/latest/index.html#)
+The online documentation for SPECFEM++ is located
+[here](https://specfem2d-kokkos.readthedocs.io/en/latest/index.html#)
 
 ## Getting Started with SPECFEM++
 
@@ -40,9 +41,15 @@ We recommend starting with the [cookbook examples](https://specfem2d-kokkos.read
 
 ## Contributing to SPECFEM++
 
-SPECFEM is a community project that lives by the participation of its members — i.e., including you! It is our goal to build an inclusive and participatory community so we are happy that you are interested in participating! Please see [this page](https://specfem2d-kokkos.readthedocs.io/en/latest/developer_documentation/index.html) for developer documentation.
+SPECFEM is a community project that lives by the participation of its members —
+i.e., including you! It is our goal to build an inclusive and participatory
+community so we are happy that you are interested in participating! Please see
+[this
+page](https://specfem2d-kokkos.readthedocs.io/en/latest/sections/developer_documentation/contributing.html)
+for developer documentation.
 
-In particular you should follow the git development workflow and pre-commit style checks when contributing to SPECEFM.
+In particular you should follow the git development workflow and pre-commit
+style checks when contributing to SPECFEM++.
 
 ## License
 
