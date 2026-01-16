@@ -14,6 +14,9 @@ import os
 import sys
 import subprocess
 
+# Add the _ext directory to the path add path to include custom extensions
+sys.path.insert(0, os.path.abspath("_ext"))
+
 # Doxygen
 doxygen_cmd = "doxygen Doxyfile.in"  # or Doxyfile.in if that's the correct filename
 
@@ -36,6 +39,7 @@ if not os.path.exists("_build/doxygen/xml"):
     print("Error: Doxygen XML output directory '_build/doxygen/xml' not found")
     print("Please check Doxygen configuration and make sure it runs correctly")
     sys.exit(1)
+
 
 # -- Project information -----------------------------------------------------
 
@@ -60,16 +64,18 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinxcontrib.video",
     "sphinx_sitemap",
     "sphinx.ext.inheritance_diagram",
     "sphinx_design",
     "breathe",
     "sphinx_copybutton",
+    "download_folder",  # Local extension to add download buttons to code blocks
+    "repo_file",  # Local extension to add links to GitHub source files
 ]
 
 # Adding this to avoid the WARNING: duplicate label warning
 # autosectionlabel_prefix_document = True
-
 supress_warnings = ["*duplicate*"]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -109,13 +115,20 @@ html_baseurl = "https://specfem2d-kokkos.readthedocs.io/"
 # External links configuration
 extlinks = {
     "issue": (f"{github_url}/issues/%s", "Issue #%s"),
+    # "repo-file": (f"{github_url}/blob/main/%s", "%s"),
 }
+
+
+# Register custom config values
+def setup(app):
+    app.add_config_value("github_url", github_url, "html")
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # These folders are copied to the documentation's HTML output
-html_static_path = ["sections/_static"]
+html_static_path = ["_static"]
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
@@ -127,8 +140,8 @@ html_css_files = [
 
 # -- Breathe configuration -------------------------------------------------
 
-breathe_projects = {"SPECFEM KOKKOS IMPLEMENTATION": "_build/doxygen/xml"}
-breathe_default_project = "SPECFEM KOKKOS IMPLEMENTATION"
+breathe_projects = {"specfem++": "_build/doxygen/xml"}
+breathe_default_project = "specfem++"
 breathe_default_members = ()
 breathe_doxygen_config_options = {"PREDEFINED": "KOKKOS_INLINE_FUNCTION="}
 breathe_show_define_initializer = True

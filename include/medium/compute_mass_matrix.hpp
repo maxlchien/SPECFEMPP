@@ -5,38 +5,46 @@
 #include "dim2/elastic/isotropic/mass_matrix.tpp"
 #include "dim2/elastic/isotropic_cosserat/mass_matrix.tpp"
 #include "dim2/poroelastic/isotropic/mass_matrix.tpp"
+#include "dim3/elastic/isotropic/mass_matrix.tpp"
 #include "enumerations/dimension.hpp"
-#include "enumerations/material_definitions.hpp"
 #include "enumerations/medium.hpp"
+#include "specfem/macros.hpp"
 #include "specfem/point.hpp"
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
 namespace medium {
-
+// clang-format off
 /**
- * @brief Compute the contribution to mass matrix at a given quadrature point
- * within an element
+ * @brief Compute mass matrix from material properties.
  *
- * @tparam DimensionTag Dimension of the element (2D or 3D)
- * @tparam MediumTag Medium tag for the element
- * @tparam PropertyTag Property tag for the element
- * @tparam UseSIMD Use SIMD instructions
- * @param properties Material properties at the quadrature point
- * @param partial_derivatives Spatial derivatives of basis functions at the
- * quadrature point
- * @return specfem::point::field<DimensionTag, MediumTag, false, false, false,
- * true, UseSIMD> Contribution to mass matrix at the quadrature point
+ * Generic mass matrix computation interface that dispatches to medium-specific
+ * implementations.
+ *
+ * @tparam DimensionTag Spatial dimension (dim2/dim3)
+ * @tparam MediumTag Medium type (acoustic, elastic, poroelastic)
+ * @tparam PropertyTag Property type (isotropic, anisotropic, etc.)
+ * @tparam UseSIMD Enable SIMD vectorization
+ * @param properties Material properties at quadrature point
+ * @return Inverse mass matrix components for time integration
+ *
+ * @code{.cpp}
+ * // Example usage for 2D elastic isotropic medium
+ * using Properties = specfem::point::properties<dim2, elastic, isotropic, false>;
+ * Properties props = ...; // Initialize material properties
+ * auto mass_inv = specfem::medium::mass_matrix_component(props);
+ * @endcode
  */
+// clang-format on
 template <specfem::dimension::type DimensionTag,
           specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, bool UseSIMD>
-KOKKOS_INLINE_FUNCTION specfem::point::field<DimensionTag, MediumTag, false,
-                                             false, false, true, UseSIMD>
-mass_matrix_component(
-    const specfem::point::properties<DimensionTag, MediumTag, PropertyTag,
-                                     UseSIMD> &properties) {
+KOKKOS_INLINE_FUNCTION
+    specfem::point::mass_inverse<DimensionTag, MediumTag, UseSIMD>
+    mass_matrix_component(
+        const specfem::point::properties<DimensionTag, MediumTag, PropertyTag,
+                                         UseSIMD> &properties) {
   return impl_mass_matrix_component(properties);
 }
 

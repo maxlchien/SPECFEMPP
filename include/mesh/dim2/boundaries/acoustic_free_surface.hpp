@@ -1,8 +1,7 @@
 #pragma once
 
 #include "enumerations/dimension.hpp"
-#include "enumerations/specfem_enums.hpp"
-#include "specfem_mpi/specfem_mpi.hpp"
+#include "enumerations/interface.hpp"
 
 namespace specfem {
 namespace mesh {
@@ -44,7 +43,7 @@ template <> struct acoustic_free_surface<specfem::dimension::type::dim2> {
                                                         ///< on the acoustic
                                                         ///< free surface
                                                         ///< boundary
-  Kokkos::View<specfem::enums::boundaries::type *, Kokkos::HostSpace>
+  Kokkos::View<specfem::mesh_entity::dim2::type *, Kokkos::HostSpace>
       type; ///< Which edge of the element is on the acoustic free surface
 };
 } // namespace mesh

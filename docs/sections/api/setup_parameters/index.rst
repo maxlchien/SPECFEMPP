@@ -1,17 +1,17 @@
+.. _specfem_api_setup_parameters_index:
 
-.. _runtime_configuration:
+``specfem::runtime_configuration``
+==================================
 
-Setup Parameters
-=================
-
-Methods used to read the runtime configuration file and set up the simulation. Each class in this module implement methods required to parse a single node in the ``specfem_config.yaml`` YAML file.
+.. doxygennamespace:: specfem::runtime_configuration
+    :desc-only:
 
 .. toctree::
     :maxdepth: 1
 
     header
     quadrature
-    solver/index
+    solver
     receivers
     run_setup
     database_configuration
@@ -19,3 +19,10 @@ Methods used to read the runtime configuration file and set up the simulation. E
     wavefield_writer
     display
     setup
+    property
+    kernel
+    plot_wavefield
+    elastic_wave
+    electromagnetic_wave
+    sources
+    time_scheme

@@ -26,8 +26,8 @@ SUPPRESS_UTM_PROJECTION         = .true.
 NPROC                           = 1
 
 # time step parameters
-NSTEP                           = 5000
-DT                              = 0.05
+NSTEP                           = 250
+DT                              = 0.16
 
 # set to true to use local-time stepping (LTS)
 LTS_MODE                        = .false.
@@ -119,7 +119,7 @@ f0_FOR_PML                      = 0.05555
 # absorbing boundary conditions for a regional simulation
 # (if set to .false., and PML_CONDITIONS is also set to .false., you get a free surface instead
 # in the case of elastic or viscoelastic mesh elements, and a rigid surface in the case of acoustic (fluid) elements
-STACEY_ABSORBING_CONDITIONS     = .true.
+STACEY_ABSORBING_CONDITIONS     = .false.
 
 # absorbing top surface (defined in mesh as 'free_surface_file')
 STACEY_INSTEAD_OF_FREE_SURFACE  = .false.
@@ -166,7 +166,7 @@ HDUR_MOVIE                      = 0.0
 SAVE_MESH_FILES                 = .false.
 
 # path to store the local database file on each node
-LOCAL_PATH                      = @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/DATABASES_MPI
+LOCAL_PATH                      = @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/DATABASES
 
 # interval at which we output time step info and max of norm of displacement
 NTSTEP_BETWEEN_OUTPUT_INFO      = 500
@@ -192,9 +192,9 @@ USE_SOURCES_RECEIVERS_Z         = .false.
 # - the components of a (non necessarily unitary) direction vector for the force source in the E/N/Z_UP basis.
 # The direction vector is made unitary internally in the code and thus only its direction matters here;
 # its norm is ignored and the norm of the force used is the factor force source times the source time function.
-USE_FORCE_POINT_SOURCE          = .false.
+USE_FORCE_POINT_SOURCE          = .true.
 
-SOURCE_FILENAME                    = @CURRENT_BENCHMARK_BUILD_DIR@/DATA/CMTSOLUTION
+SOURCE_FILENAME                    = @CURRENT_BENCHMARK_BUILD_DIR@/DATA/FORCESOLUTION
 
 # set to true to use a Ricker source time function instead of the source time functions set by default
 # to represent a (tilted) FORCESOLUTION force point source or a CMTSOLUTION moment-tensor source.

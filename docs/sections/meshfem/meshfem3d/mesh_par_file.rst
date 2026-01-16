@@ -1,6 +1,6 @@
 
-``xmeshfem3D``: ``Mesh_Par_file`` Documentation
-===============================================
+Parameter File
+==============
 
 
 ``MESH_A_CHUNK_OF_THE_EARTH``
@@ -149,9 +149,9 @@ can be used.
 ``SUPPRESS_UTM_PROJECTION``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Set to be `.false.`` when your model range is specified in geographical
-coordinates, and needs to be `.true.`` when your model is specified in Cartesian
-coordinates.
+Set to be ``.false.`` when your model range is specified in geographical
+coordinates, and needs to be ``.true.`` when your model is specified in
+Cartesian coordinates.
 
 :Type: ``logical``
 
@@ -438,10 +438,19 @@ Number of materials in the model.
 ``Material Properties Table``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Defines the properties for each material.
+Defines the properties for each material. The format depends on the material type.
 
-- ``Q_Kappa``: Attenuation quality factor for bulk modulus
-- ``Q_mu``: Attenuation quality factor for shear modulus
+Acoustic/Elastic Materials
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For acoustic or elastic materials, use the following format:
+
+- ``material_id``: integer number to reference the material
+- ``rho``: density (kg/m³)
+- ``vp``: P-wave velocity (m/s)
+- ``vs``: S-wave velocity (m/s). Set to ``0.0`` for acoustic materials
+- ``Q_Kappa``: bulk attenuation quality factor (set to ``9999`` or ``0`` to ignore)
+- ``Q_mu``: shear attenuation quality factor (set to ``9999`` or ``0`` to ignore)
 - ``anisotropy_flag``: 0 = no anisotropy; 1,2,... = see implementation
 - ``domain_id``: 1 = acoustic, 2 = elastic
 
@@ -450,10 +459,47 @@ Defines the properties for each material.
 :Format: ``material_id  rho  vp  vs  Q_Kappa  Q_mu  anisotropy_flag  domain_id``
 
 .. code-block::
+    :caption: Example (Elastic)
+
+    1   2300.0   2800.0   1500.0   0   0   0   2
+
+.. code-block::
+    :caption: Example (Acoustic, vs = 0)
+
+    2   1020.0   1500.0   0.0   0   0   0   1
+
+
+Poroelastic Materials
+^^^^^^^^^^^^^^^^^^^^^
+
+For poroelastic materials (Biot theory), use the following format:
+
+- ``material_id``: integer number to reference the material
+- ``rho_s``: solid density (kg/m³)
+- ``rho_f``: fluid density (kg/m³)
+- ``phi``: porosity (dimensionless)
+- ``tort``: tortuosity (dimensionless)
+- ``kxx``: permeability in xx direction (m²)
+- ``kxy``: permeability in xy direction (m²)
+- ``kxz``: permeability in xz direction (m²)
+- ``kyy``: permeability in yy direction (m²)
+- ``kyz``: permeability in yz direction (m²)
+- ``kzz``: permeability in zz direction (m²)
+- ``kappa_s``: bulk modulus of solid (Pa)
+- ``kappa_f``: bulk modulus of fluid (Pa)
+- ``kappa_fr``: bulk modulus of frame (Pa)
+- ``eta``: fluid viscosity (Pa·s)
+- ``mu_fr``: shear modulus of frame (Pa)
+- ``domain_id``: must be 3 for poroelastic
+
+:Type: ``string``
+
+:Format: ``material_id  rho_s  rho_f  phi  tort  kxx  kxy  kxz  kyy  kyz  kzz  kappa_s  kappa_f  kappa_fr  eta  mu_fr  domain_id``
+
+.. code-block::
     :caption: Example
 
-    1   2300.0   2800.0   1500.0   2444.4    300.0 0 2
-
+    1   2650.d0  880.d0  0.3   2.0   1d-11   0.0   0.0   1d-11   0.0   1d-11   15.d9   8.d9  13.667d9 0.0d-4 13.d9   3
 
 ``NREGIONS``
 ~~~~~~~~~~~~

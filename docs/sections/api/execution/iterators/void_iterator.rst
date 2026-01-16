@@ -1,7 +1,7 @@
-.. _execution_iterators_void_iterator:
+.. _specfem_api_execution_iterators_void_iterator:
 
-Void Iterator
-================
+``specfem::execution::VoidIterator``
+====================================
 
 .. doxygenclass:: specfem::execution::VoidIterator
     :members:

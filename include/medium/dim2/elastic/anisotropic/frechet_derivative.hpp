@@ -1,6 +1,5 @@
 #pragma once
 
-#include "algorithms/dot.hpp"
 #include "algorithms/gradient.hpp"
 #include "enumerations/medium.hpp"
 #include "globals.h"
@@ -9,8 +8,51 @@
 namespace specfem {
 namespace medium {
 
-template <typename PointPropertiesType, typename AdjointPointFieldType,
-          typename BackwardPointFieldType, typename PointFieldDerivativesType>
+/**
+ * @defgroup specfem_medium_frechet_derivative_dim2_elastic_anisotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_anisotropic
+ * @brief Compute Fréchet derivatives for 2D elastic PSV anisotropic media.
+ *
+ * Calculates sensitivity kernels for anisotropic elastic stiffness parameters
+ * in PSV wave propagation. Computes kernels for density and six independent
+ * stiffness coefficients (c11, c13, c15, c33, c35, c55) using strain tensor
+ * formulation.
+ *
+ * Based on Tromp et al. 2005, Equation 15 for anisotropic kernels:
+ * \f[
+ * \Delta K_{c_{ijkl}} = -\varepsilon_{ij}^{\dagger} \varepsilon_{kl}^b \,
+ * c_{ijkl} \,
+ * \Delta t
+ * \f]
+ * \f[
+ * \Delta K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ * \f]
+ *
+ * @tparam PointPropertiesType Anisotropic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Anisotropic elastic properties (ρ, c11, c13, c15, c33, c35,
+ * c55)
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels containing density and stiffness parameter
+ * sensitivities
+ */
+template <typename PointPropertiesType, typename AdjointPointVelocityType,
+          typename AdjointPointAccelerationType,
+          typename BackwardPointDisplacementType,
+          typename PointFieldDerivativesType>
 KOKKOS_FUNCTION specfem::point::kernels<
     PointPropertiesType::dimension_tag, PointPropertiesType::medium_tag,
     PointPropertiesType::property_tag, PointPropertiesType::simd::using_simd>
@@ -22,8 +64,9 @@ impl_compute_frechet_derivatives(
     const std::integral_constant<specfem::element::property_tag,
                                  specfem::element::property_tag::anisotropic>,
     const PointPropertiesType &properties,
-    const AdjointPointFieldType &adjoint_field,
-    const BackwardPointFieldType &backward_field,
+    const AdjointPointVelocityType &adjoint_velocity,
+    const AdjointPointAccelerationType &adjoint_acceleration,
+    const BackwardPointDisplacementType &backward_displacement,
     const PointFieldDerivativesType &adjoint_derivatives,
     const PointFieldDerivativesType &backward_derivatives,
     const type_real &dt) {
@@ -59,8 +102,8 @@ impl_compute_frechet_derivatives(
 
   // inner part of rho kernel equation 14
   // rho_kl = s#''_i * s_j
-  auto rho_kl = specfem::algorithms::dot(adjoint_field.acceleration,
-                                         backward_field.displacement);
+  auto rho_kl =
+      adjoint_acceleration.get_data() * backward_displacement.get_data();
 
   // Inner part of the 2-D version of Equation 15 in Tromp et al. 2005
   // That is \eps_{jk} \eps_{lm}
@@ -84,8 +127,37 @@ impl_compute_frechet_derivatives(
   return { rho_kl, c11_kl, c13_kl, c15_kl, c33_kl, c35_kl, c55_kl };
 }
 
-template <typename PointPropertiesType, typename AdjointPointFieldType,
-          typename BackwardPointFieldType, typename PointFieldDerivativesType>
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_anisotropic
+ * @brief Compute Fréchet derivatives for 2D elastic SH anisotropic media.
+ *
+ * Placeholder implementation for SH anisotropic kernels. Currently not
+ * implemented due to missing stiffness matrix components (c44, c45/c54) in the
+ * anisotropic properties structure.
+ *
+ * @tparam PointPropertiesType Anisotropic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Anisotropic elastic properties
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Zero kernels (not implemented)
+ *
+ * @warning This function currently calls Kokkos::abort() - not implemented
+ * @note Requires additional stiffness coefficients (c44, c45) for full
+ * implementation
+ */
+template <typename PointPropertiesType, typename AdjointPointVelocityType,
+          typename AdjointPointAccelerationType,
+          typename BackwardPointDisplacementType,
+          typename PointFieldDerivativesType>
 KOKKOS_FUNCTION specfem::point::kernels<
     PointPropertiesType::dimension_tag, PointPropertiesType::medium_tag,
     PointPropertiesType::property_tag, PointPropertiesType::simd::using_simd>
@@ -97,8 +169,9 @@ impl_compute_frechet_derivatives(
     const std::integral_constant<specfem::element::property_tag,
                                  specfem::element::property_tag::anisotropic>,
     const PointPropertiesType &properties,
-    const AdjointPointFieldType &adjoint_field,
-    const BackwardPointFieldType &backward_field,
+    const AdjointPointVelocityType &adjoint_velocity,
+    const AdjointPointAccelerationType &adjoint_acceleration,
+    const BackwardPointDisplacementType &backward_displacement,
     const PointFieldDerivativesType &adjoint_derivatives,
     const PointFieldDerivativesType &backward_derivatives,
     const type_real &dt) {

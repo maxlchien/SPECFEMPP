@@ -76,6 +76,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
             "TE");
   }
 
+  // Get Quadrature info
   if (const YAML::Node &n_quadrature = simulation_setup["quadrature"]) {
     this->quadrature =
         std::make_unique<specfem::runtime_configuration::quadrature>(
@@ -88,6 +89,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     throw std::runtime_error("Error reading specfem quadrature config.");
   }
 
+  // Get Run Setup info
   if (const YAML::Node &n_run_setup = runtime_config["run-setup"]) {
     this->run_setup =
         std::make_unique<specfem::runtime_configuration::run_setup>(
@@ -100,6 +102,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     throw std::runtime_error("Error reading specfem runtime configuration.");
   }
 
+  // Get Database info
   try {
     this->databases = std::make_unique<
         specfem::runtime_configuration::database_configuration>(n_databases);
@@ -111,6 +114,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     throw std::runtime_error(message.str());
   }
 
+  // Get Kernel info
   if (n_databases["writer"] && n_databases["writer"]["properties"]) {
     this->property = std::make_unique<specfem::runtime_configuration::property>(
         n_databases["writer"]["properties"], true);
@@ -140,8 +144,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     int number_of_simulation_modes = 0;
     if (const YAML::Node &n_forward = n_simulation_mode["forward"]) {
       this->solver =
-          std::make_unique<specfem::runtime_configuration::solver::solver>(
-              "forward");
+          std::make_unique<specfem::runtime_configuration::solver>("forward");
       simulation = specfem::simulation::type::forward;
       number_of_simulation_modes++;
       bool at_least_one_writer = false; // check if at least one writer is
@@ -192,7 +195,8 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
           at_least_one_writer = true;
           this->plot_wavefield =
               std::make_unique<specfem::runtime_configuration::plot_wavefield>(
-                  n_plotter);
+                  n_plotter, this->elastic_wave->get_elastic_wave_type(),
+                  this->electromagnetic_wave->get_electromagnetic_wave_type());
         } else {
           this->plot_wavefield = nullptr;
         }
@@ -211,8 +215,7 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
 
     if (const YAML::Node &n_adjoint = n_simulation_mode["combined"]) {
       this->solver =
-          std::make_unique<specfem::runtime_configuration::solver::solver>(
-              "combined");
+          std::make_unique<specfem::runtime_configuration::solver>("combined");
       number_of_simulation_modes++;
       simulation = specfem::simulation::type::combined;
       if (const YAML::Node &n_reader = n_adjoint["reader"]) {
@@ -275,7 +278,8 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
           }
           this->plot_wavefield =
               std::make_unique<specfem::runtime_configuration::plot_wavefield>(
-                  n_plotter);
+                  n_plotter, this->elastic_wave->get_elastic_wave_type(),
+                  this->electromagnetic_wave->get_electromagnetic_wave_type());
         } else {
           this->plot_wavefield = nullptr;
         }
@@ -294,9 +298,9 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
     const YAML::Node &n_time_marching = n_solver["time-marching"];
     const YAML::Node &n_timescheme = n_time_marching["time-scheme"];
 
-    this->time_scheme = std::make_unique<
-        specfem::runtime_configuration::time_scheme::time_scheme>(n_timescheme,
-                                                                  simulation);
+    this->time_scheme =
+        std::make_unique<specfem::runtime_configuration::time_scheme>(
+            n_timescheme, simulation);
   } catch (YAML::InvalidNode &e) {
     std::ostringstream message;
     message << "Error reading specfem solver configuration. \n" << e.what();
@@ -304,21 +308,13 @@ specfem::runtime_configuration::setup::setup(const YAML::Node &parameter_dict,
   }
 }
 
-std::string specfem::runtime_configuration::setup::print_header(
-    const std::chrono::time_point<std::chrono::system_clock> now) {
+// Explicit template instantiations for instantiate_timescheme
+template std::shared_ptr<specfem::time_scheme::time_scheme>
+specfem::runtime_configuration::setup::instantiate_timescheme<
+    specfem::assembly::fields<specfem::dimension::type::dim2> >(
+    specfem::assembly::fields<specfem::dimension::type::dim2> &fields) const;
 
-  std::ostringstream message;
-
-  // convert now to string form
-  const std::time_t c_now = std::chrono::system_clock::to_time_t(now);
-
-  message << "================================================\n"
-          << "              SPECFEM2D SIMULATION\n"
-          << "================================================\n\n"
-          << "Title : " << this->header->get_title() << "\n"
-          << "Discription: " << this->header->get_description() << "\n"
-          << "Simulation start time: " << ctime(&c_now)
-          << "------------------------------------------------\n";
-
-  return message.str();
-}
+template std::shared_ptr<specfem::time_scheme::time_scheme>
+specfem::runtime_configuration::setup::instantiate_timescheme<
+    specfem::assembly::fields<specfem::dimension::type::dim3> >(
+    specfem::assembly::fields<specfem::dimension::type::dim3> &fields) const;

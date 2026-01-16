@@ -90,6 +90,12 @@ Table below shows various features available and tested in this package on vario
       - ✔ /  ✘
       - ✔* / ✘
 
+    * - Elastic Isotropic Cosserat P-SV **
+      - ✔ /  ✘
+      - ✔ /  ✘
+      - ✔ /  ✘
+      - ✔* / ✘
+
     * - **2-D Medium Coupling**
       -
       -
@@ -204,6 +210,8 @@ star, it means that the feature is not tested/does not match the `Fortran`
 version of `specfem2d`. In the former case, see `HIP` column, and for the latter
 case, see the Poroelastic Isotropic row.
 
+\*\* Not peer reviewed yet.
+
 .. note::
 
     While we work towards building this package and making the
@@ -238,6 +246,7 @@ Getting Started
     sections/getting_started/index
     sections/cookbooks/index
     sections/getting_started/presets
+    sections/getting_started/special_machines
 
 User Documentation
 ------------------
@@ -264,7 +273,6 @@ Contribution
     sections/developer_documentation/git_workflow
     sections/developer_documentation/build_requirements
     sections/developer_documentation/continuous_integration
-    sections/developer_documentation/special_machines
 
 .. sections/developer_documentation/tutorials/index
 

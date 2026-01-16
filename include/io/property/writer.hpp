@@ -1,15 +1,18 @@
 #pragma once
 
-#include "compute/interface.hpp"
 #include "enumerations/interface.hpp"
 #include "io/writer.hpp"
+#include "specfem/assembly.hpp"
 
 namespace specfem {
 namespace io {
 /**
- * @brief Writer to model property data to disk
+ * @brief Writer for outputting material properties to disk
  *
- * @tparam OutputLibrary Library to use for output (HDF5, ASCII, etc.)
+ * Template-based writer for material property data supporting multiple I/O
+ * backends. Used to write density, velocities, and other material parameters.
+ *
+ * @tparam OutputLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename OutputLibrary> class property_writer : public writer {
 public:
@@ -24,7 +27,7 @@ public:
    * @param output_folder Path to output location (will be an .h5 file if using
    * HDF5, and a folder if using ASCII)
    */
-  property_writer(const std::string output_folder);
+  property_writer(const std::string &output_folder);
 
   /**
    * @brief write the property data to disk
@@ -32,7 +35,19 @@ public:
    * @param assembly SPECFEM++ assembly
    *
    */
-  void write(specfem::compute::assembly &assembly) override;
+  void write(specfem::assembly::assembly<specfem::dimension::type::dim2>
+                 &assembly) override;
+
+  /**
+   * @brief write the property data to disk
+   *
+   * @param assembly SPECFEM++ 3D assembly
+   *
+   */
+  void write(specfem::assembly::assembly<specfem::dimension::type::dim3>
+                 &assembly) override {
+    throw std::runtime_error("3D property writing not yet implemented");
+  };
 
 private:
   std::string output_folder; ///< Path to output folder

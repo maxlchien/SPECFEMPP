@@ -1,8 +1,8 @@
 #pragma once
 
-#include "enumerations/accessor.hpp"
 #include "enumerations/medium.hpp"
 #include "medium/dim2/poroelastic/isotropic/damping.hpp"
+#include "specfem/data_access.hpp"
 #include "utilities/errors.hpp"
 #include <Kokkos_Core.hpp>
 
@@ -16,27 +16,24 @@ KOKKOS_INLINE_FUNCTION void assert_types(const std::true_type) {
   constexpr auto PropertyTag = PointPropertiesType::property_tag;
 
   static_assert(
-      specfem::accessor::is_point_properties<PointPropertiesType>::value,
+      specfem::data_access::is_point<PointPropertiesType>::value &&
+          specfem::data_access::is_properties<PointPropertiesType>::value,
       "point_properties is not a point properties type");
 
   // Check that the types are compatible
   static_assert(std::is_same_v<T, typename PointPropertiesType::simd::datatype>,
                 "factor must have the same SIMD type as point_properties");
 
-  static_assert(specfem::accessor::is_point_field<PointVelocityType>::value,
+  static_assert(specfem::data_access::is_point<PointVelocityType>::value &&
+                    specfem::data_access::is_field<PointVelocityType>::value,
                 "velocity is not a point field type");
 
-  static_assert(specfem::accessor::is_point_field<PointAccelerationType>::value,
-                "acceleration is not a point field type");
-
-  static_assert(PointVelocityType::store_velocity,
-                "velocity must store velocity");
-
-  static_assert(PointAccelerationType::store_acceleration,
-                "acceleration must store acceleration");
+  static_assert(
+      specfem::data_access::is_point<PointAccelerationType>::value &&
+          specfem::data_access::is_field<PointAccelerationType>::value,
+      "acceleration is not a point field type");
 
   static_assert(PointPropertiesType::dimension_tag ==
-
                     PointVelocityType::dimension_tag,
                 "point_properties and velocity have different dimensions");
 
@@ -115,24 +112,24 @@ KOKKOS_INLINE_FUNCTION void impl_compute_damping_force(
 }
 
 /**
- * @defgroup MediumPhysics
- */
-
-/**
- * @brief Compute the damping term at a quadrature point
+ * @brief Compute damping force for wave attenuation.
  *
- * @ingroup MediumPhysics
+ * Generic damping force computation interface that adds viscous damping
+ * to wave propagation equations. Provides compile-time dispatch to
+ * medium-specific implementations based on element attributes.
  *
- * @tparam PointPropertiesType Material properties at the quadrature point
- * specfem::point::properties
- * @tparam PointVelocityType Velocity at the quadrature point
- * specfem::point::field
- * @tparam PointAccelerationType Acceleration at the quadrature point
- * specfem::point::field
- * @param factor Prefactor for the damping term ($wx * wz * jacobian)
- * @param point_properties Material properties at the quadrature point
- * @param velocity Velocity at the quadrature point
- * @param acceleration Acceleration at the quadrature point
+ * @note Only medium types with damping force support will modify the
+ * acceleration. Medium types without damping force support will result a no-op.
+ *
+ * @tparam T Scalar type for damping factor
+ * @tparam PointPropertiesType Point-wise material properties
+ * @tparam PointVelocityType Point-wise velocity field
+ * @tparam PointAccelerationType Point-wise acceleration field
+ * @param factor Integration factor (e.g., product of quadrature weight(s) and
+ * Jacobian determinant) \f$ J \, w_q \f$
+ * @param point_properties Material properties at point
+ * @param velocity Velocity field at point
+ * @param acceleration[in,out] Acceleration field (modified by damping)
  */
 template <typename T, typename PointPropertiesType, typename PointVelocityType,
           typename PointAccelerationType>

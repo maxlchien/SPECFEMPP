@@ -1,10 +1,40 @@
+.. _specfem_point_field_displacement:
 
-.. _specfem_point_field:
+``specfem::point::displacement``
+================================
 
-Field
-=====
-
-Datatype used to store field values at a quadrature point.
-
-.. doxygenstruct:: specfem::point::field
+.. doxygenclass:: specfem::point::displacement
     :members:
+
+.. _specfem_point_field_velocity:
+
+``specfem::point::velocity``
+============================
+
+.. doxygenclass:: specfem::point::velocity
+    :members:
+
+.. _specfem_point_field_acceleration:
+
+``specfem::point::acceleration``
+================================
+
+.. doxygenclass:: specfem::point::acceleration
+    :members:
+
+.. _specfem_point_field_mass_inverse:
+
+``specfem::point::mass_inverse``
+================================
+
+.. doxygenclass:: specfem::point::mass_inverse
+    :members:
+
+
+Implementation Details
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. toctree::
+    :maxdepth: 1
+
+    field

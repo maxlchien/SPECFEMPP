@@ -15,7 +15,7 @@ void test_element_wavefield(
     const int ispec,
     const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
         &wavefield,
-    specfem::compute::assembly &assembly) {
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
 
   const auto element_types = assembly.element_types;
 
@@ -59,7 +59,8 @@ void test_element_wavefield(
 
 template <specfem::wavefield::type component,
           specfem::wavefield::simulation_field type>
-void test_compute_wavefield(specfem::compute::assembly &assembly) {
+void test_compute_wavefield(
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
 
   const auto ispecs = generate_data<component, type>(assembly);
 
@@ -82,7 +83,8 @@ void test_compute_wavefield(specfem::compute::assembly &assembly) {
   }
 }
 
-void test_compute_wavefield(specfem::compute::assembly &assembly) {
+void test_compute_wavefield(
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
 
   try {
     test_compute_wavefield<specfem::wavefield::type::displacement,
@@ -125,10 +127,11 @@ void test_compute_wavefield(specfem::compute::assembly &assembly) {
   }
 }
 
-TEST_F(ASSEMBLY, compute_wavefield) {
+TEST_F(Assembly2D, compute_wavefield) {
   for (auto parameters : *this) {
     const auto Test = std::get<0>(parameters);
-    specfem::compute::assembly assembly = std::get<5>(parameters);
+    specfem::assembly::assembly<specfem::dimension::type::dim2> assembly =
+        std::get<5>(parameters);
 
     try {
       test_compute_wavefield(assembly);

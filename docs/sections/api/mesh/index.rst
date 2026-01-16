@@ -1,15 +1,17 @@
+.. _specfem_api_mesh:
 
-.. _mesh:
+``specfem::mesh``
+=================
 
-SPECFEM++ Mesh
-==============
-
-.. doxygenstruct:: specfem::mesh::mesh
-    :members:
-
+.. doxygennamespace:: specfem::mesh
+    :desc-only:
 
 .. toctree::
     :maxdepth: 1
 
-    dim2/index
-    dim3/index
+    mesh
+    boundaries
+    control_nodes
+    materials
+    tags
+    adjacency_graph

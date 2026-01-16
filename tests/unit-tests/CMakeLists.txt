@@ -3,18 +3,8 @@ cmake_minimum_required(VERSION 3.17.5)
 # GoogleTest requires at least C++17
 set(CMAKE_CXX_STANDARD 17)
 
-# Make sure that GTEST is not installed later in the process
-set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
-
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  DOWNLOAD_EXTRACT_TIMESTAMP FALSE
-  URL https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+# Include the GoogleTest framework
+include("${CMAKE_SOURCE_DIR}/cmake/googletest.cmake")
 
 # Explicitly set binary output directory for tests
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests/unit-tests)
@@ -30,26 +20,16 @@ set(TEST_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 enable_testing()
 
 add_library(
-  kokkos_environment
-  Kokkos_Environment.cpp
+  specfem_environment
+  SPECFEM_Environment.cpp
 )
 
 target_link_libraries(
-  kokkos_environment
-  Kokkos::kokkos
+  specfem_environment
   gtest_main
+  specfem_program
 )
 
-add_library(
-  mpi_environment
-  MPI_environment.cpp
-)
-
-target_link_libraries(
-  mpi_environment
-  gtest_main
-  specfem_mpi
-)
 
 add_library(
   compare_arrays
@@ -62,6 +42,87 @@ target_link_libraries(
   io
 )
 
+add_library(
+  mesh_utilities_mapping
+  mesh_utilities/mapping.cpp
+)
+
+target_link_libraries(
+  mesh_utilities_mapping
+  Kokkos::kokkos
+)
+
+add_executable(
+  test_mesh_utilities_mapping_2d
+  mesh_utilities/test_mapping_2d.cpp
+)
+
+target_link_libraries(
+  test_mesh_utilities_mapping_2d
+  mesh_utilities_mapping
+  utilities
+  gtest_main
+)
+
+add_executable(
+  test_mesh_utilities_mapping_3d
+  mesh_utilities/test_mapping_3d.cpp
+)
+
+target_link_libraries(
+  test_mesh_utilities_mapping_3d
+  mesh_utilities_mapping
+  utilities
+  gtest_main
+)
+
+add_executable(
+  io_framework_tests
+  io/io_framework_tests.cpp
+)
+
+target_link_libraries(io_framework_tests PRIVATE
+  io
+  boost
+  gtest_main
+  Kokkos::kokkos
+  specfem_environment
+  $<$<BOOL:${SPECFEM_ENABLE_NPZ}>:zlib>
+  $<$<BOOL:${SPECFEM_ENABLE_HDF5}>:hdf5>
+  $<$<BOOL:${SPECFEM_ENABLE_ADIOS2}>:adios2>
+)
+
+target_compile_definitions(
+    io_framework_tests
+    PUBLIC
+    $<$<NOT:$<BOOL:${SPECFEM_ENABLE_NPZ}>>:-DNO_NPZ>
+    $<$<NOT:$<BOOL:${SPECFEM_ENABLE_HDF5}>>:-DNO_HDF5>
+    $<$<NOT:$<BOOL:${SPECFEM_ENABLE_ADIOS2}>>:-DNO_ADIOS2>
+)
+
+add_executable(
+  abort_tests
+  program/abort_tests.cpp
+)
+
+target_link_libraries(
+  abort_tests
+  specfem::program
+  gtest_main
+  Kokkos::kokkos
+)
+
+add_executable(
+  is_close_tests
+  utilities/is_close_tests.cpp
+)
+
+target_link_libraries(
+  is_close_tests
+  utilities
+  gtest_main
+  Kokkos::kokkos
+)
 
 add_executable(
   gll_tests
@@ -72,7 +133,7 @@ target_link_libraries(
   gll_tests
   gtest_main
   quadrature
-  kokkos_environment
+  specfem_environment
   point
   -lpthread -lm
 )
@@ -86,21 +147,50 @@ target_link_libraries(
   lagrange_tests
   gtest_main
   quadrature
-  kokkos_environment
+  specfem_environment
   -lpthread -lm
 )
 
 add_executable(
   jacobian_tests
-  jacobian/shape_functions.cpp
+  jacobian/jacobian_tests.cpp
+  jacobian/dim2/shape_functions_tests.cpp
+  jacobian/dim2/compute_locations_tests.cpp
+  jacobian/dim2/compute_jacobian_tests.cpp
+  jacobian/dim3/shape_functions_tests.cpp
+  jacobian/dim3/compute_locations_tests.cpp
+  jacobian/dim3/compute_jacobian_tests.cpp
 )
 
 target_link_libraries(
   jacobian_tests
   jacobian
+  specfem_environment
   gtest_main
   -lpthread -lm
 )
+
+add_executable(
+  enumerations_tests
+  enumerations/dim2/mesh_entity.cpp
+  enumerations/dim2/connections.cpp
+  enumerations/dim3/mesh_entity.cpp
+  enumerations/dim3/connections.cpp
+  enumerations/runner.cpp
+)
+
+target_link_libraries(
+  enumerations_tests
+  enumerations
+  quadrature
+  shape_functions
+  gtest_main
+  specfem_environment
+  utilities
+  -lpthread -lm
+)
+
+set_target_properties(enumerations_tests PROPERTIES UNITY_BUILD OFF)
 
 add_executable(
   simd_tests
@@ -133,7 +223,7 @@ add_executable(
   point/index_tests.cpp
   point/coordinates_tests.cpp
   point/boundary_tests.cpp
-  point/partial_derivatives_tests.cpp
+  point/jacobian_matrix_tests.cpp
   point/source_tests.cpp
   point/stress_integrand_tests.cpp
   point/stress_tests.cpp
@@ -164,103 +254,192 @@ target_link_libraries(
   gmock_main
 )
 
-
 add_executable(
-  mesh_tests
-  mesh/test_fixture/test_fixture.cpp
-  mesh/materials/materials.cpp
-  mesh/materials/properties.cpp
-  mesh/runner.cpp
+  receivers_tests
+  receivers/dim2/receiver_tests.cpp
+  receivers/dim3/receiver_tests.cpp
 )
 
 target_link_libraries(
-  mesh_tests
+  receivers_tests
+  gtest_main
+  specfem::receivers
+  specfem_environment
+  yaml-cpp
+  boost
+  -lpthread -lm
+)
+
+add_executable(
+  mesh_dim2_tests
+  mesh/dim2/test_fixture/test_fixture.cpp
+  mesh/dim2/materials/materials.cpp
+  mesh/dim2/materials/properties.cpp
+  mesh/dim2/runner.cpp
+  mesh/dim2/adjacency_graph/adjacency_graph.cpp
+  mesh/dim2/adjacency_graph/adjacency_graph_regular_mesh.cpp
+  mesh/dim2/adjacency_graph/adjacency_graph_irregular_mesh.cpp
+)
+
+target_link_libraries(
+  mesh_dim2_tests
   gtest_main
   mesh
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   yaml-cpp
   io
   utilities
+
   # material_class
   -lpthread -lm
 )
 
 add_executable(
-  compute_partial_derivatives_tests
-  compute/partial_derivatives/compute_partial_derivatives_tests.cpp
+  mesh_dim3_tests
+  mesh/dim3/mesh.cpp
+  mesh/dim3/control_nodes.cpp
+  mesh/dim3/materials.cpp
+  mesh/dim3/boundaries.cpp
+  mesh/dim3/adjacency_graph.cpp
+  mesh/dim3/tags.cpp
+  mesh/dim3/test.cpp
 )
 
 target_link_libraries(
-  compute_partial_derivatives_tests
+  mesh_dim3_tests
+  gtest_main
   mesh
-  compute
-  quadrature
-  mpi_environment
-  kokkos_environment
-  yaml-cpp
-  compare_arrays
-  Boost::filesystem
-  # material_class
-  -lpthread -lm
-)
-
-# add_executable(
-#   compute_elastic_tests
-#   compute/elastic/compute_properties_tests.cpp
-# )
-
-# target_link_libraries(
-#   compute_elastic_tests
-#   mesh
-#   compute
-#   quadrature
-#   mpi_environment
-#   kokkos_environment
-#   yaml-cpp
-#   compare_arrays
-#   Boost::filesystem
-#   # material_class
-#   -lpthread -lm
-# )
-
-# add_executable(
-#   compute_acoustic_tests
-#   compute/acoustic/compute_properties_tests.cpp
-# )
-
-# target_link_libraries(
-#   compute_acoustic_tests
-#   mesh
-#   compute
-#   quadrature
-#   mpi_environment
-#   kokkos_environment
-#   yaml-cpp
-#   compare_arrays
-#   # material_class
-#   -lpthread -lm
-# )
-
-add_executable(
-  compute_tests
-  compute/index/compute_tests.cpp
-)
-
-target_link_libraries(
-  compute_tests
-  mesh
-  compute
-  quadrature
-  mpi_environment
-  kokkos_environment
-  yaml-cpp
-  compare_arrays
+  specfem_environment
   io
-  Boost::filesystem
-  # material_class
+  utilities
+
   -lpthread -lm
 )
+
+add_executable(
+  nonconforming_tests
+  nonconforming/reparameterizations/compute_intersection_test.cpp
+  nonconforming/reparameterizations/set_transfer_functions_test.cpp
+  nonconforming/runner.cpp
+)
+
+target_link_libraries(
+  nonconforming_tests
+  mesh
+  assembly
+  quadrature
+  specfem_environment
+  yaml-cpp
+  utilities
+  boost
+  -lpthread -lm
+  gtest_main
+)
+
+# add_executable(
+#   compute_jacobian_matrix_tests
+#   assembly_mesh/jacobian_matrix/compute_jacobian_matrix_tests.cpp
+# )
+
+# target_link_libraries(
+#   compute_jacobian_matrix_tests
+#   mesh
+#   assembly
+#   quadrature
+#   yaml-cpp
+#   compare_arrays
+#   boost
+#   specfem_environment
+#   # material_class
+#   -lpthread -lm
+# )
+
+# add_executable(
+#   compute_elastic_tests
+#   assembly_mesh/elastic/compute_properties_tests.cpp
+# )
+
+# target_link_libraries(
+#   compute_elastic_tests
+#   mesh
+#   assembly
+#   quadrature
+#   specfem_environment
+#
+#   yaml-cpp
+#   compare_arrays
+#   boost
+#   # material_class
+#   -lpthread -lm
+# )
+
+# add_executable(
+#   compute_acoustic_tests
+#   assembly_mesh/acoustic/compute_properties_tests.cpp
+# )
+
+# target_link_libraries(
+#   compute_acoustic_tests
+#   mesh
+#   assembly
+#   quadrature
+#   specfem_environment
+#   yaml-cpp
+#   compare_arrays
+#   # material_class
+#   -lpthread -lm
+# )
+
+# add_executable(
+#   compute_tests
+#   assembly_mesh/index/compute_tests.cpp
+# )
+
+# target_link_libraries(
+#   compute_tests
+#   mesh
+#   assembly
+#   quadrature
+#   specfem_environment
+#   yaml-cpp
+#   compare_arrays
+#   io
+#   boost
+#   # material_class
+#   -lpthread -lm
+# )
+
+# target_compile_definitions(
+#         compute_tests
+#         PUBLIC
+#         $<$<BOOL:${__APPLE__}>:-DSPECFEMPP_APPLE_BUILD>
+#         $<$<BOOL:${__GNU__}>:-DSPECFEMPP_GNU_BUILD>
+#         $<$<BOOL:${__MSVC__}>:-DSPECFEMPP_MSVC_BUILD>
+#         $<$<BOOL:${__INTEL_LLVM__}>:-DSPECFEMPP_INTEL_LLVM_BUILD>
+# )
+
+add_executable(
+  nonconforming_assembly_tests
+  assembly/runner.cpp
+  assembly/nonconforming_interfaces/container_init_test.cpp
+)
+target_link_libraries(
+  nonconforming_assembly_tests
+  reader
+  writer
+  mesh
+  assembly
+  quadrature
+  specfem_environment
+  io
+  yaml-cpp
+  utilities
+  boost
+
+  -lpthread -lm
+  gtest_main
+)
+
 
 add_executable(
   assembly_tests
@@ -270,86 +449,225 @@ add_executable(
   assembly/properties/properties.cpp
   assembly/compute_wavefield/compute_wavefield.cpp
   assembly/sources/sources.cpp
-  assembly/check_jacobian/check_jacobian.cpp
+  assembly/check_jacobian/dim2/check_jacobian.cpp
   assembly/locate/locate_point.cpp
+  assembly/locate/locate_point_on_edge.cpp
+  assembly/mesh/utilities.cpp
+  assembly/sources/locate_sources.cpp
+  assembly/compute_source_array/dim2/compute_source_array_from_vector.cpp
+  assembly/compute_source_array/dim2/compute_source_array_from_tensor.cpp
+  assembly/compute_source_array/dim3/compute_source_array_from_vector.cpp
+  assembly/compute_source_array/dim3/compute_source_array_from_tensor.cpp
+
+  # New dim3 tests
+  assembly/dim3/mesh/shape_functions.cpp
+  assembly/dim3/mesh/points.cpp
+  assembly/dim3/mesh/control_nodes.cpp
+  assembly/dim3/jacobian_matrix/jacobian_matrix.cpp
+  assembly/dim3/properties/properties.cpp
 )
 
+#Set unity build off
 target_compile_definitions(assembly_tests PRIVATE TEST_OUTPUT_DIR=${TEST_OUTPUT_DIR})
+set_target_properties(assembly_tests PROPERTIES UNITY_BUILD OFF)
 
 target_link_libraries(
   assembly_tests
   reader
   writer
   mesh
-  compute
+  assembly
   quadrature
-  mpi_environment
+  specfem_environment
   io
-  kokkos_environment
+
   yaml-cpp
   utilities
-  Boost::filesystem
+  enumerations
+  shape_functions
+  quadrature
+  boost
+
   -lpthread -lm
   gtest_main
+  ${BOOST_LIBS}
+)
+
+add_executable(
+  assembly_receivers_tests
+  assembly/receivers/receivers_tests.cpp
+  assembly/receivers/dim2/receivers_tests.cpp
+  assembly/receivers/impl/receiver_iterator_tests.cpp
+  assembly/receivers/impl/dim2/seismogram_iterator_tests.cpp
+)
+
+target_link_libraries(
+  assembly_receivers_tests
+  mesh
+  assembly
+  quadrature
+  specfem_environment
+  yaml-cpp
+  io
+  boost
+
+  gtest
+  gtest_main
+  -lpthread -lm
 )
 
 add_executable(
   io_tests
-  io/sources/test_read_sources.cpp
+  io/sources/test_read_sources_file.cpp
+  io/sources/test_read_sources_yaml.cpp
+  io/sources/test_source_solutions.cpp
+  io/receivers/test_receiver_solutions.cpp
+  io/receivers/test_read_stations_file.cpp
+  io/receivers/test_read_yaml.cpp
 )
 
 target_link_libraries(
   io_tests
   io
   gtest_main
-  kokkos_environment
+
   yaml-cpp
   enumerations
-  Boost::filesystem
+  boost
 )
 
 add_executable(
   interpolate_function
-  algorithms/interpolate_function.cpp
+  algorithms/interpolate_function/dim2/interpolate_function.cpp
+  algorithms/interpolate_function/dim3/interpolate_function.cpp
+  algorithms/interpolate_function/runner.cpp
 )
 
 target_link_libraries(
   interpolate_function
-  mesh
-  compute
   quadrature
-  mpi_environment
-  kokkos_environment
+  specfem_environment
   algorithms
   io
-  Boost::filesystem
+  boost
   point
 )
 
 add_executable(
-  policies
+  locate_point_fixture_2d
+  algorithms/dim2/locate_point_fixture.cpp
+  algorithms/dim2/locate_point_test.cpp
+  algorithms/dim2/locate_point_on_edge_test.cpp
+)
+
+target_link_libraries(
+  locate_point_fixture_2d
+  mesh_utilities_mapping
+  algorithms
+  jacobian
+  point
+  utilities
+  specfem_environment
+  gtest_main
+)
+
+
+add_executable(
+  locate_point_fixture_3d
+  algorithms/dim3/locate_point_fixture.cpp
+)
+
+target_link_libraries(
+  locate_point_fixture_3d
+  mesh_utilities_mapping
+  algorithms
+  jacobian
+  point
+  utilities
+  specfem_environment
+  gtest_main
+)
+
+add_executable(
+  gradient_tests
+  algorithms/dim2/gradient.cpp
+  algorithms/dim3/gradient.cpp
+)
+
+target_link_libraries(
+  gradient_tests
+  quadrature
+  algorithms
+  gtest_main
+  Kokkos::kokkos
+  specfem_environment
+  assembly
+  quadrature
+  utilities
+  -lpthread -lm
+)
+
+# Turn unity build off for gradient_tests
+set_target_properties(gradient_tests PROPERTIES UNITY_BUILD OFF)
+
+add_executable(
+  transfer_tests
+  algorithms/dim2/transfer.cpp
+)
+
+target_link_libraries(
+  transfer_tests
+  algorithms
+  enumerations
+  gtest_main
+  Kokkos::kokkos
+  specfem_environment
+  utilities
+  -lpthread -lm
+)
+
+add_executable(
+  policies_tests
   policies/policies.cpp
 )
 
 target_link_libraries(
-  policies
+  policies_tests
   mesh
   source_class
-  receiver_class
-  kokkos_environment
-  mpi_environment
+  specfem::receivers
+  specfem_environment
   yaml-cpp
-  Boost::filesystem
+  boost
   -lpthread -lm
 )
 
+# add_executable(
+#   chunked_edge_tests
+#   policies/chunked_edge.cpp
+# )
+
+# target_link_libraries(
+#   chunked_edge_tests
+#   kokkos_environment
+#   gtest_main
+#   Kokkos::kokkos
+#   specfem_environment
+#   enumerations
+#   ${BOOST_LIBS}
+#   -lpthread -lm
+# )
+
 add_executable(
   mass_matrix_tests
-  mass_matrix/dim2/main.cpp
-  mass_matrix/dim2/elastic_isotropic.cpp
-  mass_matrix/dim2/elastic_anisotropic.cpp
-  mass_matrix/dim2/acoustic.cpp
-  mass_matrix/dim2/poroelastic.cpp
+  medium/mass_matrix/main.cpp
+  # 2D mass matrix tests
+  medium/mass_matrix/dim2/elastic_isotropic.cpp
+  medium/mass_matrix/dim2/elastic_anisotropic.cpp
+  medium/mass_matrix/dim2/acoustic.cpp
+  medium/mass_matrix/dim2/poroelastic.cpp
+  # 3D mass matrix tests
+  medium/mass_matrix/dim3/elastic_isotropic.cpp
 )
 
 target_link_libraries(
@@ -358,6 +676,92 @@ target_link_libraries(
   gtest_main
 )
 
+add_executable(
+  stress_tests
+  medium/stress/main.cpp
+  # 2D stress tests
+  medium/stress/dim2/acoustic.cpp
+  medium/stress/dim2/elastic_isotropic.cpp
+  medium/stress/dim2/elastic_anisotropic.cpp
+  medium/stress/dim2/elastic_isotropic_cosserat.cpp
+  medium/stress/dim2/poroelastic_isotropic.cpp
+  # 3D stress tests
+  medium/stress/dim3/elastic_isotropic.cpp
+)
+
+target_link_libraries(
+  stress_tests
+  point
+  gtest_main
+)
+
+add_executable(
+  compute_coupling_tests
+  compute_coupling/acoustic_elastic.cpp
+  compute_coupling/elastic_acoustic.cpp
+  compute_coupling/nonconforming.cpp
+)
+
+target_link_libraries(
+  compute_coupling_tests
+  point
+  gtest
+  specfem_environment
+  Kokkos::kokkos
+)
+
+add_executable(
+  source_tests
+  medium/source/main.cpp
+  # 2D source tests
+  medium/source/dim2/acoustic.cpp
+  medium/source/dim2/elastic_isotropic.cpp
+  medium/source/dim2/elastic_anisotropic.cpp
+  medium/source/dim2/elastic_isotropic_cosserat.cpp
+  medium/source/dim2/poroelastic.cpp
+  # 3D source tests
+  medium/source/dim3/elastic_isotropic.cpp
+)
+
+target_link_libraries(
+  source_tests
+  point
+  gtest_main
+)
+
+add_executable(
+  source_class_tests
+  source/source.cpp
+  source/base_source_tests.cpp
+  source/typed_source_tests.cpp
+  # source/dim2/vector_sources/force_source.cpp
+  # source/dim2/vector_sources/cosserat_force_source.cpp
+  # source/dim2/vector_sources/adjoint_source.cpp
+  # source/dim2/vector_sources/external_source.cpp
+  # source/dim2/tensor_sources/moment_tensor_source.cpp
+  # source/dim3/vector_sources/force_source.cpp
+  # source/dim3/tensor_sources/moment_tensor_source.cpp
+)
+target_link_libraries(
+  source_class_tests
+  source_class
+  source_time_functions
+  specfem_environment
+  -lpthread -lm
+)
+
+add_executable(
+  source_time_function_tests
+  source_time_function/source_time_function_tests.cpp
+)
+
+target_link_libraries(
+  source_time_function_tests
+  source_time_functions
+  Kokkos::kokkos
+  yaml-cpp
+  gtest_main
+)
 
 # # add_executable(
 # #   source_location_tests
@@ -367,64 +771,64 @@ target_link_libraries(
 # # target_link_libraries(
 # #   source_location_tests
 # #   material_class
-# #   mpi_environment
-# #   kokkos_environment
+# #   specfem_environment
+# #
 # #   yaml-cpp
 # #   mesh
 # #   quadrature
-# #   compute
+# #   assembly
 # #   source_class
 # #   -lpthread -lm
 # # )
 
 add_executable(
-  rmass_inverse_tests
-  domain/rmass_inverse_tests.cpp
+  displacement_newmark_2d_tests
+  displacement_tests/Newmark/dim2/newmark_tests.cpp
 )
 
 target_link_libraries(
-  rmass_inverse_tests
+  displacement_newmark_2d_tests
   quadrature
   mesh
   # material_class
   yaml-cpp
-  kokkos_environment
-  mpi_environment
-  compute
-  parameter_reader
-  compare_arrays
-  point
-  algorithms
-  io
-  coupled_interface
-  -lpthread -lm
-)
-
-add_executable(
-  displacement_newmark_tests
-  displacement_tests/Newmark/newmark_tests.cpp
-)
-
-target_link_libraries(
-  displacement_newmark_tests
-  quadrature
-  mesh
-  # material_class
-  yaml-cpp
-  kokkos_environment
-  mpi_environment
-  compute
+  specfem_environment
+  assembly
   parameter_reader
   compare_arrays
   timescheme
   point
-  edge
   algorithms
-  coupled_interface
   kokkos_kernels
-  solver
-  periodic_tasks
-  Boost::filesystem
+  specfem::solver
+  specfem::periodic_tasks
+  boost
+  -lpthread -lm
+)
+
+
+add_executable(
+  displacement_newmark_3d_tests
+  displacement_tests/Newmark/dim3/newmark_tests.cpp
+)
+
+target_link_libraries(
+  displacement_newmark_3d_tests
+  quadrature
+  mesh
+  # material_class
+  yaml-cpp
+  specfem_environment
+  assembly
+  parameter_reader
+  compare_arrays
+  timescheme
+  point
+  algorithms
+  kokkos_kernels
+  specfem::solver
+  specfem::periodic_tasks
+  boost
   -lpthread -lm
 )
 
@@ -438,9 +842,8 @@ target_link_libraries(
 #   quadrature
 #   mesh
 #   yaml-cpp
-#   kokkos_environment
-#   mpi_environment
-#   compute
+#   specfem_environment
+#   assembly
 #   parameter_reader
 #   writer
 #   periodic_tasks
@@ -460,9 +863,8 @@ target_link_libraries(
 #   quadrature
 #   mesh
 #   yaml-cpp
-#   kokkos_environment
-#   mpi_environment
-#   compute
+#   specfem_environment
+#   assembly
 #   parameter_reader
 #   writer
 #   periodic_tasks
@@ -474,7 +876,7 @@ target_link_libraries(
 
 # add_executable(
 #   compute_coupled_interfaces_tests
-#   compute/coupled_interfaces/coupled_interfaces_tests.cpp
+#   assembly_mesh/coupled_interfaces/coupled_interfaces_tests.cpp
 # )
 
 # target_link_libraries(
@@ -482,38 +884,98 @@ target_link_libraries(
 #   quadrature
 #   mesh
 #   yaml-cpp
-#   kokkos_environment
-#   mpi_environment
-#   compute
+#   specfem_environment
+#   assembly
 #   compare_arrays
 #   point
 #   edge
-#   Boost::filesystem
+#   boost
 #   -lpthread -lm
 # )
 
-# Link to gtest only if MPI is enabled
-if (NOT MPI_PARALLEL)
+
+
+
+# Link to gtest only if MPI is disabled
+if(NOT MPI_PARALLEL)
   include(GoogleTest)
-  gtest_discover_tests(gll_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(lagrange_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(jacobian_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(fortranio_test WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(io_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(mesh_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(compute_partial_derivatives_tests WORKING_DIRECTORY ${TEST_DIR})
-  # gtest_discover_tests(compute_elastic_tests WORKING_DIRECTORY ${TEST_DIR})
-  # # gtest_discover_tests(compute_acoustic_tests WORKING_DIRECTORY ${TEST_DIR})
-  # gtest_discover_tests(compute_coupled_interfaces_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(point_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(compute_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(assembly_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(policies WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(interpolate_function WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(mass_matrix_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(rmass_inverse_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(simd_tests WORKING_DIRECTORY ${TEST_DIR})
-  gtest_discover_tests(displacement_newmark_tests WORKING_DIRECTORY ${TEST_DIR})
+  set(TEST_TARGETS
+    abort_tests
+    assembly_receivers_tests
+    assembly_tests
+    # compute_acoustic_tests
+    # compute_coupled_interfaces_tests
+    # compute_elastic_tests
+    # compute_jacobian_matrix_tests
+    # compute_tests
+    displacement_newmark_2d_tests
+    displacement_newmark_3d_tests
+    fortranio_test
+    enumerations_tests
+    gll_tests
+    interpolate_function
+    io_framework_tests
+    io_tests
+    is_close_tests
+    jacobian_tests
+    lagrange_tests
+    locate_point_fixture_2d
+    locate_point_fixture_3d
+    gradient_tests
+    transfer_tests
+    mass_matrix_tests
+    compute_coupling_tests
+    mesh_dim2_tests
+    mesh_dim3_tests
+    nonconforming_tests
+    point_tests
+    policies_tests
+    # chunked_edge_tests
+    receivers_tests
+    simd_tests
+    source_class_tests
+    source_tests
+    source_time_function_tests
+    stress_tests
+    test_mesh_utilities_mapping_2d
+    test_mesh_utilities_mapping_3d
+  )
+  foreach(test_target IN LISTS TEST_TARGETS)
+      gtest_discover_tests(${test_target}
+        DISCOVERY_MODE POST_BUILD
+        DISCOVERY_TIMEOUT 300
+      )
+  endforeach()
+
+  # For tests that require data files from the tests directory,
+  # create symbolic links to the test data directory so that
+  # the tests can access them from the build folder.
+
+  set(LINK_DIRS
+    algorithms
+    assembly
+    assembly_mesh
+    data
+    displacement_tests
+    domain
+    fortran_io
+    io
+    mesh
+    policies
+  )
+
+  foreach(dir_name IN LISTS LINK_DIRS)
+      file(CREATE_LINK
+          ${CMAKE_CURRENT_SOURCE_DIR}/${dir_name}
+          ${CMAKE_CURRENT_BINARY_DIR}/${dir_name}
+          SYMBOLIC)
+  endforeach()
+
+
   # gtest_discover_tests(seismogram_elastic_tests)
   # gtest_discover_tests(seismogram_acoustic_tests)
-endif(NOT MPI_PARALLEL)
+endif()
+
+
+add_subdirectory(data/dim2/ncmarked_conforming_grid_curved/provenance)
+add_subdirectory(data/dim2/ncmarked_conforming_grid_flat/provenance)

@@ -5,8 +5,15 @@
 #include <Kokkos_SIMD.hpp>
 
 namespace specfem::medium::properties {
+
 /**
- * @group specfem_medium_properties_dim2_elastic_isotropic_cosserat Specfem
+ * @defgroup specfem_medium_properties_dim2_elastic_isotropic_cosserat 2D
+ * Elastic Isotropic Cosserat Properties
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_properties_dim2_elastic_isotropic_cosserat Specfem
  * Medium Properties for 2D Elastic Isotropic Cosserat Media
  *
  * @brief Data container to hold properties of 2D elastic isotropic Cosserat
@@ -26,14 +33,17 @@ namespace specfem::medium::properties {
  * - `lambda_c`: Coupling bulk modulus @f$ \lambda_c @f$
  * - `mu_c`: Coupling shear modulus @f$ \mu_c @f$
  * - `nu_c`: Coupling symmetry breaking modulus @f$ \nu_c @f$
+ *
+ * @see DATA_CONTAINER macro for details on generated members and methods.
  */
-template <specfem::element::medium_tag MediumTag>
+template <specfem::dimension::type DimensionTag,
+          specfem::element::medium_tag MediumTag>
 struct data_container<
-    MediumTag, specfem::element::property_tag::isotropic_cosserat,
+    DimensionTag, MediumTag, specfem::element::property_tag::isotropic_cosserat,
     std::enable_if_t<specfem::element::is_elastic<MediumTag>::value> > {
 
-  constexpr static auto dimension =
-      specfem::dimension::type::dim2;           ///< Dimension of the material
+  constexpr static auto dimension_tag =
+      DimensionTag;                             ///< Dimension of the material
   constexpr static auto medium_tag = MediumTag; ///< Medium tag
   constexpr static auto property_tag =
       specfem::element::property_tag::isotropic_cosserat; ///< Property tag

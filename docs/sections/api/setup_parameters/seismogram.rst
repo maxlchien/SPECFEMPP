@@ -1,8 +1,8 @@
+.. _specfem_api_setup_parameters_seismogram:
 
-Seismogram information
-=======================
-
-Methods to parse seismogram information from runtime configuration.
+``specfem::runtime_configuration::seismogram``
+==============================================
 
 .. doxygenclass:: specfem::runtime_configuration::seismogram
     :members:
+    :private-members:

@@ -3,6 +3,7 @@
 #include "datatypes/point_view.hpp"
 #include "datatypes/simd.hpp"
 #include "enumerations/interface.hpp"
+#include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
@@ -29,20 +30,23 @@ struct boundary;
  */
 template <specfem::dimension::type DimensionTag, bool UseSIMD>
 struct boundary<specfem::element::boundary_tag::none, DimensionTag, UseSIMD>
-    : public specfem::accessor::Accessor<specfem::accessor::type::point,
-                                         specfem::data_class::type::boundary,
-                                         DimensionTag, UseSIMD> {
+    : public specfem::data_access::Accessor<
+          specfem::data_access::AccessorType::point,
+          specfem::data_access::DataClassType::boundary, DimensionTag,
+          UseSIMD> {
 private:
   // We use simd_like vector to store tags. Tags are stored as enums, so a simd
   // type is ill-defined for them. However, we use scalar array types of size
   // simd<type_real>::size() to store them. The goal of this approach is to use
   // tags to mask a type_real simd vector and perform SIMD operations on those
   // SIMD vectors.
+  /**
+   * @brief Datatype for storing values.
+   *
+   * Is a scalar if UseSIMD is false, otherwise is a SIMD like vector.
+   */
   using value_type = typename specfem::datatype::simd_like<
-      specfem::element::boundary_tag_container, type_real,
-      UseSIMD>::datatype; ///< Datatype for storing values. Is a scalar if
-                          ///< UseSIMD is false, otherwise is a SIMD like
-                          ///< vector.
+      specfem::element::boundary_tag_container, type_real, UseSIMD>::datatype;
 
 public:
   /**
@@ -50,7 +54,10 @@ public:
    *
    */
   ///@{
-  using simd = specfem::datatype::simd<type_real, UseSIMD>; ///< SIMD data type
+  /**
+   * @brief SIMD data type.
+   */
+  using simd = specfem::datatype::simd<type_real, UseSIMD>;
   ///@}
 
   /**
@@ -58,9 +65,10 @@ public:
    *
    */
   ///@{
-  constexpr static auto boundary_tag =
-      specfem::element::boundary_tag::none; ///< Tag indicating no boundary
-                                            ///< condition
+  /**
+   * @brief Tag indicating no boundary condition.
+   */
+  constexpr static auto boundary_tag = specfem::element::boundary_tag::none;
   ///@}
 
   /**
@@ -76,8 +84,11 @@ public:
   boundary() = default;
   ///@}
 
-  value_type tag; ///< Tag indicating the type of boundary condition at the
-                  ///< quadrature point
+  /**
+   * @brief Tag indicating the type of boundary condition at the quadrature
+   * point.
+   */
+  value_type tag;
 };
 
 /**
@@ -98,6 +109,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief SIMD data type.
+   */
   using simd = specfem::datatype::simd<type_real, UseSIMD>;
   ///@}
   /**
@@ -105,6 +119,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief Tag indicating acoustic free surface boundary condition.
+   */
   constexpr static auto boundary_tag =
       specfem::element::boundary_tag::acoustic_free_surface;
   ///@}
@@ -147,6 +164,9 @@ struct boundary<specfem::element::boundary_tag::stacey, DimensionTag, UseSIMD>
     : public boundary<specfem::element::boundary_tag::acoustic_free_surface,
                       DimensionTag, UseSIMD> {
 private:
+  /**
+   * @brief Number of spatial dimensions.
+   */
   constexpr static int num_dimensions =
       specfem::dimension::dimension<DimensionTag>::dim;
   /**
@@ -154,11 +174,103 @@ private:
    *
    */
   ///@{
+  /**
+   * @brief View type to store the normal vector to the edge at the quadrature
+   * point.
+   */
   using NormalViewType =
-      specfem::datatype::ScalarPointViewType<type_real, num_dimensions,
+      specfem::datatype::VectorPointViewType<type_real, num_dimensions,
+                                             UseSIMD>;
+
+  /**
+   * @brief SIMD data type.
+   */
+  using datatype =
+      typename specfem::datatype::simd<type_real, UseSIMD>::datatype;
+  ///@}
+
+public:
+  /**
+   * @name Typedefs
+   *
+   */
+  ///@{
+  /**
+   * @brief SIMD data type.
+   */
+  using simd = specfem::datatype::simd<type_real, UseSIMD>;
+  ///@}
+
+  /**
+   * @name Compile-time constants
+   *
+   */
+  ///@{
+  /**
+   * @brief Tag indicating Stacey boundary condition.
+   */
+  constexpr static auto boundary_tag = specfem::element::boundary_tag::stacey;
+  ///@}
+
+  /**
+   * @name Constructors
+   *
+   */
+  ///@{
+
+  /**
+   * @brief Default constructor
+   *
+   */
+  KOKKOS_FUNCTION
+  boundary() = default;
+
+  /**
+   * @brief Implicit conversion constructor from composite Stacey Dirichlet
+   * boundary
+   *
+   * @param boundary Composite Stacey Dirichlet boundary
+   */
+  KOKKOS_FUNCTION
+  boundary(const specfem::point::boundary<
+           specfem::element::boundary_tag::composite_stacey_dirichlet,
+           DimensionTag, UseSIMD> &boundary);
+  ///@}
+
+  /**
+   * @brief Integration weight associated with the edge at the quadrature point.
+   */
+  datatype edge_weight = static_cast<type_real>(0.0);
+
+  /**
+   * @brief Normal vector to the edge at the quadrature point.
+   */
+  NormalViewType edge_normal = { static_cast<type_real>(0.0),
+                                 static_cast<type_real>(0.0) };
+};
+
+/**
+ * @brief Template specialization for Stacey boundary condition in 3D
+ *
+ * @tparam UseSIMD Boolean indicating whether to use SIMD instructions
+ */
+template <bool UseSIMD>
+struct boundary<specfem::element::boundary_tag::stacey,
+                specfem::dimension::type::dim3, UseSIMD>
+    : public boundary<specfem::element::boundary_tag::acoustic_free_surface,
+                      specfem::dimension::type::dim3, UseSIMD> {
+private:
+  constexpr static int num_dimensions = 3;
+  /**
+   * @name Private Typedefs
+   *
+   */
+  ///@{
+  using NormalViewType =
+      specfem::datatype::VectorPointViewType<type_real, num_dimensions,
                                              UseSIMD>; ///< View type to store
                                                        ///< the normal vector to
-                                                       ///< the edge at the
+                                                       ///< the face at the
                                                        ///< quadrature point
 
   using datatype =
@@ -206,15 +318,16 @@ public:
   KOKKOS_FUNCTION
   boundary(const specfem::point::boundary<
            specfem::element::boundary_tag::composite_stacey_dirichlet,
-           DimensionTag, UseSIMD> &boundary);
+           specfem::dimension::type::dim3, UseSIMD> &boundary);
   ///@}
 
-  datatype edge_weight =
+  datatype face_weight =
       static_cast<type_real>(0.0); ///< Integration weight associated with the
-                                   ///< edge at the quadrature point
-  NormalViewType edge_normal = {
-    static_cast<type_real>(0.0), static_cast<type_real>(0.0)
-  }; ///< Normal vector to the edge at
+                                   ///< face at the quadrature point
+  NormalViewType face_normal = {
+    static_cast<type_real>(0.0), static_cast<type_real>(0.0),
+    static_cast<type_real>(0.0)
+  }; ///< Normal vector to the face at
      ///< the quadrature point
 };
 
@@ -237,6 +350,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief SIMD data type.
+   */
   using simd = specfem::datatype::simd<type_real, UseSIMD>;
   ///@}
   /**
@@ -244,6 +360,9 @@ public:
    *
    */
   ///@{
+  /**
+   * @brief Tag indicating composite Stacey Dirichlet boundary condition.
+   */
   constexpr static auto boundary_tag =
       specfem::element::boundary_tag::composite_stacey_dirichlet;
   ///@}
@@ -282,6 +401,18 @@ KOKKOS_FUNCTION specfem::point::boundary<specfem::element::boundary_tag::stacey,
   this->tag = boundary.tag;
   this->edge_weight = boundary.edge_weight;
   this->edge_normal = boundary.edge_normal;
+}
+
+template <bool UseSIMD>
+KOKKOS_FUNCTION
+specfem::point::boundary<specfem::element::boundary_tag::stacey,
+                         specfem::dimension::type::dim3, UseSIMD>::
+    boundary(const specfem::point::boundary<
+             specfem::element::boundary_tag::composite_stacey_dirichlet,
+             specfem::dimension::type::dim3, UseSIMD> &boundary) {
+  this->tag = boundary.tag;
+  this->face_weight = boundary.face_weight;
+  this->face_normal = boundary.face_normal;
 }
 
 } // namespace point

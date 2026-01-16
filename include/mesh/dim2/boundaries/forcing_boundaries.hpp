@@ -3,7 +3,6 @@
 
 #include "enumerations/dimension.hpp"
 #include "kokkos_abstractions.h"
-#include "specfem_mpi/interface.hpp"
 
 namespace specfem {
 namespace mesh {
@@ -128,10 +127,9 @@ template <> struct forcing_boundary<specfem::dimension::type::dim2> {
    * boundaries section
    * @param nelement_acforcing number of elements on absorbing boundary face
    * @param nspec Number of spectral elements
-   * @param mpi Pointer to MPI object
    */
   forcing_boundary(std::ifstream &stream, const int nelement_acforcing,
-                   const int nspec, const specfem::MPI::MPI *mpi);
+                   const int nspec);
 };
 
 } // namespace mesh

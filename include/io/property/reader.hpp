@@ -1,15 +1,18 @@
 #pragma once
 
-#include "compute/interface.hpp"
 #include "enumerations/interface.hpp"
 #include "io/reader.hpp"
+#include "specfem/assembly.hpp"
 
 namespace specfem {
 namespace io {
 /**
- * @brief Read model property
+ * @brief Reader for loading material properties from disk
  *
- * @tparam InputLibrary Library to use for output (HDF5, ASCII, etc.)
+ * Template-based reader for material property data supporting multiple I/O
+ * backends. Used to read density, velocities, and other material parameters.
+ *
+ * @tparam InputLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename InputLibrary> class property_reader : public reader {
 public:
@@ -24,7 +27,7 @@ public:
    * @param output_folder Path to input location (will be an .h5 file if using
    * HDF5, and a folder if using ASCII)
    */
-  property_reader(const std::string input_folder);
+  property_reader(const std::string &input_folder);
 
   /**
    * @brief read the property from disk
@@ -32,11 +35,13 @@ public:
    * @param assembly SPECFEM++ assembly
    *
    */
-  void read(specfem::compute::assembly &assembly) override;
+  void read(specfem::assembly::assembly<specfem::dimension::type::dim2>
+                &assembly) override;
 
 private:
-  std::string input_folder;                ///< Path to output folder
-  specfem::compute::properties properties; ///< Properties object
+  std::string input_folder; ///< Path to output folder
+  specfem::assembly::properties<specfem::dimension::type::dim2>
+      properties; ///< Properties object
 };
 } // namespace io
 } // namespace specfem

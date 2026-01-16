@@ -1,10 +1,11 @@
 #include "io/mesh/impl/fortran/dim2/read_parameters.hpp"
 #include "io/fortranio/interface.hpp"
 #include "mesh/mesh.hpp"
+#include "specfem/mpi.hpp"
 
 specfem::mesh::parameters<specfem::dimension::type::dim2>
 specfem::io::mesh::impl::fortran::dim2::read_mesh_parameters(
-    std::ifstream &stream, const specfem::MPI::MPI *mpi) {
+    std::ifstream &stream) {
   // ---------------------------------------------------------------------
   // reading mesh properties
 
@@ -41,7 +42,7 @@ specfem::io::mesh::impl::fortran::dim2::read_mesh_parameters(
       &nnodes_tangential_curve, &nelem_on_the_axis);
   // ----------------------------------------------------------------------
 
-  mpi->sync_all();
+  specfem::MPI::sync_all();
 
   return { numat,
            ngnod,

@@ -1,23 +1,29 @@
 
-.. _datatypes:
+.. _specfem_api_datatypes:
 
-SPECFEM++ datatypes
-===================
+``specfem::datatype``
+=====================
 
-.. admonition:: Feature request
-    :class: hint
-
-    We need the following elementary data types to be defined in SPECFEM++:
-
-    1. Edge element (datatype for storing values at quadrature points on a 1D edge)
-    2. Chunk edge element (datatype for storing values at quadrature points on a chunk of 1D edges)
-
-    If you'd like to work on this, please see `issue tracker <https://github.com/PrincetonUniversity/SPECFEMPP/issues/111>`_ for more details.
+.. doxygennamespace:: specfem::datatype
+    :desc-only:
 
 .. toctree::
     :maxdepth: 1
 
-    base_datatypes/index
-    quadrature/element
-    field/index
-    stress_integrands/index
+    simd
+    vector_point_view
+    tensor_point_view
+    scalar_chunk_element_view
+    vector_chunk_element_view
+    tensor_chunk_element_view
+    scalar_chunk_edge_view
+    vector_chunk_edge_view
+    tensor_chunk_edge_view
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+
+    impl_register_array
+    impl_chunk_element_subview
+    impl_chunk_edge_subview

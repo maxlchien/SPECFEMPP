@@ -1,7 +1,5 @@
-#include "../../Kokkos_Environment.hpp"
-#include "../../MPI_environment.hpp"
+#include "../../SPECFEM_Environment.hpp"
 // #include "../../utilities/include/compare_array.h"
-#include "compute/interface.hpp"
 #include "constants.hpp"
 #include "domain/domain.hpp"
 #include "io/fortranio/interface.hpp"
@@ -9,9 +7,11 @@
 #include "mesh/mesh.hpp"
 #include "parameter_parser/interface.hpp"
 #include "quadrature/interface.hpp"
-#include "receiver/interface.hpp"
-#include "solver/solver.hpp"
-#include "timescheme/timescheme.hpp"
+#include "specfem/assembly.hpp"
+#include "specfem/logger.hpp"
+#include "specfem/mpi.hpp"
+#include "specfem/solver.hpp"
+#include "specfem/timescheme.hpp"
 #include "yaml-cpp/yaml.h"
 
 // ----- Parse test config ------------- //
@@ -30,15 +30,14 @@ void operator>>(const YAML::Node &Node, test_config &test_config) {
   return;
 }
 
-test_config parse_test_config(std::string test_configuration_file,
-                              specfem::MPI::MPI *mpi) {
+test_config parse_test_config(std::string test_configuration_file) {
 
   YAML::Node yaml = YAML::LoadFile(test_configuration_file);
   const YAML::Node &tests = yaml["Tests"];
   const YAML::Node &serial = tests["serial"];
 
   test_config test_config;
-  if (mpi->get_size() == 1) {
+  if (specfem::MPI::get_size() == 1) {
     serial >> test_config;
   }
 
@@ -75,33 +74,31 @@ void read_field(
 TEST(SEISMOGRAM_TESTS, acoustic_seismograms_test) {
   std::string config_filename = "seismogram/acoustic/test_config.yaml";
 
-  specfem::MPI::MPI *mpi = MPIEnvironment::get_mpi();
-
-  test_config test_config = parse_test_config(config_filename, mpi);
+  test_config test_config = parse_test_config(config_filename);
 
   const std::string parameter_file = test_config.specfem_config;
 
   specfem::runtime_configuration::setup setup(parameter_file, __default_file__);
 
   const auto database_file = setup.get_databases();
-  // mpi->cout(setup.print_header());
+  // std::cout << setup.print_header();
 
   // Set up GLL quadrature points
   const auto quadratures = setup.instantiate_quadrature();
 
   // Read mesh generated MESHFEM
-  specfem::mesh::mesh mesh = specfem::io::read_2d_mesh(database_file, mpi);
+  specfem::mesh::mesh mesh = specfem::io::read_2d_mesh(database_file);
 
   std::vector<std::shared_ptr<specfem::sources::source> > sources(0);
 
   const auto angle = setup.get_receiver_angle();
   const auto stations_node = setup.get_stations();
-  auto receivers = specfem::io::read_receivers(stations_node, angle);
+  auto receivers = specfem::io::read_2d_receivers(stations_node, angle);
   const auto stypes = setup.get_seismogram_types();
 
-  specfem::compute::assembly assembly(mesh, quadratures, sources, receivers,
-                                      stypes, 0, 0, 0, 1,
-                                      setup.get_simulation_type(), nullptr);
+  specfem::assembly::assembly assembly(mesh, quadratures, sources, receivers,
+                                       stypes, 0, 0, 0, 1,
+                                       setup.get_simulation_type(), nullptr);
 
   const auto displacement_field = assembly.fields.forward.acoustic.h_field;
   const auto velocity_field = assembly.fields.forward.acoustic.h_field_dot;
@@ -164,7 +161,6 @@ TEST(SEISMOGRAM_TESTS, acoustic_seismograms_test) {
 
 int main(int argc, char *argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPIEnvironment);
-  ::testing::AddGlobalTestEnvironment(new KokkosEnvironment);
+  ::testing::AddGlobalTestEnvironment(new SPECFEMEnvironment);
   return RUN_ALL_TESTS();
 }

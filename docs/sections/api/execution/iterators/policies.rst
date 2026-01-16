@@ -1,20 +1,30 @@
-.. _execution_iterators_policies:
+.. _specfem_api_execution_iterators_policies:
 
-Execution Policies
-==================
+``specfem::execution::VoidPolicy``
+==================================
 
 .. doxygenclass:: specfem::execution::VoidPolicy
     :members:
-    :undoc-members:
+
+``specfem::execution::RangePolicy``
+===================================
 
 .. doxygenclass:: specfem::execution::RangePolicy
     :members:
-    :undoc-members:
+
+``specfem::execution::TeamPolicy``
+==================================
 
 .. doxygenclass:: specfem::execution::TeamPolicy
     :members:
-    :undoc-members:
+
+``specfem::execution::TeamThreadRangePolicy``
+=============================================
 
 .. doxygenclass:: specfem::execution::TeamThreadRangePolicy
     :members:
-    :undoc-members:
+
+``specfem::execution::PolicyType``
+==================================
+
+.. doxygenenum:: specfem::execution::PolicyType

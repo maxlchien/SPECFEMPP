@@ -1,6 +1,5 @@
 #pragma once
 
-#include "algorithms/dot.hpp"
 #include "algorithms/gradient.hpp"
 #include "enumerations/medium.hpp"
 #include "globals.h"
@@ -11,8 +10,54 @@
 namespace specfem {
 namespace medium {
 
-template <typename PointPropertiesType, typename AdjointPointFieldType,
-          typename BackwardPointFieldType, typename PointFieldDerivativesType>
+/**
+ * @defgroup specfem_medium_frechet_derivative_dim2_poroelastic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_poroelastic
+ * @brief Compute Fréchet derivatives for 2D poroelastic isotropic media.
+ *
+ * Calculates sensitivity kernels for poroelastic properties based on Biot's
+ * theory. Computes kernels for both solid and fluid phases, including
+ * density, elastic moduli, Biot parameters, and wave speed kernels.
+ *
+ * Based on Morency et al. 2009 formulation, computes 15 different kernels:
+ * - Primary kernels: ρₜ, ρf, η, s/m, μfr, B, C, M
+ * - Wave speed kernels: cpI, cpII, cs, ratio
+ * - Density normalized kernels: ρb, ρfb, φ
+ *
+ * @tparam PointPropertiesType Poroelastic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field (solid+fluid)
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field (solid+fluid)
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * (solid+fluid)
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Poroelastic properties (ρ, μ, φ, η, permeability, Biot
+ * coefficients)
+ * @param adjoint_velocity Adjoint velocity field for solid and fluid phases
+ * @param adjoint_acceleration Adjoint acceleration field for solid and fluid
+ * phases
+ * @param backward_displacement Backward displacement field for solid and fluid
+ * phases
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels containing all 15 poroelastic parameter sensitivities
+ *
+ * @warning This implementation has NOT been tested. Please create a GitHub
+ * issue if you encounter bugs or unexpected behavior in the kernel
+ * computations.
+ * @note For complete technical details and theoretical derivations, please
+ * refer to: <a href="https://doi.org/10.1111/j.1365-246X.2009.04332.x">Morency,
+ * C., Luo, Y., & Tromp, J. (2009).</a>
+ */
+template <typename PointPropertiesType, typename AdjointPointVelocityType,
+          typename AdjointPointAccelerationType,
+          typename BackwardPointDisplacementType,
+          typename PointFieldDerivativesType>
 KOKKOS_FUNCTION specfem::point::kernels<
     PointPropertiesType::dimension_tag, PointPropertiesType::medium_tag,
     PointPropertiesType::property_tag, PointPropertiesType::simd::using_simd>
@@ -24,8 +69,9 @@ impl_compute_frechet_derivatives(
     const std::integral_constant<specfem::element::property_tag,
                                  specfem::element::property_tag::isotropic>,
     const PointPropertiesType &properties,
-    const AdjointPointFieldType &adjoint_field,
-    const BackwardPointFieldType &backward_field,
+    const AdjointPointVelocityType &adjoint_velocity,
+    const AdjointPointAccelerationType &adjoint_acceleration,
+    const BackwardPointDisplacementType &backward_displacement,
     const PointFieldDerivativesType &adjoint_derivatives,
     const PointFieldDerivativesType &backward_derivatives,
     const type_real &dt) {
@@ -109,8 +155,7 @@ impl_compute_frechet_derivatives(
   //                          2.0 * ad_dsxz * b_dsxz - 1.0 / 3.0 * kappa_kl);
   // const type_real rho_kl =
   //     -1.0 * properties.rho * dt *
-  //     (specfem::algorithms::dot(adjoint_field.acceleration,
-  //                               backward_field.displacement));
+  //     (adjoint_field.acceleration * backward_field.displacement);
   // --------------------------------------
 
   // In the papers we use dagger for the notation of the adjoint wavefield
@@ -134,22 +179,20 @@ impl_compute_frechet_derivatives(
   // This notation/naming is confusing with respect to the physics.
   // Should be forward.acceleration dotted with adjoint displacement
   // See Morency et al. 2009, Equation 39
-  auto rhot_kl =
-      adjoint_field.acceleration(0) * backward_field.displacement(0) +
-      adjoint_field.acceleration(1) * backward_field.displacement(1);
+  auto rhot_kl = adjoint_acceleration(0) * backward_displacement(0) +
+                 adjoint_acceleration(1) * backward_displacement(1);
   // See Morency et al. 2009, Equation 40
-  auto rhof_kl =
-      adjoint_field.acceleration(2) * backward_field.displacement(0) +
-      adjoint_field.acceleration(3) * backward_field.displacement(1) +
-      adjoint_field.acceleration(0) * backward_field.displacement(2) +
-      adjoint_field.acceleration(1) * backward_field.displacement(3);
+  auto rhof_kl = adjoint_acceleration(2) * backward_displacement(0) +
+                 adjoint_acceleration(3) * backward_displacement(1) +
+                 adjoint_acceleration(0) * backward_displacement(2) +
+                 adjoint_acceleration(1) * backward_displacement(3);
   // See Morency et al. 2009, Equation 41
-  auto sm_kl = adjoint_field.acceleration(2) * backward_field.displacement(2) +
-               adjoint_field.acceleration(3) * backward_field.displacement(3);
+  auto sm_kl = adjoint_acceleration(2) * backward_displacement(2) +
+               adjoint_acceleration(3) * backward_displacement(3);
 
   // Viscous term, see Morency et al. 2009, Equation 42
-  auto eta_kl = adjoint_field.velocity(2) * backward_field.displacement(2) +
-                adjoint_field.velocity(3) * backward_field.displacement(3);
+  auto eta_kl = adjoint_velocity(2) * backward_displacement(2) +
+                adjoint_velocity(3) * backward_displacement(3);
 
   // Biot bulk moduli
   // B based on Morency et al. 2009, Equation 43

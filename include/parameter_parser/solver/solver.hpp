@@ -1,16 +1,15 @@
 #pragma once
 
-#include "compute/interface.hpp"
-#include "periodic_tasks/periodic_task.hpp"
-#include "solver/solver.hpp"
-#include "timescheme/newmark.hpp"
+#include "specfem/assembly.hpp"
+#include "specfem/periodic_tasks.hpp"
+#include "specfem/solver.hpp"
+#include "specfem/timescheme/newmark.hpp"
 #include "utilities/strings.hpp"
 #include <memory>
 #include <string>
 
 namespace specfem {
 namespace runtime_configuration {
-namespace solver {
 /**
  * @brief Solver class to instantiate the correct solver based on the simulation
  * parameters
@@ -29,7 +28,7 @@ public:
    *
    * @param simulation_type Type of the simulation (forward or combined)
    */
-  solver(const std::string simulation_type)
+  solver(const std::string &simulation_type)
       : simulation_type(simulation_type) {}
 
   /**
@@ -43,12 +42,13 @@ public:
    * @param quadrature Quadrature points object
    * @return std::shared_ptr<specfem::solver::solver> Solver object
    */
-  template <int NGLL>
+  template <int NGLL, specfem::dimension::type DimensionTag>
   std::shared_ptr<specfem::solver::solver>
-  instantiate(const type_real dt, const specfem::compute::assembly &assembly,
+  instantiate(const type_real dt,
+              const specfem::assembly::assembly<DimensionTag> &assembly,
               std::shared_ptr<specfem::time_scheme::time_scheme> time_scheme,
-              const std::vector<
-                  std::shared_ptr<specfem::periodic_tasks::periodic_task> >
+              const std::vector<std::shared_ptr<
+                  specfem::periodic_tasks::periodic_task<DimensionTag> > >
                   &tasks) const;
 
   /**
@@ -70,6 +70,5 @@ private:
   std::string simulation_type; ///< Type of the simulation (forward or
                                ///< combined)
 };
-} // namespace solver
 } // namespace runtime_configuration
 } // namespace specfem

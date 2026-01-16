@@ -1,8 +1,9 @@
 #include "enumerations/interface.hpp"
 #include "specfem/point/stress_integrand.hpp"
 #include "specfem_setup.hpp"
+#include "test_helper.hpp"
 #include "test_macros.hpp"
-#include "utilities/simd.hpp"
+#include "utilities/interface.hpp"
 #include <Kokkos_Core.hpp>
 #include <gtest/gtest.h>
 #include <type_traits>
@@ -28,12 +29,6 @@ protected:
       Kokkos::finalize();
   }
 };
-
-// For better naming
-struct Serial : std::integral_constant<bool, false> {};
-struct SIMD : std::integral_constant<bool, true> {};
-
-using TestTypes = ::testing::Types<Serial, SIMD>;
 
 template <typename T>
 class PointStressIntegrandTest
@@ -358,11 +353,12 @@ TYPED_TEST(PointStressIntegrandTest, AccessorBaseType) {
                               element::medium_tag::acoustic, using_simd>;
 
   // Check if stress_integrand_type is derived from the correct base class
-  bool is_accessor = std::is_base_of<
-      specfem::accessor::Accessor<specfem::accessor::type::point,
-                                  specfem::data_class::type::stress_integrand,
-                                  dimension::type::dim2, using_simd>,
-      stress_integrand_type>::value;
+  bool is_accessor =
+      std::is_base_of<specfem::data_access::Accessor<
+                          specfem::data_access::AccessorType::point,
+                          specfem::data_access::DataClassType::stress_integrand,
+                          dimension::type::dim2, using_simd>,
+                      stress_integrand_type>::value;
 
   EXPECT_TRUE(is_accessor);
 }

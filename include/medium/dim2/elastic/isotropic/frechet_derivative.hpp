@@ -1,6 +1,5 @@
 #pragma once
 
-#include "algorithms/dot.hpp"
 #include "algorithms/gradient.hpp"
 #include "enumerations/medium.hpp"
 #include "globals.h"
@@ -11,8 +10,52 @@
 namespace specfem {
 namespace medium {
 
-template <typename PointPropertiesType, typename AdjointPointFieldType,
-          typename BackwardPointFieldType, typename PointFieldDerivativesType>
+/**
+ * @defgroup specfem_medium_frechet_derivative_dim2_elastic_isotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_isotropic
+ * @brief Compute Fréchet derivatives for 2D elastic PSV isotropic media.
+ *
+ * Calculates sensitivity kernels for elastic properties in PSV wave
+ * propagation. Based on Tromp et al. 2005, computes kernels for density (ρ),
+ * shear modulus (μ), bulk modulus (κ), and derived parameters (ρ', α, β).
+ *
+ * The kernels are computed using deviatoric strain tensor formulations:
+ * \f[
+ *  \Delta K_{kappa} = -\kappa \Delta t \, \text{div}(u^{\dagger}) \cdot
+ * \text{div}(u^b)
+ * \f]
+ * \f[
+ *  \Delta K_{mu} = -2\mu \Delta t \left[ \varepsilon^{\dagger} : \varepsilon^b
+ * -
+ * \frac{1}{3} \Delta K_{kappa} \right]
+ * \f]
+ * \f[
+ *  \Delta K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ * \f]
+ *
+ * @tparam PointPropertiesType Elastic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Elastic material properties (ρ, μ, κ)
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels containing all elastic parameter sensitivities
+ */
+template <typename PointPropertiesType, typename AdjointPointVelocityType,
+          typename AdjointPointAccelerationType,
+          typename BackwardPointDisplacementType,
+          typename PointFieldDerivativesType>
 KOKKOS_FUNCTION specfem::point::kernels<
     PointPropertiesType::dimension_tag, PointPropertiesType::medium_tag,
     PointPropertiesType::property_tag, PointPropertiesType::simd::using_simd>
@@ -24,8 +67,9 @@ impl_compute_frechet_derivatives(
     const std::integral_constant<specfem::element::property_tag,
                                  specfem::element::property_tag::isotropic>,
     const PointPropertiesType &properties,
-    const AdjointPointFieldType &adjoint_field,
-    const BackwardPointFieldType &backward_field,
+    const AdjointPointVelocityType &adjoint_velocity,
+    const AdjointPointAccelerationType &adjoint_acceleration,
+    const BackwardPointDisplacementType &backward_displacement,
     const PointFieldDerivativesType &adjoint_derivatives,
     const PointFieldDerivativesType &backward_derivatives,
     const type_real &dt) {
@@ -85,8 +129,7 @@ impl_compute_frechet_derivatives(
   //                          2.0 * ad_dsxz * b_dsxz - 1.0 / 3.0 * kappa_kl);
   // const type_real rho_kl =
   //     -1.0 * properties.rho * dt *
-  //     (specfem::algorithms::dot(adjoint_field.acceleration,
-  //                               backward_field.displacement));
+  //     (adjoint_field.acceleration * backward_field.displacement);
   // --------------------------------------
 
   // In the papers we use dagger for the notation of the adjoint wavefield
@@ -110,8 +153,8 @@ impl_compute_frechet_derivatives(
   // This notation/naming is confusing with respect to the physics.
   // Should be forward.acceleration dotted with adjoint displacement
   // See Tromp et al. 2005, Equation 14.
-  auto rho_kl = specfem::algorithms::dot(adjoint_field.acceleration,
-                                         backward_field.displacement);
+  auto rho_kl =
+      adjoint_acceleration.get_data() * backward_displacement.get_data();
 
   // Finishing the kernels
   kappa_kl = static_cast<type_real>(-1.0) * kappa * dt * kappa_kl;
@@ -137,8 +180,46 @@ impl_compute_frechet_derivatives(
   return { rho_kl, mu_kl, kappa_kl, rhop_kl, alpha_kl, beta_kl };
 }
 
-template <typename PointPropertiesType, typename AdjointPointFieldType,
-          typename BackwardPointFieldType, typename PointFieldDerivativesType>
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_isotropic
+ * @brief Compute Fréchet derivatives for 2D elastic SH isotropic media.
+ *
+ * Calculates sensitivity kernels for SH (shear horizontal) wave propagation
+ * using membrane wave assumptions (ux=uz=0, ∂/∂y=0). Only shear modulus
+ * and density kernels are non-zero for SH waves.
+ *
+ * The kernels use deviatoric strain formulation:
+ * \f[
+ *  \Delta K_{mu} = -\mu \Delta t \left( \frac{\partial u_y^{\dagger}}{\partial
+ * x}
+ * \frac{\partial u_y^b}{\partial x} + \frac{\partial u_y^{\dagger}}{\partial z}
+ * \frac{\partial u_y^b}{\partial z} \right)
+ * \f]
+ * \f[
+ *  \Delta K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ * \f]
+ *
+ * @tparam PointPropertiesType Elastic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Elastic material properties
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels with SH-specific parameter sensitivities
+ *
+ * @note For SH waves: K_{kappa} = 0, K_{alpha} = 0, K_{beta} = 2K_{mu}
+ */
+template <typename PointPropertiesType, typename AdjointPointVelocityType,
+          typename AdjointPointAccelerationType,
+          typename BackwardPointDisplacementType,
+          typename PointFieldDerivativesType>
 KOKKOS_FUNCTION specfem::point::kernels<
     PointPropertiesType::dimension_tag, PointPropertiesType::medium_tag,
     PointPropertiesType::property_tag, PointPropertiesType::simd::using_simd>
@@ -150,8 +231,9 @@ impl_compute_frechet_derivatives(
     const std::integral_constant<specfem::element::property_tag,
                                  specfem::element::property_tag::isotropic>,
     const PointPropertiesType &properties,
-    const AdjointPointFieldType &adjoint_field,
-    const BackwardPointFieldType &backward_field,
+    const AdjointPointVelocityType &adjoint_velocity,
+    const AdjointPointAccelerationType &adjoint_acceleration,
+    const BackwardPointDisplacementType &backward_displacement,
     const PointFieldDerivativesType &adjoint_derivatives,
     const PointFieldDerivativesType &backward_derivatives,
     const type_real &dt) {
@@ -183,9 +265,9 @@ impl_compute_frechet_derivatives(
       (adjoint_derivatives.du(0, 0) * backward_derivatives.du(0, 0) +
        // du#y_dz * duy_dz
        adjoint_derivatives.du(0, 1) * backward_derivatives.du(0, 1));
-  const auto rho_kl = static_cast<type_real>(-1.0) * properties.rho() * dt *
-                      specfem::algorithms::dot(adjoint_field.acceleration,
-                                               backward_field.displacement);
+  const auto rho_kl =
+      static_cast<type_real>(-1.0) * properties.rho() * dt *
+      (adjoint_acceleration.get_data() * backward_displacement.get_data());
   const auto kappa_kl = decltype(mu_kl)(0.0);
 
   const auto rhop_kl = rho_kl + kappa_kl + mu_kl;

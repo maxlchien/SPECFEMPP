@@ -1,6 +1,6 @@
-#include "mesh/dim2/boundaries/absorbing_boundaries.hpp"
 #include "io/fortranio/interface.hpp"
-#include "specfem_mpi/interface.hpp"
+#include "mesh/dim2/boundaries/absorbing_boundary.hpp"
+
 #include <Kokkos_Core.hpp>
 #include <vector>
 
@@ -12,7 +12,7 @@ specfem::mesh::absorbing_boundary<specfem::dimension::type::dim2>::
         "specfem::mesh::absorbing_boundary::index_mapping",
         num_abs_boundary_faces);
     this->type =
-        Kokkos::View<specfem::enums::boundaries::type *, Kokkos::HostSpace>(
+        Kokkos::View<specfem::mesh_entity::dim2::type *, Kokkos::HostSpace>(
             "specfem::mesh::absorbing_boundary::type", num_abs_boundary_faces);
   } else {
     this->nelements = 0;

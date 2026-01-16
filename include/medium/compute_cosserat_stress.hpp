@@ -1,8 +1,8 @@
 #pragma once
 
-#include "enumerations/accessor.hpp"
 #include "enumerations/medium.hpp"
 #include "medium/dim2/elastic/isotropic_cosserat/cosserat_stress.hpp"
+#include "specfem/data_access.hpp"
 #include "specfem/point.hpp"
 #include "utilities/errors.hpp"
 #include <Kokkos_Core.hpp>
@@ -17,14 +17,18 @@ KOKKOS_INLINE_FUNCTION void assert_types(const std::true_type) {
   constexpr auto PropertyTag = PointPropertiesType::property_tag;
 
   static_assert(
-      specfem::accessor::is_point_properties<PointPropertiesType>::value,
+      specfem::data_access::is_point<PointPropertiesType>::value &&
+          specfem::data_access::is_properties<PointPropertiesType>::value,
       "point_properties is not a point properties type");
 
-  static_assert(specfem::accessor::is_point_stress<PointStressType>::value,
+  static_assert(specfem::data_access::is_point<PointStressType>::value &&
+                    specfem::data_access::is_stress<PointStressType>::value,
                 "point_stress is not a point stress type");
 
-  static_assert(specfem::accessor::is_point_field<PointDisplacementType>::value,
-                "point_displacement is not a point field type");
+  static_assert(
+      specfem::data_access::is_point<PointDisplacementType>::value &&
+          specfem::data_access::is_field<PointDisplacementType>::value,
+      "point_displacement is not a point field type");
 
   static_assert(PointPropertiesType::dimension_tag ==
                     PointDisplacementType::dimension_tag,
@@ -107,24 +111,22 @@ KOKKOS_INLINE_FUNCTION void impl_compute_cosserat_stress(
 }
 
 /**
- * @defgroup MediumPhysics
- */
-
-/**
- * @brief Compute the damping term at a quadrature point
+ * @brief Compute Cosserat stress contribution for micropolar elastic media.
  *
- * @ingroup MediumPhysics
+ * Generic Cosserat stress computation interface that adds couple stress
+ * and asymmetric force stress contributions to classical elasticity.
+ * Provides compile-time dispatch to medium-specific implementations.
  *
- * @tparam PointPropertiesType Material properties at the quadrature point
- * specfem::point::properties
- * @tparam PointVelocityType Velocity at the quadrature point
- * specfem::point::field
- * @tparam PointAccelerationType Acceleration at the quadrature point
- * specfem::point::field
- * @param factor Prefactor for the damping term ($wx * wz * jacobian)
- * @param point_properties Material properties at the quadrature point
- * @param velocity Velocity at the quadrature point
- * @param acceleration Acceleration at the quadrature point
+ * @note Only medium types with Cosserat stress support will modify the
+ * stress field. Other medium types result in no-op unless explicitly
+ * implemented.
+ *
+ * @tparam PointPropertiesType Point-wise material properties
+ * @tparam PointDisplacementType Point-wise displacement field
+ * @tparam PointStressType Point-wise stress field
+ * @param point_properties Cosserat material properties
+ * @param point_displacement Displacement field at point
+ * @param point_stress[in,out] Stress field (modified by Cosserat contribution)
  */
 template <typename PointPropertiesType, typename PointDisplacementType,
           typename PointStressType>

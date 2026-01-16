@@ -3,21 +3,21 @@
 // combinations and assign 1.0 to all the quadrature points in the element
 
 #pragma once
-#include "enumerations/medium.hpp"
-#include "enumerations/wavefield.hpp"
+#include "enumerations/interface.hpp"
 #include "specfem/point.hpp"
 
 template <specfem::wavefield::type component,
           specfem::wavefield::simulation_field type,
           specfem::element::medium_tag medium,
           specfem::element::property_tag property>
-void generate_data(specfem::compute::assembly &assembly,
-                   std::vector<int> &ispecs) {
+void generate_data(
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+    std::vector<int> &ispecs) {
 
   auto field = assembly.fields.template get_simulation_field<type>();
 
-  const int ngllx = assembly.mesh.ngllx;
-  const int ngllz = assembly.mesh.ngllz;
+  const int ngllx = assembly.mesh.element_grid.ngllx;
+  const int ngllz = assembly.mesh.element_grid.ngllz;
 
   const auto elements =
       assembly.element_types.get_elements_on_host(medium, property);
@@ -26,9 +26,14 @@ void generate_data(specfem::compute::assembly &assembly,
       specfem::element::attributes<specfem::dimension::type::dim2,
                                    medium>::components;
 
-  using PointFieldType =
-      specfem::point::field<specfem::dimension::type::dim2, medium, true, true,
-                            true, false, false>;
+  using PointDisplacementType =
+      specfem::point::displacement<specfem::dimension::type::dim2, medium,
+                                   false>;
+  using PointVelocityType =
+      specfem::point::velocity<specfem::dimension ::type::dim2, medium, false>;
+  using PointAccelerationType =
+      specfem::point::acceleration<specfem::dimension::type::dim2, medium,
+                                   false>;
 
   using IndexType =
       specfem::point::index<specfem::dimension::type::dim2, false>;
@@ -45,15 +50,12 @@ void generate_data(specfem::compute::assembly &assembly,
     for (int ix = 0; ix < ngllx; ix++) {
       const IndexType index(ispec, iz, ix);
 
-      PointFieldType point_field;
+      PointDisplacementType displacement(1.0);
+      PointVelocityType velocity(1.0);
+      PointAccelerationType acceleration(1.0);
 
-      for (int ic = 0; ic < num_components; ic++) {
-        point_field.displacement(ic) = 1.0;
-        point_field.velocity(ic) = 1.0;
-        point_field.acceleration(ic) = 1.0;
-      }
-
-      specfem::compute::store_on_host(index, point_field, field);
+      specfem::assembly::store_on_host(index, field, displacement, velocity,
+                                       acceleration);
     }
   }
 
@@ -62,7 +64,8 @@ void generate_data(specfem::compute::assembly &assembly,
 
 template <specfem::wavefield::type component,
           specfem::wavefield::simulation_field type>
-std::vector<int> generate_data(specfem::compute::assembly &assembly) {
+std::vector<int> generate_data(
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
 
   std::vector<int> ispecs;
 

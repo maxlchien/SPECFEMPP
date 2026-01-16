@@ -1,46 +1,49 @@
 #pragma once
 
+#include "enumerations/interface.hpp"
+#include "point_view.hpp"
+#include "specfem/data_access.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
 namespace datatype {
 
 /**
- * @brief Datatype used to scalar values within an element. Data is stored
- * within a Kokkos view located in the memory space specified by MemorySpace.
+ * @brief Datatype used to scalar values within an element. Data is
+ * stored within a Kokkos view located in the memory space specified by
+ * MemorySpace.
  *
  * @tparam T Data type of the scalar values
- * @tparam NumberOfGLLPoints Number of GLL points in the element
- * @tparam Components Number of scalar values (components) at each GLL point
+ * @tparam NumberOfGLLPoints Number of GLL points in each element
  * @tparam MemorySpace Memory space of the view
  * @tparam MemoryTraits Memory traits of the view
- * @tparam UseSIMD Use SIMD datatypes for the array. If true, value_type is a
- * SIMD type
  */
-template <typename T, int NumberOfGLLPoints, int Components,
-          typename MemorySpace, typename MemoryTraits, bool UseSIMD = false>
-struct ScalarElementViewType
-    : public Kokkos::View<
-          typename specfem::datatype::simd<T, UseSIMD>::datatype
-              [NumberOfGLLPoints][NumberOfGLLPoints][Components],
-          Kokkos::LayoutLeft, MemorySpace, MemoryTraits> {
+template <
+    typename T, specfem::dimension::type DimensionTag, int NumberOfGLLPoints,
+    typename MemorySpace = Kokkos::DefaultExecutionSpace::scratch_memory_space,
+    typename MemoryTraits = Kokkos::MemoryTraits<Kokkos::Unmanaged> >
+struct ScalarElementViewType;
 
+/* 2D specialization */
+template <typename T, int NumberOfGLLPoints, typename MemorySpace,
+          typename MemoryTraits>
+struct ScalarElementViewType<T, specfem::dimension::type::dim2,
+                             NumberOfGLLPoints, MemorySpace, MemoryTraits>
+    : public Kokkos::View<T[NumberOfGLLPoints][NumberOfGLLPoints],
+                          Kokkos::LayoutRight, MemorySpace, MemoryTraits> {
   /**
    * @name Typedefs
    *
    */
   ///@{
-  using simd = specfem::datatype::simd<T, UseSIMD>; ///< SIMD data type
-  using type = Kokkos::View<
-      typename simd::datatype[NumberOfGLLPoints][NumberOfGLLPoints][Components],
-      Kokkos::LayoutLeft, MemorySpace, MemoryTraits>; ///< Underlying data type
-                                                      ///< used to store values
-  using value_type = typename type::value_type; ///< Value type used to store
-                                                ///< the elements of the array
-  using base_type = T;                          ///< Base type of the array
-  constexpr static bool using_simd =
-      UseSIMD; ///< Use SIMD datatypes for the array. If false,
-               ///< std::is_same<value_type, base_type>::value is true
+  using type =
+      Kokkos::View<T[NumberOfGLLPoints][NumberOfGLLPoints], Kokkos::LayoutRight,
+                   MemorySpace, MemoryTraits>; ///< Underlying data type
+                                               ///< used to store values
+  using value_type = T;                        ///< Value type used to store
+                                               ///< the elements of the array
+  constexpr static auto dimension_tag =
+      specfem::dimension::type::dim2; ///< Dimension tag
   ///@}
 
   /**
@@ -48,16 +51,13 @@ struct ScalarElementViewType
    *
    */
   ///@{
+  constexpr static auto accessor_type =
+      specfem::data_access::AccessorType::chunk_element; ///< Accessor type for
+                                                         ///< identifying the
+                                                         ///< class
+
   constexpr static int ngll = NumberOfGLLPoints; ///< Number of GLL points in
-                                                 ///< the element
-  constexpr static int components = Components;  ///< Number of scalar values at
-                                                 ///< each GLL point
-  constexpr static bool isPointViewType = false;
-  constexpr static bool isElementViewType = true;
-  constexpr static bool isChunkViewType = false;
-  constexpr static bool isDomainViewType = false;
-  constexpr static bool isScalarViewType = true;
-  constexpr static bool isVectorViewType = false;
+                                                 ///< each element
   ///@}
 
   /**
@@ -73,64 +73,61 @@ struct ScalarElementViewType
 
   /**
    * @brief Construct a new ScalarElementViewType object within
-   * ScratchMemorySpace
-   *
+   * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
    *
    * @tparam ScratchMemorySpace Memory space of the view
-   * @param scratch_space Scratch memory space
+   * @param scratch_memory_space Memory space of the view
    */
-  template <typename ScratchMemorySpace,
-            typename std::enable_if<
-                std::is_same<MemorySpace, ScratchMemorySpace>::value,
-                bool>::type = true>
-  KOKKOS_FUNCTION ScalarElementViewType(const ScratchMemorySpace &scratch_space)
-      : Kokkos::View<
-            value_type[NumberOfGLLPoints][NumberOfGLLPoints][Components],
-            Kokkos::LayoutLeft, MemorySpace, MemoryTraits>(scratch_space) {}
+  template <typename ScratchMemorySpace>
+  KOKKOS_FUNCTION
+  ScalarElementViewType(const ScratchMemorySpace &scratch_memory_space)
+      : Kokkos::View<value_type[NumberOfGLLPoints][NumberOfGLLPoints],
+                     Kokkos::LayoutRight, MemorySpace, MemoryTraits>(
+            scratch_memory_space) {}
   ///@}
+
+  using type::operator();
+
+  /**
+   * @brief Get scalar value by a point index.
+   *
+   * @param index Point index
+   */
+  template <typename IndexType>
+  KOKKOS_INLINE_FUNCTION constexpr value_type &
+  operator()(const IndexType &index) {
+    return (*this)(index.iz, index.ix);
+  }
 };
 
-/**
- * @brief Datatype used to store vector values within an element. Data is stored
- * within a Kokkos view located in the memory space specified by MemorySpace.
- *
- * @tparam T Data type of the vector values
- * @tparam NumberOfGLLPoints Number of GLL points in the element
- * @tparam Components Number of vector values (components) at each GLL point
- * @tparam NumberOfDimensions Number of dimensions of the vector values
- * @tparam MemorySpace Memory space of the view
- * @tparam MemoryTraits Memory traits of the view
- * @tparam UseSIMD Use SIMD datatypes for the array. If true, value_type is a
- * SIMD type
- */
-template <typename T, int NumberOfGLLPoints, int Components,
-          int NumberOfDimensions, typename MemorySpace, typename MemoryTraits,
-          bool UseSIMD = false>
-struct VectorElementViewType
-    : public Kokkos::View<typename specfem::datatype::simd<T, UseSIMD>::datatype
-                              [NumberOfGLLPoints][NumberOfGLLPoints]
-                              [NumberOfDimensions][Components],
-                          Kokkos::LayoutLeft, MemorySpace, MemoryTraits> {
+/* 3D specialization */
+template <typename T, int NumberOfGLLPoints, typename MemorySpace,
+          typename MemoryTraits>
+struct ScalarElementViewType<T, specfem::dimension::type::dim3,
+                             NumberOfGLLPoints, MemorySpace, MemoryTraits>
+    : public Kokkos::View<
+          T[NumberOfGLLPoints][NumberOfGLLPoints][NumberOfGLLPoints],
+          Kokkos::LayoutRight, MemorySpace, MemoryTraits> {
   /**
    * @name Typedefs
    *
    */
   ///@{
-  using simd = specfem::datatype::simd<T, UseSIMD>; ///< SIMD data type
   using type =
-      Kokkos::View<typename simd::datatype[NumberOfGLLPoints][NumberOfGLLPoints]
-                                          [NumberOfDimensions][Components],
-                   Kokkos::LayoutLeft, MemorySpace,
-                   MemoryTraits>; ///< Underlying data type used to store values
-  using value_type = typename type::value_type; ///< Value type used to store
-                                                ///< the elements of the array
-  using base_type = T;                          ///< Base type of the array
-  constexpr static bool using_simd = UseSIMD;   ///< Use SIMD datatypes for the
-                                                ///< array. If false,
-                                                ///< std::is_same<value_type,
-                                                ///< base_type>::value is true
+      Kokkos::View<T[NumberOfGLLPoints][NumberOfGLLPoints][NumberOfGLLPoints],
+                   Kokkos::LayoutRight, MemorySpace,
+                   MemoryTraits>; ///< Underlying
+                                  ///< data
+                                  ///< type
+                                  ///< used to
+                                  ///< store
+                                  ///< values
+  using value_type = T;           ///< Value type used to store
+                                  ///< the elements of the array
+  constexpr static auto dimension_tag =
+      specfem::dimension::type::dim3; ///< Dimension tag
   ///@}
 
   /**
@@ -138,19 +135,13 @@ struct VectorElementViewType
    *
    */
   ///@{
+  constexpr static auto accessor_type =
+      specfem::data_access::AccessorType::chunk_element; ///< Accessor type for
+                                                         ///< identifying the
+                                                         ///< class
+
   constexpr static int ngll = NumberOfGLLPoints; ///< Number of GLL points in
-                                                 ///< the element
-  constexpr static int components = Components;  ///< Number of vector values at
-                                                 ///< each GLL point
-  constexpr static int dimensions =
-      NumberOfDimensions; ///< Number of dimensions
-                          ///< of the vector values
-  constexpr static bool isPointViewType = false;
-  constexpr static bool isElementViewType = true;
-  constexpr static bool isChunkViewType = false;
-  constexpr static bool isDomainViewType = false;
-  constexpr static bool isScalarViewType = false;
-  constexpr static bool isVectorViewType = true;
+                                                 ///< each element
   ///@}
 
   /**
@@ -162,28 +153,38 @@ struct VectorElementViewType
    * @brief Default constructor
    */
   KOKKOS_FUNCTION
-  VectorElementViewType() = default;
+  ScalarElementViewType() = default;
 
   /**
-   * @brief Construct a new VectorElementViewType object within
-   * ScratchMemorySpace
-   *
+   * @brief Construct a new ScalarElementViewType object within
+   * ScratchMemorySpace.
    * Allocates an unmanaged view within ScratchMemorySpace. Useful for
    * generating scratch views.
    *
    * @tparam ScratchMemorySpace Memory space of the view
-   * @param scratch_space Scratch memory space
+   * @param scratch_memory_space Memory space of the view
    */
-  template <typename ScratchMemorySpace,
-            typename std::enable_if<
-                std::is_same<MemorySpace, ScratchMemorySpace>::value,
-                bool>::type = true>
-  KOKKOS_FUNCTION VectorElementViewType(const ScratchMemorySpace &scratch_space)
-      : Kokkos::View<value_type[NumberOfGLLPoints][NumberOfGLLPoints]
-                               [NumberOfDimensions][Components],
-                     Kokkos::LayoutLeft, MemorySpace, MemoryTraits>(
-            scratch_space) {}
+  template <typename ScratchMemorySpace>
+  KOKKOS_FUNCTION
+  ScalarElementViewType(const ScratchMemorySpace &scratch_memory_space)
+      : Kokkos::View<
+            value_type[NumberOfGLLPoints][NumberOfGLLPoints][NumberOfGLLPoints],
+            Kokkos::LayoutRight, MemorySpace, MemoryTraits>(
+            scratch_memory_space) {}
   ///@}
+
+  using type::operator();
+
+  /**
+   * @brief Get scalar value by a point index.
+   *
+   * @param index Point index
+   */
+  template <typename IndexType>
+  KOKKOS_INLINE_FUNCTION constexpr value_type &
+  operator()(const IndexType &index) {
+    return (*this)(index.iz, index.iy, index.ix);
+  }
 };
 
 } // namespace datatype

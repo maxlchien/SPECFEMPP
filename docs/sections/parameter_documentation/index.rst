@@ -347,6 +347,7 @@ Parameter definitions
                             wavefield:
                                 format: HDF5
                                 directory: /path/to/output/folder
+                                time-interval: 10
 
                             display:
                                 format: PNG
@@ -424,10 +425,34 @@ Parameter definitions
 
                             :possible values: [string]
 
+                        .. dropdown:: ``time-interval`` [optional]
+
+                            Time step interval for writing the wavefield.
+
+                            :default value: 1 (-> every time step)
+
+                            :possible values: [int]
+
+                        .. dropdown:: ``include-last-step`` [optional]
+
+                            Flag to indicate if the last time step should be included
+                            when writing the wavefield.
+
+                            :default value: True
+
+                            :possible values: [bool]
+
 
                     .. dropdown:: ``display``
 
-                        Plot the wavefield during the forward simulation.
+                        Plot the wavefield during the forward simulation. Note
+                        that plotting the wavefield is only enabled for 2D
+                        simulations and requires specfem to be compiled with VTK
+                        support, ``-D SPECFEM_ENABLE_VTK=ON`` CMake option. For,
+                        3D simulations can write the wavefield to disk in VTKHDF
+                        format, for which both VTK and HDF5 support must be
+                        enabled, and ``-D SPECFEM_ENABLE_VTK=ON -D
+                        SPECFEM_ENABLE_HDF5=ON`` CMake options.
 
                         .. code-block:: yaml
                             :caption: Example
@@ -448,7 +473,7 @@ Parameter definitions
 
                             :default value: PNG
 
-                            :possible values: [PNG, JPG, on_screen]
+                            :possible values: [PNG, JPG, on_screen, vtkhdf]
 
 
                         .. dropdown:: ``directory`` [optional]
@@ -459,6 +484,23 @@ Parameter definitions
                             :default value: Current working directory
 
                             :possible values: [string]
+
+
+                        .. dropdown:: ``component`` [optional]
+
+                            Component of the wavefield to be plotted.
+
+                            :default value: None
+
+                            :possible values: [x, y, z, magnitude]
+
+                            the ``component`` parameter is ignored if the
+                            requested field is a scalar field, such as
+                            ``pressure``. ``magnitude`` option plots the
+                            magnitude of the vector field, and if the domain has
+                            acoustic elements the potential is plotted. ``y`` is
+                            only available in 2D SH simulations and 3D
+                            simulations.
 
 
                         .. dropdown:: ``field``
@@ -605,6 +647,7 @@ Parameter definitions
                     .. dropdown:: ``display`` [optional]
 
                         Plot the wavefield during the combined simulation.
+                        See forward section for details.
 
                         .. dropdown:: ``format`` [optional]
 
@@ -631,8 +674,11 @@ Parameter definitions
 
                             :default value: None
 
-                            :possible values: [displacement, velocity, acceleration, pressure]
+                            :possible values: ``displacement`` | ``velocity`` | ``acceleration`` | ``pressure`` | ``rotation`` | ``intrinsic-rotation`` | ``curl``
 
+                            Note that the ``curl``, ``rotation`` and
+                            ``intrinsic-rotation`` fields are only available in
+                            Cosserat/micropolar media.
 
                         .. dropdown:: ``simulation-field``
 
@@ -719,22 +765,24 @@ Parameter definitions
             .. rst-class:: center-table
 
                 +-------------------+---------------------------------------+-------------------------------------+
-                |  Seismogram       | SPECFEM Par_file ``seismotype`` value | ``receivers.seismogram-type`` value |
+                |  Seismogram       | SPECFEM Par_file ``seismotype`` value |``receivers.seismogram-type`` value  |
                 +===================+=======================================+=====================================+
-                | Displacement      |                   1                   |   ``displacement``                  |
+                | Displacement      |                   1                   | ``displacement``                    |
                 +-------------------+---------------------------------------+-------------------------------------+
-                | Velocity          |                   2                   |    ``velocity``                     |
+                | Velocity          |                   2                   | ``velocity``                        |
                 +-------------------+---------------------------------------+-------------------------------------+
-                | Acceleration      |                   3                   |     ``acceleration``                |
+                | Acceleration      |                   3                   | ``acceleration``                    |
                 +-------------------+---------------------------------------+-------------------------------------+
-                | Pressure          |                   4                   |      ``pressure``                   |
+                | Pressure          |                   4                   | ``pressure``                        |
                 +-------------------+---------------------------------------+-------------------------------------+
-                | Displacement Curl |                   5                   |     ✘ Unsupported                   |
+                | Displacement Curl |                   5                   | ``curl`` Cosserat only              |
                 +-------------------+---------------------------------------+-------------------------------------+
-                | Fluid Potential   |                   6                   |     ✘ Unsupported                   |
+                | Fluid Potential   |                   6                   | ✘ Unsupported                       |
                 +-------------------+---------------------------------------+-------------------------------------+
-
-
+                | Rotation          |            ✘ Unsupported              | ``rotation`` Cosserat only          |
+                +-------------------+---------------------------------------+-------------------------------------+
+                | Intrinsic-Rotation|            ✘ Unsupported              | ``intrinsic-rotation`` Cosserat only|
+                +-------------------+---------------------------------------+-------------------------------------+
 
         .. dropdown:: ``nstep_between_samples``
 

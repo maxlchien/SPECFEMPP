@@ -14,10 +14,8 @@
 //      Since, the computed strain for a uniform wavefield is zero.
 
 #pragma once
-#include "enumerations/medium.hpp"
-#include "enumerations/wavefield.hpp"
-#include "specfem/point/coordinates.hpp"
-#include "specfem/point/field.hpp"
+#include "enumerations/interface.hpp"
+#include "specfem/point.hpp"
 
 template <specfem::wavefield::type component,
           specfem::element::medium_tag medium,
@@ -25,10 +23,11 @@ template <specfem::wavefield::type component,
 class test_helper {
 
 public:
-  test_helper(const int ispec,
-              const Kokkos::View<type_real ****, Kokkos::LayoutLeft,
-                                 Kokkos::HostSpace> &wavefield,
-              specfem::compute::assembly &assembly)
+  test_helper(
+      const int ispec,
+      const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield,
+      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly)
       : ispec(ispec), wavefield(wavefield), assembly(assembly) {}
 
   void test() {
@@ -37,8 +36,8 @@ public:
         specfem::wavefield::wavefield<specfem::dimension::type::dim2,
                                       component>::num_components();
 
-    const int ngllz = assembly.mesh.ngllz;
-    const int ngllx = assembly.mesh.ngllx;
+    const int ngllz = assembly.mesh.element_grid.ngllz;
+    const int ngllx = assembly.mesh.element_grid.ngllx;
 
     for (int iz = 0; iz < ngllz; iz++) {
       for (int ix = 0; ix < ngllx; ix++) {
@@ -67,17 +66,18 @@ private:
   const int ispec;
   const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
       &wavefield;
-  specfem::compute::assembly &assembly;
+  specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly;
 };
 
 template <specfem::element::medium_tag medium,
           specfem::element::property_tag property>
 class test_helper<specfem::wavefield::type::pressure, medium, property> {
 public:
-  test_helper(const int ispec,
-              const Kokkos::View<type_real ****, Kokkos::LayoutLeft,
-                                 Kokkos::HostSpace> &wavefield,
-              specfem::compute::assembly &assembly)
+  test_helper(
+      const int ispec,
+      const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield,
+      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly)
       : ispec(ispec), wavefield(wavefield), assembly(assembly) {}
 
   void test() {
@@ -86,8 +86,8 @@ public:
         specfem::dimension::type::dim2,
         specfem::wavefield::type::pressure>::num_components();
 
-    const int ngllz = assembly.mesh.ngllz;
-    const int ngllx = assembly.mesh.ngllx;
+    const int ngllz = assembly.mesh.element_grid.ngllz;
+    const int ngllx = assembly.mesh.element_grid.ngllx;
 
     using PointProperties =
         specfem::point::properties<specfem::dimension::type::dim2,
@@ -102,8 +102,8 @@ public:
             index(ispec, iz, ix);
 
         PointProperties point_properties;
-        specfem::compute::load_on_host(index, assembly.properties,
-                                       point_properties);
+        specfem::assembly::load_on_host(index, assembly.properties,
+                                        point_properties);
 
         for (int ic = 0; ic < num_components; ic++) {
           const auto computed =
@@ -132,7 +132,7 @@ private:
   const int ispec;
   const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
       &wavefield;
-  specfem::compute::assembly &assembly;
+  specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly;
 };
 
 template <specfem::wavefield::type component>
@@ -140,10 +140,11 @@ class test_helper<component, specfem::element::medium_tag::acoustic,
                   specfem::element::property_tag::isotropic> {
 
 public:
-  test_helper(const int ispec,
-              const Kokkos::View<type_real ****, Kokkos::LayoutLeft,
-                                 Kokkos::HostSpace> &wavefield,
-              specfem::compute::assembly &assembly)
+  test_helper(
+      const int ispec,
+      const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield,
+      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly)
       : ispec(ispec), wavefield(wavefield), assembly(assembly) {}
 
   void test() {
@@ -152,8 +153,8 @@ public:
         specfem::wavefield::wavefield<specfem::dimension::type::dim2,
                                       component>::num_components();
 
-    const int ngllz = assembly.mesh.ngllz;
-    const int ngllx = assembly.mesh.ngllx;
+    const int ngllz = assembly.mesh.element_grid.ngllz;
+    const int ngllx = assembly.mesh.element_grid.ngllx;
 
     using PointProperties = specfem::point::properties<
         specfem::dimension::type::dim2, specfem::element::medium_tag::acoustic,
@@ -166,8 +167,8 @@ public:
             index(ispec, iz, ix);
 
         PointProperties point_properties;
-        specfem::compute::load_on_host(index, assembly.properties,
-                                       point_properties);
+        specfem::assembly::load_on_host(index, assembly.properties,
+                                        point_properties);
 
         for (int ic = 0; ic < num_components; ic++) {
           const auto computed =
@@ -194,7 +195,7 @@ private:
   const int ispec;
   const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
       &wavefield;
-  specfem::compute::assembly &assembly;
+  specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly;
 };
 
 template <>
@@ -203,10 +204,11 @@ class test_helper<specfem::wavefield::type::pressure,
                   specfem::element::property_tag::isotropic> {
 
 public:
-  test_helper(const int ispec,
-              const Kokkos::View<type_real ****, Kokkos::LayoutLeft,
-                                 Kokkos::HostSpace> &wavefield,
-              specfem::compute::assembly &assembly)
+  test_helper(
+      const int ispec,
+      const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
+          &wavefield,
+      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly)
       : ispec(ispec), wavefield(wavefield), assembly(assembly) {}
 
   void test() {
@@ -215,8 +217,8 @@ public:
         specfem::dimension::type::dim2,
         specfem::wavefield::type::pressure>::num_components();
 
-    const int ngllz = assembly.mesh.ngllz;
-    const int ngllx = assembly.mesh.ngllx;
+    const int ngllz = assembly.mesh.element_grid.ngllz;
+    const int ngllx = assembly.mesh.element_grid.ngllx;
 
     using PointProperties = specfem::point::properties<
         specfem::dimension::type::dim2, specfem::element::medium_tag::acoustic,
@@ -229,8 +231,8 @@ public:
             index(ispec, iz, ix);
 
         PointProperties point_properties;
-        specfem::compute::load_on_host(index, assembly.properties,
-                                       point_properties);
+        specfem::assembly::load_on_host(index, assembly.properties,
+                                        point_properties);
 
         for (int ic = 0; ic < num_components; ic++) {
           const auto computed = wavefield(ispec, iz, ix, ic);
@@ -256,5 +258,5 @@ private:
   const int ispec;
   const Kokkos::View<type_real ****, Kokkos::LayoutLeft, Kokkos::HostSpace>
       &wavefield;
-  specfem::compute::assembly &assembly;
+  specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly;
 };

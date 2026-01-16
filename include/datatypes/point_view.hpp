@@ -1,3 +1,7 @@
+/**
+ * @file point_view.hpp
+ * @brief Point-based data storage types for GLL quadrature points
+ */
 #pragma once
 
 #include "impl/register_array.hpp"
@@ -9,16 +13,17 @@ namespace specfem {
 namespace datatype {
 
 /**
- * @brief Datatype used to scalar values at a GLL point. If N is small,
- * generates a datatype within a register.
+ * @brief Stack-allocated vector storage for GLL quadrature points
  *
- * @tparam T Data type of the scalar values
- * @tparam Components Number of scalar values (components) at the GLL point
- * @tparam UseSIMD Use SIMD datatypes for the array. If true, value_type is a
- * SIMD type
+ * Stores scalar components at a single GLL point using register-based arrays
+ * for optimal performance. Supports both scalar and SIMD operations.
+ *
+ * @tparam T Scalar data type (float, double)
+ * @tparam Components Number of scalar components at point
+ * @tparam UseSIMD Enable SIMD vectorization
  */
 template <typename T, std::size_t Components, bool UseSIMD>
-struct ScalarPointViewType
+struct VectorPointViewType
     : public impl::RegisterArray<
           typename specfem::datatype::simd<T, UseSIMD>::datatype,
           Kokkos::extents<std::size_t, Components>, Kokkos::layout_left> {
@@ -48,37 +53,67 @@ struct ScalarPointViewType
   ///@{
   constexpr static int components = Components; ///< Number of scalar values at
                                                 ///< the GLL point
-  constexpr static bool isPointViewType = true;
-  constexpr static bool isElementViewType = false;
-  constexpr static bool isChunkViewType = false;
-  constexpr static bool isDomainViewType = false;
-  constexpr static bool isScalarViewType = true;
-  constexpr static bool isVectorViewType = false;
   ///@}
 
   /**
    * @name Constructors and assignment operators
-   *
    */
   ///@{
-
+  /// Inherit all base class constructors
   using base_type::base_type;
   ///@}
+
+  /**
+   * @brief Compute dot product with another vector
+   * @param other Vector to compute dot product with
+   * @return Dot product result
+   */
+  KOKKOS_INLINE_FUNCTION value_type
+  operator*(const VectorPointViewType &other) const {
+    constexpr int N = VectorPointViewType::components;
+    value_type result{ 0.0 };
+
+#if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
+#pragma unroll
+#endif
+    for (int i = 0; i < N; ++i) {
+      result += (*this)(i)*other(i);
+    }
+    return result;
+  }
+
+  /**
+   * @brief Multiply all components by scalar value
+   * @param other Scalar value to multiply by
+   * @return Reference to this object
+   */
+  KOKKOS_FORCEINLINE_FUNCTION constexpr auto &
+  operator*=(const value_type &other) {
+    constexpr int N = VectorPointViewType::components;
+
+#if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
+#pragma unroll
+#endif
+    for (int i = 0; i < N; ++i) {
+      (*this)(i) *= other;
+    }
+    return *this;
+  }
 };
 
 /**
- * @brief Datatype used to store vector values at a GLL point. If
- * NumberOfDimensions && Components is small, generates a datatype within a
- * register.
+ * @brief Stack-allocated tensor storage for GLL quadrature points
  *
- * @tparam T Data type of the vector values
- * @tparam Components Number of components of the vector
- * @tparam Dimensions Number of dimensions of the vector
- * @tparam UseSIMD Use SIMD datatypes for the array. If true, value_type is a
- * SIMD type
+ * Stores multi-dimensional tensor components at a single GLL point using
+ * register-based arrays. Optimized for small tensor sizes with SIMD support.
+ *
+ * @tparam T Scalar data type (float, double)
+ * @tparam Components Number of tensor components
+ * @tparam Dimensions Spatial dimensions of tensor
+ * @tparam UseSIMD Enable SIMD vectorization
  */
 template <typename T, int Components, int Dimensions, bool UseSIMD>
-struct VectorPointViewType
+struct TensorPointViewType
     : public impl::RegisterArray<
           typename specfem::datatype::simd<T, UseSIMD>::datatype,
           Kokkos::extents<std::size_t, Components, Dimensions>,
@@ -112,15 +147,10 @@ struct VectorPointViewType
                                                 ///< vector
   constexpr static int dimensions = Dimensions; ///< Number of dimensions
                                                 ///< of the vector
-  constexpr static bool isPointViewType = true;
-  constexpr static bool isElementViewType = false;
-  constexpr static bool isChunkViewType = false;
-  constexpr static bool isDomainViewType = false;
-  constexpr static bool isScalarViewType = false;
-  constexpr static bool isVectorViewType = true;
   ///@}
 
-  using base_type::base_type; ///< Inherit constructors from base class
+  /// Inherit all base class constructors
+  using base_type::base_type;
 };
 
 } // namespace datatype

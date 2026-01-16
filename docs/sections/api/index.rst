@@ -14,10 +14,10 @@ New structure
 -------------
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :glob:
 
-    specfem/point/index
+    specfem/index
 
 
 Old structure
@@ -25,23 +25,17 @@ Old structure
 
 .. toctree::
     :maxdepth: 2
-    :glob:
 
+    algorithms/index
+    boundary_conditions/index
     enumerations/index
     quadrature/index
-    material/index
     mesh/index
-    sources/index
-    receivers/index
     datatypes/index
-    assembly/index
     execution/index
-    IO/index
-    operators/index
     medium/index
     kokkos_kernels/index
     coupling_physics/coupled_interface
-    timescheme/index
-    solver/index
     setup_parameters/index
     macros/index
+    parallel_configuration/index

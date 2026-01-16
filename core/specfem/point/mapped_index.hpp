@@ -2,6 +2,7 @@
 
 #include "enumerations/interface.hpp"
 #include "index.hpp"
+#include "specfem/data_access.hpp"
 
 namespace specfem {
 namespace point {
@@ -27,25 +28,26 @@ namespace point {
 template <specfem::dimension::type DimensionTag, bool UseSIMD>
 struct mapped_index : public index<DimensionTag, UseSIMD> {
 private:
+  /**
+   * @brief Type alias for the base index type.
+   */
   using base_type = index<DimensionTag, UseSIMD>;
-  using accessor_type =
-      specfem::accessor::Accessor<specfem::accessor::type::point,
-                                  specfem::data_class::type::mapped_index,
-                                  DimensionTag, UseSIMD>; ///< Accessor type for
-                                                          ///< mapped index
 
 public:
-  int imap; ///< Index of the mapped element
-
-  constexpr static auto data_class =
-      accessor_type::data_class; ///< Data class of the mapped index
+  /**
+   * @brief Index of the mapped element.
+   *
+   * This index refers to the associated parameter or element that is mapped
+   * to the current quadrature point.
+   */
+  int imap;
 
   /**
-   * @brief Constructor for the mapped index
+   * @brief Constructor for the mapped index.
    *
-   * @param index Index to store the location of the quadrature point
+   * @param index Index to store the location of the quadrature point.
    * @param imap Index of the mapped element to be associated with the
-   * quadrature point
+   * quadrature point.
    */
   KOKKOS_INLINE_FUNCTION
   mapped_index(const base_type &index, const int &imap)

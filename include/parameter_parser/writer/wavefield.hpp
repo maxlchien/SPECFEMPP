@@ -1,7 +1,7 @@
 #pragma once
 
 #include "enumerations/simulation.hpp"
-#include "periodic_tasks/periodic_task.hpp"
+#include "specfem/periodic_tasks.hpp"
 #include "yaml-cpp/yaml.h"
 
 namespace specfem {
@@ -32,14 +32,15 @@ public:
    * timesteps between wavefield by the memory value provided, e.g. 100MB, 20GB.
    * @param include_last_step Whether or not to write the final time step.
    */
-  wavefield(const std::string output_format, const std::string output_folder,
+  wavefield(const std::string &output_format, const std::string &output_folder,
             const specfem::simulation::type type, const int time_interval,
-            const std::string time_interval_by_memory,
-            const bool include_last_step)
+            const std::string &time_interval_by_memory,
+            const bool include_last_step, bool for_adjoint_simulations)
       : output_format(output_format), output_folder(output_folder),
         simulation_type(type), time_interval(time_interval),
         time_interval_by_memory(time_interval_by_memory),
-        include_last_step(include_last_step) {}
+        include_last_step(include_last_step),
+        for_adjoint_simulations(for_adjoint_simulations) {}
 
   /**
    * @brief Construct a new wavefield configuration object from YAML node
@@ -56,7 +57,8 @@ public:
    * @return std::shared_ptr<specfem::io::writer> Pointer to an instantiated
    * writer object
    */
-  std::shared_ptr<specfem::periodic_tasks::periodic_task>
+  template <specfem::dimension::type DimensionTag>
+  std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
   instantiate_wavefield_writer() const;
 
   /**
@@ -65,11 +67,16 @@ public:
    * @return std::shared_ptr<specfem::io::reader> Pointer to an instantiated
    * reader object
    */
-  std::shared_ptr<specfem::periodic_tasks::periodic_task>
+  template <specfem::dimension::type DimensionTag>
+  std::shared_ptr<specfem::periodic_tasks::periodic_task<DimensionTag> >
   instantiate_wavefield_reader() const;
 
   inline specfem::simulation::type get_simulation_type() const {
     return this->simulation_type;
+  }
+
+  inline bool is_for_adjoint_simulations() const {
+    return this->for_adjoint_simulations;
   }
 
 private:
@@ -82,7 +89,9 @@ private:
                                        ///< of timesteps between wavefield by
                                        ///< the memory value provided, e.g.
                                        ///< 100MB, 20GB.
-  bool include_last_step; ///< Whether or not to write the final time step
+  bool include_last_step;       ///< Whether or not to write the final time step
+  bool for_adjoint_simulations; ///< Whether or not the wavefield is for
+                                ///< adjoint simulations
 };
 } // namespace runtime_configuration
 } // namespace specfem

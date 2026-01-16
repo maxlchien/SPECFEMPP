@@ -11,22 +11,35 @@
 
 namespace specfem {
 namespace medium {
+/**
+ * @defgroup specfem_medium_material_dim2_elastic_isotropic_cosserat 2D Elastic
+ * Isotropic Material
+ */
 
 /**
- * @brief Template specialization for 2D elastic spin isotropic material
+ * @ingroup specfem_medium_material_dim2_elastic_isotropic_cosserat
  * properties
+ * @brief Material specialization for 2D elastic isotropic cosserat media
  *
- * This class is mainly a container to hold the material properties that are
- * putput by the mesher and read by the mesh reader.
+ * This struct holds the properties of an elastic isotropic cosserat material in
+ * 2D.
  *
+ * @tparam MediumTag The medium tag that must satisfy elastic medium properties
+ * @tparam PropertyTag The property tag that must be isotropic
+ * @tparam Enable The enable_if condition that must be satisfied
+ *
+ * @see specfem::element::is_elastic
+ * @see specfem::dimension::type::dim2
+ * @see specfem::medium::material
  */
-template <specfem::element::medium_tag MediumTag>
+template <specfem::dimension::type DimensionTag,
+          specfem::element::medium_tag MediumTag>
 class material<
-    MediumTag, specfem::element::property_tag::isotropic_cosserat,
+    DimensionTag, MediumTag, specfem::element::property_tag::isotropic_cosserat,
     std::enable_if_t<specfem::element::is_elastic<MediumTag>::value> > {
 public:
-  constexpr static auto dimension =
-      specfem::dimension::type::dim2;           ///< Dimension of the material
+  constexpr static auto dimension_tag =
+      DimensionTag;                             ///< Dimension of the material
   constexpr static auto medium_tag = MediumTag; ///< Medium tag
   constexpr static auto property_tag =
       specfem::element::property_tag::isotropic_cosserat; ///< Property tag
@@ -71,7 +84,7 @@ public:
    * @return true If the materials have the same properties
    */
   bool operator==(
-      const material<MediumTag,
+      const material<dimension_tag, medium_tag,
                      specfem::element::property_tag::isotropic_cosserat> &other)
       const {
 
@@ -92,7 +105,7 @@ public:
    * @return true If the materials have different properties
    */
   bool operator!=(
-      const material<specfem::element::medium_tag::elastic_psv_t,
+      const material<dimension_tag, specfem::element::medium_tag::elastic_psv_t,
                      specfem::element::property_tag::isotropic_cosserat> &other)
       const {
     return !(*this == other);
@@ -103,11 +116,17 @@ public:
    *
    * @return specfem::point::properties Material properties
    */
-  inline specfem::point::properties<dimension, medium_tag, property_tag, false>
+  inline specfem::point::properties<dimension_tag, medium_tag, property_tag,
+                                    false>
   get_properties() const {
     return { rho, kappa, mu, nu, j, lambda_c, mu_c, nu_c };
   }
 
+  /**
+   * @brief Print the material properties
+   *
+   * @return std::string Formatted material properties
+   */
   inline std::string print() const {
     std::ostringstream message;
 

@@ -1,5 +1,5 @@
-``xmeshfem2D``: ``Par_file`` Documentation
-++++++++++++++++++++++++++++++++++++++++++
+Parameter File
+++++++++++++++
 
 Simulation input parameters
 ===========================
@@ -132,17 +132,17 @@ Number of material systems in the model.
     nbmodels = 1
 
 
-``TOPOGRAPHY_FILE``
+``TOMOGRAPHY_FILE``
 ~~~~~~~~~~~~~~~~~~~
 
-Path to an external topography file.
+Path to an external tomography file for velocity models.
 
 :Type: ``string``
 
 .. code-block::
     :caption: Example
 
-    TOPOGRAPHY_FILE = topography.dat
+    TOMOGRAPHY_FILE = ./DATA/tomo_file.xyz
 
 
 ``read_external_mesh``
@@ -208,6 +208,27 @@ Type
 
     1 1 2700.d0 3000.d0 1732.051d0 0 0 9999 9999 0 0 0 0 0 0
 
+Elastic Cosserat material system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An elastic Cosserat medium can be described by the following parameters:
+
+- ``model_number``: integer number to refence the material system
+- ``rho``: density
+- ``kappa``: P-wave modulus
+- ``mu``: shear modulus
+- ``nu``: Poisson's ratio
+- ``j``: micro-inertia
+
+:Type: ``string``
+
+:Format: ``model_number 4 rho kappa mu nu j 0 0 0 0 0 0 0 0 0``
+
+.. code-block::
+    :caption: Example
+
+    1 5 2700.d0 1.0d10 3.0d9 0.25d0 0.1d0 0 0 0 0 0 0 0 0
+
 
 Poroelastic material system
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -237,6 +258,55 @@ A poroelastic medium can be described by the following parameters:
     :caption: Example
 
     1 3 2650.d0 880.d0 0.1d0 2.0 1d-9 0.d0 1d-9 12.2d9 1.985d9 9.6d9 0.d0 5.1d9 9999
+
+
+Electromagnetic material system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An electromagnetic medium can be described by the following parameters:
+
+- ``model_number``: integer number to reference the material system
+- ``mu0``: vacuum permeability
+- ``e0``: vacuum permittivity
+- ``e11``: relative permittivity in 11 direction (multiple of e0)
+- ``e33``: relative permittivity in 33 direction (multiple of e0)
+- ``sig11``: conductivity in 11 direction
+- ``sig33``: conductivity in 33 direction
+- ``Qe11``: electric attenuation in 11 direction
+- ``Qe33``: electric attenuation in 33 direction
+- ``Qs11``: magnetic attenuation in 11 direction
+- ``Qs33``: magnetic attenuation in 33 direction
+- ``Qv``: reserved parameter
+
+:Type: ``string``
+
+:Format: ``model_number 4 mu0 e0 e11(e0) e33(e0) sig11 sig33 Qe11 Qe33 Qs11 Qs33 Qv 0 0``
+
+.. code-block::
+    :caption: Example
+
+    1 4 12.566d-7 8.85d-12 5 5 2d-3 2d-3 90 90 90 90 0 0 0
+
+
+Tomography material system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A material defined by external tomography file:
+
+- ``model_number``: ``-1`` to indicate tomography-based material
+- ``A``: anisotropy flag (for Vs value)
+
+:Type: ``string``
+
+:Format: ``model_number -1 0 0 A 0 0 0 0 0 0 0 0 0 0``
+
+.. code-block::
+    :caption: Example
+
+    1 -1 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+.. note::
+    Material properties will be read from the file specified in ``TOMOGRAPHY_FILE``.
 
 
 Internal Meshing

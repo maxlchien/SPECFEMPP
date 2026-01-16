@@ -1,3 +1,8 @@
+/**
+ * @file simd.hpp
+ * @brief SIMD wrapper types for vectorized operations in spectral element
+ * computations
+ */
 #pragma once
 
 #include "specfem_setup.hpp"
@@ -35,83 +40,151 @@ template <typename T> struct simd<T, false> {
   KOKKOS_FUNCTION constexpr static int size() { return 1; }
 };
 
+/**
+ * @brief Specialization enabling SIMD operations
+ *
+ * Uses Kokkos SIMD types when available, falls back to scalar operations.
+ *
+ * @tparam T Base scalar type for SIMD vector
+ */
 template <typename T> struct simd<T, true> {
-  using base_type = T; ///< The base type of the SIMD vector.
-#ifdef ENABLE_SIMD
-  using datatype = Kokkos::Experimental::simd<T>; ///< The type of the
-                                                  ///< SIMD vector.
+  /// Base scalar type
+  using base_type = T;
+#ifdef SPECFEM_ENABLE_SIMD
+  /// SIMD vector type (native when enabled)
+  using datatype = Kokkos::Experimental::simd<T>;
 #else
-  using datatype = Kokkos::Experimental::basic_simd<
-      T, Kokkos::Experimental::simd_abi::scalar>; ///< The type of the SIMD
-                                                  ///< vector.
+  /// SIMD vector type (scalar fallback)
+  using datatype =
+      Kokkos::Experimental::basic_simd<T,
+                                       Kokkos::Experimental::simd_abi::scalar>;
 #endif
-  constexpr static bool using_simd =
-      true; ///< Whether SIMD operations are used or not.
+  /// SIMD operations enabled
+  constexpr static bool using_simd = true;
   /**
    * @brief Returns the size of the SIMD vector.
    *
    * @return constexpr static int The size of the SIMD vector.
    */
   KOKKOS_FUNCTION constexpr static int size() {
-#ifdef ENABLE_SIMD
+#ifdef SPECFEM_ENABLE_SIMD
     return Kokkos::Experimental::simd<T>::size();
 #else
     return Kokkos::Experimental::basic_simd<
         T, Kokkos::Experimental::simd_abi::scalar>::size();
 #endif
   }
-  using mask_type = typename datatype::mask_type; ///< The type of the mask used
-                                                  ///< for SIMD operations.
-  using tag_type =
-      Kokkos::Experimental::element_aligned_tag; ///< The tag type used for SIMD
-                                                 ///< operations.
+  /// SIMD mask type for conditional operations
+  using mask_type = typename datatype::mask_type;
+  /// Memory alignment tag for SIMD operations
+  using tag_type = Kokkos::Experimental::element_aligned_tag;
 };
 
+/**
+ * @namespace specfem::datatype::impl
+ * @brief Implementation details for SIMD-like data types
+ */
 namespace impl {
+/**
+ * @brief Template for SIMD-like value storage
+ *
+ * Provides consistent interface for both SIMD and scalar storage modes.
+ *
+ * @tparam T Base data type
+ * @tparam simd_type SIMD reference type
+ * @tparam UseSIMD Enable SIMD operations
+ */
 template <typename T, typename simd_type, bool UseSIMD>
 struct simd_like_value_type;
 
+/**
+ * @brief Scalar specialization (no SIMD)
+ *
+ * Stores single value with scalar operations.
+ */
 template <typename T, typename simd_type>
 struct simd_like_value_type<T, simd_type, false> {
 private:
+  /// Single scalar value
   T m_value;
   using value_type = simd_like_value_type<T, simd_type, false>;
 
 public:
+  /**
+   * @brief Addition assignment operator
+   * @tparam U Compatible type for addition
+   * @param other Value to add
+   * @return Reference to this object
+   */
   template <typename U> KOKKOS_FUNCTION value_type &operator+=(const U &other) {
     this->m_value += other;
     return *this;
   }
 
+  /**
+   * @brief Equality comparison
+   * @tparam U Compatible type for comparison
+   * @param other Value to compare with
+   * @return True if equal
+   */
   template <typename U> KOKKOS_FUNCTION bool operator==(const U &other) const {
     return this->m_value == other;
   }
 
+  /**
+   * @brief Inequality comparison
+   * @tparam U Compatible type for comparison
+   * @param other Value to compare with
+   * @return True if not equal
+   */
   template <typename U> KOKKOS_FUNCTION bool operator!=(const U &other) const {
     return this->m_value != other;
   }
 
+  /**
+   * @brief Get vector size (always 1 for scalar)
+   * @return Size of vector (1)
+   */
   KOKKOS_FUNCTION
   constexpr static int size() { return 1; }
 
+  /// Scalar mask type
   using mask_type = bool;
 };
 
+/**
+ * @brief SIMD specialization with vector storage
+ *
+ * Stores array of values for SIMD lane operations.
+ */
 template <typename T, typename simd_type>
 struct simd_like_value_type<T, simd_type, true> {
 private:
+  /// SIMD vector size
   constexpr static int simd_size =
       specfem::datatype::simd<simd_type, true>::size();
 
 public:
+  /// Array storage for SIMD lanes
   T m_value[simd_size];
 
+  /**
+   * @brief Access SIMD lane value (const)
+   * @param lane Lane index
+   * @return Value at lane
+   */
   KOKKOS_FUNCTION
   T operator[](const std::size_t lane) const { return this->m_value[lane]; }
 
+  /**
+   * @brief Access SIMD lane value (non-const)
+   * @param lane Lane index
+   * @return Reference to value at lane
+   */
   KOKKOS_FUNCTION
   T &operator[](const std::size_t lane) { return this->m_value[lane]; }
 
+  /// SIMD mask type for conditional operations
   using mask_type =
       typename specfem::datatype::simd<simd_type, true>::mask_type;
 };
@@ -142,22 +215,30 @@ template <typename T, typename simd_type, bool UseSIMD> struct simd_like {
   constexpr static int size() { return datatype::size(); }
 };
 
+/**
+ * @brief Type trait to detect SIMD mask types
+ * @tparam T Type to check
+ */
 template <typename T> struct is_simd_mask : std::false_type {};
 
+/**
+ * @brief Specialization for Kokkos SIMD mask types
+ * @tparam T Base type of SIMD mask
+ * @tparam ABI SIMD ABI specification
+ */
 template <typename T, typename ABI>
 struct is_simd_mask<Kokkos::Experimental::basic_simd_mask<T, ABI> >
     : std::true_type {};
 
 /**
- * @brief Checks if all elements in the mask are true.
+ * @brief Check if all mask elements are true
  *
- * This function is specialized for SIMD masks and uses
- * Kokkos::Experimental::all_of for efficient evaluation. For non-SIMD masks, it
- * simply checks the boolean value.
+ * Efficiently evaluates mask conditions using SIMD operations when available.
+ * Falls back to scalar boolean check for non-SIMD masks.
  *
- * @tparam mask_type The type of the mask.
- * @param mask The mask to check.
- * @return true if all elements in the mask are true, false otherwise.
+ * @tparam mask_type SIMD mask or boolean type
+ * @param mask Mask to evaluate
+ * @return True if all elements are true
  */
 template <typename mask_type>
 KOKKOS_INLINE_FUNCTION bool all_of(const mask_type &mask) {
@@ -172,10 +253,12 @@ KOKKOS_INLINE_FUNCTION bool all_of(const mask_type &mask) {
 } // namespace specfem
 
 /**
- * @brief Overloaded operator<< for printing simd values.
- * @param os The output stream.
- * @param value The simd value to print.
- * @return The output stream after printing the simd value.
+ * @brief Stream output operator for Kokkos SIMD types
+ * @tparam T Base type of SIMD vector
+ * @tparam Abi SIMD ABI specification
+ * @param os Output stream
+ * @param value SIMD value to print
+ * @return Output stream reference
  */
 template <typename T, typename Abi>
 std::ostream &

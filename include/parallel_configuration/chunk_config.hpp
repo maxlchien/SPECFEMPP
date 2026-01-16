@@ -6,10 +6,21 @@
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
-namespace parallel_config {
+
+/**
+ * @namespace specfem::parallel_configuration
+ * @brief Configuration parameters for parallel execution policies.
+ *
+ * This namespace provides configuration structures and constants for
+ * parallel execution policies, including chunk sizes, tile sizes,
+ * and thread counts optimized for different hardware backends.
+ *
+ */
+namespace parallel_configuration {
 
 namespace impl {
 constexpr int cuda_chunk_size = 32;
+constexpr int cuda_chunk_size_3d = 4;
 constexpr int hip_chunk_size = 64;
 constexpr int openmp_chunk_size = 1;
 constexpr int serial_chunk_size = 1;
@@ -17,25 +28,38 @@ constexpr int serial_chunk_size = 1;
 
 #if defined(KOKKOS_ENABLE_CUDA)
 constexpr int storage_chunk_size = impl::cuda_chunk_size;
+constexpr int chunk_size = impl::cuda_chunk_size;
 #elif defined(KOKKOS_ENABLE_HIP)
 constexpr int storage_chunk_size = impl::hip_chunk_size;
+constexpr int chunk_size = impl::hip_chunk_size;
 #elif defined(KOKKOS_ENABLE_OPENMP)
 constexpr int simd_size = specfem::datatype::simd<type_real, true>::size();
 constexpr int storage_chunk_size = impl::openmp_chunk_size * simd_size;
+constexpr int chunk_size = impl::openmp_chunk_size;
 #else
 constexpr int simd_size = specfem::datatype::simd<type_real, true>::size();
 constexpr int storage_chunk_size = impl::serial_chunk_size * simd_size;
+constexpr int chunk_size = impl::serial_chunk_size;
 #endif
 
 /**
- * @brief Parallel configuration for chunk policy.
+ * @brief Parallel execution configuration for element chunks.
  *
- * @tparam DimensionTag Dimension type of the elements within a chunk.
- * @tparam ChunkSize Number of elements within a chunk.
- * @tparam TileSize Tile size for chunk policy.
- * @tparam NumThreads Number of threads within a team.
- * @tparam VectorLanes Number of vector lanes.
- * @tparam SIMD SIMD type to use simd operations. @ref specfem::datatypes::simd
+ * @tparam DimensionTag Spatial dimension (dim2/dim3)
+ * @tparam ChunkSize Elements per chunk
+ * @tparam TileSize Tile size for memory coalescing
+ * @tparam NumThreads Team threads count
+ * @tparam VectorLanes Vector lane width
+ * @tparam SIMD SIMD type for vectorization
+ *
+ * @code
+ * using config = chunk_config<dim2, 32, 32, 512, 1, simd_type,
+ * Kokkos::DefaultExecutionSpace>;
+ * specfem::execution::ChunkedDomainIterator<config> iterator;
+ * @endcode
+ *
+ * @see specfem::execution
+ * @see specfem::parallel_configuration::default_chunk_config
  */
 template <specfem::dimension::type DimensionTag, int ChunkSize, int TileSize,
           int NumThreads, int VectorLanes, typename SIMD,
@@ -52,15 +76,18 @@ struct chunk_config {
 };
 
 /**
- * @brief Default chunk configuration to use based on Dimension, SIMD type and
- * Execution space.
+ * @brief Platform-optimized chunk configuration defaults.
  *
- * Defines chunk size, tile size, number of threads, number of vector lanes
- * defaults for @ref specfem::parallel_config::chunk_config
+ * Automatically selects optimal chunk parameters based on execution space.
  *
- * @tparam DimensionTag Dimension type of the elements within a chunk.
- * @tparam SIMD SIMD type to use simd operations. @ref specfem::datatypes::simd
- * @tparam ExecutionSpace Execution space for the policy.
+ * @tparam DimensionTag Spatial dimension
+ * @tparam SIMD SIMD vectorization type
+ * @tparam ExecutionSpace Kokkos execution space
+ *
+ * @code
+ * using config = default_chunk_config<dim2, simd_type, Kokkos::Cuda>;
+ * // Automatically uses: chunk_size=32, num_threads=512 for CUDA
+ * @endcode
  */
 template <specfem::dimension::type DimensionTag, typename SIMD,
           typename ExecutionSpace>
@@ -71,12 +98,22 @@ template <typename SIMD>
 struct default_chunk_config<specfem::dimension::type::dim2, SIMD, Kokkos::Cuda>
     : chunk_config<specfem::dimension::type::dim2, impl::cuda_chunk_size,
                    impl::cuda_chunk_size, 512, 1, SIMD, Kokkos::Cuda> {};
+
+template <typename SIMD>
+struct default_chunk_config<specfem::dimension::type::dim3, SIMD, Kokkos::Cuda>
+    : chunk_config<specfem::dimension::type::dim3, impl::cuda_chunk_size_3d,
+                   impl::cuda_chunk_size_3d, 512, 1, SIMD, Kokkos::Cuda> {};
 #endif
 
 #if defined(KOKKOS_ENABLE_HIP)
 template <typename SIMD>
 struct default_chunk_config<specfem::dimension::type::dim2, SIMD, Kokkos::HIP>
     : chunk_config<specfem::dimension::type::dim2, impl::cuda_chunk_size,
+                   impl::hip_chunk_size, 512, 1, SIMD, Kokkos::HIP> {};
+
+template <typename SIMD>
+struct default_chunk_config<specfem::dimension::type::dim3, SIMD, Kokkos::HIP>
+    : chunk_config<specfem::dimension::type::dim3, impl::hip_chunk_size,
                    impl::hip_chunk_size, 512, 1, SIMD, Kokkos::HIP> {};
 #endif
 
@@ -88,9 +125,21 @@ struct default_chunk_config<specfem::dimension::type::dim2, SIMD,
                    impl::openmp_chunk_size, 1, 1, SIMD, Kokkos::OpenMP> {};
 
 template <typename SIMD>
+struct default_chunk_config<specfem::dimension::type::dim3, SIMD,
+                            Kokkos::OpenMP>
+    : chunk_config<specfem::dimension::type::dim3, impl::openmp_chunk_size,
+                   impl::openmp_chunk_size, 1, 1, SIMD, Kokkos::OpenMP> {};
+
+template <typename SIMD>
 struct default_chunk_config<specfem::dimension::type::dim2, SIMD,
                             Kokkos::HostSpace>
     : default_chunk_config<specfem::dimension::type::dim2, SIMD,
+                           Kokkos::OpenMP> {};
+
+template <typename SIMD>
+struct default_chunk_config<specfem::dimension::type::dim3, SIMD,
+                            Kokkos::HostSpace>
+    : default_chunk_config<specfem::dimension::type::dim3, SIMD,
                            Kokkos::OpenMP> {};
 #endif
 
@@ -102,10 +151,22 @@ struct default_chunk_config<specfem::dimension::type::dim2, SIMD,
                    impl::serial_chunk_size, 1, 1, SIMD, Kokkos::Serial> {};
 
 template <typename SIMD>
+struct default_chunk_config<specfem::dimension::type::dim3, SIMD,
+                            Kokkos::Serial>
+    : chunk_config<specfem::dimension::type::dim3, impl::serial_chunk_size,
+                   impl::serial_chunk_size, 1, 1, SIMD, Kokkos::Serial> {};
+
+template <typename SIMD>
 struct default_chunk_config<specfem::dimension::type::dim2, SIMD,
                             Kokkos::HostSpace>
     : default_chunk_config<specfem::dimension::type::dim2, SIMD,
                            Kokkos::Serial> {};
+
+template <typename SIMD>
+struct default_chunk_config<specfem::dimension::type::dim3, SIMD,
+                            Kokkos::HostSpace>
+    : default_chunk_config<specfem::dimension::type::dim3, SIMD,
+                           Kokkos::Serial> {};
 #endif
-} // namespace parallel_config
+} // namespace parallel_configuration
 } // namespace specfem

@@ -1,0 +1,127 @@
+SPECFEM_BIN = "@CMAKE_BINARY_DIR@/bin/specfem 2d"
+MESHFEM_BIN = "@CMAKE_BINARY_DIR@/bin/xmeshfem2D"
+
+
+rule all:
+    input:
+        plotX="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/traces_X.png",
+        plotZ="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/traces_Z.png",
+    localrule: True
+
+
+rule generate_mesh:
+    input:
+        "@CURRENT_BENCHMARK_BUILD_DIR@/Par_File",
+        "@CURRENT_BENCHMARK_BUILD_DIR@/MESH-default/mesh_file",
+        "@CURRENT_BENCHMARK_BUILD_DIR@/MESH-default/nodes_coords_file",
+        "@CURRENT_BENCHMARK_BUILD_DIR@/MESH-default/materials_file",
+        "@CURRENT_BENCHMARK_BUILD_DIR@/MESH-default/nummaterial_velocity_file_marmousi2",
+        "@CURRENT_BENCHMARK_BUILD_DIR@/MESH-default/free_surface_file",
+        "@CURRENT_BENCHMARK_BUILD_DIR@/MESH-default/absorbing_surface_file",
+    output:
+        database="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/database.bin",
+        stations="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/STATIONS",
+    localrule: True
+    shell:
+        """
+            mkdir -p @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES
+            {MESHFEM_BIN} -p {input[0]}
+        """
+
+
+rule run_solver:
+    input:
+        database="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/database.bin",
+        stations="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/STATIONS",
+        source="@CURRENT_BENCHMARK_BUILD_DIR@/sources.yaml",
+        config="@CURRENT_BENCHMARK_BUILD_DIR@/specfem_config.yaml",
+    output:
+        seismograms=expand(
+            "@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results/{network_name}.{station_name}.S2.{component}.semd",
+            station_name=[
+                "S0001",
+                "S0002",
+                "S0003",
+                "S0004",
+                "S0005",
+                "S0006",
+                "S0007",
+                "S0008",
+                "S0009",
+                "S0010",
+                "S0011",
+            ],
+            network_name=["AA"],
+            component=["BXX", "BXZ"],
+        ),
+        log="@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/output.log",
+    resources:
+        nodes=1,
+        tasks=1,
+        cpus_per_task=1,
+        runtime=60,
+    shell:
+        """
+            # module purge
+            # module load boost/1.73.0
+            mkdir -p @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results
+            echo "Hostname: $(hostname)" > {output.log}
+            {SPECFEM_BIN} -p {input.config}
+        """
+
+
+rule plot_seismogram:
+    input:
+        trace_files=rules.run_solver.output.seismograms,
+    output:
+        traces_X=rules.all.input.plotX,
+        traces_Z=rules.all.input.plotZ,
+    localrule: True
+    run:
+        import glob
+        import os
+        import numpy as np
+        import obspy
+
+        # Set matplotlib gui off
+        import matplotlib
+        matplotlib.use("Agg")
+
+
+        def get_traces(directory):
+            traces = []
+            files = glob.glob(directory + "/*.sem*")
+            ## iterate over all seismograms
+            for filename in files:
+                station_name = os.path.splitext(filename)[0]
+                network, station, location, channel = station_name.split("/")[-1].split(".")
+                trace = np.loadtxt(filename, delimiter=" ")
+                starttime = trace[0, 0]
+                dt = trace[1, 0] - trace[0, 0]
+                traces.append(
+                    obspy.Trace(
+                        trace[:, 1],
+                        {"network": network,
+                         "station": station,
+                         "location": location,
+                         "channel": channel,
+                         "starttime": starttime, "delta": dt},
+                    )
+                )
+
+            stream = obspy.Stream(traces)
+
+            return stream
+
+
+        stream = get_traces("@CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES/results")
+
+        stream.select(component='X').plot(size=(800, 1000)).savefig(output.traces_X)
+        stream.select(component='Z').plot(size=(800, 1000)).savefig(output.traces_Z)
+
+
+rule clean:
+    shell:
+        """
+            rm -rf @CURRENT_BENCHMARK_BUILD_DIR@/OUTPUT_FILES
+        """

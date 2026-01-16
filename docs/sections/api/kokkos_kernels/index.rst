@@ -1,21 +1,35 @@
 
 .. _kokkos_kernels:
 
-Kokkos Kernels
-==============
+``specfem::kokkos_kernels``
+===========================
 
-.. note::
+.. doxygennamespace:: specfem::kokkos_kernels
+    :desc-only:
 
-    Kernel Definition: We refer to kernel to mean Kokkos kernels, which are
-    units of ``Kokkos::parallel_for`` or ``Kokkos::parallel_reduce`` that are
-    executed within an execution space. I realize this nomeclature might be
-    misleading, considering the term "kernel" is also used in the context of
-    misfit kernels. When we refer to misfit kernels, we will explicitly use the
-    term "misfit kernel".
+``specfem::kokkos_kernels::domain_kernels``
+-------------------------------------------
 
+.. doxygenclass:: specfem::kokkos_kernels::domain_kernels
+    :members:
+
+``specfem::kokkos_kernels::frechet_kernels``
+--------------------------------------------
+
+.. doxygenclass:: specfem::kokkos_kernels::frechet_kernels
+    :members:
+
+Implementation Details
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
     :maxdepth: 1
 
-    domain_kernels/domain_kernels
-    frechet_kernels/frechet_kernels
+    compute_mass_matrix
+    compute_stiffness_interaction
+    compute_source_interaction
+    compute_material_derivatives
+    compute_coupling
+    invert_mass_matrix
+    divide_mass_matrix
+    compute_seismogram

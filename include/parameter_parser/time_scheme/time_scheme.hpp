@@ -1,13 +1,12 @@
 #pragma once
 
+#include "specfem/timescheme/newmark.hpp"
 #include "specfem_setup.hpp"
-#include "timescheme/newmark.hpp"
 #include "yaml-cpp/yaml.h"
 #include <tuple>
 
 namespace specfem {
 namespace runtime_configuration {
-namespace time_scheme {
 /**
  * @brief time_marching class is used to instantiate a time-marching solver
  *
@@ -53,8 +52,9 @@ public:
    object
    * used in the solver algorithm
    */
+  template <typename AssemblyFields>
   std::shared_ptr<specfem::time_scheme::time_scheme>
-  instantiate(const int nstep_between_samples);
+  instantiate(AssemblyFields &fields, const int nstep_between_samples);
   /**
    * @brief Get the value of time increment
    *
@@ -71,8 +71,8 @@ private:
   type_real dt;           ///< delta time for the timescheme
   type_real t0 = 0.0;     ///< start time
   std::string timescheme; ///< Time scheme e.g. Newmark, Runge-Kutta, LDDRK
-  specfem::simulation::type type;
+  specfem::simulation::type type; ///< Type of simulation
+                                  ///< (forward/adjoint/combined)
 };
-} // namespace time_scheme
 } // namespace runtime_configuration
 } // namespace specfem

@@ -1,5 +1,4 @@
-#ifndef _ALGORITHMS_INTERPOLATE_HPP
-#define _ALGORITHMS_INTERPOLATE_HPP
+#pragma once
 
 #include "datatypes/point_view.hpp"
 #include "execution/for_each_level.hpp"
@@ -7,181 +6,152 @@
 #include "specfem_setup.hpp"
 #include <Kokkos_Core.hpp>
 
+/**
+ * @file interpolate.hpp
+ * @brief Algorithms for interpolating functions using polynomial basis
+ * @ingroup AlgorithmsInterpolate
+ */
+
 namespace specfem {
 namespace algorithms {
 
-template <typename T, typename MemorySpace>
-T interpolate_function(
-    const Kokkos::View<type_real **, specfem::kokkos::LayoutWrapper,
-                       MemorySpace> &polynomial,
-    const Kokkos::View<T **, specfem::kokkos::LayoutWrapper, MemorySpace>
-        &function) {
+/// @brief Implementation details
+namespace impl {
+/**
+ * @brief Functor for performing polynomial interpolation
+ *
+ * @tparam PolynomialViewType Type of the polynomial view
+ * @tparam FunctionViewType Type of the function view
+ */
+template <typename PolynomialViewType, typename FunctionViewType>
+struct InterpolateFunctor {
+  const PolynomialViewType polynomial; ///< Polynomial basis functions
+  const FunctionViewType function;     ///< Function values to interpolate
 
-  using ExecSpace = typename MemorySpace::execution_space;
+  constexpr static int rank =
+      PolynomialViewType::rank(); ///< Rank of the polynomial view
+
+  /**
+   * @brief Constructor
+   *
+   * @param polynomial Polynomial basis functions
+   * @param function Function values to interpolate
+   */
+  InterpolateFunctor(const PolynomialViewType &polynomial,
+                     const FunctionViewType &function)
+      : polynomial(polynomial), function(function) {}
+
+  template <typename T, int U = rank, std::enable_if_t<U == 2, int> = 0>
+  KOKKOS_INLINE_FUNCTION void operator()(const int &iz, const int &ix,
+                                         T &sum) const {
+    sum += polynomial(iz, ix) * function(iz, ix);
+  }
+
+  template <typename T, int U = rank, std::enable_if_t<U == 3, int> = 0>
+  KOKKOS_INLINE_FUNCTION void operator()(const int &iz, const int &iy,
+                                         const int &ix, T &sum) const {
+    sum += polynomial(iz, iy, ix) * function(iz, iy, ix);
+  }
+};
+} // namespace impl
+
+/**
+ * @brief Interpolate a 2D function using polynomial basis
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam PolynomialViewType Type of the polynomial view (must be 2D)
+ * @tparam FunctionViewType Type of the function view (must be 2D)
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @return Interpolated function value
+ */
+template <typename PolynomialViewType, typename FunctionViewType,
+          std::enable_if_t<((PolynomialViewType::rank() == 2) &&
+                            (FunctionViewType::rank() == 2)),
+                           int> = 0>
+typename FunctionViewType::value_type
+interpolate_function(const PolynomialViewType &polynomial,
+                     const FunctionViewType &function) {
+
+  using ExecSpace = typename PolynomialViewType::execution_space;
+
+  static_assert(std::is_same<typename PolynomialViewType::execution_space,
+                             typename FunctionViewType::execution_space>::value,
+                "Polynomial and function must have the same execution space");
 
   const int N = polynomial.extent(0);
+  using T = typename FunctionViewType::value_type;
+
   T result(0.0);
+
+  impl::InterpolateFunctor functor(polynomial, function);
 
   Kokkos::parallel_reduce(
       Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<2> >({ 0, 0 }, { N, N }),
-      KOKKOS_LAMBDA(const int iz, const int ix, T &sum) {
-        sum += polynomial(iz, ix) * function(iz, ix);
-      },
-      result);
+      functor, Kokkos::Sum<T>(result));
 
   return result;
 }
 
-template <typename T, typename ExecSpace>
-KOKKOS_FUNCTION T interpolate_function(
-    const typename Kokkos::TeamPolicy<ExecSpace>::member_type &team_member,
-    const Kokkos::View<type_real **, specfem::kokkos::LayoutWrapper,
-                       typename ExecSpace::memory_space> &polynomial,
-    const Kokkos::View<T **, specfem::kokkos::LayoutWrapper,
-                       typename ExecSpace::memory_space> &function) {
+/**
+ * @brief Interpolate a 3D function using polynomial basis
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam PolynomialViewType Type of the polynomial view (must be 3D)
+ * @tparam FunctionViewType Type of the function view (must be 3D)
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @return Interpolated function value
+ */
+template <typename PolynomialViewType, typename FunctionViewType,
+          std::enable_if_t<((PolynomialViewType::rank() == 3) &&
+                            (FunctionViewType::rank() == 3)),
+                           int> = 0>
+typename FunctionViewType::value_type
+interpolate_function(const PolynomialViewType &polynomial,
+                     const FunctionViewType &function) {
+
+  using ExecSpace = typename PolynomialViewType::execution_space;
+
+  static_assert(std::is_same<typename PolynomialViewType::execution_space,
+                             typename FunctionViewType::execution_space>::value,
+                "Polynomial and function must have the same execution space");
 
   const int N = polynomial.extent(0);
+  using T = typename FunctionViewType::value_type;
 
   T result(0.0);
-  Kokkos::parallel_reduce(
-      Kokkos::TeamThreadRange(team_member, N * N),
-      [&](const int &xz, T &sum) {
-        int iz, ix;
-        sub2ind(xz, N, iz, ix);
-        sum += polynomial(iz, ix) * function(iz, ix);
-      },
-      result);
+  impl::InterpolateFunctor functor(polynomial, function);
+
+  Kokkos::parallel_reduce(Kokkos::MDRangePolicy<ExecSpace, Kokkos::Rank<3> >(
+                              { 0, 0, 0 }, { N, N, N }),
+                          functor, Kokkos::Sum<T>(result));
 
   return result;
 }
 
-template <int components, typename Layout, typename MemorySpace,
-          typename MemoryTraits>
-specfem::datatype::ScalarPointViewType<type_real, components, false>
-interpolate_function(
-    const Kokkos::View<type_real **, specfem::kokkos::LayoutWrapper,
-                       MemorySpace, MemoryTraits> &polynomial,
-    const Kokkos::View<type_real **[components], Layout, MemorySpace,
-                       MemoryTraits> &function) {
-
-  using T =
-      specfem::datatype::ScalarPointViewType<type_real, components, false>;
-
-  const int N = polynomial.extent(0);
-  T result(0.0);
-
-  Kokkos::parallel_reduce(
-      Kokkos::MDRangePolicy<MemorySpace, Kokkos::Rank<2> >({ 0, 0 }, { N, N }),
-      [&](const int iz, const int ix, T &sum) {
-        for (int icomponent = 0; icomponent < components; ++icomponent) {
-          sum[icomponent] += polynomial(iz, ix) * function(iz, ix, icomponent);
-        }
-      },
-      specfem::kokkos::Sum<T>(result));
-
-  return result;
-}
-
-template <int components, typename Layout, typename MemorySpace,
-          typename MemoryTraits>
-KOKKOS_FUNCTION specfem::datatype::ScalarPointViewType<type_real, components,
-                                                       false>
-interpolate_function(
-    const typename Kokkos::TeamPolicy<MemorySpace>::member_type &team_member,
-    const Kokkos::View<type_real **, specfem::kokkos::LayoutWrapper,
-                       MemorySpace, MemoryTraits> &polynomial,
-    const Kokkos::View<type_real **[components], Layout, MemorySpace,
-                       MemoryTraits> &function) {
-
-  using T =
-      specfem::datatype::ScalarPointViewType<type_real, components, false>;
-
-  const int N = polynomial.extent(0);
-  T result(0.0);
-
-  Kokkos::parallel_reduce(
-      Kokkos::TeamThreadRange(team_member, N * N),
-      [&](const int &xz, T &sum) {
-        int iz, ix;
-        sub2ind(xz, N, iz, ix);
-        for (int icomponent = 0; icomponent < components; ++icomponent) {
-          sum(icomponent) += polynomial(iz, ix) * function(iz, ix, icomponent);
-        }
-      },
-      specfem::kokkos::Sum<T>(result));
-
-  return result;
-}
-
-template <typename MemberType, typename IteratorType,
-          typename PolynomialViewTye, typename FunctionViewType,
-          typename ResultType>
-KOKKOS_FUNCTION void interpolate_function(const MemberType &team_member,
-                                          const IteratorType &iterator,
-                                          const PolynomialViewTye &polynomial,
-                                          const FunctionViewType &function,
-                                          ResultType &result) {
-
-  static_assert(PolynomialViewTye::rank() == 4, "Polynomial must be a 4D view");
-  static_assert(FunctionViewType::rank() == 4, "Function must be a 4D view");
-
-  static_assert(ResultType::rank() == 2, "Result must be 2D views");
-
-#ifndef NDEBUG
-
-  if (polynomial.extent(0) != function.extent(0) ||
-      polynomial.extent(1) != function.extent(1)) {
-    Kokkos::abort("Polynomial and function must have the same size");
-  }
-
-  if (polynomial.extent(0) != result.extent(0)) {
-    Kokkos::abort("Polynomial and result must have the same size");
-  }
-
-  if (function.extent(3) != result.extent(1)) {
-    Kokkos::abort(
-        "Function and result must have the same number of components");
-  }
-#endif
-
-  // // Initialize result
-  Kokkos::parallel_for(
-      Kokkos::TeamThreadRange(team_member, iterator.number_of_elements()),
-      [&](const int &ielement) {
-        result(ielement, 0) = 0.0;
-        result(ielement, 1) = 0.0;
-      });
-
-  team_member.team_barrier();
-
-  const int ncomponents = function.extent(3);
-
-  Kokkos::parallel_for(
-      Kokkos::TeamThreadRange(team_member, iterator.chunk_size()),
-      [&](const int i) {
-        const auto iterator_index = iterator(i);
-        const auto index = iterator_index.index;
-
-        for (int icomponent = 0; icomponent < ncomponents; ++icomponent) {
-          type_real polynomial_value = polynomial(
-              iterator_index.ielement, index.iz, index.ix, icomponent);
-          type_real function_value =
-              function(iterator_index.ielement, index.iz, index.ix, icomponent);
-          Kokkos::atomic_add(&result(iterator_index.ielement, icomponent),
-                             polynomial_value * function_value);
-        }
-      });
-}
-
+/**
+ * @brief Interpolate a 2D function using polynomial basis (Chunk version)
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam ChunkIndex Chunk index type
+ * @tparam PolynomialViewType Type of the polynomial view (rank 4)
+ * @tparam FunctionViewType Type of the function view (rank 4)
+ * @tparam ResultType Type of the result view (rank 2)
+ * @param chunk_index Chunk index
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @param result Result view
+ */
 template <typename ChunkIndex, typename PolynomialViewType,
-          typename FunctionViewType, typename ResultType>
+          typename FunctionViewType, typename ResultType,
+          std::enable_if_t<PolynomialViewType::rank() == 4 &&
+                               FunctionViewType::rank() == 4,
+                           int> = 0>
 KOKKOS_FUNCTION void interpolate_function(const ChunkIndex &chunk_index,
                                           const PolynomialViewType &polynomial,
                                           const FunctionViewType &function,
                                           ResultType &result) {
-
-  static_assert(PolynomialViewType::rank() == 4, "Polynomial must be a 4D view");
-  static_assert(FunctionViewType::rank() == 4, "Function must be a 4D view");
 
   static_assert(ResultType::rank() == 2, "Result must be 2D views");
 
@@ -221,7 +191,7 @@ KOKKOS_FUNCTION void interpolate_function(const ChunkIndex &chunk_index,
       [&](const typename ChunkIndex::iterator_type::index_type
               &iterator_index) {
         const auto index = iterator_index.get_index();
-        const int ielement = iterator_index.get_policy_index();
+        const int ielement = iterator_index.get_local_index().ispec;
 
         for (int icomponent = 0; icomponent < ncomponents; ++icomponent) {
           type_real polynomial_value =
@@ -236,7 +206,86 @@ KOKKOS_FUNCTION void interpolate_function(const ChunkIndex &chunk_index,
   return;
 }
 
+/**
+ * @brief Interpolate a 3D function using polynomial basis (Chunk version)
+ *
+ * @ingroup AlgorithmsInterpolate
+ * @tparam ChunkIndex Chunk index type
+ * @tparam PolynomialViewType Type of the polynomial view (rank 5)
+ * @tparam FunctionViewType Type of the function view (rank 5)
+ * @tparam ResultType Type of the result view (rank 2)
+ * @param chunk_index Chunk index
+ * @param polynomial Polynomial basis functions
+ * @param function Function values to interpolate
+ * @param result Result view
+ */
+template <typename ChunkIndex, typename PolynomialViewType,
+          typename FunctionViewType, typename ResultType,
+          std::enable_if_t<PolynomialViewType::rank() == 5 &&
+                               FunctionViewType::rank() == 5,
+                           int> = 0>
+KOKKOS_FUNCTION void interpolate_function(const ChunkIndex &chunk_index,
+                                          const PolynomialViewType &polynomial,
+                                          const FunctionViewType &function,
+                                          ResultType &result) {
+
+  static_assert(ResultType::rank() == 2, "Result must be 2D views");
+
+#ifndef NDEBUG
+
+  if (polynomial.extent(0) != function.extent(0) ||
+      polynomial.extent(1) != function.extent(1)) {
+    Kokkos::abort("Polynomial and function must have the same size");
+  }
+
+  if (polynomial.extent(0) != result.extent(0)) {
+    Kokkos::abort("Polynomial and result must have the same size");
+  }
+
+  if (function.extent(4) != result.extent(1)) {
+    Kokkos::abort(
+        "Function and result must have the same number of components");
+  }
+#endif
+
+  const auto &team = chunk_index.get_policy_index();
+  const int number_of_elements = result.extent(0);
+
+  // // Initialize result
+  const int ncomponents = function.extent(4);
+  Kokkos::parallel_for(Kokkos::TeamThreadRange(team, number_of_elements),
+                       [&](const int &ielement) {
+                         for (int icomp = 0; icomp < ncomponents; ++icomp) {
+                           result(ielement, icomp) = 0.0;
+                         }
+                       });
+
+  team.team_barrier();
+
+  specfem::execution::for_each_level(
+      chunk_index.get_iterator(),
+      [&](const typename ChunkIndex::iterator_type::index_type
+              &iterator_index) {
+        const auto index = iterator_index.get_index();
+        const int ielement = iterator_index.get_local_index().ispec;
+
+        for (int icomponent = 0; icomponent < ncomponents; ++icomponent) {
+          type_real polynomial_value =
+              polynomial(ielement, index.iz, index.iy, index.ix, icomponent);
+          type_real function_value =
+              function(ielement, index.iz, index.iy, index.ix, icomponent);
+          Kokkos::atomic_add(&result(ielement, icomponent),
+                             polynomial_value * function_value);
+        }
+      });
+
+  return;
+}
+
 } // namespace algorithms
 } // namespace specfem
 
-#endif
+/**
+ * @defgroup AlgorithmsInterpolate
+ *
+ */

@@ -12,12 +12,16 @@
 namespace specfem {
 namespace io {
 /**
- * @brief HDF5 I/O wrapper
+ * @brief HDF5 I/O backend wrapper
  *
- * @tparam OpType Operation type (read/write)
+ * Template class providing File, Group, and Dataset abstractions for HDF5
+ * format. Supports both read and write operations via OpType parameter.
+ *
+ * @tparam OpType Operation type (specfem::io::read or specfem::io::write)
  */
 template <typename OpType> class HDF5 {
 public:
+  using IO_OpType = OpType; ///< Operation type (read/write)
   using File = specfem::io::impl::HDF5::File<OpType>; ///< Wrapper for HDF5 file
   using Group =
       specfem::io::impl::HDF5::Group<OpType>; ///< Wrapper for HDF5 group
@@ -26,5 +30,6 @@ public:
       specfem::io::impl::HDF5::Dataset<ViewType, OpType>; ///< Wrapper for HDF5
                                                           ///< dataset
 };
+
 } // namespace io
 } // namespace specfem

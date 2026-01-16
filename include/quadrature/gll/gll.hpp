@@ -99,6 +99,12 @@ public:
    */
   void print(std::ostream &out) const override;
 
+  /**
+   * @brief return string representation of the GLL quadrature
+   * @return std::string String representation of the GLL quadrature
+   */
+  std::string to_string() const override;
+
 private:
   type_real alpha; ///< alpha value of the quadrature
   type_real beta;  ///< beta value of the quadrature

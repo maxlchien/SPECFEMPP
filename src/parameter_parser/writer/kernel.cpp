@@ -1,6 +1,9 @@
 #include "parameter_parser/writer/kernel.hpp"
+#include "io/ADIOS2/ADIOS2.hpp"
 #include "io/ASCII/ASCII.hpp"
 #include "io/HDF5/HDF5.hpp"
+#include "io/NPY/NPY.hpp"
+#include "io/NPZ/NPZ.hpp"
 #include "io/kernel/writer.hpp"
 #include "utilities/strings.hpp"
 #include <boost/filesystem.hpp>
@@ -46,9 +49,20 @@ specfem::runtime_configuration::kernel::instantiate_kernel_writer() const {
       if (specfem::utilities::is_hdf5_string(this->output_format)) {
         return std::make_shared<specfem::io::kernel_writer<
             specfem::io::HDF5<specfem::io::write> > >(this->output_folder);
+      } else if (specfem::utilities::is_adios2_string(this->output_format)) {
+        return std::make_shared<specfem::io::kernel_writer<
+            specfem::io::ADIOS2<specfem::io::write> > >(this->output_folder);
       } else if (specfem::utilities::is_ascii_string(this->output_format)) {
         return std::make_shared<specfem::io::kernel_writer<
             specfem::io::ASCII<specfem::io::write> > >(this->output_folder);
+      } else if (specfem::utilities::is_npy_string(this->output_format)) {
+        return std::make_shared<
+            specfem::io::kernel_writer<specfem::io::NPY<specfem::io::write> > >(
+            this->output_folder);
+      } else if (specfem::utilities::is_npz_string(this->output_format)) {
+        return std::make_shared<
+            specfem::io::kernel_writer<specfem::io::NPZ<specfem::io::write> > >(
+            this->output_folder);
       } else {
         throw std::runtime_error("Unknown wavefield format");
       }

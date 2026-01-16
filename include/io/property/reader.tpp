@@ -1,6 +1,6 @@
 #pragma once
 
-#include "compute/assembly/assembly.hpp"
+#include "specfem/assembly.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "io/property/reader.hpp"
@@ -10,12 +10,12 @@
 
 template <typename InputLibrary>
 specfem::io::property_reader<InputLibrary>::property_reader(
-    const std::string input_folder)
+    const std::string &input_folder)
     : input_folder(input_folder) {}
 
 template <typename InputLibrary>
 void specfem::io::property_reader<InputLibrary>::read(
-    specfem::compute::assembly &assembly) {
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly) {
   auto &properties = assembly.properties;
 
   typename InputLibrary::File file(input_folder + "/Properties");

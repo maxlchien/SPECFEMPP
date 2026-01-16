@@ -1,17 +1,17 @@
 #include "../test_fixture/test_fixture.hpp"
 #include "datatypes/simd.hpp"
 #include "enumerations/dimension.hpp"
-#include "enumerations/material_definitions.hpp"
 #include "execution/chunked_domain_iterator.hpp"
 #include "execution/for_all.hpp"
 #include "io/ASCII/ASCII.hpp"
 #include "io/property/reader.hpp"
 #include "io/property/writer.hpp"
+#include "specfem/macros.hpp"
 #include "specfem_setup.hpp"
 #include <gtest/gtest.h>
 
 template <bool using_simd, typename ExecutionSpace>
-using ParallelConfig = specfem::parallel_config::default_chunk_config<
+using ParallelConfig = specfem::parallel_configuration::default_chunk_config<
     specfem::dimension::type::dim2,
     specfem::datatype::simd<type_real, using_simd>, ExecutionSpace>;
 
@@ -21,8 +21,10 @@ template <specfem::element::medium_tag MediumTag,
 std::enable_if_t<std::is_same_v<typename ViewType::execution_space,
                                 Kokkos::DefaultHostExecutionSpace>,
                  void>
-set_value(const ViewType elements, specfem::compute::assembly &assembly,
-          const type_real offset) {
+set_property_value(
+    const ViewType elements,
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+    const type_real offset) {
 
   constexpr auto dimension = specfem::dimension::type::dim2;
 
@@ -35,13 +37,14 @@ set_value(const ViewType elements, specfem::compute::assembly &assembly,
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<using_simd, Kokkos::DefaultHostExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
-      [=](const specfem::point::index<dimension, using_simd> &index) {
+      [=](const typename decltype(policy)::base_index_type &iterator_index) {
+        const auto index = iterator_index.get_index();
         PointPropertiesType point(static_cast<type_real>(index.ispec + offset));
-        specfem::compute::store_on_host(index, point, properties);
+        specfem::assembly::store_on_host(index, point, properties);
       });
 
   Kokkos::fence();
@@ -53,8 +56,10 @@ template <specfem::element::medium_tag MediumTag,
 std::enable_if_t<std::is_same_v<typename ViewType::execution_space,
                                 Kokkos::DefaultHostExecutionSpace>,
                  void>
-check_value(const ViewType elements, specfem::compute::assembly &assembly,
-            const type_real offset) {
+check_property_value(
+    const ViewType elements,
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+    const type_real offset) {
 
   constexpr auto dimension = specfem::dimension::type::dim2;
   const auto &properties = assembly.properties;
@@ -64,11 +69,12 @@ check_value(const ViewType elements, specfem::compute::assembly &assembly,
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<using_simd, Kokkos::DefaultHostExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
-      [=](const specfem::point::index<dimension, using_simd> &index) {
+      [=](const typename decltype(policy)::base_index_type &iterator_index) {
+        const auto index = iterator_index.get_index();
         using datatype = typename PointType::value_type;
 
         PointType expected;
@@ -86,8 +92,8 @@ check_value(const ViewType elements, specfem::compute::assembly &assembly,
         }
 
         PointType point_poperties_computed;
-        specfem::compute::load_on_host(index, properties,
-                                       point_poperties_computed);
+        specfem::assembly::load_on_host(index, properties,
+                                        point_poperties_computed);
 
         if (point_poperties_computed != expected) {
           std::ostringstream message;
@@ -112,13 +118,15 @@ template <specfem::element::medium_tag MediumTag,
 std::enable_if_t<std::is_same_v<typename ViewType::execution_space,
                                 Kokkos::DefaultExecutionSpace>,
                  void>
-check_value(const ViewType elements, specfem::compute::assembly &assembly,
-            const type_real offset) {
+check_property_value(
+    const ViewType elements,
+    specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+    const type_real offset) {
 
   constexpr auto dimension = specfem::dimension::type::dim2;
 
   const int nspec = assembly.mesh.nspec;
-  const int ngll = assembly.mesh.ngllx;
+  const int ngll = assembly.mesh.element_grid.ngllx;
   const auto &properties = assembly.properties;
 
   using PointType =
@@ -130,13 +138,15 @@ check_value(const ViewType elements, specfem::compute::assembly &assembly,
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<using_simd, Kokkos::DefaultExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
-      KOKKOS_LAMBDA(const specfem::point::index<dimension, using_simd> &index) {
+      KOKKOS_LAMBDA(
+          const typename decltype(policy)::base_index_type &iterator_index) {
+        const auto index = iterator_index.get_index();
         PointType computed;
-        specfem::compute::load_on_device(index, properties, computed);
+        specfem::assembly::load_on_device(index, properties, computed);
 
         const int ispec = index.ispec;
         const int iz = index.iz;
@@ -153,11 +163,13 @@ check_value(const ViewType elements, specfem::compute::assembly &assembly,
       Kokkos::DefaultHostExecutionSpace(), elements);
   specfem::execution::ChunkedDomainIterator host_policy(
       ParallelConfig<using_simd, Kokkos::DefaultHostExecutionSpace>(),
-      host_elements, assembly.mesh.ngllz, assembly.mesh.ngllx);
+      host_elements, assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", host_policy,
-      [=](const specfem::point::index<dimension, using_simd> &index) {
+      [=](const typename decltype(
+          host_policy)::base_index_type &iterator_index) {
+        const auto index = iterator_index.get_index();
         PointType expected(static_cast<type_real>(index.ispec + offset));
         const int ispec = index.ispec;
         const int iz = index.iz;
@@ -183,14 +195,14 @@ check_value(const ViewType elements, specfem::compute::assembly &assembly,
 template <specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag>
 void check_compute_to_mesh(
-    const specfem::compute::assembly &assembly,
+    const specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
     const specfem::mesh::mesh<specfem::dimension::type::dim2> &mesh) {
 
   constexpr auto dimension = specfem::dimension::type::dim2;
 
   const auto &properties = assembly.properties;
   const auto &element_types = assembly.element_types;
-  const auto &mapping = assembly.mesh.mapping;
+  const auto &mesh_assembly = assembly.mesh;
   const auto &materials = mesh.materials;
 
   // Get all elements of the given type
@@ -202,15 +214,16 @@ void check_compute_to_mesh(
 
   specfem::execution::ChunkedDomainIterator policy(
       ParallelConfig<false, Kokkos::DefaultHostExecutionSpace>(), elements,
-      assembly.mesh.ngllz, assembly.mesh.ngllx);
+      assembly.mesh.element_grid);
 
   specfem::execution::for_all(
       "set_to_value", policy,
-      [=](const specfem::point::index<dimension, false> &index) {
+      [=](const typename decltype(policy)::base_index_type &iterator_index) {
+        const auto index = iterator_index.get_index();
         const int ispec = index.ispec;
 
         // Get the properties stored within the mesh
-        const int ispec_mesh = mapping.compute_to_mesh(ispec);
+        const int ispec_mesh = mesh_assembly.compute_to_mesh(ispec);
         const auto expected =
             materials.get_material<MediumTag, PropertyTag>(ispec_mesh)
                 .get_properties();
@@ -218,7 +231,7 @@ void check_compute_to_mesh(
         // Get the properties stored within the compute object
         const auto computed = [&]() {
           PointType point;
-          specfem::compute::load_on_host(index, properties, point);
+          specfem::assembly::load_on_host(index, properties, point);
           return point;
         }();
 
@@ -236,7 +249,7 @@ void check_compute_to_mesh(
       });
 }
 
-TEST_F(ASSEMBLY, properties_access_functions) {
+TEST_F(Assembly2D, properties_access_functions) {
   for (auto parameters : *this) {
     auto Test = std::get<0>(parameters);
     auto mesh = std::get<1>(parameters);
@@ -253,8 +266,8 @@ TEST_F(ASSEMBLY, properties_access_functions) {
           {
             const auto elements = assembly.element_types.get_elements_on_host(
                 _medium_tag_, _property_tag_);
-            set_value<_medium_tag_, _property_tag_, false>(elements, assembly,
-                                                           offset);
+            set_property_value<_medium_tag_, _property_tag_, false>(
+                elements, assembly, offset);
           })
 
       // Check that we are able to access the values stored in the properties
@@ -266,8 +279,8 @@ TEST_F(ASSEMBLY, properties_access_functions) {
           {
             const auto elements = assembly.element_types.get_elements_on_host(
                 _medium_tag_, _property_tag_);
-            check_value<_medium_tag_, _property_tag_, false>(elements, assembly,
-                                                             offset);
+            check_property_value<_medium_tag_, _property_tag_, false>(
+                elements, assembly, offset);
           });
 
       // SIMD access functions
@@ -280,8 +293,8 @@ TEST_F(ASSEMBLY, properties_access_functions) {
           {
             const auto elements = assembly.element_types.get_elements_on_host(
                 _medium_tag_, _property_tag_);
-            set_value<_medium_tag_, _property_tag_, true>(elements, assembly,
-                                                          offset);
+            set_property_value<_medium_tag_, _property_tag_, true>(
+                elements, assembly, offset);
           })
 
       // Check that we are able to access the values stored in the properties
@@ -293,8 +306,8 @@ TEST_F(ASSEMBLY, properties_access_functions) {
           {
             const auto elements = assembly.element_types.get_elements_on_host(
                 _medium_tag_, _property_tag_);
-            check_value<_medium_tag_, _property_tag_, true>(elements, assembly,
-                                                            offset);
+            check_property_value<_medium_tag_, _property_tag_, true>(
+                elements, assembly, offset);
           });
 
       std::cout << "-------------------------------------------------------\n"
@@ -314,7 +327,7 @@ TEST_F(ASSEMBLY, properties_access_functions) {
   }
 }
 
-TEST_F(ASSEMBLY, properties_construction) {
+TEST_F(Assembly2D, properties_construction) {
   for (auto parameters : *this) {
     auto Test = std::get<0>(parameters);
     auto mesh = std::get<1>(parameters);
@@ -348,7 +361,7 @@ TEST_F(ASSEMBLY, properties_construction) {
   }
 }
 
-TEST_F(ASSEMBLY, properties_io_routines) {
+TEST_F(Assembly2D, properties_io_routines) {
   for (auto parameters : *this) {
     auto Test = std::get<0>(parameters);
     auto mesh = std::get<1>(parameters);
@@ -375,8 +388,8 @@ TEST_F(ASSEMBLY, properties_io_routines) {
           {
             const auto elements = assembly.element_types.get_elements_on_host(
                 _medium_tag_, _property_tag_);
-            set_value<_medium_tag_, _property_tag_, false>(elements, assembly,
-                                                           random_value);
+            set_property_value<_medium_tag_, _property_tag_, false>(
+                elements, assembly, random_value);
           });
 
       // Copy properties to device
@@ -402,8 +415,8 @@ TEST_F(ASSEMBLY, properties_io_routines) {
           {
             const auto elements = assembly.element_types.get_elements_on_host(
                 _medium_tag_, _property_tag_);
-            check_value<_medium_tag_, _property_tag_, false>(elements, assembly,
-                                                             random_value);
+            check_property_value<_medium_tag_, _property_tag_, false>(
+                elements, assembly, random_value);
           });
 
       std::cout << "-------------------------------------------------------\n"

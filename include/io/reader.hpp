@@ -1,16 +1,18 @@
 #pragma once
 
-namespace specfem {
-namespace compute {
-class assembly;
+#include "enumerations/interface.hpp"
+
+namespace specfem::assembly {
+template <specfem::dimension::type DimensionTag> class assembly;
 }
-} // namespace specfem
 
 namespace specfem {
 namespace io {
 /**
- * @brief Base reader class
+ * @brief Base reader class for loading simulation data
  *
+ * Abstract interface for implementing format-specific readers.
+ * Derived classes must implement read() for 2D assemblies.
  */
 class reader {
 public:
@@ -20,7 +22,8 @@ public:
    * @param assembly Assembly object
    *
    */
-  virtual void read(specfem::compute::assembly &assembly) = 0;
+  virtual void read(specfem::assembly::assembly<specfem::dimension::type::dim2>
+                        &assembly) = 0;
 };
 } // namespace io
 } // namespace specfem

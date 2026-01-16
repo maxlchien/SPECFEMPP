@@ -5,69 +5,84 @@
 #include "dim2/elastic/isotropic/wavefield.hpp"
 #include "dim2/elastic/isotropic_cosserat/wavefield.hpp"
 #include "dim2/poroelastic/isotropic/wavefield.hpp"
+#include "dim3/elastic/isotropic/wavefield.hpp"
 #include <Kokkos_Core.hpp>
 
 namespace specfem {
 namespace medium {
 
 /**
- * @brief Compute the values of wavefield of a given component within a spectral
- * element.
+ * @brief Convert intrinsic fields values to wavefield of interest on GLL grid.
  *
+ * Computes specified wavefield component (displacement, velocity, acceleration,
+ * pressure, stress, etc.) from intrinsic field values at GLL nodes for
+ * different medium types using medium-specific implementations.
  *
- * This function computes the wavefield values given the intrinsic field values
- * within that element. For example, for elastic medium  when the wavefield
- * component is pressure, the function computes the pressure values from the
- * displacement field values.
+ * @see specfem::kokkos_kernels::impl::compute_seismograms for usage example.
  *
- *
- * @ingroup MediumPhysics
- *
- * @tparam MediumTag The medium tag of the element
- * @tparam PropertyTag The property tag of the element
- * @tparam ChunkIndexType Chunk index type that stores the indices and iterator
- * for elements in the chunk
- * @tparam ChunkFieldType Chunk field type that stores the intrinsic field
- * values specfem::chunk_element::field
- * @tparam QuadratureType The quadrature type that stores the lagrange
- * polynomial values specfem::element::quadrature
- * @tparam WavefieldViewType 4 dimensional Kokkos view (output)
- * @param chunk_index The chunk index that contains the spectral element indices
- * @param assembly SPECFEM++ assembly object
- * @param quadrature The quadrature object containing lagrange polynomial values
- * @param field Instrinsic field values
- * @param wavefield_component The wavefield component to compute
- * @param wavefield_on_entire_grid The wavefield view to store the computed
- * values
+ * @tparam DimensionTag Spatial dimension (dim2/dim3)
+ * @tparam MediumTag Medium type (acoustic, elastic, poroelastic)
+ * @tparam PropertyTag Property type (isotropic, anisotropic, etc.)
+ * @tparam ChunkIndexType Type of element chunk identifier
+ * @tparam DisplacementFieldType Type of displacement field
+ * @tparam VelocityFieldType Type of velocity field
+ * @tparam AccelerationFieldType Type of acceleration field
+ * @tparam QuadratureType Type of quadrature rule
+ * @tparam WavefieldViewType Kokkos view type for output wavefield
+ * @param chunk_index Element chunk identifier
+ * @param assembly Spectral element assembly information
+ * @param quadrature Quadrature rule for GLL nodes
+ * @param displacement Displacement field at GLL nodes
+ * @param velocity Velocity field at GLL nodes
+ * @param acceleration Acceleration field at GLL nodes
+ * @param wavefield_component Type of wavefield to compute
+ * @param wavefield_on_entire_grid Output wavefield values on GLL grid
  */
-template <specfem::element::medium_tag MediumTag,
+template <specfem::dimension::type DimensionTag,
+          specfem::element::medium_tag MediumTag,
           specfem::element::property_tag PropertyTag, typename ChunkIndexType,
-          typename ChunkFieldType, typename QuadratureType,
+          typename DisplacementFieldType, typename VelocityFieldType,
+          typename AccelerationFieldType, typename QuadratureType,
           typename WavefieldViewType>
 KOKKOS_INLINE_FUNCTION auto
 compute_wavefield(const ChunkIndexType &chunk_index,
-                  const specfem::compute::assembly &assembly,
-                  const QuadratureType &quadrature, const ChunkFieldType &field,
+                  const specfem::assembly::assembly<DimensionTag> &assembly,
+                  const QuadratureType &quadrature,
+                  const DisplacementFieldType &displacement,
+                  const VelocityFieldType &velocity,
+                  const AccelerationFieldType &acceleration,
                   const specfem::wavefield::type &wavefield_component,
                   WavefieldViewType wavefield_on_entire_grid) {
 
-  static_assert(ChunkFieldType::isChunkFieldType,
-                "field is not a chunk field type");
-  static_assert(
-      ChunkFieldType::store_displacement && ChunkFieldType::store_velocity &&
-          ChunkFieldType::store_acceleration,
-      "field type needs to store displacement, velocity and acceleration");
-  static_assert(QuadratureType::store_hprime_gll,
-                "quadrature type needs to store GLL points");
-  static_assert(WavefieldViewType::rank() == 4,
-                "wavefield_on_entire_grid needs to be a 4D view");
+  static_assert((WavefieldViewType::rank() == 4 &&
+                 DimensionTag == specfem::dimension::type::dim2) ||
+                    (WavefieldViewType::rank() == 5 &&
+                     DimensionTag == specfem::dimension::type::dim3),
+                "wavefield_on_entire_grid needs to be a 4D for 2D view and 5D "
+                "for 3D view");
 
-  static_assert(ChunkFieldType::medium_tag == MediumTag,
-                "field type needs to have the same medium tag as the function");
+  static_assert(DisplacementFieldType::medium_tag == MediumTag,
+                "DisplacementFieldType medium tag does not match MediumTag");
+  static_assert(VelocityFieldType::medium_tag == MediumTag,
+                "VelocityFieldType medium tag does not match MediumTag");
+  static_assert(AccelerationFieldType::medium_tag == MediumTag,
+                "AccelerationFieldType medium tag does not match MediumTag");
+
+  static_assert(DisplacementFieldType::dimension_tag == DimensionTag,
+                "DisplacementFieldType dimension tag must match DimensionTag");
+  static_assert(VelocityFieldType::dimension_tag == DimensionTag,
+                "VelocityFieldType dimension tag must match DimensionTag");
+  static_assert(AccelerationFieldType::dimension_tag == DimensionTag,
+                "AccelerationFieldType dimension tag must match DimensionTag");
+
+  static_assert(
+      specfem::data_access::is_chunk_element<DisplacementFieldType>::value &&
+          specfem::data_access::is_chunk_element<VelocityFieldType>::value &&
+          specfem::data_access::is_chunk_element<AccelerationFieldType>::value,
+      "All field types must be chunk view types");
 
   using dimension_dispatch =
-      std::integral_constant<specfem::dimension::type,
-                             specfem::dimension::type::dim2>;
+      std::integral_constant<specfem::dimension::type, DimensionTag>;
   using medium_dispatch =
       std::integral_constant<specfem::element::medium_tag, MediumTag>;
   using property_dispatch =
@@ -75,7 +90,8 @@ compute_wavefield(const ChunkIndexType &chunk_index,
 
   impl_compute_wavefield(dimension_dispatch(), medium_dispatch(),
                          property_dispatch(), chunk_index, assembly, quadrature,
-                         field, wavefield_component, wavefield_on_entire_grid);
+                         displacement, velocity, acceleration,
+                         wavefield_component, wavefield_on_entire_grid);
   return;
 } // compute_wavefield
 

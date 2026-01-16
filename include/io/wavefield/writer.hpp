@@ -1,15 +1,19 @@
 #pragma once
 
-#include "compute/interface.hpp"
 #include "enumerations/interface.hpp"
+#include "specfem/assembly.hpp"
 
 namespace specfem {
 namespace io {
 
 /**
- * @brief Writer to output wavefield data to disk
+ * @brief Writer for outputting wavefield data to disk
  *
- * @tparam OutputLibrary Library to use for output (HDF5, ASCII, etc.)
+ * Template-based writer supporting multiple I/O backends. Saves displacement,
+ * velocity, and acceleration fields at specified time steps. Can optionally
+ * save boundary values for domain decomposition interfaces.
+ *
+ * @tparam OutputLibrary Backend library type (HDF5, ASCII, NPY, NPZ, or ADIOS2)
  */
 template <typename OutputLibrary> class wavefield_writer {
 
@@ -26,7 +30,8 @@ public:
    * @param output_folder Path to output location (will be an .h5 file if using
    * HDF5, and a folder if using ASCII)
    */
-  wavefield_writer(const std::string output_folder);
+  wavefield_writer(const std::string &output_folder,
+                   const bool save_boundary_values);
   ///@}
 
   /**
@@ -35,13 +40,20 @@ public:
    * @param assembly SPECFEM++ assembly
    *
    */
-  void write(specfem::compute::assembly &assembly);
+  void initialize(
+      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
 
-  void write(specfem::compute::assembly &assembly, const int istep);
+  void
+  run(specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly,
+      const int istep);
+
+  void finalize(
+      specfem::assembly::assembly<specfem::dimension::type::dim2> &assembly);
 
 private:
   std::string output_folder; ///< Path to output folder
   typename OutputLibrary::File file;
+  bool save_boundary_values;
 };
 } // namespace io
 } // namespace specfem
