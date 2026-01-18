@@ -134,29 +134,29 @@ void execute_impl_compute_coupling(
                                    interface_tag>(),
             ChunkEdgeIndexSimulator<dimension_tag>(num_edges, team_member), TF,
             IN, EF, CCF);
-        for (int ielem = 0; ielem < virtual_chunk_size; ++ielem) {
-          for (int ipoint = 0; ipoint < TransferFunction2D::nquad_intersection;
-               ++ipoint) {
-            for (int icomp = 0; icomp < ncomp_self; ++icomp) {
-              computed_coupling_function(iedge_start + ielem, ipoint, icomp) =
-                  CCF(ielem, ipoint, icomp);
-            }
-          }
-        }
+        // for (int ielem = 0; ielem < virtual_chunk_size; ++ielem) {
+        //   for (int ipoint = 0; ipoint <
+        //   TransferFunction2D::nquad_intersection;
+        //        ++ipoint) {
+        //     for (int icomp = 0; icomp < ncomp_self; ++icomp) {
+        //       computed_coupling_function(iedge_start + ielem, ipoint, icomp)
+        //       =
+        //           CCF(ielem, ipoint, icomp);
+        //     }
+        //   }
+        // }
       });
 
   Kokkos::fence();
-  typename decltype(
-      computed_coupling_function)::HostMirror h_computed_coupling_function =
-      Kokkos::create_mirror_view(computed_coupling_function);
-
-  Kokkos::deep_copy(h_computed_coupling_function, computed_coupling_function);
+  const auto h_computed_coupling_function = Kokkos::create_mirror_view_and_copy(
+      Kokkos::HostSpace(), computed_coupling_function);
 
   for (int ielem = 0; ielem < num_edges; ++ielem) {
     for (int ipoint = 0; ipoint < TransferFunction2D::nquad_intersection;
          ++ipoint) {
       for (int icomp = 0; icomp < ncomp_self; ++icomp) {
-        const type_real got = computed_coupling_function(ielem, ipoint, icomp);
+        const type_real got =
+            h_computed_coupling_function(ielem, ipoint, icomp);
         const type_real expected = expected_solution(ielem, ipoint, icomp);
 
         if (!specfem::utilities::is_close(got, expected)) {

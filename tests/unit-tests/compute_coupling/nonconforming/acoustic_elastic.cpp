@@ -15,12 +15,12 @@ using Asymm4to5_VectorizedPower = std::tuple<
     TransferFunctionInitializer2D::FromQuadratureRules<
         QuadraturePoints::Asymm4Point, QuadraturePoints::Asymm5Point>,
     IntersectionFunctionInitializer2D::FromAnalyticalFunction<
-        AnalyticalFunctionType::Vectorized<AnalyticalFunctionType::Power<0>,
-                                           AnalyticalFunctionType::Power<1> >,
+        AnalyticalFunctionType::Chain<AnalyticalFunctionType::Power<0>,
+                                      AnalyticalFunctionType::Power<1> >,
         QuadraturePoints::Asymm5Point>,
     EdgeFunctionInitializer2D::FromAnalyticalFunction<
-        AnalyticalFunctionType::Vectorized<AnalyticalFunctionType::Power<1>,
-                                           AnalyticalFunctionType::Power<2> >,
+        AnalyticalFunctionType::Chain<AnalyticalFunctionType::Power<1>,
+                                      AnalyticalFunctionType::Power<2> >,
         QuadraturePoints::Asymm4Point>,
     IntersectionFunctionInitializer2D::FromAnalyticalFunction<
         AnalyticalFunctionType::Sum<AnalyticalFunctionType::Power<1>,

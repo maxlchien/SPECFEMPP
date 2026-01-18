@@ -15,28 +15,28 @@ using GLL2_Constant = std::tuple<
     TransferFunctionInitializer2D::FromQuadratureRules<QuadraturePoints::GLL2,
                                                        QuadraturePoints::GLL2>,
     IntersectionFunctionInitializer2D::FromAnalyticalFunction<
-        AnalyticalFunctionType::Vectorized<AnalyticalFunctionType::Power<0>,
-                                           AnalyticalFunctionType::Power<1> >,
+        AnalyticalFunctionType::Chain<AnalyticalFunctionType::Power<0>,
+                                      AnalyticalFunctionType::Power<1> >,
         QuadraturePoints::GLL2>,
     EdgeFunctionInitializer2D::FromAnalyticalFunction<
         AnalyticalFunctionType::Power<0>, QuadraturePoints::GLL2>,
     IntersectionFunctionInitializer2D::FromAnalyticalFunction<
-        AnalyticalFunctionType::Vectorized<AnalyticalFunctionType::Power<0>,
-                                           AnalyticalFunctionType::Power<1> >,
+        AnalyticalFunctionType::Chain<AnalyticalFunctionType::Power<0>,
+                                      AnalyticalFunctionType::Power<1> >,
         QuadraturePoints::GLL2> >;
 
 using Asymm4to5_HigherOrder = std::tuple<
     TransferFunctionInitializer2D::FromQuadratureRules<
         QuadraturePoints::Asymm4Point, QuadraturePoints::Asymm5Point>,
     IntersectionFunctionInitializer2D::FromAnalyticalFunction<
-        AnalyticalFunctionType::Vectorized<AnalyticalFunctionType::Power<3>,
-                                           AnalyticalFunctionType::Power<2> >,
+        AnalyticalFunctionType::Chain<AnalyticalFunctionType::Power<3>,
+                                      AnalyticalFunctionType::Power<2> >,
         QuadraturePoints::Asymm5Point>,
     EdgeFunctionInitializer2D::FromAnalyticalFunction<
         AnalyticalFunctionType::Power<1>, QuadraturePoints::Asymm4Point>,
     IntersectionFunctionInitializer2D::FromAnalyticalFunction<
-        AnalyticalFunctionType::Vectorized<AnalyticalFunctionType::Power<4>,
-                                           AnalyticalFunctionType::Power<3> >,
+        AnalyticalFunctionType::Chain<AnalyticalFunctionType::Power<4>,
+                                      AnalyticalFunctionType::Power<3> >,
         QuadraturePoints::Asymm5Point> >;
 
 TEST(NonconformingElasticAcoustic, GLL2_Constant) {
