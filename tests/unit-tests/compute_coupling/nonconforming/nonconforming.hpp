@@ -1,9 +1,6 @@
 #pragma once
 
 #include "../../SPECFEM_Environment.hpp"
-#include "Kokkos_Core_fwd.hpp"
-#include "Kokkos_Pair.hpp"
-#include "decl/Kokkos_Declare_SERIAL.hpp"
 #include "enumerations/coupled_interface.hpp"
 #include "enumerations/medium.hpp"
 #include "medium/compute_coupling.hpp"
