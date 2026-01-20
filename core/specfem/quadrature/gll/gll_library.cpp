@@ -5,11 +5,6 @@
 #include <iostream>
 #include <stdexcept>
 
-using HostMirror1d =
-    Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace>;
-using HostView1d = Kokkos::View<type_real *, Kokkos::LayoutRight,
-                                Kokkos::DefaultExecutionSpace>;
-
 type_real specfem::quadrature::gll::gll_library::pnleg(const type_real z,
                                                        const int n) {
   // Generate Lagendre polynomials using recurrance relation
@@ -159,8 +154,10 @@ specfem::quadrature::gll::gll_library::zwgljd(const int np,
   assert(np > 2);
   assert(alpha > -1.0 && beta > -1.0);
 
-  HostView1d z("specfem::gll_library::z", np);
-  HostView1d w("specfem::gll_library::z", np);
+  Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace> z(
+      "specfem::gll_library::z", np);
+  Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace> w(
+      "specfem::gll_library::z", np);
 
   if (np > 2) {
     auto z_view = Kokkos::subview(z, Kokkos::pair(1, np - 1));

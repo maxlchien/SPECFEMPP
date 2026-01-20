@@ -207,9 +207,10 @@ void specfem::quadrature::gll::gll_utils::jacw(HostMirror1d z, HostMirror1d w,
   return;
 }
 
-void specfem::quadrature::gll::gll_utils::zwgjd(HostMirror1d z, HostMirror1d w,
-                                                const int np, const int alpha,
-                                                const int beta) {
+void specfem::quadrature::gll::gll_utils::zwgjd(
+    Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace> z,
+    Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace> w,
+    const int np, const int alpha, const int beta) {
 
   // calculate the GLL points and weights in the open interval (-1.0, 1.0)
 
