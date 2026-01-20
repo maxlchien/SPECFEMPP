@@ -10,10 +10,8 @@
 #include <iostream>
 #include <sstream>
 
-namespace specfem {
-namespace point {
+namespace specfem::point::impl {
 
-namespace impl {
 namespace properties {
 
 /**
@@ -108,7 +106,4 @@ template <specfem::dimension::type DimensionTag,
 struct data_container;
 } // namespace kernels
 
-} // namespace impl
-
-} // namespace point
-} // namespace specfem
+} // namespace specfem::point::impl

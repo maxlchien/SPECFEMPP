@@ -20,7 +20,7 @@
 #include "enumerations/dimension.hpp"
 #include "enumerations/mesh_entities.hpp"
 #include "specfem/quadrature.hpp"
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include "specfem/utilities.hpp"
 #include <Kokkos_Core.hpp>
 #include <array>

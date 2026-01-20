@@ -951,7 +951,7 @@ if(NOT MPI_PARALLEL)
   # the tests can access them from the build folder.
 
   set(LINK_DIRS
-    specfem::algorithms
+    algorithms
     assembly
     assembly_mesh
     data
@@ -959,7 +959,7 @@ if(NOT MPI_PARALLEL)
     domain
     fortran_io
     io
-    specfem::mesh
+    mesh
     policies
   )
 

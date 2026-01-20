@@ -8,6 +8,47 @@
 namespace specfem {
 namespace medium {
 
+/**
+ * @defgroup specfem_medium_frechet_derivative_dim2_elastic_anisotropic
+ *
+ */
+
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_anisotropic
+ * @brief Compute Fréchet derivatives for 2D elastic PSV anisotropic media.
+ *
+ * Calculates sensitivity kernels for anisotropic elastic stiffness parameters
+ * in PSV wave propagation. Computes kernels for density and six independent
+ * stiffness coefficients (c11, c13, c15, c33, c35, c55) using strain tensor
+ * formulation.
+ *
+ * Based on Tromp et al. 2005, Equation 15 for anisotropic kernels:
+ * \f[
+ * \Delta K_{c_{ijkl}} = -\varepsilon_{ij}^{\dagger} \varepsilon_{kl}^b \,
+ * c_{ijkl} \,
+ * \Delta t
+ * \f]
+ * \f[
+ * \Delta K_{rho} = -\rho \Delta t \, \ddot{u}^{\dagger} \cdot u^b
+ * \f]
+ *
+ * @tparam PointPropertiesType Anisotropic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Anisotropic elastic properties (ρ, c11, c13, c15, c33, c35,
+ * c55)
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Point kernels containing density and stiffness parameter
+ * sensitivities
+ */
 template <typename PointPropertiesType, typename AdjointPointVelocityType,
           typename AdjointPointAccelerationType,
           typename BackwardPointDisplacementType,
@@ -86,6 +127,33 @@ impl_compute_frechet_derivatives(
   return { rho_kl, c11_kl, c13_kl, c15_kl, c33_kl, c35_kl, c55_kl };
 }
 
+/**
+ * @ingroup specfem_medium_frechet_derivative_dim2_elastic_anisotropic
+ * @brief Compute Fréchet derivatives for 2D elastic SH anisotropic media.
+ *
+ * Placeholder implementation for SH anisotropic kernels. Currently not
+ * implemented due to missing stiffness matrix components (c44, c45/c54) in the
+ * anisotropic properties structure.
+ *
+ * @tparam PointPropertiesType Anisotropic material properties
+ * @tparam AdjointPointVelocityType Adjoint velocity field
+ * @tparam AdjointPointAccelerationType Adjoint acceleration field
+ * @tparam BackwardPointDisplacementType Backward displacement field
+ * @tparam PointFieldDerivativesType Spatial field derivatives
+ *
+ * @param properties Anisotropic elastic properties
+ * @param adjoint_velocity Adjoint velocity field
+ * @param adjoint_acceleration Adjoint acceleration field
+ * @param backward_displacement Backward displacement field
+ * @param adjoint_derivatives Spatial derivatives of adjoint field
+ * @param backward_derivatives Spatial derivatives of backward field
+ * @param dt Time step size
+ * @return Zero kernels (not implemented)
+ *
+ * @warning This function currently calls Kokkos::abort() - not implemented
+ * @note Requires additional stiffness coefficients (c44, c45) for full
+ * implementation
+ */
 template <typename PointPropertiesType, typename AdjointPointVelocityType,
           typename AdjointPointAccelerationType,
           typename BackwardPointDisplacementType,

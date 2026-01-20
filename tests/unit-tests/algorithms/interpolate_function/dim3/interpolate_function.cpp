@@ -7,7 +7,7 @@
 
 #include "specfem/algorithms/interpolate.hpp"
 #include "specfem/quadrature.hpp"
-#include "specfem/shape_functions.hpp"
+#include "specfem/shape_function.hpp"
 #include <Kokkos_Core.hpp>
 
 /*

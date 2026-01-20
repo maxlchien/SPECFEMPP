@@ -9,6 +9,7 @@
 
     algorithms/index
     assembly/index
+    boundary_conditions/index
     chunk_edge/index
     chunk_element/index
     datatype/index
@@ -30,4 +31,5 @@
     solver/index
     source_time_functions/index
     sources/index
+    shape_function/index
     timescheme/index
