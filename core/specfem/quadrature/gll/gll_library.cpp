@@ -96,10 +96,10 @@ type_real specfem::quadrature::gll::gll_library::pndglj(const type_real z,
   return glj_deriv;
 }
 
-void specfem::quadrature::gll::gll_library::zwgljd(HostMirror1d z,
-                                                   HostMirror1d w, const int np,
-                                                   const type_real alpha,
-                                                   const type_real beta) {
+void specfem::quadrature::gll::gll_library::zwgljd(
+    Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace> z,
+    Kokkos::View<type_real *, Kokkos::LayoutRight, Kokkos::HostSpace> w,
+    const int np, const type_real alpha, const type_real beta) {
 
   type_real p, pd;
 
