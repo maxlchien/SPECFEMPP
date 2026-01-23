@@ -60,13 +60,11 @@ struct EdgeFunctionWithEmbeddedAccessor
 
 template <specfem::interface::interface_tag interface_tag,
           typename EmbeddedEdgeFunctionAccessor, typename TransferFunction2D,
-          typename IntersectionNormal2D, typename EdgeFunction2D,
-          typename IntersectionFunction2D>
-void execute_impl_compute_coupling(
+          typename IntersectionNormal2D, typename EdgeFunction2D>
+auto execute_impl_compute_coupling(
     const TransferFunction2D &transfer_function,
     const IntersectionNormal2D &intersection_normal,
-    const EdgeFunction2D &edge_function,
-    const IntersectionFunction2D &expected_solution) {
+    const EdgeFunction2D &edge_function) {
 
   constexpr int num_edges = EdgeFunction2D::num_edges;
   constexpr auto dimension_tag = specfem::dimension::type::dim2;
@@ -131,50 +129,48 @@ void execute_impl_compute_coupling(
                                    interface_tag>(),
             ChunkEdgeIndexSimulator<dimension_tag>(num_edges, team_member), TF,
             IN, EF, CCF);
-        // for (int ielem = 0; ielem < virtual_chunk_size; ++ielem) {
-        //   for (int ipoint = 0; ipoint <
-        //   TransferFunction2D::nquad_intersection;
-        //        ++ipoint) {
-        //     for (int icomp = 0; icomp < ncomp_self; ++icomp) {
-        //       computed_coupling_function(iedge_start + ielem, ipoint, icomp)
-        //       =
-        //           CCF(ielem, ipoint, icomp);
-        //     }
-        //   }
-        // }
       });
 
   Kokkos::fence();
   const auto h_computed_coupling_function = Kokkos::create_mirror_view_and_copy(
       Kokkos::HostSpace(), computed_coupling_function);
 
-  for (int ielem = 0; ielem < num_edges; ++ielem) {
+  return h_computed_coupling_function;
+}
+
+template <specfem::interface::interface_tag interface_tag,
+          typename TransferFunction2D, typename IntersectionNormal2D,
+          typename EdgeFunction2D, typename ExpectedSolutionInit>
+Kokkos::View<type_real * [TransferFunction2D::nquad_intersection][ncomp_self],
+             Kokkos::HostSpace, Kokkos::MemoryTraits<> >
+expected_solution(const TransferFunction2D &transfer_function,
+                  const IntersectionNormal2D &intersection_normal,
+                  const EdgeFunction2D &edge_function);
+
+template <
+    specfem::interface::interface_tag interface_tag, typename ExpectedSolution,
+    typename TransferFunction2D, typename IntersectionNormal2D,
+    typename EdgeFunction2D,
+    std::enable_if_t<ExpectedSolution::is_from_analytical_function, int> = 0>
+Kokkos::View<type_real *[TransferFunction2D::nquad_intersection][ncomp_self],
+             Kokkos::HostSpace, Kokkos::MemoryTraits<> > auto
+expected_solution(const TransferFunction2D &transfer_function,
+                  const IntersectionNormal2D &intersection_normal,
+                  const EdgeFunction2D &edge_function) {
+  specfem::test_fixture::IntersectionFunction2D expected{ ExpectedSolution{} };
+  Kokkos::View<type_real * [TransferFunction2D::nquad_intersection][ncomp_self],
+               Kokkos::HostSpace, Kokkos::MemoryTraits<> >
+      expected_view("expected_view", TransferFunction2D::num_edges);
+
+  for (int ielem = 0; ielem < TransferFunction2D::num_edges; ++ielem) {
     for (int ipoint = 0; ipoint < TransferFunction2D::nquad_intersection;
          ++ipoint) {
       for (int icomp = 0; icomp < ncomp_self; ++icomp) {
-        const type_real got =
-            h_computed_coupling_function(ielem, ipoint, icomp);
-        const type_real expected = expected_solution(ielem, ipoint, icomp);
-
-        if (!specfem::utilities::is_close(got, expected)) {
-          std::ostringstream oss;
-          oss << "-- Transfer function --\n"
-              << TransferFunction2D::description() << std::endl
-              << "-- Intersection Normal --\n"
-              << IntersectionNormal2D::description() << std::endl
-              << "-- Edge Function --\n"
-              << EdgeFunction2D::description() << std::endl
-              << "-- Expected Function --\n"
-              << IntersectionFunction2D::description() << std::endl
-              << "\n-- Failure --\n"
-              << "Transfer function test failed at edge " << ielem
-              << ": expected " << expected << "\n got " << got << std::endl;
-
-          ADD_FAILURE() << oss.str();
-        }
+        expected_view(ielem, ipoint, icomp) = expected(ielem, ipoint, icomp);
       }
     }
   }
+  return expected_view;
 }
 
 template <specfem::interface::interface_tag InterfaceTag, typename = void>
@@ -222,12 +218,44 @@ void run_case() {
   specfem::test_fixture::EdgeFunction2D<EdgeFunctionInit> edge_function{
     EdgeFunctionInit{}
   };
-  specfem::test_fixture::IntersectionFunction2D<ExpectedSolutionInit>
-      expected_solution{ ExpectedSolutionInit{} };
+  auto e = expected_solution<InterfaceTag, ExpectedSolutionInit>(
+      transfer_function, intersection_normal, edge_function);
 
-  execute_impl_compute_coupling<InterfaceTag,
-                                EdgeFunctionAccessor<InterfaceTag> >(
-      transfer_function, intersection_normal, edge_function, expected_solution);
+  const auto h_computed_coupling_function =
+      execute_impl_compute_coupling<InterfaceTag,
+                                    EdgeFunctionAccessor<InterfaceTag> >(
+          transfer_function, intersection_normal, edge_function);
+
+  const size_t num_edges = e.extent(0);
+  const size_t nquad_intersection = e.extent(1);
+  const size_t ncomp_self = e.extent(2);
+
+  for (int ielem = 0; ielem < num_edges; ++ielem) {
+    for (int ipoint = 0; ipoint < nquad_intersection; ++ipoint) {
+      for (int icomp = 0; icomp < ncomp_self; ++icomp) {
+        const type_real got =
+            h_computed_coupling_function(ielem, ipoint, icomp);
+        const type_real expected = e(ielem, ipoint, icomp);
+
+        if (!specfem::utilities::is_close(got, expected)) {
+          std::ostringstream oss;
+          oss << "-- Transfer function --\n"
+              << decltype(transfer_function)::description() << std::endl
+              << "-- Intersection Normal --\n"
+              << decltype(intersection_normal)::description() << std::endl
+              << "-- Edge Function --\n"
+              << decltype(edge_function)::description() << std::endl
+              << "-- Expected Function --\n"
+              << decltype(ExpectedSolutionInit)::description() << std::endl
+              << "\n-- Failure --\n"
+              << "Transfer function test failed at edge " << ielem
+              << ": expected " << expected << "\n got " << got << std::endl;
+
+          ADD_FAILURE() << oss.str();
+        }
+      }
+    }
+  }
 }
 
 } // namespace specfem::compute_coupling_test::nonconforming
