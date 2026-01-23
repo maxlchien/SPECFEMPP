@@ -131,17 +131,6 @@ void execute_impl_compute_coupling(
                                    interface_tag>(),
             ChunkEdgeIndexSimulator<dimension_tag>(num_edges, team_member), TF,
             IN, EF, CCF);
-        // for (int ielem = 0; ielem < virtual_chunk_size; ++ielem) {
-        //   for (int ipoint = 0; ipoint <
-        //   TransferFunction2D::nquad_intersection;
-        //        ++ipoint) {
-        //     for (int icomp = 0; icomp < ncomp_self; ++icomp) {
-        //       computed_coupling_function(iedge_start + ielem, ipoint, icomp)
-        //       =
-        //           CCF(ielem, ipoint, icomp);
-        //     }
-        //   }
-        // }
       });
 
   Kokkos::fence();
@@ -175,6 +164,13 @@ void execute_impl_compute_coupling(
       }
     }
   }
+}
+
+template <typename Initializer,
+          typename std::enable_if_t<Initializer::is_from_analytical_function,
+                                    int> = 0>
+auto expected_solution() {
+  return specfem::test_fixture::IntersectionFunction2D(Initializer{});
 }
 
 template <specfem::interface::interface_tag InterfaceTag, typename = void>
