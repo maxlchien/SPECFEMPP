@@ -70,9 +70,11 @@ static constexpr int ncomp_self_from_interface_tag =
 template <specfem::interface::interface_tag interface_tag,
           typename EmbeddedEdgeFunctionAccessor, typename TransferFunction2D,
           typename IntersectionNormal2D, typename EdgeFunction2D>
-Kokkos::View<type_real *[TransferFunction2D::nquad_intersection]
-                            [ncomp_self_from_interface_tag<interface_tag>],
-             Kokkos::HostSpace>
+typename Kokkos::View<
+    type_real *[TransferFunction2D::nquad_intersection]
+                   [ncomp_self_from_interface_tag<interface_tag>],
+    typename TransferFunction2D::memory_space,
+    Kokkos::MemoryTraits<> >::HostMirror
 execute_impl_compute_coupling(const TransferFunction2D &transfer_function,
                               const IntersectionNormal2D &intersection_normal,
                               const EdgeFunction2D &edge_function) {
