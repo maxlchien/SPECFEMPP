@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../SPECFEM_Environment.hpp"
+#include "Kokkos_Core_fwd.hpp"
 #include "enumerations/coupled_interface.hpp"
 #include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
@@ -59,14 +60,22 @@ struct EdgeFunctionWithEmbeddedAccessor
             init){};
 };
 
+template <specfem::interface::interface_tag interface_tag>
+static constexpr int ncomp_self_from_interface_tag =
+    specfem::element::attributes<specfem::dimension::type::dim2,
+                                 specfem::interface::attributes<
+                                     specfem::dimension::type::dim2,
+                                     interface_tag>::self_medium()>::components;
+
 template <specfem::interface::interface_tag interface_tag,
           typename EmbeddedEdgeFunctionAccessor, typename TransferFunction2D,
           typename IntersectionNormal2D, typename EdgeFunction2D>
-auto execute_impl_compute_coupling(
-    const TransferFunction2D &transfer_function,
-    const IntersectionNormal2D &intersection_normal,
-    const EdgeFunction2D &edge_function) {
-
+Kokkos::View<type_real *[TransferFunction2D::nquad_intersection]
+                            [ncomp_self_from_interface_tag<interface_tag>],
+             Kokkos::HostSpace>
+execute_impl_compute_coupling(const TransferFunction2D &transfer_function,
+                              const IntersectionNormal2D &intersection_normal,
+                              const EdgeFunction2D &edge_function) {
   constexpr int num_edges = EdgeFunction2D::num_edges;
   constexpr auto dimension_tag = specfem::dimension::type::dim2;
   constexpr auto boundary_tag = specfem::element::boundary_tag::none;
@@ -139,22 +148,19 @@ auto execute_impl_compute_coupling(
   return h_computed_coupling_function;
 }
 
-template <specfem::interface::interface_tag interface_tag>
-static constexpr int ncomp_self_from_interface_tag =
-    specfem::element::attributes<specfem::dimension::type::dim2,
-                                 specfem::interface::attributes<
-                                     specfem::dimension::type::dim2,
-                                     interface_tag>::self_medium()>::components;
-
 template <specfem::interface::interface_tag interface_tag,
           typename TransferFunction2D, typename IntersectionNormal2D,
           typename EdgeFunction2D, typename ExpectedSolutionInitf>
-Kokkos::View<type_real * [TransferFunction2D::nquad_intersection]
-                             [ncomp_self_from_interface_tag<interface_tag>],
-             Kokkos::HostSpace, Kokkos::MemoryTraits<> >
-expected_solution(const TransferFunction2D &transfer_function,
-                  const IntersectionNormal2D &intersection_normal,
-                  const EdgeFunction2D &edge_function);
+Kokkos::View<
+    type_real * [TransferFunction2D::nquad_intersection]
+                    [ncomp_self_from_interface_tag<interface_tag>],
+    Kokkos::HostSpace,
+    Kokkos::MemoryTraits<> > expected_solution(const TransferFunction2D
+                                                   &transfer_function,
+                                               const IntersectionNormal2D
+                                                   &intersection_normal,
+                                               const EdgeFunction2D
+                                                   &edge_function);
 
 template <
     specfem::interface::interface_tag interface_tag, typename ExpectedSolution,
