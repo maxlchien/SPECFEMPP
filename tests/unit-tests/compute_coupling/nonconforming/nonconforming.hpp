@@ -2,6 +2,7 @@
 
 #include "../../SPECFEM_Environment.hpp"
 #include "enumerations/coupled_interface.hpp"
+#include "enumerations/dimension.hpp"
 #include "enumerations/medium.hpp"
 #include "medium/compute_coupling.hpp"
 #include "medium/dim2/coupling_terms/acoustic_elastic.hpp"
@@ -138,10 +139,18 @@ auto execute_impl_compute_coupling(
   return h_computed_coupling_function;
 }
 
+template <specfem::interface::interface_tag interface_tag>
+static constexpr int ncomp_self_from_interface_tag =
+    specfem::element::attributes<specfem::dimension::type::dim2,
+                                 specfem::interface::attributes<
+                                     specfem::dimension::type::dim2,
+                                     interface_tag>::self_medium()>::components;
+
 template <specfem::interface::interface_tag interface_tag,
           typename TransferFunction2D, typename IntersectionNormal2D,
-          typename EdgeFunction2D, typename ExpectedSolutionInit>
-Kokkos::View<type_real * [TransferFunction2D::nquad_intersection][ncomp_self],
+          typename EdgeFunction2D, typename ExpectedSolutionInitf>
+Kokkos::View<type_real * [TransferFunction2D::nquad_intersection]
+                             [ncomp_self_from_interface_tag<interface_tag>],
              Kokkos::HostSpace, Kokkos::MemoryTraits<> >
 expected_solution(const TransferFunction2D &transfer_function,
                   const IntersectionNormal2D &intersection_normal,
@@ -152,11 +161,13 @@ template <
     typename TransferFunction2D, typename IntersectionNormal2D,
     typename EdgeFunction2D,
     std::enable_if_t<ExpectedSolution::is_from_analytical_function, int> = 0>
-Kokkos::View<type_real *[TransferFunction2D::nquad_intersection][ncomp_self],
-             Kokkos::HostSpace, Kokkos::MemoryTraits<> > auto
+Kokkos::View<type_real *[TransferFunction2D::nquad_intersection]
+                            [ncomp_self_from_interface_tag<interface_tag>],
+             Kokkos::HostSpace, Kokkos::MemoryTraits<> >
 expected_solution(const TransferFunction2D &transfer_function,
                   const IntersectionNormal2D &intersection_normal,
                   const EdgeFunction2D &edge_function) {
+  constexpr int ncomp_self = ncomp_self_from_interface_tag<interface_tag>;
   specfem::test_fixture::IntersectionFunction2D expected{ ExpectedSolution{} };
   Kokkos::View<type_real * [TransferFunction2D::nquad_intersection][ncomp_self],
                Kokkos::HostSpace, Kokkos::MemoryTraits<> >
@@ -246,7 +257,7 @@ void run_case() {
               << "-- Edge Function --\n"
               << decltype(edge_function)::description() << std::endl
               << "-- Expected Function --\n"
-              << decltype(ExpectedSolutionInit)::description() << std::endl
+              << ExpectedSolutionInit::description() << std::endl
               << "\n-- Failure --\n"
               << "Transfer function test failed at edge " << ielem
               << ": expected " << expected << "\n got " << got << std::endl;
